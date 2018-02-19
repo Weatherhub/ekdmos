@@ -1,0 +1,569 @@
+      SUBROUTINE DEWPT(KFILDO,KFIL10,IDPARS,JD,NDATE,
+     1                 NGRIDC,ND11,NSLAB,IPACK,IWORK,FDDP,ND5,
+     2                 LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                 IS0,IS1,IS2,IS4,ND7,
+     4                 FD1,FD2,FD3,FD4,ND2X3,
+     5                 ISTAV,L3264B,MISTOT,IER)
+C
+C        AUGUST    1997   FIEBRICH TDL MOS-2000
+C        SEPTEMBER 1998   YAN      TDL MOS-2000. PROGRAM RESTRUCTURED.
+C                                  ADDED 2M AND SIGMA SURFACES.
+C        OCTOBER   2002   WEISS    CHANGED ND5 TO ND2X3
+C        APRIL     2003   GLAHN    MODIFIED LINES IN CALL;  SET
+C                                  DIMENSIONS OF IPACK( ), IWORK( )
+C                                  AND FDDP( ) = ND5; CHANGED ND5 TO
+C                                  ND2X3 IN CALLS TO MIXRAT, SPECHUM,
+C                                  AND MODIFIED LINES IN CALLS; WHITE
+C                                  SPACE
+C        MAY       2003   GLAHN    REARRANGED TYPE STATEMENTS; REMOVED
+C                                  MODIFICATION OF IDPARS(7)
+C        JUNE      2003   GLAHN    CHANGED WHERE LX,LY,NSLAB ARE SET
+C                                  AFTER CALL TO MIXRAT
+C        DECEMBER  2003   MCALOON  MADE CHANGE TO ESTIMATE THE SURFACE
+C                                  PRESSURE FROM THE BL PRESSURE TO 
+C                                  COMPUTE 2M DEWPOINT
+C        JUNE      2007   MALONEY  ADDED ABILITY TO OUTPUT IN DEG F
+C                                  ON 2M SFC
+C
+C        PURPOSE 
+C            TO COMPUTE GRIDDED DEW POINT TEMPERATURE USING PRESSURE
+C            (HPA FOR NGM, PA FOR ALL OTHER MODELS), MIXING RATIO (G/G)
+C            OR SPECIFIC HUMIDITY (G/G) ON AN ISOBARIC, OR A CONSTANT
+C            HEIGHT, OR A SIGMA SURFACE.
+C
+C            THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED:
+C
+C               003 100 - DEW POINT ON AN ISOBARIC SURFACE IN K
+C               003 101 - DEW POINT ON A SURFACE OF CONSTANT HEIGHT IN K
+C               003 106 - DEW POINT ON A SIGMA SURFACE IN K
+C               003 301 - DEW POINT ON A SURFACE OF CONSTANT HEIGHT IN F
+C
+C        DATA SET USE 
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS
+C                     (INPUT-OUTPUT)
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                     (OUTPUT) 
+C 
+C        VARIABLES 
+C              ABSZRO = THE ABSOLUTE 0 POINT ON THE TEMPERATURE SCALE
+C                       (-273.15 DEG K) (INTERNAL)
+C             CORE(J) = ARRAY TO STORE OR RETRIEVE DATA IDENTIFIED IN
+C                       LSTORE( , ) (J=1,ND10).  WHEN CORE( ) IS FULL,
+C                       DATA ARE STORED ON DISK.  UPON RETURN TO THE
+C                       CALLING PROGRAM, THE ARRAY WILL BE IN THE SIZE
+C                       OF LX*LY (OUTPUT).
+C              EPSILN = THE RATIO OF DRY AIR GAS CONSTANT TO WATER VAPOR
+C                       GAS CONSTANT (0.622) (INTERNAL)
+C              FD1(J) = WORK ARRAY TO HOLD EITHER MIXING RATIO (G/G) OR
+C                       SPECIFIC HUMIDITY (G/G) (J=1,ND2X3) (INTERNAL)
+C              FD2(J) = WORK ARRAY TO HOLD PRESSURE (PA) (J=1,ND2X3).
+C                       IT IS ALSO USED AS DUMMY WORK ARRAY. (INTERNAL)
+C              FD3(J) = DUMMY WORK ARRAY (J=1,ND2X3) (INTERNAL)
+C              FD4(J) = DUMMY WORK ARRAY (J=1,ND2X3) (INTERNAL)
+C               FDAPH = ATMOSPHERIC PRESSURE CONVERTED FROM PA TO HPA
+C                       (INTERNAL)
+C             FDDP(J) = DATA ARRAY TO HOLD DEW POINT TEMPERATURE (DEG K)
+C                       (ND5) (OUTPUT)
+C               FDVPH = VAPOR PRESSURE (HPA) (INTERNAL)
+C                 I,J = LOOP COUNT (INTERNAL)
+C       ICCCFFF ( , ) = CONTAINS IDPARS(1) AND IDPARS(2) ID FOR THE
+C                       METEOROLOGICAL FIELDS BEING FETCHED OR COMPUTED.
+C                       COLUMN 1 CONTAINS ID FOR ISOBARIC SURFACE,
+C                       COLUMN 2 CONTAINS ID FOR CONSTANT HEIGHT SURFACE
+C                       AND COLUMN 3 CONTAINS ID FOR SIGMA SURFACE.  ROW
+C                       1 IS FOR MIXING RATIO IN G/G, ROW 2 IS FOR
+C                       SPECIFIC HUMIDITY IN G/G, AND ROW 3 IS FOR 
+C                       PRESSURE IN PA OR HPA DEPENDING ON THE DATA
+C                       SOURCE. (INTERNAL)
+C           IDPARS(J) = PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID CORRESPONDING TO ID(J) (J=1,15) DEFINED IN
+C                       THE CALLING PROGRAM (INPUT)
+C                       J=1  -- CCC (CLASS OF VARIABLE)
+C                       J=2  -- FFF (SUBCLASS OF VARIABLE)
+C                       J=3  -- B (BINARY INDICATOR)
+C                       J=4  -- DD (DATA SOURCE, MODEL NUMBER)
+C                       J=5  -- V (VERTICAL APPLICATION)
+C                       J=6  -- LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1
+C                               LAYER)
+C                       J=7  -- LTLTLTLT (TOP OF LAYER)
+C                       J=8  -- T (TRANSFORMATION)
+C                       J=9  -- RR (RUN TIME OFFSET -- PREVIOUS CYCLE.
+C                               IT IS ALWAYS A POSITIVE NUMBER AND
+C                               COUNTED BACKWARDS IN TIME.)
+C                       J=10 -- OT (TIME APPLICATION)
+C                       J=11 -- OH (TIME PERIOD IN HOURS)
+C                       J=12 -- TAU (PROJECTION IN HOURS)
+C                       J=13 -- I (INTERPOLATION TYPE)
+C                       J=14 -- S (SMOOTHING INDICATOR)
+C                       J=15 -- G (GRID INDICATOR)
+C                 IER = STATUS RETURN
+C                         0 = GOOD RETURN
+C                        47 = DATA NOT FOUND
+C                       100 = GRID CHARACTERISTICS ARE DIFFERENT FOR THE
+C                             2 FIELDS.
+C                       103 = IDPARS(1) AND IDPARS(2) NOT ACCOMMODATED
+C                             IN THIS SUBROUTINE
+C                       SEE GFETCH FOR OTHER VALUES WHEN IER.NE.0 AND
+C                       DATA ARE RETURNED AS MISSING
+C                       (INTERNAL-OUTPUT)
+C            IPACK(J) = WORK ARRAY (J=1,ND5) (INTERNAL)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 IDS (J=1,3) (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 IDS (J=1,22+) (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 IDS (J=1,12)
+C                       IS2(3) AND IS2(4) ARE USED BY THE CALLING
+C                       PROGRAM AS GRID DIMENSION (INTERNAL-OUTPUT)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 IDS (J=1,4) (INTERNAL)
+C                 ISO = VARIABLE TO INDICATE WHICH SURFACE TO COMPUTE
+C                       DEW POINT ON.  (1 FOR ISOBARIC, 2 FOR CONSTANT
+C                       HEIGHT, 3 FOR SIGMA SURFACE) (INTERNAL)
+C               ISTAV = 0 -- WHEN THE DATA RETURNED ARE GRID DATA OR
+C                            DATA ARE NOT AVAILABLE FOR RETURN
+C                       1 -- WHEN THE DATA RETURNED ARE STATION DATA
+C                       (OUTPUT)
+C            IWORK(J) = WORK ARRAY (J=1,ND5) (INTERNAL)
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).  THIS IS
+C                       THE SAME AS ID(J) EXCEPT THAT THE PORTIONS
+C                       PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3)
+C                       T = IDPARS(8)
+C                       I = IDPARS(13)
+C                       S = IDPARS(14)
+C                       G = IDPARS(15)
+C                       JD( ) IS USED TO HELP IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS
+C                       (INPUT)
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                       (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS DEPENDING ON THE
+C                       MACHINE BEING USED (EITHER 32 OR 64) (INPUT)
+C               LD(J) = WORK ARRAY HOLDING THE 4 ID WORDS OF MIXING
+C                       RATIO OR SPECIFIC HUMIDITY DATA BEING RETRIEVED
+C                       (J=1,4) (INTERNAL)
+C           LDPARS(J) = PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID CORRESPONDING TO LD(J) (J=1,15).  SAME AS
+C                       IDPARS(J), BUT SPECIFICALLY FOR MIXING RATIO OR
+C                       SPECIFIC HUMIDITY (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT HAVE BEEN USED IN THIS RUN (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS) (INPUT-OUTPUT)
+C                       L=1,4-- THE 4 IDS FOR THE DATA
+C                       L=5  -- LOCATION OF STORED DATA.  WHEN IN CORE,
+C                               THIS IS THE LOCATION IN CORE( ) WHERE
+C                               THE DATA START.  WHEN ON DISK, THIS IS
+C                               MINUS THE RECORD NUMBER WHERE THE DATA
+C                               START.
+C                       L=6  -- THE NUMBER OF 4-BYTE WORDS STORED
+C                       L=7  -- 2 FOR DATA PACKED IN TDL GRIB FORMAT,
+C                               1 OTHERWISE
+C                       L=8  -- DATE/TIME OF THE DATA IN FORMAT
+C                               YYYYMMDDHH
+C                       L=9  -- NUMBER OF TIMES DATA HAVE BEEN RETRIEVED
+C                       L=10 -- NUMBER OF THE SLAB IN DIR( , ,L) AND IN
+C                               NGRIDC( ,L) DEFINING THE CHARACTERISTICS
+C                               OF THE GRID
+C                       L=11 -- NUMBER OF PREDICTORS IN THE SORTED LIST
+C                               IN IS( ,N) (N=1,NPRED) FOR WHICH THIS
+C                               VARIABLE IS NEEDED ONLY ONCE FROM
+C                               LSTORE( , ).  WHEN IT IS NEEDED MORE
+C                               THAN ONCE, THE VALUE IS SET TO 7777.
+C                       L=12 -- USED INITIALLY IN ESTABLISHING
+C                               MSTORE( , ).  LATER USED TO DETERMINE
+C                               WHETHER TO KEEP THIS VARIABLE
+C               LX,LY = DIMENSIONS OF THE GRID RETURNED FROM CALLING
+C                       MIXRAT OR GFETCH FOR MIXING RATIO OR SPECIFIC
+C                       HUMIDITY (INTERNAL)
+C               MD(J) = WORK ARRAY HOLDING THE 4 ID WORDS OF PRESSURE
+C                       DATA BEING RETRIEVED (J=1,4) (INTERNAL)
+C               MISSP = PRIMARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO
+C                       MISSING VALUE (INTERNAL)
+C               MISSS = SECONDARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO
+C                       SECONDARY MISSING VALUE (INTERNAL)
+C              MISTOT = TOTAL NUMBER OF MISSING ITEMS ENCOUNTED IN
+C                       UNPACKING GRIDS (INPUT-OUTPUT)
+C               MX,MY = DIMENSIONS OF THE GRID RETURNED FROM CALLING
+C                       GFETCH FOR PRESSURE (INTERNAL)
+C              NBLOCK = BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM DISK
+C                       FILE (INPUT)
+C               ND2X3 = DIMENSION OF FD1( ), FD2( ), FD3( ), ANS FD4( )
+C                       (INPUT)
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), AND FDDP( ).
+C                       (INPUT)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED (INPUT)
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ) (INPUT)
+C                ND10 = DIMENSION OF CORE( ) (INPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH IN THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ) (INPUT)
+C               NDATE = DATE/TIME FOR WHICH THE PREDICTOR IS NEEDED
+C                       (INPUT)
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.  IT IS
+C                       A RUNNING COUNT FROM THE BEGINNING OF THE MAIN
+C                       PROGRAM.  THIS COUNT IS MAINTAINED IN CASE THE
+C                       USER NEEDS IT FOR DIAGNOSTICS, ETC. (OUTPUT)
+C         NGRIDC(L,M) = HOLDING THE GRID CHARACTERISTICS (L=1,6) FOR
+C                       EACH GRID COMBINATION (M=1,NGRID) (INPUT-OUTPUT)
+C                       L=1 -- MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                              STEREOGRAPHIC)
+C                       L=2 -- GRID LENGTH IN METERS
+C                       L=3 -- LATITUDE AT WHICH GRID LENGTH IS CORRECT
+C                              *1000
+C                       L=4 -- GRID ORIENTATION IN DEGREES *1000
+C                       L=5 -- LATITUDE OF LL CORNER IN DEGREES *1000
+C                       L=6 -- LONGITUDE OF LL CORNER IN DEGREES *1000
+C               NPACK = 2 FOR TDL GRIB PACKED DATA; 1 FOR NOT PACKED.
+C                       THIS IS RETURNED FROM CALLING GFETCH (INTERNAL)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR( , , ) AND IN
+C                       NGRIDC( , ) DEFINING THE CHARACTERISTICS OF THE
+C                       GRID.  IT IS USED TO IDENTIFY THE DATA SOURCE,
+C                       I.E., THE MODEL. (OUTPUT)
+C              NSLABL = SAME AS NSLAB.  RETURNED FROM CALLING MIXRAT FOR
+C                       MIXING RATIO, OR FROM CALLING GFETCH OR SPECHUM
+C                       FOR SPECIFIC HUMIDITY (INTERNAL)
+C              NSLABM = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH FOR
+C                       PRESSURE (INTERNAL)
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE, THAT
+C                       THE RECORD HAS BEEN FETCHED.  THIS IS STORED IN
+C                       LSTORE(9, ). (INTERNAL)
+C              NWORDS = NUMBER OF WORDS RETURNED IN FD1( ) AND FD2( ).
+C                       THIS IS RETURNED FROM CALLING GFETCH. (INTERNAL)
+C                PSAT = SATURATION VAPOR PRESSURE AT MELTING POINT
+C                       (6.1078MB) (INTERNAL)
+C                  RD = DRY AIR GAS CONSTANT (287.04 J/KGK)
+C                  RV = WATER VAPOR GAS CONSTANT (461.5 J/KGK)
+C               SIGMA = SIGMA SURFACE VALUE TAKEN FROM IDPARS(7) DIVIDED
+C                       BY 1000 IF IDPARS(2) INDICATES A SIGMA SURFACE
+C                       (ISO=3) (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C 
+C        NON-SYSTEM SUBROUTINES USED
+C            GFETCH,MIXRAT,PRSID1,SPECHUM
+C
+      IMPLICIT NONE
+C
+      REAL,PARAMETER::ABSZRO=-273.15,PSAT=6.1078,RD=287.04,RV=461.5,
+     +     EPSILN=RD/RV
+C
+      INTEGER JD(4),IDPARS(15)
+      INTEGER IPACK(ND5),IWORK(ND5)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER LSTORE(12,ND9)
+      INTEGER NGRIDC(6,ND11)
+      INTEGER ICCCFFF(3,3)
+      INTEGER LD(4),LDPARS(15),MD(4)
+      INTEGER I,IER,ISO,ISTAV,J,KFIL10,KFILDO,L3264B,LITEMS,LX,LY,MISSP,
+     +        MISSS,MISTOT,MX,MY,NBLOCK,ND2X3,ND5,ND7,ND9,ND10,ND11,
+     +        NDATE,NFETCH,NPACK,NSLAB,NSLABL,NSLABM,NTIMES,NWORDS
+C
+      REAL FDDP(ND5)
+      REAL FD1(ND2X3),FD2(ND2X3),FD3(ND2X3),FD4(ND2X3)
+      REAL CORE(ND10)
+      REAL FDAPH,FDVPH,SIGMA
+C
+      DATA ((ICCCFFF(I,J),J=1,3),I=1,3) /003010,003011,003016,
+     +                                   003030,003031,003036,
+     +                                   999999,001100,001106/
+C
+      IER=0
+      ISTAV=0
+C
+C        CHECK IF THIS CODE ACCOMMODATES DEW POINT TEMPERATURE
+ 
+      IF(IDPARS(1).NE.003.OR.(IDPARS(2).NE.100.AND.
+     +   IDPARS(2).NE.101.AND.IDPARS(2).NE.106.AND.
+     +   IDPARS(2).NE.301))THEN
+         IER=103
+         WRITE(KFILDO,100)(JD(J),J=1,4),IER
+ 100     FORMAT(/' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE DEW ',
+     1           'POINT TEMPERATURE.',
+     2          /'     PREDICTOR ',I9.9,I10.9,I10.9,I4.3,
+     3           ' NOT ACCOMMODATED IN DEWPT.  IER =',I4)
+	 GOTO 900
+      ENDIF
+C
+C        DETERMINE IF DEW POINT IS TO BE COMPUTED ON AN ISOBARIC, A
+C        CONSTANT HEIGHT, OR A SIGMA SURFACE
+ 
+      IF (IDPARS(2).EQ.100)THEN
+C           THIS IS DATA FOR A CONSTANT PRESSURE SURFACE.
+         ISO=1
+      ELSE IF (IDPARS(2).EQ.101.OR.IDPARS(2).EQ.301)THEN  
+C           THIS IS DATA FOR A CONSTANT HEIGHT SURFACE.
+         ISO=2
+      ELSE 
+C           THIS IS DATA FOR A SIGMA SURFACE.
+         ISO=3
+      END IF
+C 
+C        TO OBTAIN MIXING RATIO IN COMPUTING DEW POINT
+ 
+C        CREATE ID FOR OBTAINING MIXING RATIO
+      LD(1)=ICCCFFF(1,ISO)*1000+IDPARS(4)
+      LD(2)=IDPARS(7)
+      LD(3)=IDPARS(9)*1000000+IDPARS(12)
+      LD(4)=0
+C
+C        CALL PRSID1 TO PARSE IDS LD( ) TO LDPARS( )
+C
+      CALL PRSID1(KFILDO,LD,LDPARS)
+C
+C        CALL MIXRAT TO OBTAIN MIXING RATIO FD1
+C
+      CALL MIXRAT(KFILDO,KFIL10,LDPARS,LD,NDATE,
+     1            NGRIDC,ND11,NSLABL,IPACK,IWORK,FD1,ND2X3,
+     2            LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3            IS0,IS1,IS2,IS4,ND7,
+     4            FD2,FD3,FD4,ND2X3,
+     5            ISTAV,L3264B,MISTOT,IER)
+C
+      IF(IER.EQ.0)THEN
+         LX=IS2(3)
+         LY=IS2(4)
+         NSLAB=NSLABL
+      ELSE
+C           MIXING RATIO CANNOT BE COMPUTED IN MIXRAT; A DIAGNOSTIC
+C           WILL HAVE BEEN WRITTEN.  THEN DEW POINT MIGHT BE
+C           COMPUTED BY USING SPECIFIC HUMIDITY.  CREATE ID FOR
+C           FETCHING SPECIFIC HUMIDITY.
+         LD(1)=ICCCFFF(2,ISO)*1000+IDPARS(4)
+         LD(2)=IDPARS(7)
+         LD(3)=IDPARS(9)*1000000+IDPARS(12)
+         LD(4)=0
+C
+C           CALL GFETCH TO FETCH SPECIFIC HUMIDITY FD1
+C
+         CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1               IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2               NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3               NBLOCK,NFETCH,NSLABL,MISSP,MISSS,L3264B,
+     4               1,IER)
+         IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+         IF(IER.NE.0)THEN
+C              SPECIFIC HUMIDITY CANNOT BE FETCHED (I.E., DATA ARE NOT
+C              ARCHIVED).  THEN CALL SPECHUM TO COMPUTE SPECIFIC
+C              HUMIDITY.  IF IT IS SUCCESSFUL, DEW POINT CAN STILL BE
+C              COMPUTED.  FIRST CALL PRSID1 TO PARSE IDS LD( ) TO
+C              LDPARS( )
+C
+            CALL PRSID1(KFILDO,LD,LDPARS)
+C
+            CALL SPECHUM(KFILDO,KFIL10,LDPARS,LD,NDATE,
+     1                   NGRIDC,ND11,NSLABL,IPACK,IWORK,FD1,ND2X3,
+     2                   LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                   IS0,IS1,IS2,IS4,ND7,
+     4                   FD2,FD3,FD4,ND2X3,
+     5                   ISTAV,L3264B,MISTOT,IER)
+C
+	    IF(IER.NE.0)THEN
+C                 SPECIFIC HUMIDITY CANNOT BE COMPUTED, THEN THERE IS NO
+C                 WAY TO COMPUTE DEW POINT.  LEAVE THE PROGRAM.
+               IER=47
+               WRITE(KFILDO,200)IER
+C        1         2         3         4         5         6         7 X
+ 200           FORMAT(/' ****NEITHER MIXING RATIO NOR SPECIFIC',
+     1                 ' HUMIDITY CAN BE COMPUTED OR FETCHED.',
+     2                 '  IER =',I4)
+	       GOTO 900
+C
+            ENDIF
+C
+         ENDIF
+C
+         LX=IS2(3)
+         LY=IS2(4)
+         NSLAB=NSLABL
+C
+C           CONVERT SPECIFIC HUMIDITY TO MIXING RATIO TO TAKE ADVANTAGE
+C           OF THE SECTION OF THE CODE WHICH COMPUTES DEW POINT
+
+         DO I=1,LX*LY
+	    IF(FD1(I).NE.9999.)FD1(I)=FD1(I)/(1.-FD1(I))
+         ENDDO
+C
+      ENDIF
+C
+C        TO OBTAIN PRESSURE IN COMPUTING DEW POINT TEMPERATURE
+ 
+      IF(ISO.EQ.1)THEN
+C
+C           THIS IS ON AN ISOBARIC SURFACE.  SIMPLY USE THE PRESSURE
+C           FROM IDPARS(7) TO FILL UP THE FD2 ARRAY.  DON'T KNOW THE
+C           GRID SIZE YET.
+C
+         DO I=1,ND2X3 
+            FD2(I)=IDPARS(7) 
+         ENDDO
+C
+      ELSE
+C
+C           THIS IS ON A CONSTANT HEIGHT (ISO=2) OR A SIGMA SURFACE
+C           (ISO=3).  USE GFETCH TO OBTAIN THE PRESSURE FIELD
+C
+         IF((ISO.EQ.2.AND.IDPARS(7).EQ.2).OR.ISO.EQ.3)THEN
+C              FETCH THE SURFACE PRESSURE WHILE KEEP THE ORIGINAL
+C              IDPARS(7) IN SIGMA.  WHEN ISO=2, GROUND SURFACE PRESSURE
+C              IS USED AS AN APPROXIMATION FOR THE 2 METER SURFACE;
+C              WHEN ISO=3, SIGMA IS USED TO ADJUST THE PRESSURE ON THE
+C              SIGMA SURFACE.
+            SIGMA=FLOAT(IDPARS(7))/1000.
+            IDPARS(7)=0
+C
+C              CREATE ID FOR FETCHING PRESSURE
+            MD(1)=ICCCFFF(3,ISO)*1000+IDPARS(4)
+            MD(2)=IDPARS(7)
+            MD(3)=IDPARS(9)*1000000+IDPARS(12)
+            MD(4)=0
+C
+C              CALL GFETCH TO FETCH PRESSURE FD2
+C
+            CALL GFETCH(KFILDO,KFIL10,MD,7777,LSTORE,ND9,LITEMS,
+     1                  IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     2                  NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3                  NBLOCK,NFETCH,NSLABM,MISSP,MISSS,L3264B,
+     4                  1,IER)
+C
+            IF(MISSP.NE.0)MISTOT=MISTOT+1
+C              SET IDPARS(7) BACK TO ITS ORIGINAL VALUE SO THAT THE ID
+C              IS NOT MESSED UP WHEN GFETCH IS CALLED THE NEXT TIME
+            IDPARS(7)=INT(SIGMA*1000.)
+C
+            IF(IER.NE.0.AND.ISO.EQ.2.AND.IDPARS(7).EQ.2)THEN
+C
+C              WHEN THE SURFACE PRESSURE IS NOT AVAILABLE THE 0-30MB
+C              BOUNDARY LAYER PRESSURE IS APPROXIMATED AS THE SURFACE 
+C              PRESSURE BY ADDING 15MB (1500PA) TO IT.
+C
+C              CREATE ID FOR FETCHING 0-30MB BL PRESSURE
+              MD(1)=001107*1000+IDPARS(4)        
+              MD(2)=000000970
+              MD(3)=IDPARS(9)*1000000+IDPARS(12)
+              MD(4)=0
+C
+C              CALL GFETCH TO FETCH 0-30MB BL PRESSURE FD2
+C
+              CALL GFETCH(KFILDO,KFIL10,MD,7777,LSTORE,ND9,LITEMS,
+     1                    IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     2                    NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3                    NBLOCK,NFETCH,NSLABM,MISSP,MISSS,L3264B,
+     4                    1,IER)
+              IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+              IF(IER.NE.0)THEN
+	         WRITE(KFILDO,300)IER
+ 300             FORMAT(/' ****PRESSURE FETCH FAILED IN DEWPT.  IER =',
+     +                  I4)
+	         GOTO 900
+              ELSE
+                 MX=IS2(3)
+                 MY=IS2(4)
+                 DO I=1,MX*MY
+                    FD2(I)=FD2(I)+1500.
+                 ENDDO
+              ENDIF
+           ENDIF 
+C
+            MX=IS2(3)
+            MY=IS2(4)
+         ELSE
+C              ISO=2 AND NON-2M HEIGHT CASE IS NOT ACCOMMODATED IN THIS
+C              SUBROUTINE
+            IER=103
+            WRITE(KFILDO,400)(JD(J),J=1,4),IER
+ 400        FORMAT(/' ****NON-2M CASE IS NOT ACCOMMODATED IN DEWPT.',
+     +             /'     IDS PROVIDED ARE ',3I10.9,I4.3,'   IER =',I4)
+	    GOTO 900
+         ENDIF
+C           
+C           ISO=3 INDICATES IT'S ON A SIGMA SURFACE, THE PRESSURE VALUES
+C           JUST FETCHED HAVE TO BE ADJUSTED TO THE DESIGNATED SIGMA
+C           SURFACE.
+C
+         IF (ISO.EQ.3)THEN
+C
+            DO I=1,MX*MY
+C
+               IF(FD2(I).NE.9999.)THEN
+                  FD2(I)=FD2(I)*SIGMA
+C
+               ENDIF
+C
+            END DO
+C
+         ENDIF
+C
+      ENDIF
+C
+C        CHECK GRID CHARACTERISTICS FOR ISO.NE.1 (WHEN ISO=1, GFETCH IS
+C        NOT CALLED, THUS THERE IS NO GRID CHARACTERISTICS)
+
+      IF(ISO.NE.1)THEN
+C
+         IF(NSLAB.NE.NSLABM.OR.LX.NE.MX.OR.LY.NE.MY)THEN
+C              THE GRID CHARACTERISTICS ARE NOT THE SAME.
+            IER=100
+            WRITE(KFILDO,500)(LD(J),J=1,4),(NGRIDC(J,NSLAB),J=1,6),
+     +                 LX,LY,(MD(J),J=1,4),(NGRIDC(J,NSLABM),J=1,6),
+     +                 MX,MY,IER
+ 500        FORMAT(/' ****DIFFERENT GRID CHARACTERISTICS.  PREDICTOR ',
+     +              'NOT COMPUTED IN DEWPT.  VALUES FROM NGRIDC( , ) ',
+     +              'AND X*Y ARE: ',
+     +             2(/2X,3I10.9,I4.3,4X,6I10,4X,I3,'*',I3),'  IER =',I4)
+            GO TO 900
+         END IF
+C
+      END IF
+C
+C           COMPUTE DEW POINT FROM MIXING RATIO AND PRESSURE
+ 
+      DO 600 I=1,LX*LY
+C
+         IF(FD1(I).NE.9999..AND.FD2(I).NE.9999.)THEN
+C              CONVERT PRESSURE IN PASCAL TO HECTOPASCAL
+C
+            IF(ISO.EQ.1.OR.IDPARS(4).EQ.6)THEN
+C                 PRESSURE IS ALREADY IN HECTOPASCAL
+               FDAPH=FD2(I)
+            ELSE
+C                 PRESSURE MUST BE CONVERTED FROM PA TO HPA
+               FDAPH=FD2(I)/100.
+            END IF
+C
+C              COMPUTE VAPOR PRESSURE IN HPA FROM MIXING RATIO AND 
+C              PRESSURE USING VARIATION OF BEYERS EQUATION 8-11
+C
+            FDVPH=FD1(I)*FDAPH/(FD1(I)+EPSILN)
+C
+C              COMPUTE DEW POINT FROM VAPOR PRESSURE USING THE INVERSE
+C              OF THE TETEN-STACKPOLE APPROXIMATION (JAM, VOL 6, P465)
+C
+            FDDP(I)=(237.3*LOG(FDVPH)-237.3*LOG(PSAT))/
+     1              (17.269-LOG(FDVPH)+LOG(PSAT))
+            FDDP(I)=FDDP(I)-ABSZRO
+C
+C              CONVERT TO FAHRENHEIT IF REQUESTED
+C
+	    IF(IDPARS(2).EQ.301) THEN
+	       FDDP(I)=(FDDP(I)-273.15)*1.8+32.0
+            END IF
+        ELSE
+C             FILL IN THE DEW POINT ARRAY WITH MISSING VALUES
+           FDDP(I)=9999.
+        END IF
+C
+ 600  CONTINUE
+C
+      GO TO 999 
+C
+C        FILL IN THE DEW POINT ARRAY WITH MISSING VALUES
+
+ 900  DO J=1,ND2X3
+         FDDP(J)=9999.
+      ENDDO
+C
+ 999  RETURN
+      END      

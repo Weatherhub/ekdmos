@@ -1,0 +1,258 @@
+      SUBROUTINE TESTS(KFILDO,KFIL10,IDPARS,JD,NDATE,
+     1                 NGRIDC,ND11,NSLAB,IPACK,IWORK,DATA,ND5,
+     2                 LSTORE,ND9,ITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                 IS0,IS1,IS2,IS4,ND7,
+     4                 FD1,FD2,ND2X3,
+     5                 DIR,ND1,NSTA,SDATA,ISTAV,L3264B,IER)
+C
+C        AUGUST 1994   GLAHN   TDL   MOS-2000 
+C        JUNE   1997   GLAHN   SLIGHT CHANGE TO COMMENTS, NOT CODE
+C        DEC    2002   WEISS   CHANGED ND5 TO ND2X3
+C                              NOTE: CODE WAS NOT TESTED WITH THESE
+C                              CHANGES.
+C
+C***********THIS IS BASICALLLY A TEST ROUTINE.  WHEN IDPARS(2) EQ 699,
+C           THE ROUTINE WILL ACT THE SAME WAY THAT VERTP WOULD.
+C           THE TEST IS THAT INTERPOLATION IS DONE IN TESTS TO TEST
+C           THE RETURNING BY OPTION OF STATION VALUES.  TO ENTER TESTS
+C           FROM OPTION, IDPARS(5) AND IDPARS(10) MUST EQUAL 0.
+C************
+C
+C        PURPOSE 
+C            TO COMPUTE DIFFERENCE, SUM, OR MEAN OF TWO FIELDS OF THE
+C            SAME VARIABLE DEFINITION (JD(1) THE SAME) AND THE SAME TAU
+C            AT THE LEVELS GIVEN BY JD(2).  THE OPERATION IS CONTROLLED
+C            BY IDPARS(5):
+C            1 = DIFFERENCE IDPARS(7) - IDPARS(6)
+C            2 = SUM        IDPARS(7) + IDPARS(7)
+C            3 = MEAN      (IDPARS(7) + IDPARS(7))/2.
+C
+C        DATA SET USE 
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT) 
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                     (INPUT-OUTPUT) 
+C 
+C        VARIABLES 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE. (INPUT) 
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID CORRESPONDING TO ID( ) (J=1,15).
+C                       (INPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).
+C                       THIS IS THE SAME AS ID(J), EXCEPT THAT THE PORTIONS
+C                       PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3),
+C                       T = IDPARS(8),
+C                       I = IDPARS(13),
+C                       S = IDPARS(14),
+C                       G = IDPARS(15), AND
+C                       THRESH.
+C                       JD( ) IS USED TO IDENTIFY THE BASIC MODEL FIELDS
+C                       AS READ FROM THE ARCHIVE.  (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED.  (INPUT)
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR EACH GRID
+C                       COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                            STEREOGRAPHIC). 
+C                       L=2--GRID LENGTH IN METERS,
+C                       L=3--LATITUDE AT WHICH GRID LENGTH IS CORRECT *1000,
+C                       L=4--GRID ORIENTATION IN DEGREES *1000,
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *1000,
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES *1000.
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH ON THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ).  (INPUT)
+C               NSLAB = RETURNED FROM GFETCH AS THE VALUE STORED IN
+C                       LSTORE(10, ) FOR THE FIRST FIELD.  THIS IS THE
+C                       VALUE OF NSLAB RETURNED.  WHEN IER NE 0, THIS
+C                       VALUE SHOULD NOT BE USED.  (OUTPUT) 
+C            IPACK(J) = WORK ARRAY (J=1,ND2X3).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY (J=1,ND2X3).  (INTERNAL)
+C             DATA(J) = ARRAY TO HOLD RETURNED DATA (J=1,ND2X3). (OUTPUT)
+C                 ND5 = FORMER DIMENSION OF IPACK( ), IWORK( ), AND
+C                       DATA( ). (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,ITEMS).  (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE CHARACTERISTICS
+C                              OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE SORTED
+C                              LIST IN ID( ,N) (N=1,NPRED) FOR WHICH THIS
+C                              VARIABLE IS NEEDED, WHEN IT IS NEEDED ONLY
+C                              ONCE FROM LSTORE( , ).  WHEN IT IS NEEDED
+C                              MORE THAN ONCE, THE VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING MOSTORE( , ).
+C                              LATER USED AS A WAY OF DETERMINING WHETHER
+C                              TO KEEP THIS VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C               ITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , ) THAT 
+C                       HAVE BEEN USED IN THIS RUN.
+C             CORE(J) = THE ARRAY TO STORE OR RETIREVE THE DATA IDENTIFIED IN
+C                       LSTORE( , ) (J=1,ND10).  WHEN CORE( ) IS FULL
+C                       DATA ARE STORED ON DISK.  (OUTPUT)
+C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE.  (INPUT)
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.
+C                       IT IS A RUNNING  COUNT FROM THE BEGINNING OF THE 
+C                       PROGRAM.  THIS COUNT IS MAINTAINED IN CASE THE USER 
+C                       NEEDS IT (DIAGNOSTICS, ETC.).  (INTERNAL)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).  (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).  (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).  (INTERNAL)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).  (INTERNAL)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED.  (INPUT)
+C       FD1(J),FD2(J) = WORK ARRAYS (J=1,ND2X3).  (INTERNAL)
+C               ND2X3 = DIMENSION OF FD1( ) AND FD2( ).  (INPUT)
+C          DIR(K,J,M) = THE IX (J=1) AND JY (J=2) POSITIONS ON THE GRID
+C                       FOR THE COMBINATION OF GRID CHARACTERISTICS M
+C                       (M=1,NGRID) AND STATION K (K=1,NSTA) IN NGRIDC( ,M).
+C                       (INPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+C                       FIRST DIMENSION OF DIR( , , ).  (INPUT)
+C            SDATA(K) = INTERPOLATED DATA TO RETURN, WHEN STATION DATA IS
+C                       BEING GENERATED (K=1,NSTA).  (OUTPUT)
+C               ISTAV = 1 SINCE THE DATA RETURNED ARE STATION DATA.  (OUTPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING USED
+C                       (EITHER 32 OR 64).  (INPUT)
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                       100 = THE TWO GRIDS NEEDED ARE NOT THE SAME SIZE.
+C                       101 = GRID SIZE IS TOO BIG FOR DATA( ) WHOSE
+C                             DIMENSION IS ND5.
+C                       SEE GFETCH FOR OTHER VALUES.  (INTERNAL-OUTPUT)
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE, THAT THE 
+C                       RECORD HAS BEEN FETCHED.  THIS IS STORED IN
+C                       LSTORE(9, ).  (INTERNAL)
+C               LD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       FD1( ) (J=1,4).  (INTERNAL)
+C               MD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       FD1( ) (J=1,4).  (INTERNAL)
+C              NSLAB2 = RETURNED FROM GFETCH AS THE VALUE STORED IN
+C                       LSTORE(10, ) FOR THE SECOND FIELD.  (INTERNAL)
+C              NWORDS = NUMBER OF WORDS RETURNED IN DATA( ).  (INTERNAL)
+C 
+C        NONSYSTEM SUBROUTINES CALLED 
+C            NONE
+C
+      DIMENSION DIR(ND1,2,ND11),SDATA(ND1) 
+      DIMENSION NGRIDC(6,ND11)
+      DIMENSION IDPARS(15),JD(4)
+      DIMENSION FD1(ND2X3),FD2(ND2X3)
+      DIMENSION IPACK(ND2X3),IWORK(ND2X3),DATA(ND2X3)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION LSTORE(12,ND9)
+      DIMENSION CORE(ND10)
+      DIMENSION LD(4),MD(4)
+C
+      CALL TIMPR(KFILDO,KFILDO,'START TESTS         ')
+      IER=0
+      ISTAV=1
+C
+C        GET THE FIRST VARIABLE.  THE ID INCLUDES THE RUN OFFSET TIME.
+C
+      LD(1)=IDPARS(1)*1000000+000*1000+IDPARS(4)
+      LD(2)=IDPARS(7)
+      LD(3)=IDPARS(9)*1000000+IDPARS(12)
+      LD(4)=0
+      CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,ITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLAB1,MISS,L3264B,1,IER)
+      IF(IER.NE.0)GO TO 800
+      NX=IS2(3)
+      NY=IS2(4)
+      MD(1)=IDPARS(1)*1000000+000*1000+IDPARS(4)
+      MD(2)=IDPARS(6)
+      MD(3)=IDPARS(9)*1000000+IDPARS(12)
+      MD(4)=0
+      CALL GFETCH(KFILDO,KFIL10,MD,7777,LSTORE,ND9,ITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLAB2,MISS,L3264B,1,IER)
+      IF(IER.NE.0)GO TO 800
+      IF(NSLAB1.EQ.NSLAB2.AND.NX.EQ.IS2(3).AND.NY.EQ.IS2(4))GO TO 200
+C        THE GRID CHARACTERISTICS ARE NOT THE SAME.
+      WRITE(KFILDO,150)(LD(J),J=1,4),(NGRIDC(J,NSLAB1),J=1,6),NX,NY,
+     1                 (MD(J),J=1,4),(NGRIDC(J,NSLAB2),J=1,6),
+     2                 IS2(3),IS2(4)
+ 150  FORMAT(' ****THE TWO GRIDS NEEDED IN TESTS HAVE DIFFERENT',
+     1       ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.'/
+     2       (5X,I9.9,1X,I9.9,1X,I9.9,I3,4X,6I7,4X,2I5))
+      IER=100
+      GO TO 800
+C
+ 200  NSLAB=NSLAB1
+      IF(NX*NY.LE.ND2X3)GO TO 210
+C        GRID TOO BIG FOR DATA( ).
+      WRITE(KFILDO,205)NX,NY,ND2X3,(JD(J),J=1,4)
+ 205  FORMAT(' ****GRID SIZE ',I5,' BY ',I5,' TOO BIG FOR ARRAY',
+     1       ' DATA() WHOSE DIMENSION IS',I5,/,
+     2       '     PREDICTOR ',I9.9,1X,I9.9,1X,I9.9,I3,
+     3       ' NOT COMPUTED IN TESTS.')
+      IER=101
+      GO TO 800
+C
+C        THE LOOP ACTS AS IDPARS(5) EQ 1 (I.E., TAKES THE DIFFERENCE).
+C
+ 210  DO 220 J=1,NX*NY
+         DATA(J)=FD1(J)-FD2(J)
+ 220  CONTINUE
+C
+      IF(IDPARS(13).EQ.1)CALL INTRPA(KFILDO,DATA,IS2(3),IS2(4),
+     1                     DIR(1,1,NSLAB),ND1,NSTA,SDATA)
+C        INTRPA IS BIQUADRATIC INTERPOLATION WHERE POSSIBLE, BILINEAR
+C        OTHERWISE.
+      IF(IDPARS(13).EQ.2)CALL INTRPB(KFILDO,DATA,IS2(3),IS2(4),
+     1                     DIR(1,1,NSLAB),ND1,NSTA,SDATA)
+C        INTRPB IS BILINEAR.
+      IF(IDPARS(13).EQ.3)CALL INTRP(KFILDO,DATA,FD1,IS2(3),IS2(4),
+     1                     DIR(1,1,NSLAB),ND1,NSTA,SDATA)
+C        INTRP IS INTERPOLATION FOR PRECIPITATION AMOUNT.  THE PROCESS
+C        IS BILINEAR AFTER PREPARATION OF THE FIELD TO PUT THE ZERO
+C        LINE ABOUT HALFWAY BETWEEN POSITIVE AND ZERO GRIDPOINTS.\
+      IF(IDPARS(13).NE.1.AND.
+     1   IDPARS(13).NE.2.AND.
+     2   IDPARS(13).NE.3)GO TO 800
+C        WHEN THE INTERPOLATION VALUE IS NOT LEGITIMATE, CKIDS WILL HAVE
+C        PRINTED A DIAGNOSTIC.
+C
+      GO TO 850
+C
+C        THIS PREDICTOR CANNOT BE COMPUTED.  SET THE ARRAY TO MISSING.
+C
+ 800  DO 801 J=1,NSTA
+      SDATA(J)=9999.
+ 801  CONTINUE 
+C
+ 850  RETURN
+      END     
+                  

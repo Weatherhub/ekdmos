@@ -1,0 +1,490 @@
+      SUBROUTINE OBSPCHARBIN(KFILDO,KFIL10,IDPARS,NDATE,
+     1                      SDATA,ND1,NSTA,IPACK,IWORK,FD1,ND2X3,
+     2                      LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                      IS0,IS1,IS2,IS4,ND7,ISTAV,L3264B,IER)
+C
+C        AUGUST    2005   SCALLION    MDL   MOS-2000
+C                                           ADAPTED FROM CODES 'OBSPOPC' AND 
+C                                           'OBSPTPBIN'
+C
+C        PURPOSE 
+C           THIS SUBROUTINE WILL COMPUTE A BINARY THAT IS EITHER
+C           DRIZZLE/NO DRIZZLE (708615), STRATIFORM PRECIP/NO STRATIFORM 
+C           PRECIP (708625), CONVECTIVE(OR SHOWERY) PRECIP/
+C           NO CONVECTIVE(OR SHOWERY) PRECIP (708635).
+C           A 1 INDICATES THE EVENT DID OCCUR.  NOTE THAT FOR THIS 
+C           SUBROUTINE A REPORT OF NO WEATHER OR A NON PRECIPITATING 
+C           PRESENT WWX REPORT WILL BE SET TO 0 FOR NO.
+C
+C           THIS SUBROUTINE STARTS BY CATEGORIZING THE PRESENT WX REPORTS
+C           INTO PRECIP CHARACTER.  OBSPCHARBIN DIFFERS FROM OBSPOPC IN
+C           THAT THIS ROUTINE MAKES A NON-EVENT A 0 WHILE OBSPOPC
+C           MAKES A NON-EVENT A 9999.
+C
+C           THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED:
+C                    708 - 615 (DRIZZLE/NO DRIZZLE)
+C                    708 - 625 (STRATIFORM PRECIP/NO STRATIFORM PRECIP)
+C                    708 - 635 (CONVECTIVE(OR SHOWERY) PRECIP/
+C                               NO CONVECTIVE(OR SHOWERY) PRECIP)
+C 
+C           ****THE USER CAN NOT PROCESS DATES THAT CROSS THE
+C           DECEMBER 1, 1996 BARRIER BECAUSE THE MASS STORE WILL 
+C           NOT BE INITIALIZED PROPERLY.  YOU MUST PROCESS ONE RUN 
+C           THAT GOES THROUGH NOVEMBER 30, 1996 AND THEN START A NEW 
+C           RUN FOR ANY DATA DEC. 1, 1996 AND ON. 
+C
+C        DATA SET USE 
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE 
+C                     (OUTPUT). 
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS
+C                     (INPUT-OUTPUT). 
+C 
+C        VARIABLES 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                       (INPUT). 
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM 
+C                       ACCESS (INPUT).
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTOR ID CORRESPONDING TO ID(J) (J=1,15)
+C                       DEFINED IN THE CALLING PROGRAM (INPUT).
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 
+C                            LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET -- PREVIOUS CYCLE.  
+C                            ALWAYS + AND COUNTED BACKWARDS IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED
+C                       (INPUT).
+C            SDATA(K) = DATA TO RETURN (K=1,NSTA) (OUTPUT) 
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT 
+C                       WITH.  (INPUT).
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT WITH
+C                       (INPUT).
+C            IPACK(J) = WORK ARRAY (J=1,ND2X3) (INTERNAL).  
+C            IWORK(J) = WORK ARRAY (J=1,ND2X3) (INTERNAL).  
+C              FD1(J) = WORK ARRAYS (J=1,ND2X3). FD1 CONTAINS THE
+C                       PRESENT WEATHER. (INTERNAL)
+C               ND2X3 = FORMER DIMENSION OF IPACK( ),IWORK( ), FD1( ),
+C                       AND FD2( ) (INPUT).
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS), (INPUT-OUTPUT).
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR 
+C                              NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN 
+C                              RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE 
+C                              CHARACTERISTICS OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE 
+C                              SORTED LIST IN ID( ,N) (N=1,NPRED)
+C                              FOR WHICH THIS VARIABLE IS NEEDED, WHEN 
+C                              IT IS NEEDED ONLY ONCE FROM 
+C                              LSTORE( , ).  WHEN IT IS NEEDED MORE
+C                              THAN ONCE, THE VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING 
+C                              MOSTORE( , ). LATER USED AS A WAY OF 
+C                              DETERMINING WHETHER TO KEEP THIS 
+C                              VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ), (INPUT). 
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT HAVE BEEN USED IN THIS RUN (INPUT).  
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA 
+C                       IDENTIFIED IN LSTORE( , ) (J=1,ND10). WHEN
+C                       CORE( ) IS FULL, DATA ARE STORED ON DISK
+C                       (OUTPUT).
+C                ND10 = DIMENSION OF CORE( ), (INPUT).
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE (INPUT).  
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.
+C                       IT IS A RUNNING  COUNT FROM THE BEGINNING OF 
+C                       THE PROGRAM.  THIS COUNT IS MAINTAINED IN 
+C                       CASE THE USER NEEDS IT (DIAGNOSTICS, ETC.). 
+C                       (OUTPUT).  
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3)
+C                       (INTERNAL).
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+)  
+C                       (INTERNAL).
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12)
+C                       (INTERNAL).
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4)
+C                       (INTERNAL).
+C                 ND7 = DIMENSION OF IS0, IS1, IS2, AND IS4. NOT ALL
+C                       LOCATIONS ARE USED (INPUT).
+C               ISTAV = 1 WHEN THE DATA RETURNED ARE STATION DATA
+C                       0 THE DATA RETURNED ARE GRID DATA OR
+C                       DATA ARE NOT AVAILABLE FOR RETURN. 
+C                       (OUTPUT).
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING 
+C                       USED (EITHER 32 OR 64) (INPUT).
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                       103 = IDPARS(1) AND IDPARS(2) NOT ACCOMMODATED
+C                             IN THIS SUBROUTINE.
+C                        52 = NWORDS DOES NOT EQUAL NSTA.
+C                       SEE GFETCH FOR OTHER VALUES WHEN IER.NE.0 AND
+C                       DATA ARE RETURNED AS MISSING (INTERNAL-OUTPUT)
+C
+C      ADDITIONAL VARIABLES 
+C              IENTER = NUMBER OF TIMES THIS SUBROUTINE IS ENTERED.
+C                       (INTERNAL).
+C              ISDATA = HOLDING VARIABLE FOR THE VALUE OF SDATA. (INTERNAL)
+C               LD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       FD1( ) "PRESENT WEATHER GROUPS" (J=1,4) (INTERNAL).
+C               MISSP = PRIMARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO
+C                       SECONDARY MISSING VALUE (INTERNAL)
+C               MISSS = SECONDARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO 
+C                       SECONDARY MISSING VALUE. (INTERNAL)
+C               NPACK = 2 FOR TDL GRIB PACKED DATA; 1 FOR NOT PACKED.
+C                       THIS IS RETURNED FROM CALLING GFETCH (INTERNAL)
+C               NSLAB = RETURNED FROM GFETCH AS THE VALUE STORED IN
+C                       LSTORE(10, ) FOR THE FIRST FIELD.  THIS IS THE
+C                       VALUE OF NSLAB RETURNED.  WHEN IER NE 0, THIS
+C                       VALUE SHOULD NOT BE USED (INTERNAL).
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE, THAT 
+C                       THE RECORD HAS BEEN FETCHED. THIS IS STORED 
+C                       IN LSTORE(9, ) (INTERNAL).
+C              NWORDS = NUMBER OF WORDS RETURNED IN FD1( ), AND FD2( ).
+C                       (INTERNAL).
+C 
+C        NONSYSTEM SUBROUTINES CALLED 
+C            GFETCH
+C
+      IMPLICIT NONE
+C
+      INTEGER KFILDO,KFIL10,NDATE,ND1,NSTA,ISTAV,IENTER,L3264B,
+     1        ND2X3,IER,ND9,LITEMS,ND10,NBLOCK,NFETCH,NSLAB,
+     2        NTIMES,NWORDS,ND7,MISSP,MISSS,NPACK,J,I 
+C
+      INTEGER IPACK(ND2X3),IWORK(ND2X3)
+      INTEGER IDPARS(15)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER LSTORE(12,ND9)
+      INTEGER ITEMP,IPWX,ISDATA,LD(4),IWORD(3)
+C
+      REAL SDATA(ND1)
+      REAL FD1(ND2X3)
+      REAL CORE(ND10)
+C
+      DATA IENTER/0/,IWORD/500,510,520/
+      SAVE IENTER
+C
+C        INITIALIZE THE NECESSARY VARIABLES, INCLUDING SDATA
+C
+      IER=0
+      ISTAV=1
+      DO 25 I=1,NSTA
+         SDATA(I)=9999.
+  25  CONTINUE
+C
+C        CHECK IF THE VARIABLE ID REQUESTED IN THE CALL IS 
+C        THE YES/NO PRECIP CHARACTER BINARY
+C
+      IF((IDPARS(1).NE.708).OR.(IDPARS(2).NE.615.AND.
+     1                          IDPARS(2).NE.625.AND.
+     2                          IDPARS(2).NE.635))THEN
+         IER=103
+	 WRITE(KFILDO,100)(IDPARS(J),J=1,2),IER
+ 100     FORMAT(/' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE ',
+     1          'PRECIP CHARACTER BINARY.  PREDICTOR ',2I6,
+     2          ' NOT ACCOMMODATED IN SUBROUTINE ',
+     3          'OBSPCHARBIN.  IER=',I3)
+         GO TO 900
+      ENDIF
+C
+C     FIRST CHECK THAT THE USER IS NOT TRYING TO SPAN THE DECEMBER
+C     1, 1996 CUTOFF BETWEEN THE OLD PRESENT WEATHER DATA AND THE
+C     NEW PRESENT WEATHER DATA.  IF THEY ARE, WRITE A WARNING TO
+C     THE OUTPUT FILE SAYING THAT ALL THE DATA WILL BE MISSING.
+C
+      IF((NDATE.EQ.1996120100).AND.(IENTER.NE.0))THEN
+         IER=47
+         WRITE(KFILDO,120)IER
+ 120     FORMAT(/' ****OBSPCHARBIN CAN NOT PROCESS DATA BECAUSE OF THE',
+     1          ' DECEMBER 1,1996 CUTOFF.  SEE WRITEUP.  IER= ',I4)
+         GO TO 900
+      ENDIF
+C
+C     NOW CHECK THE DATE TO DECIDE WHETHER YOU USE ALGORITHM 2 FOR 
+C     THE DATES MAY 16,1979 THROUGH NOVEMBER 30,1996, OR ALGORITHM 1
+C     FOR DECEMBER 1, 1996 AND ON.
+C
+      IF(NDATE.GE.1996120100)THEN
+C
+C        THIS IS ALGORITHM 1 FOR THE DATA FROM DECEMBER 1, 1996
+C        AND ON
+C
+C        THIS LOOP WILL GO THROUGH THE ALGORITHM ONCE 
+C        FOR EACH OF THE 3 PRESENT WEATHER GROUPS, THUS CREATING
+C        A 'CUMULATIVE' PRECIP TYPE
+C
+         DO 200 I=1,3
+C
+C              SET UP THE LD ARRAY TO HOLD THE ID FOR THE PRESENT 
+C              WEATHER GROUP THAT WILL BE FETCHED AND PROCESSED
+C
+            LD(1)=708000000+IWORD(I)*1000 
+            LD(2)=IDPARS(7)
+            LD(3)=IDPARS(9)*1000000+IDPARS(12)
+            LD(4)=0
+C
+C              CALL GFETCH TO GET THE PRESENT WEATHER GROUP AND 
+C              STORE IT IN FD1
+C
+            CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1                  IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2                  NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3                  NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,
+     4                  IER)
+C
+C              INCREMENT IENTER VARIABLE BY 1.
+C
+            IENTER=IENTER+1
+C
+C              CHECK TO SEE IF IER NE 0, AND IF THIS IS THE FIRST
+C              PROCESS DATE.  PRINT ERROR MESSAGE IF NEEDED.
+C
+             IF((IER.NE.0).AND.(IENTER.EQ.1)) THEN
+                WRITE(KFILDO,140)NDATE
+ 140            FORMAT(' ****ERROR FROM GFETCH OCCURRED ON',
+     1                 ' 1ST PROCESS DATE - ',I12,
+     2                 ' OBSCHARBIN CANNOT RUN, PLEASE READ WRITE UP')
+	        GO TO 900
+             ENDIF
+C
+             IF(IER.NE.0) GO TO 900
+C
+C               IF NWORDS DOES NOT EQUAL NSTA, SET ALL VALUES 
+C               TO MISSING.
+C
+             IF(NWORDS.NE.NSTA)THEN
+                IER=52
+	        WRITE(KFILDO,160)NWORDS,NSTA,IER
+ 160            FORMAT(/' ****NWORDS =',I6,' RETURNED FROM GFETCH',
+     1                  ' NOT EQUAL TO NSTA =',I6,
+     2                  ' IN OBSPCHARBIN. DATA SET TO MISSING.',
+     3                  ' IER=',I3)
+	        GO TO 900
+             ENDIF
+C
+C               SET THE VALUE OF SDATA DEPENDING ON THE COMBINATIONS OF
+C               THE PRESENT WEATHER REPORTS
+C
+             DO 170 J=1,NSTA
+C
+C               FIRST YOU MUST CHECK WHAT CATEGORY THE PRESENT WEATHER GROUP
+C               FALLS IN.  THEN YOU MUST CHECK TO SEE IF A PREVIOUS PRESENT
+C               WEATHER GROUP HAD CAUSED SDATA TO ALREADY BE SET TO A CATEGORY
+C
+                IPWX = NINT(FD1(J))
+                ISDATA = NINT(SDATA(J))
+C
+                SELECT CASE(IPWX)
+C
+C                  NO CASE, CASE MISSING OR UNDETERMINED PRECIP CHARACTER.
+C
+	        CASE(0,4:11,16:19,31,34,36:41,44,45,
+     1               98,121,204,207,208,9999)
+	        SELECT CASE(ISDATA)
+	           CASE(0,1:3)
+	              SDATA(J)=SDATA(J)
+                   CASE(9999)
+		      SDATA(J)=0.
+                END SELECT
+C
+C                  DRIZZLE
+C
+                CASE(51,53,55:57,76,156)
+                SELECT CASE(ISDATA)
+                   CASE(0,9999)
+                      SDATA(J)=1.
+                   CASE(1,2,3)
+                      SDATA(J)=SDATA(J)
+                   END SELECT
+C
+C                  STRATIFORM PRECIPITATION             
+C
+                CASE(58,59,61,63,65:69,71,73,75,77,79,166,174,176)
+                SELECT CASE(ISDATA)
+                   CASE(0,1,9999)
+                      SDATA(J)=2.
+                   CASE(2,3)
+                      SDATA(J)=SDATA(J)
+                END SELECT
+C
+C                  CONVECTIVE PRECIPITATION
+C
+                CASE(80,81,83:86,88,90,95,96,97,183,187,196)
+                SELECT CASE(ISDATA)
+                   CASE(0,1,2,9999)
+                      SDATA(J)=3.
+                   CASE(3)
+                      SDATA(J)=SDATA(J)
+                END SELECT
+C
+C                   CURRENTLY WE DON'T DEAL WITH HAIL, SQUALLS, OR UP.  
+C                   WE MAKE THEM MISSING.
+C
+                CASE DEFAULT
+                   SDATA(J)=SDATA(J)
+C
+                END SELECT
+  170        CONTINUE
+  200    CONTINUE
+C
+      ELSE IF((NDATE.GE.1979051600).AND.(NDATE.LE.1996113023))THEN
+C
+C        THIS IS ALGORITHM 2 FOR THE DATA FROM MAY 16,1979 TO NOVEMBER
+C        30, 1996.
+C
+C        SET UP THE LD ARRAY TO HOLD THE ID FOR THE PRESENT 
+C        WEATHER GROUP THAT WILL BE FETCHED AND PROCESSED
+C
+         LD(1)=708000000 + 500000 +IDPARS(4) 
+         LD(2)=IDPARS(7)
+         LD(3)=IDPARS(9) * 1000000 +IDPARS(12)
+         LD(4)=0
+C
+C        CALL GFETCH TO GET THE PRESENT WEATHER GROUP AND STORE IT
+C        IN FD1
+C
+         CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1             IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2             NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3             NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,
+     4             IER)
+C
+C        INCREMENT IENTER VARIABLE BY 1.
+C
+         IENTER=IENTER+1
+C
+C        CHECK TO SEE IF IER NE 0, AND IF THIS IS THE FIRST
+C        PROCESS DATE.  PRINT ERROR MESSAGE IF NEEDED.
+C
+         IF((IER.NE.0).AND.(IENTER.EQ.1)) THEN
+          WRITE(KFILDO,241)NDATE
+ 241      FORMAT(' ****ERROR FROM GFETCH OCCURRED ON',
+     1           ' 1ST PROCESS DATE - ',I12,
+     2           ' OBSPCHARBIN CANNOT RUN, PLEASE READ WRITE UP')
+	  GO TO 900
+         ENDIF
+C
+         IF(IER.NE.0) GO TO 900
+C
+C           IF NWORDS DOES NOT EQUAL NSTA, SET ALL VALUES TO MISSING.
+C
+         IF(NWORDS.NE.NSTA)THEN
+            IER=52
+	    WRITE(KFILDO,261)NWORDS,NSTA,IER
+ 261        FORMAT(/' ****NWORDS =',I6,' RETURNED FROM GFETCH',
+     1              ' NOT EQUAL TO NSTA =',I6,
+     2              ' IN OBSPCHARBIN. DATA SET TO MISSING.',
+     3              ' IER=',I3)
+            GO TO 900
+         ENDIF
+C
+C        SET THE VALUE OF SDATA DEPENDING ON THE PRESENT WEATHER REPORT
+C        
+         DO 300 J=1,NSTA
+            IPWX = NINT(FD1(J))
+            SELECT CASE(IPWX)
+C
+C            NO CASE, CASE MISSING OR UNDETERMINED PRECIP CHARACTER.
+C
+	    CASE(0,16,9999)
+	       SDATA(J)=0.
+C
+C            DRIZZLE
+C
+            CASE(1:3,10:12,28)
+               SDATA(J)=1.
+C
+C            STRATIFORM PRECIPITATION
+C
+            CASE(4:6,13:15,17:19,20:22,26,27)
+               SDATA(J)=2.
+C
+C            CONVECTIVE OR SHOWERY PRECIPITATION
+C
+            CASE(7:9,23:25)
+               SDATA(J)=3.
+C
+            CASE DEFAULT
+               SDATA(J)=9999.
+            END SELECT
+ 300     CONTINUE
+      ENDIF
+C
+C     IF THE ID IS 708615, COMPUTE A DRIZZLE/NO DRIZZLE BINARY;
+C     708625, A STRATIFORM/NO STRATIFORM BINARY; 
+C     708635 A CONVECTIVE(OR SHOWERY)/NO CONVECTIVE BINARY; 
+C     THEN RETURN THE APPROPRIATE  VALUE OF SDATA TO U201.    
+C
+      IF(IDPARS(2).EQ.615)THEN
+         DO 500 J=1,NSTA
+            ITEMP=NINT(SDATA(J))
+            SELECT CASE(ITEMP)
+	    CASE(0,2,3)
+               SDATA(J)=0.
+            CASE(1)
+               SDATA(J)=1.
+            END SELECT
+ 500     CONTINUE
+      GOTO 920
+C
+      ELSEIF(IDPARS(2).EQ.625)THEN
+         DO 510 J=1,NSTA
+            ITEMP=NINT(SDATA(J))
+            SELECT CASE(ITEMP)
+            CASE(0,1,3)
+               SDATA(J)=0.
+            CASE(2)
+               SDATA(J)=1.
+            END SELECT
+ 510     CONTINUE
+      GOTO 920
+C
+      ELSEIF(IDPARS(2).EQ.635)THEN
+         DO 520 J=1,NSTA
+            ITEMP=NINT(SDATA(J))
+            SELECT CASE(ITEMP)
+            CASE(0,1,2)
+               SDATA(J)=0.
+            CASE(3)
+               SDATA(J)=1.
+            END SELECT
+ 520     CONTINUE
+      GOTO 920
+C
+       ENDIF
+C
+C     IF THERE WAS AN ERROR IN GFETCH, THE CODE WILL JUMP TO
+C     HERE.  SET SDATA TO MISSING BEFORE RETURNING. 
+C
+ 900  DO 910 J=1,NSTA
+         SDATA(J)=9999.
+ 910  CONTINUE
+C
+ 920  RETURN
+      END     

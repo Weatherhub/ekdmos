@@ -1,0 +1,565 @@
+      SUBROUTINE CATGRQ(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+     1                  ID,IDPARS,JD,ITAU,
+     2                  NDATE,MDATE,CCALL,ISDATA,XDATA,ND1,NSTA,
+     3                  ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+     4                  LSTORE,ND9,LITEMS,CORE,ND10,
+     5                  NBLOCK,NFETCH,
+     6                  IS0,IS1,IS2,IS4,ND7,
+     7                  L3264B,L3264W,IER)
+C 
+C        OCTOBER  2008   WIEDENFELD    ADOPTED FROM CATGR1.  MODIFIED TO USE 
+C                                      MORE CATEGORIES.
+C        NOVEMBER 2008   WIEDENFELD    MODIFIED THRESHOLD ID TO EQUAL THAT OF
+C                                      THE MOS QPF.
+C
+C        PURPOSE 
+C            TO COMPUTE THE BEST CATEGORY FROM A SET OF PROBABILITY
+C            FORECASTS USING THRESHOLDS.  CURRENTLY DEALS WITH:
+C              --CUMULATIVE PROBABILITIES FROM ABOVE, THRESHOLDS FROM ABOVE
+C              --CUMULATIVE PROBABILITIES FROM BELOW, THRESHOLDS FROM BELOW
+C              --DISCRETE PROBABILITIES, THRESHOLDS FROM ABOVE
+C              --DISCRETE PROBABILITIES, THRESHOLDS FROM BELOW
+C
+C        DATA SET USE 
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                     (OUTPUT) 
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                     (INPUT-OUTPUT) 
+C            IP12   - INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                     STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                     THE FILE WHOSE UNIT NUMBER IS IP12.  (OUTPUT)
+C         KFILRA(J) - THE UNIT NUMBERS FOR WHICH RANDOM ACCESS FILES
+C                     ARE AVAILABLE (J=1,NUMRA).  (INPUT)
+C 
+C        VARIABLES 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                       (INPUT) 
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT)
+C                IP12 = INDICATES WHETHER (>0) OR NOT (=0) THE LIST OF
+C                       STATIONS ON THE EXTERNAL RANDOM ACCESS FILES
+C                       WILL BE LISTED TO UNIT IP12.  (INPUT)
+C           KFILRA(J) = THE UNIT NUMBERS FOR WHICH RANDOM ACCESS FILES
+C                       ARE AVAILABLE (J=1,NUMRA).  (INPUT)
+C           RACESS(J) = THE FILE NAMES ASSOCIATED WITH KFILRA(J) (J=1,NUMRA).
+C                       (CHARACTER*60)  (INPUT)
+C               NUMRA = THE NUMBER OF VALUES IN KFILRA( ) AND RACESS( ).
+C                       (INPUT)
+C               ID(J) = THE VARIABLE ID (J=1,4) FOR WHICH THE BEST
+C                       CATEGORY IS DESIRED.  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       VARIABLE ID CORRESPONDING TO ID( ) (J=1,15).
+C                       (INPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 
+C                            1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN 
+C                            TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C               JD(J) = THE BASIC INTEGER VARIABLE ID (J=1,4).
+C                       THIS IS THE SAME AS ID(J), EXCEPT THAT THE
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3),
+C                       T = IDPARS(8),
+C                       I = IDPARS(13),
+C                       S = IDPARS(14),
+C                       G = IDPARS(15), AND
+C                       THRESH.
+C                       JD( ) IS USED TO IDENTIFY THE BASIC MODEL FIELDS
+C                       AS READ FROM THE ARCHIVE.  (INPUT)
+C                ITAU = THE NUMBER OF HOURS AHEAD TO FIND A VARIABLE.
+C                       THIS HAS ALREADY BEEN CONSIDERED IN MDATE, BUT
+C                       IS NEEDED FOR CALL TO RETVEC.  (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH FORECAST CATEGORY IS
+C                       NEEDED.  (INPUT)
+C               MDATE = NDATE UPDATED WITH ITAU( ).  (INPUT)
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+C                       DATA ARE KEYED TO THIS LIST, EXCEPT POSSIBLY 
+C                       CCALLD( ).  EQUIVALENCED TO ICALL( , , ). 
+C                       (CHARACTER*8)  (INPUT)
+C           ISDATA(K) = WORK ARRAY (K=1,ND1).  (INTERNAL)
+C            XDATA(K) = THE BEST CATEGORY.  (OUTPUT) 
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT 
+C                       WITH.  DIMENSION OF XDATA( ) YDATA( ) AND JDATA( ).
+C                       (INPUT)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT
+C                       WITH.  (INPUT)
+C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN INTEGER
+C                       VARIABLE (L=1,L3264W) (K=1,ND5).  THIS ARRAY IS USED 
+C                       TO READ THE STATION DIRECTORY FROM A MOS-2000
+C                       EXTERNAL FILE.  EQUIVALENCED TO CCALLD( ). 
+C                       (CHARACTER*8)  (INTERNAL)
+C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,ND5).  EQUIVALENCED
+C                       TO ICALLD( , ).  (INTERNAL)
+C            IPACK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C             DATA(K) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), AND DATA( ).
+C                       (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE 
+C                              CHARACTERISTICS OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE SORTED
+C                              LIST IN ID( ,N) (N=1,NPRED) FOR WHICH 
+C                              THIS VARIABLE IS NEEDED, WHEN IT IS 
+C                              NEEDED ONLY ONCE FROM LSTORE( , ). 
+C                              WHEN IT IS NEEDED MORE THAN ONCE, THE 
+C                              VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING 
+C                              MSTORE( , ).  LATER USED AS A WAY OF
+C                              DETERMINING WHETHER TO KEEP THIS 
+C                              VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT ARE IN USE.  (INPUT)
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA 
+C                       IDENTIFIED IN LSTORE( , ) (J=1,ND10).  WHEN 
+C                       CORE( ) IS FULL DATA ARE STORED ON DISK.
+C                       (INPUT)
+C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE.  (INPUT)
+C              NFETCH = THE NUMBER OF TIMES GFETCH HAS BEEN ENTERED.
+C                       GFETCH KEEPS TRACK OF THIS AND RETURNS THE
+C                       VALUE.  (OUTPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3). 
+C                       (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+). 
+C                       (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12). 
+C                       (INTERNAL)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4). 
+C                       (INTERNAL)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED.  (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C              L3264W = NUMBER OF WORDS IN 64 BITS (EITHER 1 OR 2).  
+C                       CALCULATED BY PARAMETER, BASED ON L3464B.
+C                       (INPUT)
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                       102 = ID NOT ACCOMMODATED OR VALUE IN 
+C                             ITABLE( , ) IS INCORRECT.
+C                       SEE RETVEC FOR OTHER VALUES.  (OUTPUT)
+C               LD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       YDATA( ) (J=1,4).  (INTERNAL)
+C           LDPARS(J) = PARSED VALUES CORRESPONDING TO LD( ) (J=1,15)
+C                       (INTERNAL)
+C               MD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       XDATA( ) (J=1,4).  (INTERNAL)
+C           MDPARS(J) = PARSED VALUES CORRESPONDING TO MD( ) (J=1,15)
+C                       (INTERNAL)
+C                NDIM = DIMENSION OF ITABLE.
+C               NDIMM = NUMBER OF MOS VARIABLES IN ITABLE.
+C               NDIML = NUMBER OF LAMP VARIABLES IN ITABLE.
+C            YDATA(K) = WORK ARRAY (K=1,ND1) WHICH HOLDS THRESHOLDS.
+C                       (AUTOMATIC)
+C            JDATA(K) = BEST CATEGORY WHILE COMPUTING (K=1,ND1).  THEN
+C                       TRANSFERRED TO XDATA( ) FOR RETURN.  (AUTOMATIC)
+C           SUMPRB(K) = SUM OF PROBABILITIES OF CATEGORIES (K=1,ND1).
+C                       (AUTOMATIC)
+C         ITABLE(I,J) = I=1--VALUE OF CCCFFF ACCOMMODATED;
+C                       I=2--ID(1) FOR THRESHOLDS;
+C                       I=3--ID(1) FOR PROBABILITY FORECASTS;
+C                       I=4--NUMBER OF THRESHOLDS AND THE NUMBER OF
+C                            PROBABILITY FORECASTS NEEDED;
+C                       I=5--HOW THE CATEGORICAL FORECASTS ARE TO BE 
+C                            DETERMINED
+C                            1 = FORECASTS ARE CUMULATIVE FROM ABOVE AND
+C                                THRESHOLDS ARE DETERMINED CUMULATIVE
+C                                FROM ABOVE
+C                            2 = FORECASTS ARE CUMULATIVE FROM BELOW AND
+C                                THRESHOLDS ARE DETERMINED CUMULATIVE
+C                                FROM BELOW
+C                            3 = FORECASTS ARE DISCRETE AND THRESHOLDS
+C                                ARE DETERMINED CUMULATIVE FROM ABOVE
+C                            4 = FORECASTS ARE DISCRETE AND THRESHOLDS
+C                                ARE DETERMINED CUMULATIVE FROM BELOW
+C                       I=6--KEY REPRESENTING THE TIME SLICING:
+C                            1 = 1 SEASON, ALL YEAR, VALUE = 19
+C                            2 = TWO SEASONS, APR-SEPT, OCT-MAR,
+C                                VALUES = 17, 18
+C                            3 = FOUR SEASONS, MARCH-MAY, JUNE-AUG, ETC.
+C                                VALUES = 13, 14, 15, 16
+C                            4 = EACH MONTH, VALUES = 1-12
+C                            5 = LMP TSTM 3 SEASON CYCLE, MARCH 16-JUNE 30
+C                                JULY 1-OCT 15, OCT 16-MARCH 15
+C                                VALUES = 22,20,21
+C                            6 = LMP PTYPE 2 SEASON CYCLE, SEPT-MAY, JUNE-AUG.
+C                                VALUES = 23,14
+C                       I=7,6+ITABLE(2,J)--THE THRESHOLDS FOR THE 
+C                            PROBABILITY FORECASTS (THE FIRST 6 DIGITS OF
+C                            ID(4).  NOTE THAT THESE ARE IN THE EXACT
+C                            FORM IN ID(4) AND ARE ENTERED IN THE ORDER 
+C                            USED IN THE COMPUTATION, NOT NECESSARILY 
+C                            LOW TO HIGH.
+C                       (J=1,NDIM).  (INTERNAL)
+C                       WITH 7 THRESHOLDS PROVIDED FOR, 8 CATEGORIES ARE
+C                       POSSIBLE.  THIS CAN EASILY BE INCREASED.
+C                NCAT = THE NUMBER OF THRESHOLDS AND NUMBER OF 
+C                       PROBABILITY FORECASTS NEEDED FOR COMPUTATION.
+C                       SET = ITABLE(2, ).
+C         L2L2TB(N,J) = VALUES FOR L2L2 IN ID(2) FOR THE THRESHOLDS
+C                       CORRESPONDING TO MONTH (N=1,12) AND TIME
+C                       SLICE FOR COMPUTING THRESHOLDS (J=1,4).
+C                       (J = ITABLE(6, ) ABOVE.)
+C
+C        NONSYSTEM SUBROUTINES CALLED 
+C            RETVEC, PRSID1
+C
+      PARAMETER (NDIM=22)
+C
+      CHARACTER*8 CCALL(ND1,6)
+      CHARACTER*8 CCALLD(ND5)
+      CHARACTER*60 RACESS(5)
+C
+      DIMENSION XDATA(ND1)
+      DIMENSION YDATA(ND1),JDATA(ND1),SUMPRB(ND1)
+C        YDATA( ), JDATA( ), AND SUMPRB( ) ARE AUTOMATIC ARRAYS.
+      DIMENSION ID(4),IDPARS(15),JD(4)
+      DIMENSION IPACK(ND5),IWORK(ND5),DATA(ND5)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION LSTORE(12,ND9)
+      DIMENSION CORE(ND10),ICALLD(L3264W,ND5)
+      DIMENSION LD(4),LDPARS(15),MD(4),MDPARS(15),KFILRA(5)
+      DIMENSION ITABLE(25,NDIM),L2L2TB(12,6)
+C 
+      DATA ITABLE/203221076,803220176,203220176,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     B      203221040,803220176,203220140,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     C      203221041,803220176,203220141,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     D      203221042,803220176,203220142,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     E      203221043,803220176,203220143,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     F      203221044,803220176,203220144,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     G      203221045,803220176,203220145,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     H      203221046,803220176,203220146,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     I      203221047,803220176,203220147,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     J      203221048,803220176,203220148,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     K      203221049,803220176,203220149,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     L      203221050,803220176,203220150,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0, 
+     M      203221051,803220176,203220151,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     N      203221052,803220176,203220152,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     O      203221053,803220176,203220153,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     P      203221054,803220176,203220154,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     Q      203221055,803220176,203220155,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     R      203221056,803220176,203220156,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     S      203221057,803220176,203220157,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     T      203221048,803220176,203220158,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     U      203221059,803220176,203220159,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0,
+     V      203221060,803220176,203220160,12,1,2,
+     1      149501,995000,749500,495000,395000,295000,
+     2      245000,195000,149500,950051,495051,950052,
+     3      0,0,0,0,0,0,0/
+C
+      DATA L2L2TB
+     1     /19,19,19,19,19,19,19,19,19,19,19,19,
+     2      18,18,18,17,17,17,17,17,17,18,18,18,
+     3      16,16,13,13,13,14,14,14,15,15,15,16,
+     4       1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,
+     5      22,22,22,20,20,20,21,21,21,21,22,22,
+     6      23,23,23,23,23,14,14,14,23,23,23,23/
+C
+      IER=0
+C
+      DO 100 JJ=1,NDIM
+      IF(ITABLE(1,JJ).EQ.ID(1))GO TO 1075
+ 100  CONTINUE
+C     
+      WRITE(KFILDO,107)(ID(L),L=1,4)
+ 107  FORMAT(' ****CATGRQ ENTERED FOR VARIABLE',
+     1        2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+     2        ' NOT ACCOMMODATED.')
+      IER=102
+      GO TO 400
+C   
+ 1075 IF(ITABLE(5,JJ).GT.4)THEN
+         WRITE(KFILDO,108)ITABLE(5,JJ),(ID(J),J=1,4)
+ 108     FORMAT(/,' ****ITABLE(5, ) =',I4,' OUT OF RANGE IN ',
+     1           'CATGRQ.  CANNOT COMPUTE BEST CATEGORY FOR',
+     2            2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+         IER=102
+         GO TO 400
+C
+      ELSEIF(ITABLE(6,JJ).GT.6)THEN
+         WRITE(KFILDO,109)ITABLE(6,JJ),(ID(J),J=1,4)
+ 109     FORMAT(/,' ****ITABLE(6, ) =',I4,' OUT OF RANGE IN ',
+     1           'CATGRQ.  CANNOT COMPUTE BEST CATEGORY FOR',
+     2            2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+         IER=102
+         GO TO 400
+C
+      ENDIF         
+C       
+C        ZERO THE JDATA( ) ARRAY WHICH WILL HOLD THE
+C        CATEGORY DURING THE COMPUTATION.  ALSO, ZERO
+C        AN ARRAY TO HOLD THE SUM OF THE PROBABILITIES
+C        WHEN DEALING WITH DISCRETE PROBABILITIES.
+C
+      DO 111 K=1,NSTA
+      JDATA(K)=0
+      SUMPRB(K)=0.
+ 111  CONTINUE
+C
+      NCAT=ITABLE(4,JJ)
+      NCYCLE=NDATE-(NDATE/100)*100
+C        NCYCLE IS L1L1 IN ID(2)
+      MONTH=NDATE/10000-(NDATE/1000000)*100
+C        MONTH DETERMINES L2L2 IN ID(2) FOR THRESHOLDS.
+      L2L2=L2L2TB(MONTH,ITABLE(6,JJ))
+C
+C        L2L2 IS THE L2L2 IN ID(2) FOR THRESHOLDS.  ADJUST L2L2 FOR
+C        SPLIT MONTHS IN THREE-SEASON MODEL FOR TSTMS.
+C
+      NDAY=MOD(NDATE,10000)/100
+      IF(MONTH.EQ.03.AND.L2L2.EQ.22.AND.NDAY.GE.16) THEN
+         L2L2=20
+      ELSEIF(MONTH.EQ.10.AND.L2L2.EQ.21.AND.NDAY.GE.16) THEN
+         L2L2=22
+      ENDIF
+C
+      LD(1)=ITABLE(2,JJ)
+      LD(2)=NCYCLE*1000000+L2L2*10000
+      LD(3)=IDPARS(12)
+C
+      MD(1)=ITABLE(3,JJ)
+      MD(2)=ID(2)
+      MD(3)=LD(3)
+C
+C        START LOOP FOR NCAT THRESHOLDS AND FORECASTS.
+C        USE THE THRESHOLDS AND FORECASTS IN THE ORDER
+C        SPECIFIED IN ITABLE( ,JJ).
+C
+      DO 200 N=1,NCAT
+C
+C        COMPUTE ID(4) FOR THE THRESHOLDS.  THE FIRST 3 IDS DO NOT
+C        CHANGE FROM CATEGORY TO CATEGORY.
+C        
+      LD(4)=ITABLE(N+6,JJ)*1000+IDPARS(13)*100+IDPARS(14)*10+IDPARS(15)
+C 
+C        FETCH THE THRESHOLDS IN YDATA( ).
+C
+      CALL PRSID1(KFILDO,LD,LDPARS)
+      CALL RETVEC(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+     1            LD,LDPARS,JD,ITAU,
+     2            NDATE,MDATE,CCALL,ISDATA,YDATA,ND1,NSTA,
+     3            ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+     4            LSTORE,ND9,LITEMS,CORE,ND10,
+     5            NBLOCK,NFETCH,
+     6            IS0,IS1,IS2,IS4,ND7,
+     7            L3264B,L3264W,IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,127)(LD(J),J=1,4),(ID(J),J=1,4)
+ 127     FORMAT(' ****THRESHOLDS',2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+     1          ' NOT RETRIEVED BY RETVEC IN CATGRQ.',
+     2          '  CANNOT COMPUTE BEST CATEGORY FOR',/,
+     3          '               ',2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+         GO TO 400
+C
+      ENDIF
+C
+C        COMPUTE ID(4) FOR THE PROBABILITIES.  THE FIRST 3 IDS DO NOT
+C        CHANGE FROM CATEGORY TO CATEGORY.
+C
+      MD(4)=LD(4)     
+C 
+C        FETCH THE PROBABILITIES IN XDATA( ).
+C
+      CALL PRSID1(KFILDO,MD,MDPARS)
+      CALL RETVEC(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+     1            MD,MDPARS,JD,ITAU,
+     2            NDATE,MDATE,CCALL,ISDATA,XDATA,ND1,NSTA,
+     3            ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+     4            LSTORE,ND9,LITEMS,CORE,ND10,
+     5            NBLOCK,NFETCH,
+     6            IS0,IS1,IS2,IS4,ND7,
+     7            L3264B,L3264W,IER)
+C 
+C        JD( ) IS NOT ACTUALLY USED IN RETVEC.  IT IS USED
+C        IN CALL TO CONST, BUT CONST DOES NOT USE IT EITHER.
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,135)(MD(J),J=1,4),(ID(J),J=1,4)
+ 135     FORMAT(' ****PROBABILITIES',2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+     1          ' NOT RETRIEVED BY RETVEC IN CATGRQ.',
+     2          '  CANNOT COMPUTE BEST CATEGORY FOR',/,
+     3          '                  ',2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+         GO TO 400
+C
+      ENDIF
+C
+      DO 160 K=1,NSTA
+      IF(JDATA(K).NE.0)GO TO 160
+C        ONCE JDATA( ) HAS BEEN SET NE 0, IT IS NOT CHANGED AGAIN.
+      IF(NINT(XDATA(K)).EQ.9997)XDATA(K)=0.
+C        A FORECAST OF 9997 IS TREATED AS 0.
+C
+      IF(NINT(XDATA(K)).EQ.9999)THEN
+C           IF ANY FORECAST IS TRULY MISSING, THE BEST CATEGORY
+C           IS SET MISSING.
+         JDATA(K)=9999
+      ELSEIF(NINT(YDATA(K)).EQ.9999)THEN
+C           IF ANY THRESHOLD IS MISSING, THE BEST CATEGORY
+C           IS SET MISSING.
+         JDATA(K)=9999
+      ELSE
+C
+         IF(ITABLE(5,JJ).LE.2)THEN
+C
+C              THIS SECTION FOR CUMULATIVE PROBABILITIES.
+C
+            IF(XDATA(K).GE.YDATA(K))THEN
+C 
+               IF(ITABLE(5,JJ).EQ.1)THEN
+                  JDATA(K)=NCAT+2-N
+               ELSE
+                  JDATA(K)=N
+               ENDIF
+C
+            ENDIF
+C
+         ELSE
+C
+C              THIS SECTION FOR DISCRETE PROBABILITIES.
+C
+            SUMPRB(K)=SUMPRB(K)+XDATA(K)
+C
+            IF(SUMPRB(K).GE.YDATA(K))THEN
+C
+               IF(ITABLE(5,JJ).EQ.3)THEN
+                  JDATA(K)=NCAT+2-N
+               ELSE
+                  JDATA(K)=N
+               ENDIF
+C
+            ENDIF
+C
+         ENDIF
+C
+      ENDIF
+C
+ 160  CONTINUE
+C
+ 200  CONTINUE
+C
+C        SET XDATA( ) TO THE CATEGORY IN JDATA( ).
+C
+      DO 210 K=1,NSTA
+C
+      IF(JDATA(K).EQ.0)THEN
+      
+         IF(ITABLE(5,JJ).EQ.1.OR.
+     1      ITABLE(5,JJ).EQ.3)THEN
+            XDATA(K)=1
+         ELSE
+            XDATA(K)=NCAT+1
+         ENDIF
+C
+      ELSE
+         XDATA(K)=JDATA(K)
+      ENDIF
+C
+ 210  CONTINUE
+C     
+      GO TO 450
+C
+C        THIS PREDICTOR CANNOT BE COMPUTED.  SET THE ARRAY TO MISSING.
+C
+ 400  DO 410 K=1,NSTA
+         XDATA(K)=9999.
+ 410  CONTINUE 
+C
+ 450  RETURN
+      END     

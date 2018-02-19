@@ -1,0 +1,525 @@
+Wojciech.Cencek@slogin1:/gpfs/hps/nco/ops/nwtest/ekdmos_shared.v2.0.0/sorc> ./make-all-ekd-programs.sh clean
+The following makefile actions will be performed:
+
+     make clean in all ekd_*.fd/ directories
+
+Accept? (y) or (n): y
+
+----- ekd_eqneval -----
+
+rm -f eqneval.o fcst95.o rdstr9.o setjdt.o u905.o est905.o rdeqn95.o
+
+----- ekd_fcstpost -----
+
+rm -f fcstpost.o int910.o u910.o tmpcmp.o optx.o catgrq.o mrftest.o
+
+----- ekd_granalysis -----
+
+rm -f augmt1.o  augmt3.o avglap.o  bcd5.o  blend.o  bogus.o  caksno.o  cateq.o cconsn.o  cigft.o  cightc.o cigobc.o ckmaxt.o  ckmint.o  ckpop.o  ckqpf.o  cktdp.o  ckwndg.o  clip.o  clos.o  clos2.o  clos2g.o  concpr.o  conekd.o  conspr.o convpr.o  corbc5.o  cutit.o  dens.o  denser.o  densrm.o  densrq.o  difwh.o  dirspd.o  discig.o  elvar.o  elvarg.o  erest.o  eslp5.o  esp5.o  fgskya.o  fitwth.o  fltag.o  fltagm.o  fstgs5.o  gfetch.o  gradck.o  granalysis.o  gthres.o  hsmth.o  int155.o  intrpl.o  intrpx.o  itrp.o  itrpsl.o  itrpsx.o  keylst.o  lapse.o  lapsua.o  list.o  ltagrd.o  mshxms.o  newxy.o  orsmth.o  orvwsm.o osmth.o  osmth1.o  points.o  post.o  qpf6p6.o  rdnei.o  rdprs.o  rdstr1.o  rdstr7.o  rdv155.o  rdvrhl.o  regres.o restrw.o  restwh.o  rough.o  roughg.o  sample.o  sclq06.o  sclq12.o  sclcig.o sclsky.o  sclsno.o  sclvis.o setcft.o  setlnd.o  setpnt.o  setvmi.o  skyamt.o  skycig.o smoth.o  smothc.o  smothg.o  smothn.o  spotrm.o stsnoz.o  szgrdm.o  szgrid.o  terdif.o  trnwnd.o  u155.o  u155ck.o  u405a.o   vari.o  varig.o  varil.o  varilg.o  variw.o  variwg.o  vismi.o  visobc.o wndcor.o  wrdatm.o  wrtm.o  wthol1.o  wthol2.o wthol3.o  xycom1.o actual.o nominl.o
+
+----- ekd_grd2grd -----
+
+rm -f grd2grd.o data_intrp.o grid_intrp.o gridcomb.o intrp_out.o rdintrp.o u365.o ckids.o
+
+----- ekd_gribtomdlpk -----
+
+rm -f gribmod.o gridasn.o gribtomdlpk.o u130.o rdgrib2.o subgrid.o overdate.o overdate2.o chkgrid2.o chkgrid3.o rdelmlst.o rdgrib1.o pdchng.o
+
+----- ekd_gridpost -----
+
+rm -f tgintrp.o gridpost.o u202.o pred23.o pred24.o rdpred.o option.o ckbounds.o grduntcvt.o cmpdpgr.o cmpwdrgr.o ckwspdgr.o ckwndgst.o ckgpop.o cmpqpfgr.o cmptails.o grmean.o modcdf.o ckids.o gfetch.o packgp.o intrpb.o actual.o nominl.o
+
+----- ekd_makecdf -----
+
+rm -f makecdf.o int915.o u915.o opty.o distf.o rdvr75.o distap.o rdssk9.o distwb.o
+
+----- ekd_mospred -----
+
+rm -f mospred.o u201.o ensmean.o modcdf.o pred21.o pred22.o option.o optn2.o
+
+----- ekd_ra2grib2 -----
+
+rm -f ra2grib2.o u135.o chkgrid.o rdsect1.o rdsect2.o rdsect3.o rdsect4.o rdsect5.o rdtdlpk.o packgrib2.o chkdup.o chkgrid4.o gribclose.o
+
+----- ekd_ra2ra -----
+
+rm -f ra2ra.o
+Wojciech.Cencek@slogin1:/gpfs/hps/nco/ops/nwtest/ekdmos_shared.v2.0.0/sorc> ./make-all-ekd-programs.sh
+The following makefile actions will be performed:
+
+     make in all ekd_*.fd/ directiories and executables moved to /gpfs/hps/nco/ops/nwtest/ekdmos_shared.v2.0.0/exec
+
+Set the ekdmos_shared module path [default: ../modulefiles]: 
+Set the local library path [default: ../../lib]: 
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.7                                            11) jasper-gnu-sandybridge/1.900.1                             21) pmi/5.0.6-1.0000.10439.140.2.ari
+  2) eswrap/1.1.0-1.020200.1231.0                               12) png-intel-sandybridge/1.2.44                               22) dmapp/7.0.1-1.0502.10246.8.47.ari
+  3) switch/1.0-1.0502.57058.1.58.ari                           13) w3emc-intel/2.2.0                                          23) gni-headers/4.0-1.0502.10317.9.2.ari
+  4) /opt/cray/craype/default/modulefiles/craype-network-aries  14) w3nco-intel/2.0.6                                          24) xpmem/0.1-2.0502.57015.1.15.ari
+  5) ncep/1.0                                                   15) zlib-intel-sandybridge/1.2.7                               25) dvs/2.5_0.9.0-1.0502.1958.2.55.ari
+  6) craype-sandybridge                                         16) craype/2.3.0                                               26) alps/5.2.3-2.0502.9295.14.14.ari
+  7) xt-lsfhpc/9.1.3                                            17) intel/15.0.3.187                                           27) rca/1.0.0-2.0502.57212.2.56.ari
+  8) bacio-intel/2.0.1                                          18) cray-libsci/13.0.3                                         28) atp/1.8.1
+  9) g2-intel/1.4.1                                             19) udreg/2.3.2-1.0502.9889.2.20.ari                           29) PrgEnv-intel/5.2.56
+ 10) g2tmpl-intel/1.4.0                                         20) ugni/6.0-1.0502.10245.9.9.ari                              30) ekdmos_shared/2.0.0
+Accept? (y) or (n): y
+
+----- ekd_eqneval -----
+
+ftn   -O3 -nofree -i4 -real_size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o eqneval.o eqneval.f
+ftn   -O3 -nofree -i4 -real_size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o fcst95.o fcst95.f
+fcst95.f(1): (col. 18) remark: fcst95_ has been targeted for automatic cpu dispatch
+ftn   -O3 -nofree -i4 -real_size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o rdstr9.o rdstr9.f
+rdstr9.f(1): (col. 18) remark: rdstr9_ has been targeted for automatic cpu dispatch
+ftn   -O3 -nofree -i4 -real_size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o setjdt.o setjdt.f
+ftn   -O3 -nofree -i4 -real_size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o u905.o u905.f
+ftn   -O3 -nofree -i4 -real_size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o est905.o est905.f
+est905.f(1): (col. 18) remark: est905_ has been targeted for automatic cpu dispatch
+ftn   -O3 -nofree -i4 -real_size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o rdeqn95.o rdeqn95.f
+rdeqn95.f(644): remark #8291: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+7'.
+ 142  FORMAT(' ',8(E15.9))
+--------------------^
+rdeqn95.f(625): remark #8291: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+7'.
+ 138  FORMAT(' ',8(E15.9)) 
+--------------------^
+rdeqn95.f(1): (col. 18) remark: rdeqn95_ has been targeted for automatic cpu dispatch
+ftn    -o ekd_eqneval eqneval.o fcst95.o rdstr9.o setjdt.o u905.o est905.o rdeqn95.o ../../lib/libensmdl_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a 
+
+Program ekd_eqneval successfully created
+
+----- ekd_fcstpost -----
+
+ftn   -O3 -fp-model strict  -nofree -fpscomp logicals -i4 -real_size 32 -axCORE-AVX2  -c -o fcstpost.o fcstpost.f
+ftn   -O3 -fp-model strict  -nofree -fpscomp logicals -i4 -real_size 32 -axCORE-AVX2  -c -o int910.o int910.f
+ftn   -O3 -fp-model strict  -nofree -fpscomp logicals -i4 -real_size 32 -axCORE-AVX2  -c -o u910.o u910.f
+u910.f(1): (col. 18) remark: u910_ has been targeted for automatic cpu dispatch
+ftn   -O3 -fp-model strict  -nofree -fpscomp logicals -i4 -real_size 32 -axCORE-AVX2  -c -o tmpcmp.o tmpcmp.f
+ftn   -O3 -fp-model strict  -nofree -fpscomp logicals -i4 -real_size 32 -axCORE-AVX2  -c -o optx.o optx.f
+ftn   -O3 -fp-model strict  -nofree -fpscomp logicals -i4 -real_size 32 -axCORE-AVX2  -c -o catgrq.o catgrq.f
+ftn   -O3 -fp-model strict  -nofree -fpscomp logicals -i4 -real_size 32 -axCORE-AVX2  -c -o mrftest.o mrftest.f
+ftn    -o ekd_fcstpost fcstpost.o int910.o u910.o tmpcmp.o optx.o catgrq.o mrftest.o ../../lib/libensmdl_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a
+
+Program ekd_fcstpost successfully created
+
+----- ekd_granalysis -----
+
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o augmt1.o augmt1.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+augmt1.f(1): (col. 18) remark: augmt1_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o augmt3.o augmt3.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+augmt3.f(1): (col. 18) remark: augmt3_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o avglap.o avglap.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o bcd5.o bcd5.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+bcd5.f(1): (col. 18) remark: bcd5_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o blend.o blend.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o bogus.o bogus.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o caksno.o caksno.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+caksno.f(1): (col. 18) remark: caksno_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o cateq.o cateq.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o cconsn.o cconsn.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+cconsn.f(1): (col. 18) remark: cconsn_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o cigft.o cigft.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o cightc.o cightc.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o cigobc.o cigobc.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o ckmaxt.o ckmaxt.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o ckmint.o ckmint.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o ckpop.o ckpop.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o ckqpf.o ckqpf.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o cktdp.o cktdp.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o ckwndg.o ckwndg.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o clip.o clip.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+clip.f(1): (col. 18) remark: clip_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o clos.o clos.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o clos2.o clos2.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o clos2g.o clos2g.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o concpr.o concpr.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+concpr.f(1): (col. 18) remark: concpr_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o conekd.o conekd.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o conspr.o conspr.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o convpr.o convpr.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+convpr.f(1): (col. 18) remark: convpr_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o corbc5.o corbc5.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o cutit.o cutit.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o dens.o dens.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o denser.o denser.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+denser.f(1): (col. 18) remark: denser_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o densrm.o densrm.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o densrq.o densrq.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o difwh.o difwh.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o dirspd.o dirspd.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+dirspd.f(1): (col. 18) remark: dirspd_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o discig.o discig.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o elvar.o elvar.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o elvarg.o elvarg.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o erest.o erest.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+erest.f(1): (col. 18) remark: erest_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o eslp5.o eslp5.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o esp5.o esp5.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o fgskya.o fgskya.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o fitwth.o fitwth.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o fltag.o fltag.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o fltagm.o fltagm.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o fstgs5.o fstgs5.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+fstgs5.f(1): (col. 18) remark: fstgs5_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o gfetch.o gfetch.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o gradck.o gradck.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o granalysis.o granalysis.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o gthres.o gthres.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o hsmth.o hsmth.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o int155.o int155.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o intrpl.o intrpl.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o intrpx.o intrpx.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o itrp.o itrp.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o itrpsl.o itrpsl.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o itrpsx.o itrpsx.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o keylst.o keylst.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+keylst.f(1): (col. 18) remark: keylst_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o lapse.o lapse.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o lapsua.o lapsua.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+lapsua.f(1): (col. 18) remark: lapsua_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o list.o list.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o ltagrd.o ltagrd.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o mshxms.o mshxms.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o newxy.o newxy.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o orsmth.o orsmth.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o orvwsm.o orvwsm.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o osmth.o osmth.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o osmth1.o osmth1.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o points.o points.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o post.o post.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o qpf6p6.o qpf6p6.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o rdnei.o rdnei.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+rdnei.f(1): (col. 18) remark: rdnei_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o rdprs.o rdprs.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o rdstr1.o rdstr1.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o rdstr7.o rdstr7.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o rdv155.o rdv155.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o rdvrhl.o rdvrhl.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o regres.o regres.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+regres.f(1): (col. 18) remark: regres_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o restrw.o restrw.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+restrw.f(1): (col. 18) remark: restrw_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o restwh.o restwh.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o rough.o rough.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o roughg.o roughg.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o sample.o sample.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o sclq06.o sclq06.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o sclq12.o sclq12.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o sclcig.o sclcig.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+sclcig.f(1): (col. 18) remark: sclcig_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o sclsky.o sclsky.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o sclsno.o sclsno.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o sclvis.o sclvis.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+sclvis.f(1): (col. 18) remark: sclvis_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o setcft.o setcft.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o setlnd.o setlnd.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o setpnt.o setpnt.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o setvmi.o setvmi.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o skyamt.o skyamt.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o skycig.o skycig.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o smoth.o smoth.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+smoth.f(1): (col. 18) remark: smoth_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o smothc.o smothc.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o smothg.o smothg.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o smothn.o smothn.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o spotrm.o spotrm.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o stsnoz.o stsnoz.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o szgrdm.o szgrdm.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o szgrid.o szgrid.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o terdif.o terdif.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o trnwnd.o trnwnd.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o u155.o u155.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o u155ck.o u155ck.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o u405a.o u405a.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+u405a.f(1): (col. 18) remark: u405a_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o vari.o vari.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o varig.o varig.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o varil.o varil.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o varilg.o varilg.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o variw.o variw.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o variwg.o variwg.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o vismi.o vismi.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o visobc.o visobc.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o wndcor.o wndcor.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o wrdatm.o wrdatm.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o wrtm.o wrtm.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o wthol1.o wthol1.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o wthol2.o wthol2.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o wthol3.o wthol3.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o xycom1.o xycom1.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o actual.o actual.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O3 -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o nominl.o nominl.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn    -o ekd_granalysis augmt1.o  augmt3.o avglap.o  bcd5.o  blend.o  bogus.o  caksno.o  cateq.o cconsn.o  cigft.o  cightc.o cigobc.o ckmaxt.o  ckmint.o  ckpop.o  ckqpf.o  cktdp.o  ckwndg.o  clip.o  clos.o  clos2.o  clos2g.o  concpr.o  conekd.o  conspr.o convpr.o  corbc5.o  cutit.o  dens.o  denser.o  densrm.o  densrq.o  difwh.o  dirspd.o  discig.o  elvar.o  elvarg.o  erest.o  eslp5.o  esp5.o  fgskya.o  fitwth.o  fltag.o  fltagm.o  fstgs5.o  gfetch.o  gradck.o  granalysis.o  gthres.o  hsmth.o  int155.o  intrpl.o  intrpx.o  itrp.o  itrpsl.o  itrpsx.o  keylst.o  lapse.o  lapsua.o  list.o  ltagrd.o  mshxms.o  newxy.o  orsmth.o  orvwsm.o osmth.o  osmth1.o  points.o  post.o  qpf6p6.o  rdnei.o  rdprs.o  rdstr1.o  rdstr7.o  rdv155.o  rdvrhl.o  regres.o restrw.o  restwh.o  rough.o  roughg.o  sample.o  sclq06.o  sclq12.o  sclcig.o sclsky.o  sclsno.o  sclvis.o setcft.o  setlnd.o  setpnt.o  setvmi.o  skyamt.o  skycig.o smoth.o  smothc.o  smothg.o  smothn.o  spotrm.o stsnoz.o  szgrdm.o  szgrid.o  terdif.o  trnwnd.o  u155.o  u155ck.o  u405a.o   vari.o  varig.o  varil.o  varilg.o  variw.o  variwg.o  vismi.o  visobc.o wndcor.o  wrdatm.o  wrtm.o  wthol1.o  wthol2.o wthol3.o  xycom1.o actual.o nominl.o ../../lib/libensmdl_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.0/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a
+
+Program ekd_granalysis successfully created
+
+----- ekd_grd2grd -----
+
+ftn   -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o grd2grd.o grd2grd.f
+ftn   -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o data_intrp.o data_intrp.f
+ftn   -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o grid_intrp.o grid_intrp.f
+ftn   -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o gridcomb.o gridcomb.f
+ftn   -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o intrp_out.o intrp_out.f
+ftn   -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o rdintrp.o rdintrp.f
+ftn   -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o u365.o u365.f
+ftn   -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o ckids.o ckids.f
+ftn    -o ekd_grd2grd grd2grd.o data_intrp.o grid_intrp.o gridcomb.o intrp_out.o rdintrp.o u365.o ckids.o ../../lib/libensmdl_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.0/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a
+
+Program ekd_grd2grd successfully created
+
+----- ekd_gribtomdlpk -----
+
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o gribmod.o gribmod.f
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o gridasn.o gridasn.f
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o gribtomdlpk.o gribtomdlpk.f
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o u130.o u130.f
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o rdgrib2.o rdgrib2.f
+rdgrib2.f(1): (col. 18) remark: rdgrib2_ has been targeted for automatic cpu dispatch
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o subgrid.o subgrid.f
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o overdate.o overdate.f
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o overdate2.o overdate2.f
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o chkgrid2.o chkgrid2.f
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o chkgrid3.o chkgrid3.f
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o rdelmlst.o rdelmlst.f
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o rdgrib1.o rdgrib1.f
+rdgrib1.f(1): (col. 18) remark: rdgrib1_ has been targeted for automatic cpu dispatch
+ftn   -O3 -nofree -fpscomp logicals -fp-model strict -i4 -real-size 32 -axCORE-AVX2  -c -o pdchng.o pdchng.f
+ftn    -o ekd_gribtomdlpk gribmod.o gridasn.o gribtomdlpk.o u130.o rdgrib2.o subgrid.o overdate.o overdate2.o chkgrid2.o chkgrid3.o rdelmlst.o rdgrib1.o pdchng.o ../../lib/libensmdl_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.0/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a /gpfs/hps/nco/ops/nwprod/lib/g2/v1.4.1/intel/libg2_v1.4.1_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a /usrx/local/prod//jasper/1.900.1/gnu/sandybridge/lib/libjasper.a /usrx/local/prod//png/1.2.44/intel/sandybridge/lib/libpng.a /usrx/local/prod/zlib/1.2.7/intel/sandybridge/lib/libz.a
+/usrx/local/prod//jasper/1.900.1/gnu/sandybridge/lib/libjasper.a(jas_stream.o): In function `jas_stream_tmpfile':
+/usrx/local/prod/jasper/1.900.1/gnu/sandybridge/sorc/jasper-1.900.1/src/libjasper/base/jas_stream.c:368: warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+
+Program ekd_gribtomdlpk successfully created
+
+----- ekd_gridpost -----
+
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o tgintrp.o tgintrp.f
+tgintrp.f(1): (col. 18) remark: tgintrp_ has been targeted for automatic cpu dispatch
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o gridpost.o gridpost.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o u202.o u202.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o pred23.o pred23.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o pred24.o pred24.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o rdpred.o rdpred.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o option.o option.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o ckbounds.o ckbounds.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o grduntcvt.o grduntcvt.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o cmpdpgr.o cmpdpgr.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o cmpwdrgr.o cmpwdrgr.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o ckwspdgr.o ckwspdgr.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o ckwndgst.o ckwndgst.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o ckgpop.o ckgpop.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o cmpqpfgr.o cmpqpfgr.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o cmptails.o cmptails.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o grmean.o grmean.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o modcdf.o modcdf.f
+modcdf.f(1): (col. 18) remark: modcdf_ has been targeted for automatic cpu dispatch
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o ckids.o ckids.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o gfetch.o gfetch.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o packgp.o packgp.f
+packgp.f(1): (col. 18) remark: packgp_ has been targeted for automatic cpu dispatch
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o intrpb.o intrpb.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o actual.o actual.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -axCORE-AVX2  -c -o nominl.o nominl.f
+ftn  -o ekd_gridpost tgintrp.o gridpost.o u202.o pred23.o pred24.o rdpred.o option.o ckbounds.o grduntcvt.o cmpdpgr.o cmpwdrgr.o ckwspdgr.o ckwndgst.o ckgpop.o cmpqpfgr.o cmptails.o grmean.o modcdf.o ckids.o gfetch.o packgp.o intrpb.o actual.o nominl.o ../../lib/libensmdl_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.0/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a
+
+Program ekd_gridpost successfully created
+
+----- ekd_makecdf -----
+
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -zero -axCORE-AVX2  -c -o makecdf.o makecdf.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -zero -axCORE-AVX2  -c -o int915.o int915.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -zero -axCORE-AVX2  -c -o u915.o u915.f
+u915.f(1): (col. 18) remark: u915_ has been targeted for automatic cpu dispatch
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -zero -axCORE-AVX2  -c -o opty.o opty.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -zero -axCORE-AVX2  -c -o distf.o distf.f
+distf.f(1): (col. 18) remark: distf_ has been targeted for automatic cpu dispatch
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -zero -axCORE-AVX2  -c -o rdvr75.o rdvr75.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -zero -axCORE-AVX2  -c -o distap.o distap.f
+distap.f(1): (col. 18) remark: distap_ has been targeted for automatic cpu dispatch
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -zero -axCORE-AVX2  -c -o rdssk9.o rdssk9.f
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -zero -axCORE-AVX2  -c -o distwb.o distwb.f
+distwb.f(1): (col. 18) remark: distwb_ has been targeted for automatic cpu dispatch
+ftn -O3 -fp-model strict -nofree -fpscomp logicals -real-size 32 -i4 -zero -axCORE-AVX2 -c makecdf.f int915.f u915.f opty.f distf.f rdvr75.f distap.f rdssk9.f distwb.f 
+u915.f(1): (col. 18) remark: u915_ has been targeted for automatic cpu dispatch
+distf.f(1): (col. 18) remark: distf_ has been targeted for automatic cpu dispatch
+distap.f(1): (col. 18) remark: distap_ has been targeted for automatic cpu dispatch
+distwb.f(1): (col. 18) remark: distwb_ has been targeted for automatic cpu dispatch
+ftn  -L /usrx/local/mpi_trace/aix_latest/lib -o ekd_makecdf makecdf.o int915.o u915.o opty.o distf.o rdvr75.o distap.o rdssk9.o distwb.o ../../lib/libensmdl_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a
+
+Program ekd_makecdf successfully created
+
+----- ekd_mospred -----
+
+ftn   -nofree -xHost -fpscomp logicals -O2 -fp-model strict -i4 -real-size 32 -zero -debug extended -axCORE-AVX2  -c -o mospred.o mospred.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O2 -fp-model strict -i4 -real-size 32 -zero -debug extended -axCORE-AVX2  -c -o u201.o u201.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O2 -fp-model strict -i4 -real-size 32 -zero -debug extended -axCORE-AVX2  -c -o ensmean.o ensmean.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O2 -fp-model strict -i4 -real-size 32 -zero -debug extended -axCORE-AVX2  -c -o modcdf.o modcdf.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+modcdf.f(1): (col. 18) remark: modcdf_ has been targeted for automatic cpu dispatch
+ftn   -nofree -xHost -fpscomp logicals -O2 -fp-model strict -i4 -real-size 32 -zero -debug extended -axCORE-AVX2  -c -o pred21.o pred21.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O2 -fp-model strict -i4 -real-size 32 -zero -debug extended -axCORE-AVX2  -c -o pred22.o pred22.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O2 -fp-model strict -i4 -real-size 32 -zero -debug extended -axCORE-AVX2  -c -o option.o option.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn   -nofree -xHost -fpscomp logicals -O2 -fp-model strict -i4 -real-size 32 -zero -debug extended -axCORE-AVX2  -c -o optn2.o optn2.f
+ifort: command line warning #10121: overriding '-mavx' with '-xHost'
+ftn    -o ekd_mospred mospred.o u201.o ensmean.o modcdf.o pred21.o pred22.o option.o optn2.o ../../lib/libensmdl_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a
+
+Program ekd_mospred successfully created
+
+----- ekd_ra2grib2 -----
+
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o ra2grib2.o ra2grib2.f
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o u135.o u135.f
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o chkgrid.o chkgrid.f
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o rdsect1.o rdsect1.f
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o rdsect2.o rdsect2.f
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o rdsect3.o rdsect3.f
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o rdsect4.o rdsect4.f
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o rdsect5.o rdsect5.f
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o rdtdlpk.o rdtdlpk.f
+rdtdlpk.f(1): (col. 18) remark: rdtdlpk_ has been targeted for automatic cpu dispatch
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o packgrib2.o packgrib2.f
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o chkdup.o chkdup.f
+chkdup.f(1): (col. 18) remark: chkdup_ has been targeted for automatic cpu dispatch
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o chkgrid4.o chkgrid4.f
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2  -c -o gribclose.o gribclose.f
+ftn  -o ekd_ra2grib2 ra2grib2.o u135.o chkgrid.o rdsect1.o rdsect2.o rdsect3.o rdsect4.o rdsect5.o rdtdlpk.o packgrib2.o chkdup.o chkgrid4.o gribclose.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.0/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/g2/v1.4.1/intel/libg2_v1.4.1_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a /usrx/local/prod//jasper/1.900.1/gnu/sandybridge/lib/libjasper.a /usrx/local/prod//png/1.2.44/intel/sandybridge/lib/libpng.a /usrx/local/prod/zlib/1.2.7/intel/sandybridge/lib/libz.a
+/usrx/local/prod//jasper/1.900.1/gnu/sandybridge/lib/libjasper.a(jas_stream.o): In function `jas_stream_tmpfile':
+/usrx/local/prod/jasper/1.900.1/gnu/sandybridge/sorc/jasper-1.900.1/src/libjasper/base/jas_stream.c:368: warning: the use of `tmpnam' is dangerous, better use `mkstemp'
+
+Program ekd_ra2grib2 successfully created
+
+----- ekd_ra2ra -----
+
+ftn -O3 -fp-model strict -nofree -auto -fpscomp logicals -zero -real-size 32 -i4 -axCORE-AVX2  -c -o ra2ra.o ra2ra.f
+ra2ra.f(1): (col. 15) remark: MAIN__ has been targeted for automatic cpu dispatch
+ftn  -o ekd_ra2ra ra2ra.o ../../lib/libensmdl_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a
+
+Program ekd_ra2ra successfully created

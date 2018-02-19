@@ -1,0 +1,260 @@
+#!/bin/sh
+#######################################################################
+#  Job Name: exekd_gridprep.sh.ecf
+#  Purpose: To run all steps necessary to create the first guess grids 
+#           for all domains for EKDMOS grids.              .  
+#  Remarks: 
+#  HISTORY: Mar 08, 2016      - Created from exekd_akprep.sh.ecf    
+#######################################################################
+#
+echo EKDLOG: `date` - Begin job ekd_gridprep
+set -x
+
+cd $DATA
+echo $PDY $cyc: Date and Cycle - echo PDY and cyc
+
+export DAT="$PDY$cyc"
+
+#######################################################################
+# COPY MODEL FILES TO TEMP SPACE -- this file is created in job
+#    exekd_stnfcst_*.  Contains GEFS and CMCE data from 0 - 384 hours.
+#######################################################################
+let gefs_error=0
+let cmce_error=0
+for pert in 40 41 42 43 44 45 46 47 48 49 50\
+               51 52 53 54 55 56 57 58 59 60; do
+   cp ${COMIN}/gefs.mdlp.grid.${pert}.$cycle .
+   let gefs_error=$?+$gefs_error
+   cp ${COMIN}/cmce.mdlp.grid.${pert}.$cycle .
+   let cmce_error=$?+$cmce_error
+done
+if [ $gefs_error -ne 0 ] && [ $cmce_error -ne 0 ]; then
+   echo "GEFS and CMCE data are both missing - check stnfcst jobs!"
+   # exit
+   pgm=ekdmos_gridprep
+   export err=1; err_chk
+fi
+#
+#######################################################################
+#
+# PROGRAM RACREATE - MOS-2000 PROGRAM WHICH
+#                   CREATES RANDOM ACCESS FILES; IN THIS CASE, THE
+#                   CODE IS USED TO CREATE THE OPERATIONAL GEFS
+#                   FORECAST FILE.
+#                   RUN A SECOND TIME FOR THE CMCE
+# THIS ONE HAS A SPECIAL CN FILE FOR GMOS
+#######################################################################
+#
+echo EKDLOG: `date` - begin job RACREATE - CREATE GEFS FORECAST FILE
+export pgm=mdl_racreate
+. prep_step
+export FORT50="gefs_dmomodel_ra.$cycle"
+startmsg
+$EXECmdl/mdl_racreate < $PARMekd/ekd_u350.cn >> $pgmout 2>errfile
+export err=$?; err_chk
+echo EKDLOG: `date` - RACREATE ended
+#
+echo EKDLOG: `date` - begin job RACREATE - CREATE CMCE FORECAST FILE
+export pgm=mdl_racreate
+. prep_step
+export FORT50="cmce_dmomodel_ra.$cycle"
+startmsg
+$EXECmdl/mdl_racreate < $PARMekd/ekd_u350.cn >> $pgmout 2>errfile
+export err=$?; err_chk
+echo EKDLOG: `date` - RACREATE ended
+#
+#
+#######################################################################
+#
+#  PROGRAM RAINIT - INITIALIZES RANDOM ACCESS MOS FORECAST
+#                   FILE WITH STATION CALL LETTERS,
+#                   ELEVATION, LATITUDE, AND LONGITUDE
+#
+#######################################################################
+export pgm=ekd_rainit
+. prep_step
+echo EKDLOG: `date` - begin job RAINIT - INITIALIZE GEFS FORECAST FILE
+export FORT10="ncepdate"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT49="gefs_dmomodel_ra.$cycle"
+startmsg
+$EXECmdl/mdl_rainit < $PARMekd/ekd_u351.cn >> $pgmout 2>errfile
+export err=$?; err_chk
+echo EKDLOG: `date` - RAINIT ended
+#
+export pgm=ekd_rainit
+. prep_step
+echo EKDLOG: `date` - begin job RAINIT - INITIALIZE GEFS FORECAST FILE
+export FORT10="ncepdate"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT49="cmce_dmomodel_ra.$cycle"
+startmsg
+$EXECmdl/mdl_rainit < $PARMekd/ekd_u351.cn >> $pgmout 2>errfile
+export err=$?; err_chk
+echo EKDLOG: `date` - RAINIT ended
+#
+#######################################################################
+#
+# PROGRAM GRIDPOST - USED TO GENERATE FIRST GUESS AND LAPSE RATE 
+#                    GRIDS FOR GEFS EKDMOS
+#
+#######################################################################
+##
+export pgm=ekd_gridpost 
+. prep_step
+export FORT10="ncepdate"
+export FORT20="gefs.mdlp.grid.40.$cycle"
+export FORT21="gefs.mdlp.grid.41.$cycle"
+export FORT22="gefs.mdlp.grid.42.$cycle"
+export FORT23="gefs.mdlp.grid.43.$cycle"
+export FORT24="gefs.mdlp.grid.44.$cycle"
+export FORT25="gefs.mdlp.grid.45.$cycle"
+export FORT26="gefs.mdlp.grid.46.$cycle"
+export FORT27="gefs.mdlp.grid.47.$cycle"
+export FORT28="gefs.mdlp.grid.48.$cycle"
+export FORT29="gefs.mdlp.grid.49.$cycle"
+export FORT30="gefs.mdlp.grid.50.$cycle"
+export FORT31="gefs.mdlp.grid.51.$cycle"
+export FORT32="gefs.mdlp.grid.52.$cycle"
+export FORT33="gefs.mdlp.grid.53.$cycle"
+export FORT34="gefs.mdlp.grid.54.$cycle"
+export FORT35="gefs.mdlp.grid.55.$cycle"
+export FORT36="gefs.mdlp.grid.56.$cycle"
+export FORT37="gefs.mdlp.grid.57.$cycle"
+export FORT38="gefs.mdlp.grid.58.$cycle"
+export FORT39="gefs.mdlp.grid.59.$cycle"
+export FORT40="gefs.mdlp.grid.60.$cycle"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT66="$PARMekd/ekd_dmoprd_gefs.$cycle"
+export FORT69="$FIXekd/ekd_mos2000id.tbl"
+export FORT45="gefs_dmomodel_sq.$cycle"
+export FORT42="gefs_dmomodel_ra.$cycle"
+startmsg
+$EXECekd/ekd_gridpost < $PARMekd/ekd_gridpost_gefs.cn  >> $pgmout
+export err=$?;err_chk
+
+echo EKDLOG: `date` -  GRIDPOST ended
+#######################################################################
+#
+# PROGRAM GRIDPOST - USED TO GENERATE FIRST GUESS AND LAPSE RATE 
+#                    GRIDS FOR CMCE EKDMOS
+#
+#######################################################################
+#
+export pgm=ekd_gridpost 
+. prep_step
+export FORT10="ncepdate"
+export FORT20="cmce.mdlp.grid.40.$cycle"
+export FORT21="cmce.mdlp.grid.41.$cycle"
+export FORT22="cmce.mdlp.grid.42.$cycle"
+export FORT23="cmce.mdlp.grid.43.$cycle"
+export FORT24="cmce.mdlp.grid.44.$cycle"
+export FORT25="cmce.mdlp.grid.45.$cycle"
+export FORT26="cmce.mdlp.grid.46.$cycle"
+export FORT27="cmce.mdlp.grid.47.$cycle"
+export FORT28="cmce.mdlp.grid.48.$cycle"
+export FORT29="cmce.mdlp.grid.49.$cycle"
+export FORT30="cmce.mdlp.grid.50.$cycle"
+export FORT31="cmce.mdlp.grid.51.$cycle"
+export FORT32="cmce.mdlp.grid.52.$cycle"
+export FORT33="cmce.mdlp.grid.53.$cycle"
+export FORT34="cmce.mdlp.grid.54.$cycle"
+export FORT35="cmce.mdlp.grid.55.$cycle"
+export FORT36="cmce.mdlp.grid.56.$cycle"
+export FORT37="cmce.mdlp.grid.57.$cycle"
+export FORT38="cmce.mdlp.grid.58.$cycle"
+export FORT39="cmce.mdlp.grid.59.$cycle"
+export FORT40="cmce.mdlp.grid.60.$cycle"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT66="$PARMekd/ekd_dmoprd_cmce.$cycle"
+export FORT69="$FIXekd/ekd_mos2000id.tbl"
+export FORT45="cmce_dmomodel_sq.$cycle"
+export FORT42="cmce_dmomodel_ra.$cycle"
+startmsg
+$EXECekd/ekd_gridpost < $PARMekd/ekd_gridpost_cmce.cn  >> $pgmout
+export err=$?;err_chk
+
+echo EKDLOG: `date` -  GRIDPOST ended
+#######################################################################
+#
+#  PROGRAM RA2RA  - MERGES RANDOM ACCESS FILES FROM INDIVIDUAL ENSEMBLE
+#                   SYSTEMS INTO ONE RANDOM ACCESS FILE FOR USE IN U202
+#
+#######################################################################
+cp $FIXekd/ekd_rafile_template naefs_dmomodel_ra.$cycle
+echo EKDLOG: `date` - begin job RA2RA - MERGE EKDMOS FORECAST FILES
+export pgm=ekd_ra2ra
+. prep_step
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT60="naefs_dmomodel_ra.$cycle"
+export FORT30="gefs_dmomodel_ra.$cycle"
+export FORT31="cmce_dmomodel_ra.$cycle"
+startmsg
+$EXECekd/ekd_ra2ra < $PARMekd/ekd_ra2ra_dmo.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+echo EKDLOG: `date` -  RA2RA ended
+#######################################################################
+#
+# PROGRAM GRIDPOST - USED TO COMBINE FIRST GUESS AND LAPSE RATE 
+#                    GRIDS FOR NAEFS EKDMOS
+#
+#######################################################################
+#
+export pgm=ekd_gridpost 
+. prep_step
+export FORT10="ncepdate"
+export FORT21="gefs_dmomodel_sq.$cycle"
+export FORT22="cmce_dmomodel_sq.$cycle"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT28="$PARMekd/ekd_dmoprd_naefs.$cycle"
+export FORT29="$FIXekd/ekd_mos2000id.tbl"
+export FORT35="naefs_dmomodel_sq.$cycle"
+export FORT42="naefs_dmomodel_ra.$cycle"
+startmsg
+$EXECekd/ekd_gridpost < $PARMekd/ekd_gridpost_naefs.cn  >> $pgmout
+export err=$?;err_chk
+ls -l $FORT35
+if test "$SENDCOM" = 'YES'
+then
+   cp naefs_dmomodel_sq.$cycle $COMOUT
+   cp naefs_dmomodel_ra.$cycle $COMOUT
+fi
+
+echo EKDLOG: `date` -  GRIDPOST ended
+#######################################################################
+# PROGRAM GRD2GRD - ORIENT THE GRID FOR EACH DOMAIN   
+#         (U365)
+#######################################################################
+for domain in co ak hi pr; do
+   cp $FIXekd/ekd_rafile_template naefs_${domain}gekddmo.$cycle
+   cp naefs_dmomodel_ra.${cycle} naefs_${domain}dmomodel_ra.${cycle}
+
+   echo EKDLOG: `date` - begin job GRD2GRD - INTERPOLATE TO NDFD GRID
+
+   export pgm=ekd_grd2grd
+   . prep_step
+   startmsg
+   export FORT10="ncepdate"
+   export FORT25="naefs_dmomodel_sq.$cycle"
+   ls -l $FORT25
+   export FORT28="$FIXekd/ekd_mos2000id.tbl"
+   export FORT27="$PARMekd/ekd_grd2grd_dmo.$cycle"     
+   export FORT80="naefs_${domain}gekddmo_sq.$cycle"
+   $EXECekd/ekd_grd2grd < $PARMekd/ekd_grd2grd_${domain}dmo.cn >> $pgmout 2>errfile
+   export err=$?; err_chk
+   if test "$SENDCOM" = 'YES'
+   then
+      cp naefs_${domain}gekddmo_sq.$cycle $COMOUT
+   fi
+   echo EKDLOG: `date` - GRD2GRD ended
+done
+#
+echo EKDLOG: `date` - Job ekd_gridprep has ended.
+#######################################################################

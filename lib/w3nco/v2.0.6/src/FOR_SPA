@@ -1,0 +1,14 @@
+Installation instructions:
+
+On the Cray system:
+- create module files for the new version in .../nwprod/lib/modulefiles/
+- cd into src folder 
+- module load PrgEnv-intel w3nco-intel craype-sandybridge
+- module list 2>compile-intel.log
+- ./makelibw3_nco.sh &>>compile-intel.log
+- module switch PrgEnv-intel PrgEnv-cray
+- module switch w3nco-intel w3nco-cray-haswell
+- module switch craype-sandybridge craype-haswell
+- module list 2>compile-cray.log
+- ./makelibw3_nco.sh &>>compile-cray.log
+

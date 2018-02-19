@@ -1,0 +1,70 @@
+create random access file with 1651 stations
+   1   0   1   1
+ 26    STATION LIST
+ 27    STATION DIRECTORY
+ 99
+ 60    OUTPUT RANDOM ACCESS FILE
+ 99
+ 30    INPUT RANDOM ACCESS FILE #1 
+ 99
+   999999
+ 31    INPUT RANDOM ACCESS FILE #2
+ 99
+   999999                                   
+ 32    INPUT RANDOM ACCESS FILE #3
+ 99
+   999999                                   
+ 33    INPUT RANDOM ACCESS FILE #4
+ 99
+   999999                                   
+ 34    INPUT RANDOM ACCESS FILE #5
+ 99
+   999999                                   
+ 35    INPUT RANDOM ACCESS FILE #6
+ 99
+   999999                                   
+ 36    INPUT RANDOM ACCESS FILE #7
+ 99
+   999999                                   
+ 37    INPUT RANDOM ACCESS FILE #8
+ 99
+   999999                                   
+ 38    INPUT RANDOM ACCESS FILE #9
+ 99
+   999999                                   
+ 39    INPUT RANDOM ACCESS FILE #10
+ 99
+   999999                                   
+ 40    INPUT RANDOM ACCESS FILE #11
+ 99
+   999999                                   
+ 41    INPUT RANDOM ACCESS FILE #12
+ 99
+   999999                                   
+ 42    INPUT RANDOM ACCESS FILE #13
+ 99
+   999999                                   
+ 43    INPUT RANDOM ACCESS FILE #14
+ 99
+   999999                                   
+ 44    INPUT RANDOM ACCESS FILE #15
+ 99
+   999999                                   
+ 45    INPUT RANDOM ACCESS FILE #16
+ 99
+   999999                                   
+ 46    INPUT RANDOM ACCESS FILE #17
+ 99
+   999999                                   
+ 47    INPUT RANDOM ACCESS FILE #18
+ 99
+   999999                                   
+ 48    INPUT RANDOM ACCESS FILE #19
+ 99
+   999999                                   
+ 49    INPUT RANDOM ACCESS FILE #20
+ 99
+   999999                                   
+ 50    INPUT RANDOM ACCESS FILE #21
+ 99
+   999999

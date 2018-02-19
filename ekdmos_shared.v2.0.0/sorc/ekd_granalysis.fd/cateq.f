@@ -1,0 +1,254 @@
+      SUBROUTINE CATEQ(KFILDO,P,DSAV,PSAV,NX,NY,
+     1                 CCALL,NAME,XP,YP,XDATA,LTAGPT,NSTA,IER)
+C
+C        DECEMBER  2009   GLAHN   TDL   MOS-2000
+C                                 ADAPTED FROM SETCFT
+C        MARCH     2010   GLAHN   ADDED 220 DIAGNOSTIC
+C        MAY       2010   GLAHN   ASSURED GRIDPOINT IX,JY WITHIN GRID;
+C                                 ASSURED GRID VALUE IS NOT MISSING
+C        MAY       2010   GLAHN   ELIMINATED "CEILING HEIGHT' IN
+C                                 DIAGNOSTICS; COMMENTS; SPELL CHECK
+C        JULY      2010   GLAHN   ADDED COMMENTS; REMOVED "D" ON
+C                                 DIAGNOSTICS AT 121 AND 1215
+C
+C        PURPOSE
+C            TO MAKE SURE THE CLOSEST GRIDPOINT IN P( , ) TO A
+C            STATION HAS A VALUE WITHIN THE RANGE OF THE CATEGORY
+C            IN XDATA( ).  BOTH P( , ) AND XDATA( ) ARE IN 
+C            CATEGORIES.  THESE CAN BE CEILING HEIGHT OR VISIBILITY,
+C            FORECASTS OR OBSERVATIONS. 
+C
+C        DATA SET USE
+C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C            P(IX,JY) = ANALYSIS GRID (IX=1,NX) (JY=1,NY).
+C                       (INPUT/OUTPUT)
+C         DSAV(IX,JY) = WORK ARRAY (IX=1,NX) (JY=1,NY).  HOLDS
+C                       DISTANCES TO CONTROLLING STATION.  (INTERNAL)
+C         DSAV(IX,JY) = WORK ARRAY (IX=1,NX) (JY=1,NY).  HOLDS
+C                       INCOMING P( , ) UNTIL OUTPUT.  (INTERNAL)
+C                  NX = X EXTENT OF GRID IN P( , ).  (INPUT)
+C                  NY = Y EXTENT OF GRID IN P( , ).  (INPUT)
+C            CCALL(K) = CALL LETTERS OF STATION K (K=1,NSTA).  
+C                       (CHARACTER*8)  (INPUT)
+C             NAME(K) = NAME OF STATION K (K=1,NSTA).  
+C                       (CHARACTER*8)  (INPUT)
+C               XP(K) = THE X POSITION FOR STATION K (K=1,NSTA) ON 
+C                       THE GRID IN P( , ).  (INPUT)
+C               YP(K) = THE Y POSITION FOR STATION K (K=1,NSTA) ON 
+C                       THE GRID IN P( , ).  (INPUT)
+C            XDATA(K) = CATEGORICAL VALUES (K=1,NVAL).
+C                       (INPUT)
+C           LTAGPT(K) = HOLDS THE LTAG VALUES TO BE USED BY SUBROUTINE
+C                       CATEQ.  THE USABLE ORIGINAL DATA VALUES HAVE
+C                       A ZERO IN LTAGPT( ) AND THE AUGMENTED ONES HAVE
+C                       A 1.  (INTERNAL)  (AUTOMATIC)
+C                NSTA = THE NUMBER OF VALUES IN XDATA( ) BEING DEALT
+C                       WITH.  (INPUT)
+C                 IER = ERROR RETURN.
+C                       0 = GOOD RETURN.
+C                       (OUTPUT)
+C              NCOUNT = COUNT OF COMPARISONS.  (INTERNAL)
+C              ICOUNT = COUNT OF CHANGES.  (INTERNAL)
+C               NOINC = COUNT OF INCREASES.  (INTERNAL)
+C               NODEC = COUNT OF DECREASES.  (INTERNAL)
+C              AVGCHG = ACCUMULATION AND THEN AVERAGE OF CHANGES.
+C                       (INTERNAL)
+C              AVGABS = ACCUMULATION AND THEN AVERAGE OF ABSOLUTE
+C                       CHANGES.  (INTERNAL)
+C                   F = FRACTION OF CHANGES OF TOTAL (IN PERCENT).
+C                       (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C 
+C        NONSYSTEM SUBROUTINES USED 
+C            NONE
+C
+      CHARACTER*8 CCALL(NSTA)
+      CHARACTER*20 NAME(NSTA)
+C
+      DIMENSION XDATA(NSTA),XP(NSTA),YP(NSTA),LTAGPT(NSTA)
+      DIMENSION P(NX,NY),DSAV(NX,NY),PSAV(NX,NY)
+C
+D     CALL TIMPR(KFILDO,KFILDO,'START CATEQ         ')
+C
+      IER=0
+      NCOUNT=0
+      ICOUNT=0
+      NOINC=0
+      NODEC=0
+      AVGCHG=0.
+      AVGABS=0.
+C
+C        INITIALIZE DSAV( , ).
+C
+      DO 110 JY=1,NY
+      DO 109 IX=1,NX
+      DSAV(IX,JY)=9999.
+      PSAV(IX,JY)=P(IX,JY)
+ 109  CONTINUE
+ 110  CONTINUE
+C
+      DO 200 K=1,NSTA
+C
+CCC      WRITE(KFILDO,112)K,CCALL(K),NAME(K),LTAGPT(K)
+CCC 112  FORMAT(/' AT 112 IN CATEQ--K,CCALL(K),NAME(K),LTAGPT(K)',
+CCC     1       I7,1X,A6,1X,A20,I6)
+C
+      IF(XDATA(K).GT.9998.9)GO TO 200
+      IF(LTAGPT(K).NE.0)GO TO 200
+C        ON TRANSFER, THIS IS AN AUGMENTED STATION AND NOT TO BE
+C        DEALT WITH HERE.
+      NCOUNT=NCOUNT+1
+      DMIN=9999.
+      IX=XP(K)
+      JY=YP(K)
+C
+      DO 120 M=0,1
+      DO 119 N=0,1
+      D=(XP(K)-(IX+N))**2+(YP(K)-(JY+M))**2
+C
+      IF(D.LT.DMIN)THEN
+         DMIN=D
+         NSAV=N
+         MSAV=M
+      ENDIF
+C
+ 119  CONTINUE
+ 120  CONTINUE
+C
+      IX=IX+NSAV
+      JY=JY+MSAV
+C
+C        ASSURE LOCATION IS WITHIN THE GRID.  THE IX, JY ARE THE
+C        X AND Y COORDINATES OF THE GRIDPOINT CLOSEST TO THE STATION.
+C
+      IF(IX.LT.1.OR.IX.GT.NX.OR.
+     1   JY.LT.1.OR.JY.GT.NY)THEN
+C
+         WRITE(KFILDO,121)CCALL(K),NAME(K)
+ 121     FORMAT(/' STATION ',A8,A20,' IS OUTSIDE GRID. IN CATEQ.')
+C
+         GO TO 200
+      ENDIF
+C
+      D=(XP(K)-(IX))**2+(YP(K)-(JY))**2
+C
+      IF(D.LT.DSAV(IX,JY))THEN
+         NSCAT=MAX(1.,XDATA(K))
+         NGCAT=MAX(1.,P(IX,JY))
+C
+C           THE GRID HAS BEEN CLIPPED.  MAKE SURE THE VALUE
+C           IN P(IX,JY) IS NOT MISSING.
+C
+         IF(NGCAT.GE.9998)THEN
+C
+            WRITE(KFILDO,1215)CCALL(K),NAME(K)
+ 1215       FORMAT(/' STATION ',A8,A20,' IS OUTSIDE CLIPPED GRID.',
+     1              ' IN CATEQ.')
+C
+            GO TO 200
+         ENDIF
+C
+C           THE VALUES IN XDATA( ) AND P(IX,JY) ARE CATEGORY VALUES
+C           SCALED WITHIN CATEGORIES.  THE MAX FUNCTION GUARDS
+C           AGAINST NEGATIVE VALUES. 
+C
+D        WRITE(KFILDO,122)XDATA(K),NSCAT,P(IX,JY),NGCAT
+D122     FORMAT(' AT 122 IN CATEQ--XDATA(K),NSCAT,P(IX,JY),NGCAT',
+D    1           F12.5,I4,F12.5,I4)
+C
+         IF(NGCAT.LT.NSCAT)THEN
+            PSAV(IX,JY)=NSCAT+.02
+C              THE GRIDPOINT IS BELOW THE STATION CATEGORY,
+C              SO SET IT TO THE LOW END OF THE SCALED STATION
+C              CATEGORY PLUS AN INCREMENT TO CIRCUMVENT
+C              POSSIBLE PRECISION PROBLEMS.
+            ICOUNT=ICOUNT+1
+            NOINC=NOINC+1
+            AVGCHG=AVGCHG+    PSAV(IX,JY)-NGCAT
+            AVGABS=AVGABS+ABS(PSAV(IX,JY)-NGCAT)
+C
+D           IF(DSAV(IX,JY).GT.9998.)THEN         
+C         
+D              WRITE(KFILDO,125)CCALL(K),NAME(K),XDATA(K),NSCAT,
+D    1                          P(IX,JY),NGCAT,PSAV(IX,JY)
+D125           FORMAT(' STATION ',A8,1X,A20,' OF',F9.5,I3, ' ADJUSTED',
+D    1                ' CLOSEST GRIDPOINT VALUE OF ',F9.5,I3,
+D    2                '  UP TO ',F9.5)
+D           ELSE
+D              WRITE(KFILDO,126)CCALL(K),NAME(K),XDATA(K),NSCAT,
+D    1                          P(IX,JY),NGCAT,PSAV(IX,JY)
+D126           FORMAT(' STATION ',A8,1X,A20,' OF',F9.5,I3, ' ADJUSTED',
+D    1                ' CLOSEST GRIDPOINT VALUE OF ',F9.5,I3,
+D    2                '  UP TO ',F9.5,'  SECOND ADJUSTMENT.')
+D           ENDIF
+C
+         ELSEIF(NGCAT.GT.NSCAT)THEN
+            PSAV(IX,JY)=NSCAT+.98
+C              THE GRIDPOINT IS ABOVE THE STATION CATEGORY,
+C              SO SET IT TO THE HIGH END OF THE SCALED STATION
+C              CATEGORY MINUS AN INCREMENT TO CIRCUMVENT
+C              POSSIBLE PRECISION PROBLEMS.
+            ICOUNT=ICOUNT+1
+            NODEC=NODEC+1
+            AVGCHG=AVGCHG+    PSAV(IX,JY)-NGCAT
+            AVGABS=AVGABS+ABS(PSAV(IX,JY)-NGCAT)
+C
+D           IF(DSAV(IX,JY).GT.9998.)THEN         
+C         
+D              WRITE(KFILDO,135)CCALL(K),NAME(K),XDATA(K),NSCAT,
+D    1                          P(IX,JY),NGCAT,PSAV(IX,JY)
+D135           FORMAT(' STATION ',A8,1X,A20,' OF',F9.5,I3, ' ADJUSTED',
+D    1                ' CLOSEST GRIDPOINT VALUE OF ',F9.5,I3,
+D    2                '  DOWN TO ',F9.5)
+D           ELSE
+D              WRITE(KFILDO,136)CCALL(K),NAME(K),XDATA(K),NSCAT,
+D    1                          P(IX,JY),NGCAT,PSAV(IX,JY)
+D136           FORMAT(' STATION ',A8,1X,A20,' OF',F9.5,I3, ' ADJUSTED',
+D    1                ' CLOSEST GRIDPOINT VALUE OF ',F9.5,I3,
+D    2                '  DOWN TO ',F9.5,'  SECOND ADJUSTMENT.')
+D           ENDIF
+C
+         ENDIF
+C
+C           THE STATION AND THE GRIDPOINT ARE OF THE SAME CATEGORY.
+C           SAVE IT IN DSAT( , ).
+C
+         DSAV(IX,JY)=D
+      ENDIF
+C
+C        WHEN DSAV( , ) IS LE D, IT IS NOT MODIFIED.
+C
+ 200  CONTINUE
+C
+      AVGCHG=AVGCHG/ICOUNT
+      AVGABS=AVGABS/ICOUNT
+      NF=NINT((REAL(ICOUNT)/REAL(NCOUNT))*100.)
+C
+      IF(ICOUNT.GT.0)THEN
+         WRITE(KFILDO,205)ICOUNT,NF,NOINC,NODEC,AVGCHG,AVGABS
+ 205     FORMAT(/,I6,' VALUES IN THE ANALYSIS GRID MODIFIED',
+     1           ' BY THE STATION VALUE AFTER THE ANALYSIS',
+     2           ' (',I2,' PERCENT OF STATIONS).'/
+     3           '   NO. INCREASES =',I5,
+     4           ',   NO. DECREASES =',I5,
+     5           ',   AVG CHANGE =', F5.2,' CATEGORIES',
+     6           ',   AVG ABS CHANGE =',F5.2,' CATEGORIES.')
+C
+         DO 210 JY=1,NY
+         DO 209 IX=1,NX
+         P(IX,JY)=PSAV(IX,JY)
+ 209     CONTINUE
+ 210     CONTINUE
+C
+      ELSE
+         WRITE(KFILDO,220)
+ 220     FORMAT(/' NO VALUES IN THE ANALYSIS GRID WERE MODIFIED',
+     1           ' BY THE STATION VALUE AFTER THE ANALYSIS.',
+     2           '  WAHOO!')
+      ENDIF
+C      
+      RETURN
+      END

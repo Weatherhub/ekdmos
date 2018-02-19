@@ -1,0 +1,143 @@
+   4   2   2   4   0   0   4   0     60. TEMPERATURE PROB   7   0   2   2   1   NPASS,IFSTGS,IGUESS(1-4),IBACKN,IBACKL,GUESS,TITLE,NSMTYP,I400ADG,LAPFG,LIMIT,IVRAD
+   2  1.00  1.00  1.00  1.00  0  1 +1 10 20000 20000   0 1 1   1 .25  36   1  111111  0. .00   IQUALC,QUALWT(1-4),ISETP,ILS,IBKPN,LPNO,HGTTHA,HGTTHB,IWITH,IWSEED,ITYPR,NBLEND,CSTSM,N4P,NCLIP,NSHLHL(6),WTWTL,WTLTW
+   1     0    0      0     0     0              COMBINE UP TO 5 RUNS
+        1.    1.    .0    .0    .0              WEIGHTS FOR RUNS (ANALYSIS)
+        1.    1.    .0    .0    .0              WEIGHTS FOR RUNS (LAPSE)
+ 222020000         0         0         0                           ID OF ANALYSIS (TEMPERATURE) 
+ 202000000         0         0         0                           ID OF DATA TO ANALYZE        
+ 002301061         0         0         0                           ID OF FIRST GUESS WHEN IGUESS = 2
+         0         0         0         0                           ID OF FIRST GUESS WHEN IGUESS = 3
+ 203000000         0         0         0                           ID OF DEW POINT OBS FOR LAPSE
+         0         0         0         0                           ID OF ADDITIONAL FIELD IF NEEDED
+         0         0         0         0                           ID OF ADDITIONAL FIELD IF NEEDED
+       3       3       3       3       3                           MESH LENGTHS, MSHPAS, GUESS OPTION 1
+       3       3       3       3       3                           MESH LENGTHS, MSHPAS, GUESS OPTION 2
+       3       3       3       3       3                           MESH LENGTHS, MSHPAS, GUESS OPTION 3
+       3       3       3       3       3                           MESH LENGTHS, MSHPAS, GUESS OPTION 4
+     60.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 1 
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     60.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4
+     60.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 2 
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     60.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4
+     60.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 3 
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     60.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 4
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 5
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 6
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4  
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 7
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4 
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 8
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 9
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 10
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     50.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4
+     60.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 11
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     60.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4
+     60.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 1, MONTH 12
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 2
+     35.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 3
+     60.     25.     21.     18.     18.                           ERROR LIMITS, ER1, GUESS OPTION 4
+       3       3       3       3       3                           TYPE OF CORRECTION, NTYPE, GUESS OPTION 1
+       3       3       3       3       3                           TYPE OF CORRECTION, NTYPE, GUESS OPTION 2
+       3       3       3       3       3                           TYPE OF CORRECTION, NTYPE, GUESS OPTION 3
+       3       3       3       3       3                           TYPE OF CORRECTION, NTYPE, GUESS OPTION 4
+      .0      .0      .0     4.0     4.0                           SMOOTHING PARAMETER, B, GUESS OPTION 1
+      .0      .0      .0     4.0     4.0                           SMOOTHING PARAMETER, B, GUESS OPTION 2
+      .0      .0      .0     4.0     4.0                           SMOOTHING PARAMETER, B, GUESS OPTION 3  (USE 1 TO WEIGHT POINT
+      .0      .0      .0     4.0     4.0                     four  SMOOTHING PARAMETER, B, GUESS OPTION 4   AND AVERAGE THE SAME)
+    74.0    55.0    40.0    30.0    20.0                           RADIUS OF INFLUENCE, R, GUESS OPTION 1
+    74.0    55.0    40.0    30.0    20.0                           RADIUS OF INFLUENCE, R, GUESS OPTION 2
+    74.0    55.0    40.0    30.0    20.0                           RADIUS OF INFLUENCE, R, GUESS OPTION 3
+    74.0    55.0    40.0    30.0    20.0                           RADIUS OF INFLUENCE, R, GUESS OPTION 4
+       1       1       1       1       1                           TYPE OF INTERPOLATION, ITRPLQ, GUESS OPTION 1  
+       1       1       1       1       1                           TYPE OF INTERPOLATION, ITRPLQ, GUESS OPTION 2
+       1       1       1       1       1                           TYPE OF INTERPOLATION, ITRPLQ, GUESS OPTION 3
+       1       1       1       1       1                           TYPE OF INTERPOLATION, ITRPLQ, GUESS OPTION 4
+      1.     .05     .05     .05     .05                           FRACTION OF R TO USE DATA OUTSIDE GRID, GUESS OPTION 1
+      .3     .05     .05     .05     .05                           FRACTION OF R TO USE DATA OUTSIDE GRID, GUESS OPTION 2
+      .3     .05     .05     .05     .05                           FRACTION OF R TO USE DATA OUTSIDE GRID, GUESS OPTION 3 
+      1.     .05     .05     .05     .05                           FRACTION OF R TO USE DATA OUTSIDE GRID, GUESS OPTION 4
+       1       1       1       1       1                           TYPE OF LAND/SEA CORRECTION, GUESS OPTION 1  (LNDWAT)
+       1       1       1       1       1                           TYPE OF LAND/SEA CORRECTION, GUESS OPTION 2 
+       1       1       1       1       1                           TYPE OF LAND/SEA CORRECTION, GUESS OPTION 3
+       1       1       1       1       1                           TYPE OF LAND/SEA CORRECTION, GUESS OPTION 4
+       1       1       1       1       1        ALGORITHM 1        NUMBER OF CORRECTION ALGORITHM, GUESS OPTION 1
+       1       1       1       1       1        ALGORITHM 1        NUMBER OF CORRECTION ALGORITHM, GUESS OPTION 2
+       1       1       1       1       1                           NUMBER OF CORRECTION ALGORITHM, GUESS OPTION 3
+       1       1       1       1       1                           NUMBER OF CORRECTION ALGORITHM, GUESS OPTION 4
+      1.     .75      .5     .00      0.                           FRACTION OF ELEVATION CORRECTION TO APPLY OPTION 1
+      1.     .75      .5     .00      0.                           FRACTION OF ELEVATION CORRECTION TO APPLY OPTION 2
+      1.     .75      .5     .00      0.                           FRACTION OF ELEVATION CORRECTION TO APPLY OPTION 3
+      1.     .75      .5     .00      0.                           FRACTION OF ELEVATION CORRECTION TO APPLY OPTION 4
+      10      10      10      10       0                           NUMBER OF GRIDLENGTHS UNUSUAL LAPSE WILL AFFECT GRIDOINT, O 1
+      10      10      10      10       0                           NUMBER OF GRIDLENGTHS UNUSUAL LAPSE WILL AFFECT GRIDOINT, O 2
+      10      10      10      10       0                           NUMBER OF GRIDLENGTHS UNUSUAL LAPSE WILL AFFECT GRIDOINT, O 3
+      10      10      10      10       0                           NUMBER OF GRIDLENGTHS UNUSUAL LAPSE WILL AFFECT GRIDOINT, O 4
+      1.     .75      .5     .00      0.                           FRACTION OF ELEVATION CORRECTION OPTION 1 FOR UNUSUAL LAPSE
+      1.     .75      .5     .00      0.                           FRACTION OF ELEVATION CORRECTION OPTION 2 FOR UNUSUAL LAPSE
+      1.     .75      .5     .00      0.                           FRACTION OF ELEVATION CORRECTION OPTION 3 FOR UNUSUAL LAPSE
+      1.     .75      .5     .00      0.                           FRACTION OF ELEVATION CORRECTION OPTION 4 FOR UNUSUAL LAPSE
+     3.5     3.5     3.5     3.5     3.5                           FACTOR TO INCREASE R( , ) FOR OCEAN WATER POINTS
+     3.5     3.5     3.5     3.5     3.5                           FACTOR TO INCREASE R( , ) FOR INLAND POINTS
+       0       0       0       0       0                           NUMBER OF POINTS SAMPLED FROM THE FIRST GUESS TO USE, GUESS OPTION 1
+       0       0       0       0       0                           NUMBER OF POINTS SAMPLED FROM THE FIRST GUESS TO USE, GUESS OPTION 2
+       0       0       0       0       0                           NUMBER OF POINTS SAMPLED FROM THE FIRST GUESS TO USE, GUESS OPTION 3
+       0       0       0       0       0                           NUMBER OF POINTS SAMPLED FROM THE FIRST GUESS TO USE, GUESS OPTION 4
+     1.0     1.0     1.0     1.0     1.0                           SMULT
+      .0      .0      .0      .0      .0                           SADD
+      .0      .0      .0      .0      .0                           ORIGIN                           
+      5.      5.      5.      5.      5.                           CINT
+       0       0       0       0       0                           GRIDPRINTING OF UNSMOOTHED ANALYSIS, NPRT
+       0       0       0       0       0                           GRIDPRINTING OF SMOOTHED ANALYSIS, JPRT
+       1       1       1       1       1                           TDLPACKING OF UNSMOOTHED ANALYSIS, NPRT
+       1       1       1       1       1                           TDLPACKING OF SMOOTHED ANALYSIS, JPRT
+RDVRHL 40 ekd_co_granlstation_radii                                    THE PREPROCESSING SUBROUTINE 1 AND FILE NAME
+       0       0       0       0       0       0       0       0       PREPROCESSING CONSTANTS FOR SUBROUTINE 1
+                                                                       THE PREPROCESSING SUBROUTINE 2
+       0       0       0       0       0       0       0       0       PREPROCESSING CONSTANTS FOR SUBROUNTIE 2
+                                                                       THE PREPROCESSING SUBROUTINE 3
+       0       0       0       0       0       0       0       0       PREPROCESSING CONSTANTS FOR SUBROUNTIE 3
+                                                                       THE PREPROCESSING SUBROUTINE 4
+       0       0       0       0       0       0       0       0       PREPROCESSING CONSTANTS FOR SUBROUNTIE 4
+                                                                       THE PREPROCESSING SUBROUTINE 5
+       0       0       0       0       0       0       0       0       PREPROCESSING CONSTANTS FOR SUBROUTINE 5
+                                                                       THE PREPROCESSING SUBROUTINE 6
+       0       0       0       0       0       0       0       0       PREPROCESSING CONSTANTS FOR SUBROUTINE 6
+CONEKD                                                                 THE POSTROCESSING SUBROUTINE 1 FOR ARCHIVE GRID
+       0       0       0       0       0       0       0       0       POSTPROCESSING CONSTANTS FOR ARCHIVE SUBROUTINE 1
+ORSMTH                                                                 THE POSTROCESSING SUBROUTINE 2 FOR ARCHIVE GRID
+       0       0       0       0       0       0      25       1       POSTPROCESSING CONSTANTS FOR ARCHIVE SUBROUTINE 2
+                                                                       THE POSTROCESSING SUBROUTINE 3 FOR ARCHIVE GRID
+       0       0       0       0       0       0       0       0       POSTPROCESSING CONSTANTS FOR ARCHIVE SUBROUTINE 3
+                                                                       THE POSTROCESSING SUBROUTINE 1 FOR DISPOSABLE GRID
+       0       0       0       0       0       0       0       0       POSTPROCESSING CONSTANTS FOR DISPOSABLE SUBROUTINE 1
+                                                                       THE POSTROCESSING SUBROUTINE 2 FOR DISPOSABLE GRID
+       0       0       0       0       0       0       0       0       POSTPROCESSING CONSTANTS FOR DISPOSABLE SUBROUTINE 2
+                                                                       THE POSTROCESSING SUBROUTINE 3 FOR DISPOSABLE GRID
+       0       0       0       0       0       0       0       0       POSTPROCESSING CONSTANTS FOR DISPOSABLE SUBROUTINE 3
+       

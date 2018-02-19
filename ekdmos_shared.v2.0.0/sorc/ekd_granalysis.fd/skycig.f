@@ -1,0 +1,177 @@
+      SUBROUTINE SKYCIG(KFILDO,KFIL10,ID,IDPARS,
+     2                  P,NX,NY,TLOSKY,SETSKY,
+     3                  LSTORE,ND9,LITEMS,NDATE,
+     4                  IS0,IS1,IS2,IS4,ND7,
+     5                  IPACK,IWORK,DATA,ND5,
+     6                  CORE,ND10,NBLOCK,NFETCH,NSLAB,
+     7                  L3264B,ISTOP,IER)
+C
+C        JUNE      2010   GLAHN   TDL   MOS-2000
+C        JULY      2010   GLAHN   MODIFIED CALL TO INCLUDE TLOSKY,
+C                                 SETSKY
+C
+C        PURPOSE
+C            TO MAKE SURE THE SKY AMOUNT IS AT LEAST SETSKY PERCENT
+C            WHEN THERE IS A CEILING.  THE CEILING GRID IN INTERNAL
+C            STORAGE IS IN CATEGORIES.
+C
+C        DATA SET USE
+C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C            KFIL10    - UNIT NUMBER FOR INTERNAL RANDOM ACCESS STORAGE.
+C                       (INPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C              KFIL10 = UNIT NUMBER FOR INTERNAL RANDOM ACCESS STORAGE.
+C                       (INPUT)
+C               ID(J) = ID OF VARIABLE BEING ANALYZED (J=1,4).
+C                       (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE
+C                       ID'S CORRESPONDING TO ID( )
+C                       (J=1,15).  (INPUT)
+C            P(IX,JY) = GRID OF CEILING HEIGHTS (IX=1,NX) (JY=1,NY).
+C                       (INPUT/OUTPUT)
+C                  NX = X EXTENT OF GRID IN P( , ).  (INPUT)
+C                  NY = Y EXTENT OF GRID IN P( , ).  (INPUT)
+C              TLOSKY = THE LOWEST SKY AMOUNT (PERCENT) ALLOWED
+C                       WHEN THERE IS A CEILING.  (INPUT)
+C              SETSKY = THE VALUE TO GIVE TO A SKY GRIDPOINT WHEN
+C                       THERE IS A CEILING (NOT UNLIMITED) AND THE
+C                       SKY ANALYSIS HAS LESS THAN TLOSKY (PERCENT)
+C                       (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT/OUTPUT)
+C                 ND9 = MAXIMUM NUMBER OF FIELDS STORED IN LSTORE( , ).
+C                       SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS J IN LSTORE( ,L).  
+C                       (INPUT/OUTPUT)
+C               NDATE = THE DATE/TIME OF THE RUN.  (INPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,4).
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,21+).
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       (INPUT)
+C            IPACK(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C         DATA(IX,JY) = WORK ARRAY (IX=1,NX) (JY=1,NY).  DIMENSIONED
+C                       ND5 IN CALLING PROGRAM.  (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ), AND IWORK( ).
+C                       (INPUT)
+C             CORE(J) = SPACE ALLOCATED FOR SAVING PACKED GRIDPOINT 
+C                       FIELDS (J=1,ND10).  WHEN THIS SPACE IS 
+C                       EXHAUSTED, SCRATCH DISK WILL BE USED.  THIS IS 
+C                       THE SPACE USED FOR THE MOS-2000 INTERNAL RANDOM 
+C                       ACCESS SYSTEM.  (INPUT)
+C                ND10 = THE MEMORY IN WORDS ALLOCATED TO THE SAVING OF 
+C                       DATA CORE( ).  WHEN THIS SPACE IS EXHAUSTED,
+C                       SCRATCH DISK WILL BE USED.  (INPUT)
+C              NBLOCK = BLOCK SIZE IN WORDS OF INTERNAL MOS-2000 DISK
+C                       STORAGE.  (INPUT)
+C              NFETCH = INCREMENTED EACH TIME DATA ARE FETCHED BY
+C                       GFETCH.  IT IS A RUNNING COUNT FROM THE
+C                       BEGINNING OF THE PROGRAM.  THIS COUNT 
+C                       IS MAINTAINED IN CASE THE USER NEEDS IT
+C                       (DIAGNOSTICS, ETC.).  (OUTPUT)
+C               NSLAB = SLAB OF THE GRID CHARACTERISTICS.  RETURNED
+C                       BY GFETCH.  USED FOR CHECKING FOR EQUAL
+C                       CHARACTERISTICS OF GRIDS READ.  (OUTPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C            ISTOP(J) = ISTOP(1)--IS INCREMENTED BY 1 EACH TIME AN ERROR 
+C                                 OCCURS.
+C                       ISTOP(3)--IS INCREMENTED WHEN A DATA RECORD 
+C                                 COULD NOT BE FOUND.
+C                       (INPUT/OUTPUT)
+C                 IER = ERROR RETURN.
+C                       0 = GOOD RETURN.
+C                       (OUTPUT)
+C        1         2         3         4         5         6         7 X
+C 
+C        NONSYSTEM SUBROUTINES USED 
+C            NONE
+C
+      DIMENSION ID(4),IDPARS(15),LD(4)
+      DIMENSION P(NX,NY),DATA(NX,NY)
+      DIMENSION IPACK(ND5),IWORK(ND5)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION LSTORE(12,ND9)
+      DIMENSION CORE(ND10)
+      DIMENSION ISTOP(5)
+C
+D     CALL TIMPR(KFILDO,KFILDO,'START SKYCIG        ')
+      IER=0
+C
+C        FIND WHETHER THE ENTRY IS CORRECT.
+C
+      IF(ID(1)/1000.NE.228351)THEN
+         WRITE(KFILDO,105)(ID(J),J=1,4)
+ 105     FORMAT(/' ****ID( ) NOT CORRECT IN SKYCIG.',
+     1           '  ID = ',3I10.9,I10.3,
+     1           '.  CHECKING OF SKY AND CEILING GRIDS ABORTED.')
+         GO TO 210
+      ENDIF
+C
+C        SET LD( ) TO CEILING HEIGHT AT CORRECT DD AND TAU.
+C
+      LD(1)=228071000+IDPARS(4)
+      LD(2)=0
+      LD(3)=IDPARS(12)
+      LD(4)=0
+      CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,DATA,ND5,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,130)(LD(L),L=1,4),(ID(L),L=1,4)
+ 130     FORMAT(/,' ****COULDN''T FETCH GRID ',4I10, 
+     1            ' FROM INTERNAL STORAGE IN SKYCIG.',/,
+     2            '     GRID ',4I10,' NOT CHECKED',
+     3            ' FOR WITH CEILING HEIGHT.')
+         ISTOP(1)=ISTOP(1)+1
+         ISTOP(3)=ISTOP(3)+1
+         IER=0
+C           NOT COUNTED AS FATAL.	
+         GO TO 210
+      ENDIF
+C      
+      ICOUNT=0
+C   
+      DO 140 JY=1,NY
+      DO 139 IX=1,NX 
+C
+CCCC      IF(JY.EQ.400)THEN
+CCCC         WRITE(KFILDO,135)IX,JY,P(IX,JY),DATA(IX,JY),SETSKY
+CCCC 135     FORMAT(' SKYCIG--IX,JY,P(IX,JY),DATA(IX,JY),SETSKY',
+CCCC     1            2I6,3F10.3)
+CCCC      ENDIF
+C
+      IF(P(IX,JY).LT.TLOSKY)THEN
+C           LESS THAN TLOSKY PERCENT SKY COVERAGE.  THE CLIPPED GRID
+C           WILL CONTAIN MISSINGS (9999.), BUT THAT IS OK.  THEY
+C           WILL NOT BE CHANGED.
+C
+         IF(DATA(IX,JY).LE.8.)THEN
+C              THERE IS A CEILING.  SET SKY TO SETSKY.
+C              NOTE THAT THE INTERNAL STORAGE HAS NOT BEEN
+C              CLIPPED AND THAT THE VALUES ARE STILL CATEGORIES.
+            P(IX,JY)=SETSKY
+            ICOUNT=ICOUNT+1
+         ENDIF
+C
+      ENDIF
+C
+ 139  CONTINUE
+ 140  CONTINUE
+C 
+      IF(ICOUNT.GT.0)THEN
+         WRITE(KFILDO,205)ICOUNT
+ 205     FORMAT(/,I6,' VALUES IN THE SKY AMOUNT GRID',
+     1           ' MODIFIED BY CEILING HEIGHT GRID.')
+      ELSE
+         WRITE(KFILDO,206)
+ 206     FORMAT(/' SKY GRID CONSISTENT WITH CEILING HEIGHT.')
+      ENDIF
+C      
+ 210  RETURN
+      END

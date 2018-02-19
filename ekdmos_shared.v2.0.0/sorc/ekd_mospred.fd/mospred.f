@@ -1,0 +1,195 @@
+      PROGRAM MOSPRED
+C
+C$$$  MAIN PROGRAM DOCUMENTATION BLOCK  ***                             
+C                                                                       
+C MAIN PROGRAM: MDL_MOSPRED
+C   PRGMMR: COSGROVE        ORG: OST22      DATE: 2005-01-26
+C                                                                       
+C ABSTRACT:  DRIVER FOR PROGRAM U201.  SEE U201 COMMENTS OR PROGRAM
+C   WRITEUP FOR VARIABLE DEFINITIONS.  AN ATTEMPT HAS BEEN
+C   MADE TO INCLUDE ALL INFORMATION IN THIS DRIVER THAT
+C   THE USER OF U201 MIGHT HAVE TO CHANGE.  THE OPEN TO
+C   THE CONTROL FILE 'U201.CN' IS HERE SO THAT ACCESS TO THE
+C   CONTROL FILE CAN BE MODIFIED FOR CRAY OR BATCH HP JOBS.
+C                                                                       
+C PROGRAM HISTORY LOG:                                                  
+C   95-02-01  GLAHN                              
+C   00-04-21  DREWRY  ADDED NCEP DOCBLOCK. ADDED CALLS TO W3TAGB
+C                     AND W3TAGE. CHANGED THE VALUE OF KFILDO FROM
+C                     12 TO 6.                           
+C   00-06-21  ALLEN   INCREASED ND4 AND ND9 FROM 4000 TO 8000.
+C   03-08-25  RLC     ADDED DIMENSION MAXGRD FOR GRIDDED CONSTANTS.
+C                     SET TO 2.8 MILLION FOR BIGGEST FILE USED AT 
+C                     THIS TIME.  INCREASED ND4 AND ND9 TO 9000.
+C   03-11-03  RLC     INCREASED ND2 AND ND3 TO ETA32 DIMENSIONS
+C   03-11-18  RLC     INCREASED ND4 TO 11500.
+C   04-04-28  RLC     INCREASED ND4 TO 12000.
+C   04-06-09  RLC     INCREASED THE NUMBER OF SITES TO 110000 FOR
+C                     GMOS WESTERN TILE.
+C   06-04-25  JCM     INCREASED ND1 FROM 110,000 TO 400,000 FOR GMOS
+C                     OVER THE CONUS.
+C   07-02-02  JCM     INCREASED ND1 FROM 400,000 TO 510,000 FOR GMOS
+C                     OVER THE CONUS.
+C   07-05-01  JCM     INCREASED ND1 FROM 510,000 TO 650,000 FOR GMOS
+C                     OVER ALASKA.
+C                                                                       
+C USAGE:                                                                
+C                                                                       
+C        DATA SET USE                                                   
+C        INPUT FILES:
+C         FORT.KFILDI - UNIT NUMBER OF DEFAULT INPUT FILE.
+C                       THIS IS PROBABLY SPECIFIED FOR THE SYSTEM
+C                       BEING USED.  SET IN DATA STATEMENT.
+C
+C        OUTPUT FILES:  (INCLUDING WORK FILES)
+C         FORT.KFILDO - UNIT NUMBER OF DEFAULT OUTPUT (PRINT) FILE.
+C                       THIS IS PROBABLY SPECIFIED FOR THE SYSTEM
+C                       BEING USED.  SET IN DATA STATEMENT.
+C
+C        VARIABLES                                                      
+C                ND1  = THE MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+C                       ALSO, IT MUST BE GE NBLOCK IN LINEARIZATION ROUTINES.
+C                ND2  = ND2*ND3 IS THE MAXIMUM SIZE OF THE GRID THAT CAN
+C                       BE DEALT WITH.
+C                ND3  = ND2*ND3 IS THE MAXIMUM SIZE OF THE GRID THAT CAN
+C                       BE DEALT WITH.  SEE ND2.  BECAUSE ND5 = ND2X3,
+C                       AND ND5 MAY NEED TO BE LARGER THAN ND2X3, ND2
+C                       OR ND3 MAY NEED TO BE SET LARGER THAN NECESSARY.
+C                       SINCE THE INDIVIDUAL VALUES OF ND2 AND ND3 ARE
+C                       NOT USED, THIS IS OK.
+C                ND4  = THE MAXIMUM NUMBER OF PREDICTORS FOR WHICH
+C                       INTERPOLATED VALUES CAN BE PROVIDED.
+C                ND5  = DIMENSION OF IPACK( ), IWORK( ), AND DATA( ).
+C                       THESE ARE GENERAL PURPOSE ARRAYS, SOMETIMES USED
+C                       FOR GRIDS.  TO AVIOD ERRORS IN CERTAIN ROUTINES,
+C                       AND TO AVOID CONFUSION, ND5 SHOULD BE SET EQUAL TO
+C                       ND2X3.  ALSO, BECAUSE IPACK( ) AND IWORK( ) ARE
+C                       USED AS WORK ARRAYS IN RDSNAM, ND5 SHOULD NOT BE
+C                       LT ND12.
+C                ND6  = MAXIMUM NUMBER OF MODELS THAT CAN BE DEALT WITH.
+C                ND7  = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       SHOULD BE GE 54.
+C                ND8  = MAXIMUM NUMBER OF DATES THAT CAN BE DEALT WITH.
+C                ND9  = MAXIMUM NUMBER OF FIELDS THAT CAN BE DEALT WITH.
+C                       EFFECTIVELY, THIS IS THE TOTAL NUMBER OF FIELDS
+C                       IN ALL MODELS USED FOR DAY 1.
+C                ND10 = THE MEMORY IN WORDS ALLOCATED TO THE SAVING OF
+C                       PACKED GRIDPOINT FIELDS AND UNPACKED VECTOR DATA.
+C                       WHEN THIS SPACE IS EXHAUSTED, SCRATCH DISK WILL
+C                       BE USED.
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH ON THIS RUN.
+C                ND12 = THE NUMBER OF MOS-2000 EXTERNAL RANDOM ACCESS
+C                       FILES THAT CAN BE USE ON THIS RUN.
+C
+C        SUBPROGRAMS CALLED:  U201, W3TAGB, W3TAGE 
+C          UNIQUE: - U201
+C          LIBRARY:
+C            W3LIB - W3TAGB, W3TAGE
+C                                                                       
+C        EXIT STATES:
+C          COND =    0 - SUCCESSFUL RUN 
+C                                                                       
+C REMARKS:  NONE 
+C                                                                       
+C ATTRIBUTES:                                                           
+C   LANGUAGE:  FORTRAN 90 (xlf90 compiler) 
+C   MACHINE:  IBM SP
+C
+C$$$                                                                    
+C
+      PARAMETER (L3264B=32)
+      PARAMETER (L3264W=64/L3264B)
+      PARAMETER (NBLOCK=6400/L3264B)
+      PARAMETER (MAXSTA=650000)
+      PARAMETER (ND1=MAX(NBLOCK,MAXSTA))
+C***  set maxgrd for gtopo 5 km grid
+      PARAMETER (MAXGRD=2800000) 
+C***      PARAMETER (MAXGRD=13700)
+
+      PARAMETER (ND2=349,
+     1           ND3=198)
+      PARAMETER (ND4=12000)
+      PARAMETER (ND6=42)
+      PARAMETER (ND7=54)
+      PARAMETER (ND8=10)
+      PARAMETER (ND9=90000)
+      PARAMETER (ND10=8000000)
+      PARAMETER (ND11=4)
+      PARAMETER (ND12=5)
+      PARAMETER (ND2X3=MAX(ND1,ND2*ND3,ND12))
+      PARAMETER (ND5=MAX(ND2X3,MAXGRD))
+      PARAMETER (NCDF=11)
+C
+      CHARACTER*8 CCALL(ND1,6)
+      CHARACTER*8 CCALLD(ND5)
+      CHARACTER*12 UNITS(ND4)
+      CHARACTER*20 NAME(ND1)
+      CHARACTER*32 PLAIN(ND4)
+      CHARACTER*60 NAMIN(ND6),RACESS(ND12)
+C
+      DIMENSION ICALL(L3264W,ND1,6),
+     1          NELEV(ND1),IWBAN(ND1),STALAT(ND1),STALON(ND1),
+     2          ITIMEZ(ND1),ISDATA(ND1),SDATA(ND1),SDATA1(ND1),
+     3          L1DATA(ND1)
+      DIMENSION FD1(ND2X3),FD2(ND2X3),FD3(ND2X3),FD4(ND2X3),
+     1          FD5(ND2X3),FD6(ND2X3),FD7(ND2X3),
+     2          FDVERT(ND2X3),FDTIME(ND2X3),
+     3          FDA(ND2X3),
+     4          FDSINS(ND2X3),FDMS(ND2X3)
+      DIMENSION ID(4,ND4),IDPARS(15,ND4),THRESH(ND4),JD(4,ND4),
+     1          INDEX(ND4),JP(3,ND4),IFIND(ND4),ISTAV(ND4),ITIME(ND4),
+     2          ISCALD(ND4),SMULT(ND4),SADD(ND4),ORIGIN(ND4),CINT(ND4)
+      DIMENSION IPLAIN(L3264W,4,ND4)
+      DIMENSION IPACK(ND5),DATA(ND5),IWORK(ND5),ICALLD(L3264W,ND5)
+      DIMENSION KFILIN(ND6),MODNUM(ND6),LDATB(ND6),LDATE(ND6),
+     1          JFOPEN(ND6),LKHERE(ND6),MSDATE(ND6)
+      DIMENSION INDEXC(ND1,ND6)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION IDATE(ND8),NWORK(ND8)
+      DIMENSION LSTORE(12,ND9),MSTORE(7,ND9)
+      DIMENSION CORE(ND10)
+      DIMENSION DIR(ND1,2,ND11),NGRIDC(6,ND11)
+      DIMENSION KFILRA(ND12)
+C
+      EQUIVALENCE (PLAIN,IPLAIN)
+      EQUIVALENCE (ICALL,CCALL),(ICALLD,CCALLD)
+      EQUIVALENCE (IWBAN,SDATA)
+C
+      DATA KFILDI/5/,
+     1     KFILDO/6/
+      DATA PLAIN/ND4*' '/ 
+      DATA LDATB/ND6*2100000000/
+      DATA LDATE/ND6*-2100000000/
+      DATA LKHERE/ND6*1/
+C
+      CALL W3TAGB('MDL_MOSPRED',2000,0258,0065,'OSD211')
+      CALL TIMPR(KFILDO,KFILDO,'START U201          ')
+C      OPEN(UNIT=KFILDI,FILE='U201.CN',STATUS='OLD',IOSTAT=IOS,ERR=900)
+C
+      CALL U201(KFILDI,KFILDO,
+     1          ICALL,CCALL,NELEV,
+     2          IWBAN,STALAT,STALON,ITIMEZ,ISDATA,SDATA,SDATA1,
+     3          L1DATA,NAME,ND1,FD1,FD2,FD3,FD4,FD5,FD6,FD7,
+     4          FDA,FDVERT,FDTIME,FDSINS,FDMS,ND2,ND3,ND2X3,
+     5          ID,IDPARS,THRESH,JD,INDEX,JP,IFIND,ISTAV,ITIME,
+     6          ISCALD,SMULT,SADD,ORIGIN,CINT,UNITS,ND4,
+     7          PLAIN,IPLAIN,L3264B,L3264W,
+     8          IPACK,DATA,IWORK,ICALLD,CCALLD,ND5,
+     9          KFILIN,NAMIN,JFOPEN,MODNUM,LDATB,LDATE,
+     A          LKHERE,MSDATE,INDEXC,ND6,
+     B          IS0,IS1,IS2,IS4,ND7,NCDF,
+     C          IDATE,NWORK,ND8,
+     D          LSTORE,MSTORE,ND9,
+     E          CORE,ND10,NBLOCK,
+     F          DIR,NGRIDC,ND11,
+     G          KFILRA,RACESS,ND12)
+C
+      CALL TIMPR(KFILDO,KFILDO,'END U201            ')
+      CALL W3TAGE('MDL_MOSPRED')
+      STOP 
+C
+c 900  CALL IERX(KFILDO,KFILDO,IOS,'DRU201','900 ')
+c      STOP 900
+C
+      END

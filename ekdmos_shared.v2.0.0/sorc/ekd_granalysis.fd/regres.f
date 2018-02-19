@@ -1,0 +1,235 @@
+      SUBROUTINE REGRES(KFILDO,XDATA,YDATA,ND1,N,B0,B1,IER)
+C
+C        NOVEMBER 2009   GLAHN   MDL
+C                                ADAPTED FOR U155/U405 FROM 
+C                                AUGUST 2004 VERSION OF REGRESS  
+C
+C        PURPOSE
+C           TO PERFORM A LEAST SQUARES REGRESSION TO ESTIMATE Y FROM X.
+C           FOR USE IN AUGMENTAION, SPECIFICALLY LAMP WITH SREF
+C
+C        DATA SET USE
+C            KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C            XDATA(J) = THE X VALUES (J=1,N).  (INPUT)
+C            YDATA(J) = THE Y VALUES (J=1,N).  (INPUT)
+C                 ND1 = THE MAXIMUM NUMBER OF DATA ENTRIES, INCLUDING
+C                       THE TERMINATOR 999999.  DIMENSION OF SEVERAL 
+C                       VARIABLES.  (INPUT)
+C                   N = THE NUMBER OF DATA VALUES.  (INPUT)
+C                  B0 = CONSTANT IN REGRESSION.  (OUTPUT)
+C                  B1 = COEFFICIENT IN REGRESSION.  (OUTPUT)
+C                 IER = ERROR RETURN.
+C                       0 = GOOD RETURN.
+C             BM(J,L) = THE LOWER CONFIDENCE LIMIT FOR THE MEAN RESPONSE
+C                       FOR POINT J (J=1,N) FOR 90, 95 AND 99 PERCENT
+C                       (L=1,3).  (INTERNAL)
+C          TTEST(L,J) = T-TEST VALUES.  THEY CORRESPOND TO VALUES
+C                       1 THROUGH 30, THEN 40, 60, 120, AND INFINITY
+C                       (J=1,34) FOR N VALUE (L=1) AND LIMITS 90,
+C                       95, AND 99 PERCENT (L=2,4).  (INTERNAL)
+C           SEYHAT(J) = STANDARD ERROR OF YHAT( ) (J=1,ND1).
+C                       (AUTOMATIC)
+C             YHAT(J) = THE ESTIMATE OF Y FROM THE ANALYSIS FOR POINT
+C                       J (J=1,N).  (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES USED 
+C            NONE
+C
+      DIMENSION XDATA(ND1),YDATA(ND1)
+      DIMENSION YHAT(ND1),BM(ND1,3),UM(ND1,3),BS(ND1,3),US(ND1,3)
+C        YHAT( ), BM( , ), UM( , ), BS( , ), AND US( , ) ARE AUTOMATIC
+C        VARIABLES.
+      DIMENSION SEYHAT(ND1)
+C        SEYHAT( ) IS AN AUTOMATIC VARIABLE.
+C
+      DIMENSION TTEST(4,34)
+C
+C        THESE ARE 2-TAILED VALUES FOR THE 90, 95, AND 99 PERCENT LEVELS.
+C        THAT IS, FOR N = 1, THE VALUE 6.134 PUTS 5 PERCENT IN EACH TAIL,
+C        FOR A TOTAL OF 10 PERCENT IN THE TWO TAILS.
+C
+      DATA TTEST/
+     1       1,  6.314, 12.706, 63.657,
+     2       2,  2.920,  4.303,  9.925,
+     3       3,  2.353,  3.182,  5.841,
+     4       4,  2.132,  2.776,  4.604,
+     5       5,  2.015,  2.571,  4.032,
+     6       6,  1.943,  2.447,  3.707,
+     7       7,  1.895,  2.365,  3.499,
+     8       8,  1.860,  2.306,  3.355,
+     9       9,  1.833,  2.262,  3.250,
+     A      10,  1.812,  2.228,  3.169,
+     B      11,  1.796,  2.201,  3.106,
+     C      12,  1.782,  2.179,  3.055,
+     D      13,  1.771,  2.160,  3.012,
+     E      14,  1.761,  2.145,  2.977,
+     F      15,  1.753,  2.131,  2.947,
+     G      16,  1.746,  2.120,  2.921,
+     H      17,  1.740,  2.110,  2.898,
+     I      18,  1.734,  2.101,  2.878,
+     J      19,  1.729,  2.093,  2.861,
+     K      20,  1.725,  2.086,  2.845,
+     L      21,  1.721,  2.080,  2.831,
+     M      22,  1.717,  2.074,  2.819,
+     N      23,  1.714,  2.069,  2.807,
+     O      24,  1.711,  2.064,  2.797,
+     P      25,  1.708,  2.060,  2.787,
+     Q      26,  1.706,  2.056,  2.779,
+     R      27,  1.703,  2.052,  2.771,
+     S      28,  1.701,  2.048,  2.763,
+     T      29,  1.699,  2.045,  2.756,
+     U      30,  1.697,  2.042,  2.750,
+     V      40,  1.684,  2.021,  2.704,
+     W      60,  1.671,  2.000,  2.660,
+     X     120,  1.658,  1.980,  2.617,
+     Y  999999,  1.645,  1.960,  2.576/
+C   
+C        WRITE OUT DATA VALUES.
+C
+      IER=0
+D     WRITE(KFILDO,120)
+D120  FORMAT(/' INPUT DATA XDATA      YDATA'/)
+D     WRITE(KFILDO,125)(XDATA(J),YDATA(J),J=1,N)
+D125  FORMAT(8X,F10.2,F10.2)
+C     
+C        COMPUTE SUM OF VALUES, SQUARES, AND CROSS PRODUCTS.
+C
+      SUMX=0.
+      SUMY=0.
+      SUMSQX=0.
+      SUMSQY=0.
+      SUMXY=0.
+C      
+      DO 140 J=1,N
+      SUMX=SUMX+XDATA(J)
+C        SUMX = SUMMATION OF X VALUES.
+      SUMY=SUMY+YDATA(J)
+C        SUMY = SUMMATION OF Y VALUES.
+      SUMSQX=SUMSQX+XDATA(J)**2
+C        SUMSQX = SUMMATION OF X VALUES SQUARED.
+      SUMSQY=SUMSQY+YDATA(J)**2
+C        SUMSQY = SUMMATION OF Y VALUES SQUARED.
+      SUMXY=SUMXY+XDATA(J)*YDATA(J)
+C        SUMXY = SUMMATION OF X VALUES TIMES Y VALUES.
+ 140  CONTINUE
+C      
+C        COMPUTE STATISTICS.
+C
+      XBAR=SUMX/N
+      YBAR=SUMY/N
+      SXX=SUMSQX-SUMX**2/N
+C        SXX = THE TOTAL SUM OF SQUARES ABOUT X CORRECTED FOR XBAR.
+      SYY=SUMSQY-SUMY**2/N
+C        SYY = THE TOTAL SUM OF SQUARES ABOUT Y CORRECTED FOR YBAR.
+      SXY=SUMXY-SUMX*SUMY/N
+C        SXY = THE TOTAL SUM OF X-PRODUCTS CORRECTED FOR XBAR AND YBAR.
+      B1=SXY/SXX
+C        B1 = THE SLOPE OF THE LINE.
+      B0=YBAR-B1*XBAR
+C        B0 = THE LINE INTERCEPT.
+      SSE=SYY-B1*SXY
+C        SSE = ERROR SUM OF SQUARES ABOUT REGRESSION LINE.
+      SMSE=SSE/(N-2)
+C        SMSE = THE MEAN SUM OF SQUARES AS AN ESTIMATE OF SIGMA**2.
+      T=B1/SQRT(SMSE/SXX)
+C        T IS THE T-TEST VALUE FOR N-2 DEGREES OF FREEDOM FOR THE
+C        NULL HYPOTHESIS B1=0 VS B1 NE 0.
+      SSR=B1*SXY
+C        SSR = THE SUM OF SQUARES DUE TO THE REGRESSION.
+      SSE=SYY-SSR
+C        SSE = THE ERROR, OR UNEXPLAINED, SUM OF SQUARES.   
+      SEM=SSE/(N-2)
+C        SEM = THE UNEXPLAINED SUM OF SQUARES DIVIDED BY N-2 DEGREES
+C        OF FREEDOM.
+      IDF=N-2
+C        IDF = DEGREES OF FREEDOM OF THE ERRORS.
+      RSQ=SSR/SYY
+C        RSQ = REDUCTION OF VARIANCE = CORRELATION SQUARED.
+      R=SQRT(RSQ)
+C        R = CORRELATION COEFFICIENT.
+D     WRITE(KFILDO,143)XBAR,YBAR,SYY,SSR,SSE,SEM,N,IDF,RSQ,R
+D143  FORMAT(/' MEAN X                  ',F13.5/
+D    1        ' MEAN Y                  ',F13.5/
+D    2        ' TOTAL SUM SQ ABOUT Y BAR',F13.5/
+D    3        ' EXPLAINED SUM SQ        ',F13.5/
+D    4        ' ERROR SUM SQ            ',F13.5/
+D    5        ' MEAN SQ ERROR           ',F13.5/
+D    6        ' NO. CASES               ',I7/
+D    7        ' ERROR DEG FREEDOM       ',I7/
+D    8        ' REDUCTION OF VAR        ',F13.5/
+D    9        ' CORRELATION COEF        ',F13.5)
+C
+C        ASSUME THE INDEPENDENT VARIABLE IS ELEVATION, AND THAT A
+C        95 PERCENT CONFIDENCE BAND FOR THE MEAN RESPONSE OF IS
+C        DESIRED FOR EACH X.
+C
+      DO 150 J=1,N
+C
+C        EXTEND XDATA( ) AT YEARLY INCREMENTS.
+C
+      YHAT(J)=B0+B1*XDATA(J)
+C
+      DO 148 L=1,3
+C
+C        FIND THE T-VALUE FOR THE THREE SIGNIFICANCE LEVELS
+C        90, 95, AND 99 PERCNET CORRESPONDING TO L = 1, 2, AND 3,
+C        RESPECTIVELY.  FOR N-2 GT 30, INTERPOLATION IS NEEDED.
+C
+      NM2=N-2
+      IF(N-2.LE.30)THEN
+         TVAL=TTEST(L+1,N-1)
+      ELSEIF(NM2.LE.40)THEN
+         TVAL=TTEST(L+1,30)+((NM2-30)/10.)*(TTEST(L+1,31)-TTEST(L+1,30))
+      ELSEIF(NM2.LE.60)THEN
+         TVAL=TTEST(L+1,31)+((NM2-40)/20.)*(TTEST(L+1,32)-TTEST(L+1,31))
+      ELSEIF(NM2.LE.120)THEN
+         TVAL=TTEST(L+1,32)+((NM2-60)/60.)*(TTEST(L+1,33)-TTEST(L+1,32))
+      ELSE
+         TVAL=TTEST(L+1,33)+
+     1                    ((NM2-120)/120.)*(TTEST(L+1,34)-TTEST(L+1,33))
+      ENDIF
+C
+C        FIND THE ERROR BARS FOR THE MEAN RESPONSE.
+C
+      SEYHAT(J)=SQRT(SEM)*
+     1          SQRT((1./N)+((XDATA(J)-XBAR)**2)/SXX)
+      BM(J,L)=YHAT(J)-TVAL*SEYHAT(J)
+      UM(J,L)=YHAT(J)+TVAL*SEYHAT(J)
+C
+C        FIND THE ERROR BARS FOR S SINGLE RESPONSE.
+C
+      SEYHAT(J)=SQRT(SEM)*
+     1          SQRT(1.+(1./N)+((XDATA(J)-XBAR)**2)/SXX)
+      BS(J,L)=YHAT(J)-TVAL*SEYHAT(J)
+      US(J,L)=YHAT(J)+TVAL*SEYHAT(J)
+ 148  CONTINUE
+C
+ 150  CONTINUE
+C
+C        PRINT RESULTS.
+C
+D     WRITE(KFILDO,175)B0,B1
+D175  FORMAT(/' LEAST SQUARES REGRESSION EQUATION:',
+D    1        '     Y = ',F10.4,' + ',F7.4,' X')
+D     WRITE(KFILDO,176)IDF,T
+D176  FORMAT(/' T VALUE FOR TESTING SLOPE B1 WITH N-2 =',I5,
+D    1        ' DEGREES OF FREEDOM =',F7.4)
+C
+D     CASES=0.
+D     WRITE(KFILDO,160)(J,XDATA(J),YDATA(J),CASES,YHAT(J),
+D    1                 (BM(J,L),UM(J,L),L=1,3),
+D    1                 (BS(J,L),US(J,L),L=1,3),J=1,N)
+D160  FORMAT(/'      ELED  VALUE CASES   YHAT ',
+D    1        '   BM90   UM90    BM95   UM95    BM99   UM99   ',
+D    2        '   BS90   US90    BS95   US95    BS99   US99'//
+D    3        (I3,F7.0,F7.3,I6,F7.3,3(F8.3,F7.3),2X,3(F8.3,F7.3)))
+CCC      WRITE(KOUT,170)(J,XDATA(J),YDATA(J),CASES,YHAT(J),
+CCC     1                (BM(J,L),UM(J,L),L=1,3),
+CCC     2                (BS(J,L),US(J,L),L=1,3),J=1,N)
+CCC 170  FORMAT((I3,F7.0,F7.3,I6,F7.3,3(F8.3,F7.3),2X,3(F8.3,F7.3)))
+      RETURN
+      END

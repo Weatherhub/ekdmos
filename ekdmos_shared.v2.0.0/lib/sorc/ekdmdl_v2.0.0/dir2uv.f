@@ -1,0 +1,379 @@
+      SUBROUTINE DIR2UV(KFILDO,KFIL10,IDPARS,JD,NDATE,
+     +                SDATA,ND1,NSTA,IPACK,IWORK,FD1,FD2,ND2X3,
+     +                LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     +                IS0,IS1,IS2,IS4,ND7,
+     +                ISTAV,L3264B,IER)
+C
+C        JUNE    1998   SETTELMAIER   TDL   MOS-2000 
+C        OCTOBER 1998   SHIREY        PROGRAM RESTRUCTURED
+C        MARCH   1999   SHIREY        INITIALIZED SDATA() TO 9999.
+C        MAY     2000   ERICKSON      CHANGED TEST FOR VARIABLE
+C                                     WIND FROM -10 TO 990.
+C                                     U520 CHANGES THE TABLE  
+C                                     VALUE FROM -9 TO 990.
+C        MAY     2002   GLAHN         CHANGED ND5 TO ND2X3
+C        MAR     2006   COSGROVE      IN 220 LOOP
+C                                     ADDED NINTS TO STOP .EQ.
+C                                     OF REALS
+C
+C        PURPOSE 
+C           THIS SUBROUTINE WILL COMPUTE THE U- AND/OR V-COMPONENT
+C           OF THE OBSERVED WIND USING WIND SPEED AND DIRECTION 
+C           FROM OBSERVATIONAL (VECTOR) DATA.  WHICH COMPONENT IS
+C           CALCULATED WILL BE DETERMINED BY WHAT IS PASSED IN 
+C           THROUGH IDPARS(2).  IF EITHER THE WIND SPEED AND/OR 
+C           DIRECTION IS MISSING, THE U- AND V-COMPONENTS WILL
+C           BE SET TO MISSING (9999).  IF THE DIRECTION IS 
+C           VARIABLE (EQUAL TO BEARING 990), THEN THE COMPONENTS
+C           OF THE WIND ARE SET TO MISSING. IT IS ASSUMED THAT
+C           WIND DIRECTION AND SPEED HAVE BEEN QC'D ELSEWHERE,
+C           SO NO ERROR CHECKING IS DONE ON THESE INPUT VARIABLES.
+C
+C           THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED:
+C
+C               704 010 - U-COMPONENT OF OBSERVATIONAL WIND
+C               704 110 - V-COMPONENT OF OBSERVATIONAL WIND
+C               204 010 - U-COMPONENT OF FORECAST WIND
+C               204 110 - V-COMPONENT OF FORECAST WIND
+C
+C        DATA SET USE 
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE 
+C                     (OUTPUT). 
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS
+C                     (INPUT-OUTPUT). 
+C 
+C        VARIABLES 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                       (INPUT). 
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM 
+C                       ACCESS (INPUT).
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTOR ID CORRESPONDING TO ID(J) (J=1,15)
+C                       DEFINED IN THE CALLING PROGRAM (INPUT).
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 
+C                            LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET -- PREVIOUS CYCLE.  
+C                            ALWAYS + AND COUNTED BACKWARDS IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).
+C                       THIS IS THE SAME AS ID(J), EXCEPT THAT THE 
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3),
+C                       T = IDPARS(8),
+C                       I = IDPARS(13),
+C                       S = IDPARS(14),
+C                       G = IDPARS(15), AND THRESH.
+C                       JD( ) IS USED TO IDENTIFY THE BASIC MODEL 
+C                       FIELDS AS READ FROM THE ARCHIVE (INPUT).
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED
+C                       (INPUT).
+C            SDATA(K) = DATA TO RETURN (K=1,NSTA) (OUTPUT) 
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT 
+C                       WITH.  (INPUT).
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT WITH
+C                       (INPUT).
+C            IPACK(J) = WORK ARRAY (J=1,ND2X3) (INTERNAL).  
+C            IWORK(J) = WORK ARRAY (J=1,ND2X3) (INTERNAL).  
+C       FD1(J),FD2(J) = WORK ARRAYS (J=1,ND2X3). FD1 CONTAINS WIND
+C                       DIRECTION AND FD2 CONTAINS WIND SPEED.
+C                       (INTERNAL). 
+C               ND2X3 = DIMENSION OF IPACK( ),IWORK( ), FD1( ),
+C                       AND FD2( ) (INPUT).
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS), (INPUT-OUTPUT).
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR 
+C                              NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN 
+C                              RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE 
+C                              CHARACTERISTICS OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE 
+C                              SORTED LIST IN ID( ,N) (N=1,NPRED)
+C                              FOR WHICH THIS VARIABLE IS NEEDED, WHEN 
+C                              IT IS NEEDED ONLY ONCE FROM 
+C                              LSTORE( , ).  WHEN IT IS NEEDED MORE
+C                              THAN ONCE, THE VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING 
+C                              MOSTORE( , ). LATER USED AS A WAY OF 
+C                              DETERMINING WHETHER TO KEEP THIS 
+C                              VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ), (INPUT). 
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT HAVE BEEN USED IN THIS RUN (INPUT).  
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA 
+C                       IDENTIFIED IN LSTORE( , ) (J=1,ND10). WHEN
+C                       CORE( ) IS FULL, DATA ARE STORED ON DISK
+C                       (OUTPUT).
+C                ND10 = DIMENSION OF CORE( ), (INPUT).
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE (INPUT).  
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.
+C                       IT IS A RUNNING  COUNT FROM THE BEGINNING OF 
+C                       THE PROGRAM.  THIS COUNT IS MAINTAINED IN 
+C                       CASE THE USER NEEDS IT (DIAGNOSTICS, ETC.). 
+C                       (OUTPUT).  
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3)
+C                       (INTERNAL).
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+)  
+C                       (INTERNAL).
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12)
+C                       (INTERNAL).
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4)
+C                       (INTERNAL).
+C                 ND7 = DIMENSION OF IS0, IS1, IS2, AND IS4. NOT ALL
+C                       LOCATIONS ARE USED (INPUT).
+C               ISTAV = 1 WHEN THE DATA RETURNED ARE STATION DATA
+C                       0 THE DATA RETURNED ARE GRID DATA OR
+C                       DATA ARE NOT AVAILABLE FOR RETURN. 
+C                       (OUTPUT).
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING 
+C                       USED (EITHER 32 OR 64) (INPUT).
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                       103 = IDPARS(1) AND IDPARS(2) NOT ACCOMMODATED
+C                             IN THIS SUBROUTINE.
+C                        52 = NWORDS DOES NOT EQUAL NSTA.
+C                       SEE GFETCH FOR OTHER VALUES WHEN IER.NE.0 AND
+C                       DATA ARE RETURNED AS MISSING (INTERNAL-OUTPUT)
+C
+C      ADDITIONAL VARIABLES 
+C                IDIR = HOLDS ROUNDED INTEGER VALUE OF FD1(J). (INTERNAL
+C                   J = LOOP COUNT (INTERNAL) 
+C              IENTER = NUMBER OF TIMES THIS SUBROUTINE IS ENTERED.
+C                       (INTERNAL).
+C               LD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       FD1( ) "WIND DIRECTION" (J=1,4) (INTERNAL).
+C               MD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       FD2( ) "WIND SPEED" (J=1,4) 
+C                       (INTERNAL).
+C               MISSP = PRIMARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO
+C                       SECONDARY MISSING VALUE (INTERNAL)
+C               MISSS = SECONDARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO 
+C                       SECONDARY MISSING VALUE. (INTERNAL)
+C               NPACK = 2 FOR TDL GRIB PACKED DATA; 1 FOR NOT PACKED.
+C                       THIS IS RETURNED FROM CALLING GFETCH (INTERNAL)
+C               NSLAB = RETURNED FROM GFETCH AS THE VALUE STORED IN
+C                       LSTORE(10, ) FOR THE FIRST FIELD.  THIS IS THE
+C                       VALUE OF NSLAB RETURNED.  WHEN IER NE 0, THIS
+C                       VALUE SHOULD NOT BE USED (OUTPUT).  
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE, THAT 
+C                       THE RECORD HAS BEEN FETCHED. THIS IS STORED 
+C                       IN LSTORE(9, ) (INTERNAL).
+C              NWORDS = NUMBER OF WORDS RETURNED IN FD1( ), AND FD2( ).
+C                       (INTERNAL).
+C                  PI = THE VALUE OF PI (3.1416).  SET BY PARAMETER. 
+C                       (INTERNAL)
+C              RADPDG = DEGREES TO RADIANS CONVERSION.  SET BY PARAMETER
+C                       (INTERNAL)
+C 
+C        NONSYSTEM SUBROUTINES CALLED 
+C            GFETCH
+C
+      IMPLICIT NONE
+C
+      REAL PI,RADPDG
+C
+      PARAMETER (PI=3.1416,
+     1           RADPDG=PI/180.)
+C
+      INTEGER JD(4),IDPARS(15)
+      INTEGER IPACK(ND2X3),IWORK(ND2X3)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER LSTORE(12,ND9)
+      INTEGER LD(4),MD(4)
+      INTEGER KFILDO,KFIL10,NDATE,ND1,NSTA,ISTAV,IENTER,L3264B,
+     +        ND2X3,IER,ND9,LITEMS,ND10,NBLOCK,NFETCH,NSLAB,
+     +        NTIMES,NWORDS,ND7,MISSP,MISSS,NPACK,J,IDIR 
+C
+      REAL SDATA(ND1)
+      REAL FD1(ND2X3),FD2(ND2X3)
+      REAL CORE(ND10)
+C
+      DATA IENTER/0/
+      SAVE IENTER
+C
+      IER=0
+      ISTAV=1
+C
+      DO 105 J=1,ND1
+         SDATA(J)=9999.
+ 105  CONTINUE
+C
+C        CHECK IF IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED 
+C        IN THIS SUBROUTINE.
+C
+      IF((IDPARS(1).NE.704.AND.IDPARS(1).NE.204)
+     +   .OR.(IDPARS(2).NE.010.AND.IDPARS(2).NE.110)) THEN     
+	 IER=103
+	 WRITE(KFILDO,100)(JD(J),J=1,4),IER
+ 100     FORMAT(/' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE',
+     +           ' THE U- OR V- COMPONENT OF WIND VECTOR DATA. ',
+     +          /'     PREDICTOR ',I9.9,I10.9,I10.9,I4.3,' NOT',
+     +           ' ACCOMMODATED IN SUBROUTINE DIR2UV.  IER =',I3)
+         GO TO 900
+      ENDIF
+C
+C        CONSTRUCT THE ARRAY LD FOR OBS WIND DIRECTION
+C        AND FETCH THE PARAMETER.  
+
+      LD(1)=IDPARS(1)*1000000+200000+IDPARS(4)
+      LD(2)=IDPARS(7)
+      LD(3)=IDPARS(9)*1000000+IDPARS(12)
+      LD(4)=0
+      CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     +            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     +            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     +            NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,
+     +            IER)
+C
+C     INCREMENT IENTER VARIABLE BY 1.
+C
+      IENTER=IENTER+1
+C
+C        CHECK TO SEE IF IER NE 0, AND IF THIS IS THE FIRST
+C        PROCESS DATE.  PRINT ERROR MESSAGE IF NEEDED.
+C
+      IF((IER.NE.0).AND.(IENTER.EQ.1)) THEN
+         WRITE(KFILDO,140)NDATE
+ 140     FORMAT(/' ****ERROR FROM GFETCH (WND DIR) OCCURRED ON',
+     +           ' 1ST PROCESS DATE - ',I12,
+     +           ' DIR2UV CANNOT RUN, PLEASE READ WRITE UP')
+	 GO TO 900
+      ENDIF
+D
+D     IF(IER.NE.0) THEN
+D        WRITE(KFILDO,155)IER,NDATE
+D155     FORMAT(/' ****OBS WIND DIRECTION FETCH FAILED IN',
+D    +           ' DIR2UV AT 155, IER=',I3,' FOR NDATE=',I12)  
+D        GO TO 900
+D     ENDIF
+D
+      IF(IER.NE.0) GO TO 900
+C
+C        IF NWORDS DOES NOT EQUAL NSTA, SET ALL VALUES TO MISSING.
+C
+      IF(NWORDS.NE.NSTA)THEN
+         IER=52
+	 WRITE(KFILDO,160)NWORDS,NSTA,IER
+ 160     FORMAT(/' ****NWORDS =',I6,' RETURNED FROM GFETCH',
+     +           ' NOT EQUAL TO NSTA =',I6,
+     +           ' IN DIR2UV AT 160. DATA SET TO MISSING.',
+     +           ' IER =',I3)
+	 GO TO 900
+      ENDIF
+C
+C        CONSTRUCT THE ARRAY MD FOR OBS WIND SPEED
+C        AND FETCH THE PARAMETER.
+C
+      MD(1)=IDPARS(1)*1000000+210000+IDPARS(4)
+      MD(2)=IDPARS(7)
+      MD(3)=IDPARS(9)*1000000+IDPARS(12)
+      MD(4)=0
+      CALL GFETCH(KFILDO,KFIL10,MD,7777,LSTORE,ND9,LITEMS,
+     +            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     +            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     +            NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,
+     +            IER)
+C
+C        CHECK TO SEE IF IER NE 0, AND IF THIS IS THE FIRST
+C        PROCESS DATE.  PRINT ERROR MESSAGE IF NEEDED.
+C
+      IF((IER.NE.0).AND.(IENTER.EQ.1)) THEN
+         WRITE(KFILDO,170)NDATE
+ 170     FORMAT(/' ****ERROR FROM GFETCH (WND SPD) OCCURRED ON',
+     +           ' 1ST PROCESS DATE - ',I12,
+     +           ' DIR2UV CANNOT RUN, PLEASE READ WRITE UP')
+	 GO TO 900
+      ENDIF
+D
+D     IF(IER.NE.0)) THEN
+D        WRITE(KFILDO,205)IER,NDATE
+D205     FORMAT(/' ****OBS. WIND SPEED FETCH FAILED IN DIR2UV',
+D    +           'AT 200,  IER=',I3,' FOR NDATE=',I12)  
+D        GO TO 900
+D      ENDIF   
+D
+      IF(IER.NE.0) GO TO 900
+C
+C        IF NWORDS DOES NOT EQUAL NSTA...SET ALL VALUES TO MISSING.
+C
+      IF(NWORDS.NE.NSTA)THEN
+         IER=52 
+	 WRITE(KFILDO,210)NWORDS,NSTA,IER
+ 210     FORMAT(/' ****NWORDS =',I6,' RETURNED FROM GFETCH',
+     +           ' NOT EQUAL TO NSTA =',I6,
+     +           ' IN DIR2UV AT 210. DATA SET TO MISSING.',
+     +           ' IER =',I3) 
+	 GO TO 900
+      ENDIF
+C
+C        START THE COMPONENT CALCULATION PROCESS.
+C
+      DO 220 J=1,NSTA
+C 
+C           IF EITHER SPEED OR DIRECTION MISSING, DO NOT 
+C           CALCULATE COMPONENT...AND SET TO MISSING.
+C
+         IF((NINT(FD1(J)).NE.9999).AND.(NINT(FD2(J)).NE.9999))THEN
+C
+C              IF WIND DIRECTION IS VARIABLE...SET
+C              COMPONENT TO MISSING.  FD1(J) IS CONVERTED
+C              TO AN INTEGER FIRST, BECAUSE OF THE DANGERS
+C              OF TESTING FOR EQUALITY ON REAL NUMBERS.
+C
+            IDIR=NINT(FD1(J))
+            IF(IDIR.EQ.990) THEN
+               SDATA(J)=9999.
+C
+C                 CHECK/CALCULATE THE U-COMPONENT. 
+C
+            ELSE IF(IDPARS(2).EQ.010) THEN
+C
+               SDATA(J)=-1.*FD2(J)*SIN(FD1(J)*RADPDG)
+C
+C                 MUST BE THE V-COMPONENT TO CALCULATE.
+C
+            ELSE 
+               SDATA(J)=-1.*FD2(J)*COS(FD1(J)*RADPDG)
+            ENDIF
+C
+         ELSE 
+            SDATA(J)=9999.
+         ENDIF
+C
+ 220  CONTINUE
+C
+      GO TO 910 
+C
+C        FILL IN THE DIR2UV ARRAY WITH MISSING VALUES.
+C
+ 900  DO J=1,ND1
+	 SDATA(J)=9999.
+      END DO
+C
+ 910  RETURN
+      END     

@@ -1,0 +1,145 @@
+      SUBROUTINE SMTH9V(A,NX,NY,W,S,RMISS)
+C   
+C        MARCH 1980   CHARBA   MDL   MOS-2000
+C        MAY   2005   CHARBA   IMPROVED DOCUMENTATION.
+C        JUNE  2004   CHARBA   CHANGED NAME FROM SMTH9 TO 
+C		               SMTH9V TO DISTINGUISH THIS 
+C			       "WEIGHTED" 9-PT SMOOTHER FROM 
+C			       THE FLAT AVERAGE VERSION, WHICH
+C			       IS CALLED SMTH9 IN MOSLIB.
+C	 MARCH 2006   CHARBA   ADDED NOTE TO "PURPOSE"
+C        MAY   2006   CHARBA   CHANGED RMISS TO IMISS AND TEST FOR 
+C                              MISSING (9999) AS INTEGER.
+C        JUNE  2006   CHARBA   MADE COSMETIC CHANGES TO SATSFY MOS-2000
+C                              STANDARDS.
+C        JULY  2006   CHARBA   REVERTED BACK TO RMISS AS THE MISSING 
+C                              INDICATOR TO AVOID USE OF NINT( ) IN THE
+C                              TEST.  THE NEW TEST FOR MISSING IS 
+C                              ".GE.RMISS".  THUS, THE INPUT VALUE OF 
+C                              RMISS MUST BE GT 9997. AND LE 9999.
+C   
+C        PURPOSE   
+C            THIS ROUTINE SMOOTHES A TWO-DIMENSIONAL GRID ARRAY WITH A
+C            NINE-POINT WEIGHTED AVERAGE OPERATOR.  IF MISSING 
+C	     (9999.) VALUES EXIST IN THE GRID, THEY ARE PRESERVED.  THE
+C            INPUT VALUE OF THE MISSING INDICATOR VARIABLE (RMISS) MUST 
+C            BE GT 9997. AND LE 9999.  CAUTION:  VALID VALUES OF THE 
+C            VARIABLE BEING SMOOTHED MUST BE LT 9997 (9997. VALUES ARE 
+C            TREATED AS VALID IN THE SMOOTHING PROCESS.)
+C	    
+C	     A SAFE RANGE OF WEIGHT VALUES (W) IS 0.0 - 1.0.  
+C	     A STANDARD SMOOTHING APPLICATION IS TO USE W = 1.0, WHICH
+C	     FOR A ONE-DIMENSIONAL ANALOG INVOLVES THE WEIGHTS 0.25, 
+C	     0.50, AND 0.25 FOR THREE CONSECUTIVE POINTS.  IN TWO
+C	     DIMENSIONS THE CORRESPONDING WEIGHTS ARE 0.250, 0.125, AND
+C	     0.0625 FOR THE CENTER, FOUR ADJACENT, AND FOUR CORNER 
+C	     POINTS, RESPECTIVELY, OF A 3X3 MATRIX.  BORDER POINTS ARE 
+C	     HANDLED WITH AN EFFECTIVE WEIGHT (W) OF 1.0 REGARDLESS OF 
+C	     THE W VALUE SUPPLIED.  FOR THE BORDER, THE SUM OF THE 
+C	     WEIGHTS OF AVAILABLE ADJACENT POINTS IS 0.50 (EQUIVALENT T0
+C	     0.125 X 4) AND THE SUM OF THE WEIGHTS FOR AVAILABLE CORNER 
+C	     POINTS IS 0.25 (EQUIVALENT TO 0.0625 X 4).
+C
+C	     THE MAXIMUM VALUE OF W ALLOWED BY THE ROUTINE IS 2.0, WHICH
+C	     PRODUCES A SIMPLE AVERAGE.
+C                
+C        DATA SET USE   
+C            NONE
+C   
+C        VARIABLES   
+C              A(I,J) = ARRAY TO BE SMOOTHED, SMOOTHED ON RETURN 
+C			(I=1,NX,J=1,NY).  (INPUT/OUTPUT)
+C                  NX = FIRST DIMENSION OF A( , ) AND S( , )  
+C                  NY = SECOND DIMENSION OF A( , ) AND S( , )  
+C                   W = SMOOTHING INDEX...NO SMOOTHING WHEN W=0.   
+C                       SAFE RANGE OF W: 0.0 - 1.0;  BORDERS SMOOTHED   
+C                       WITH W=1.0.  (INPUT)
+C              S( , ) = WORK ARRAY (I=1,NX,J=1,NY).  (INTERNAL)   
+C               RMISS = MISSING VALUE INDICATOR.  (INPUT)  
+C
+C        NON-SYSTEM SUBROUTINES CALLED
+C           NONE
+C
+      DIMENSION A(NX,NY),S(NX,NY)
+C   
+      B=W   
+      IF(B.EQ.0.) GO TO 230
+C   
+      DO 105 KY=1,NY   
+        DO 100 KX=1,NX   
+          S(KX,KY)=A(KX,KY)   
+ 100    CONTINUE
+ 105  CONTINUE
+C   
+      DO 220 J=1,NY   
+        DO 210 I=1,NX   
+          IF(A(I,J).GE.RMISS) GO TO 210   
+          B=W   
+          IF(B.GT.2.) B=2.   
+          Z1=0.0   
+          Z2=0.0   
+          KOUNT1=0   
+          KOUNT2=0
+C   
+          IF(I.EQ.1) GO TO 110   
+          IF(S(I-1,J).GE.RMISS) GO TO 110   
+          Z1=Z1+S(I-1,J)   
+          KOUNT1=KOUNT1+1
+C   
+ 110      IF(I.EQ.NX) GO TO 120   
+          IF(S(I+1,J).GE.RMISS) GO TO 120   
+          Z1=Z1+S(I+1,J)   
+          KOUNT1=KOUNT1+1
+C   
+ 120      IF(J.EQ.1) GO TO 130   
+          IF(S(I,J-1).GE.RMISS) GO TO 130   
+          Z1=Z1+S(I,J-1)   
+          KOUNT1=KOUNT1+1
+C   
+ 130      IF(J.EQ.NY) GO TO 140   
+          IF(S(I,J+1).GE.RMISS) GO TO 140   
+          KOUNT1=KOUNT1+1   
+          Z1=Z1+S(I,J+1)
+C   
+ 140      IF(KOUNT1.EQ.0) GO TO 150   
+          Z1=Z1/KOUNT1
+C   
+ 150      IF(J.EQ.NY) GO TO 160  
+          IF(I.EQ.NX) GO TO 170   
+          IF(S(I+1,J+1).GE.RMISS) GO TO 160   
+          Z2=Z2+S(I+1,J+1)   
+          KOUNT2=KOUNT2+1
+C   
+ 160      IF(J.EQ.1) GO TO 180   
+          IF(I.EQ.NX) GO TO 170  
+          IF(S(I+1,J-1).GE.RMISS) GO TO 170   
+          KOUNT2=KOUNT2+1   
+          Z2=Z2+S(I+1,J-1)
+C  
+ 170      IF(I.EQ.1) GO TO 190   
+          IF(J.EQ.1) GO TO 180   
+          IF(S(I-1,J-1).GE.RMISS) GO TO 180   
+          KOUNT2=KOUNT2+1   
+          Z2=Z2+S(I-1,J-1)
+C   
+ 180      IF(J.EQ.NY.OR.I.EQ.1) GO TO 190  
+          IF(S(I-1,J+1).GE.RMISS) GO TO 190   
+          Z2=Z2+S(I-1,J+1)   
+          KOUNT2=KOUNT2+1
+C   
+ 190      IF(KOUNT2.EQ.0) Z2=0.0   
+          IF(KOUNT2.EQ.0) GO TO 200  
+          Z2=Z2/KOUNT2
+C   
+ 200      IF(KOUNT2.EQ.0.AND.KOUNT1.EQ.0) GO TO 210   
+          SUM=(4+2*KOUNT1+KOUNT2)/16.   
+          IF(KOUNT1.LT.4.OR.KOUNT2.LT.4) B=1.   
+          BB=1/(1+B)**2   
+          A(I,J)=BB*(S(I,J)+KOUNT1*B*Z1/2+KOUNT2*B*B*Z2/4)/SUM
+C  
+ 210    CONTINUE
+C   
+ 220  CONTINUE
+C   
+ 230  RETURN   
+      END   

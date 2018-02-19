@@ -1,0 +1,524 @@
+      SUBROUTINE MXMNFT(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+     1                  ID,IDPARS,JD,ITAU,
+     2                  NDATE,MDATE,CCALL,ITIMEZ,XDATA,ND1,NSTA,
+     3                  ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+     4                  LSTORE,ND9,LITEMS,CORE,ND10,
+     5                  NBLOCK,NFETCH,
+     6                  IS0,IS1,IS2,IS4,ND7,
+     7                  L3264B,L3264W,IER)
+C 
+C        APRIL     2000   GLAHN    MDL MOS-2000
+C
+C        PURPOSE
+C           TO FIT SEVERAL 3-HOURLY OR 6-HOURLY TEMPERATURES WITH
+C           A LINEAR, QUADRATIC, CUBIC, OR QUARTIC CURVE, AND
+C           DETERMINE THE MAXIMUM (OR MINIMUM) OF THE FIT AND THE
+C           VALUES FITTED.  IDPARS(1) & IDPARS(2) OF TEMPERATURE
+C           ARE MAPPED
+C                         INTO      FROM 
+C                         2021XY    202100 AND 202020
+C                         2022XY    202200 AND 202020
+C
+C           WHERE X = DEGREE OF FIT: 1,2,3,4 FOR DEGREE 1, ETC., AND
+C                 Y = NUMBER OF 3-HOURLY VALUES INVOLVED.
+C
+C           OTHER MAX/MIN IDS USED:
+C              202100 TO 202120 IN MAXTEST
+C                        202120 TO 202140 IN MRFTEST
+C                                  202140 TO 202144 IN FTOKEL
+C              202200 TO 202220 IN MAXTEST
+C                        202220 TO 202240 IN MRFTEST
+C                                  202240 TO 202244 IN FTOKEL
+C
+C           EXCEPT FOR THE KELVIN CONVERSION, THE LAST DIGIT IS
+C           ZERO, SO THE IDS HERE WON'T CONFLICT AS LONG AS THE
+C           LAST DIGIT IS NOT ZERO.  (EVENTUALLY, SETTLE ON 
+C           IDS THAT DO NOT CONFLICT WITH ANY ALREADY USED.)
+C               
+C        DATA SET USE 
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                     (OUTPUT) 
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                     (INPUT-OUTPUT) 
+C            IP12   - INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                     STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                     THE FILE WHOSE UNIT NUMBER IS IP12.  (OUTPUT)
+C         KFILRA(J) - THE UNIT NUMBERS FOR WHICH RANDOM ACCESS FILES
+C                     ARE AVAILABLE (J=1,NUMRA).  (INPUT)
+C 
+C        VARIABLES 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                       (INPUT) 
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT)
+C                IP12 = INDICATES WHETHER (>0) OR NOT (=0) THE LIST OF
+C                       STATIONS ON THE EXTERNAL RANDOM ACCESS FILES
+C                       WILL BE LISTED TO UNIT IP12.  (INPUT)
+C           KFILRA(J) = THE UNIT NUMBERS FOR WHICH RANDOM ACCESS FILES
+C                       ARE AVAILABLE (J=1,NUMRA).  (INPUT)
+C           RACESS(J) = THE FILE NAMES ASSOCIATED WITH KFILRA(J)
+C                       (J=1,NUMRA).  (CHARACTER*60)  (INPUT)
+C               NUMRA = THE NUMBER OF VALUES IN KFILRA( ) AND RACESS( ).
+C                       (INPUT)
+C               ID(J) = THE PREDICTOR ID (J=1,4).  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTOR ID CORRESPONDING TO ID( ) (J=1,15).
+C                       (INPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 
+C                            1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN 
+C                            TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).
+C                       THIS IS THE SAME AS ID(J), EXCEPT THAT THE
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3),
+C                       T = IDPARS(8),
+C                       I = IDPARS(13),
+C                       S = IDPARS(14),
+C                       G = IDPARS(15), AND
+C                       THRESH.
+C                       JD( ) IS USED TO IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE.  (INPUT)
+C                ITAU = THE NUMBER OF HOURS AHEAD TO FIND A VARIABLE.
+C                       THIS HAS ALREADY BEEN CONSIDERED IN MDATE, BUT
+C                       IS NEEDED FOR CALL TO RETVEC.  (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED.
+C                       (INPUT)
+C               MDATE = NDATE UPDATED WITH ITAU( ).  (INPUT)
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+C                       DATA ARE KEYED TO THIS LIST, EXCEPT POSSIBLY 
+C                       CCALLD( ).  EQUIVALENCED TO ICALL( , , ). 
+C                       (CHARACTER*8)  (INPUT)
+C           ITIMEZ(K) = THE NUMBER OF HOURS STATION K IS AWAY FROM UTC
+C                       FOR LOCAL STANDARD TIME (N=1,NSTA).  (INPUT)
+C            XDATA(K) = MAX OR MIN TEMPERATURE, CONSISTENT WITH 3-H
+C                       VALUES AND THE CURVE FIT.  (K=1,NSTA).
+C                       (OUTPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT 
+C                       WITH.  DIMENSION OF XDATA( ), ITIMEZ( ) AND
+C                       YDATA( ) AND FIRST DIMENSION OF FDATA( , ).
+C                       (INPUT)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT
+C                       WITH.  (INPUT)
+C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN
+C                       INTEGER VARIABLE (L=1,L3264W) (K=1,ND5). 
+C                       THIS ARRAY IS USED TO READ THE STATION
+C                       DIRECTORY FROM A MOS-2000 EXTERNAL FILE.
+C                       EQUIVALENCED TO CCALLD( ).  (CHARACTER*8)
+C                       (INTERNAL)
+C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,ND5).  EQUIVALENCED
+C                       TO ICALLD( , ).  (INTERNAL)
+C            IPACK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C             DATA(K) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), AND DATA( ).
+C                       (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT-OUTPUT)
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT HAVE BEEN USED IN THIS RUN.  (INPUT)
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA 
+C                       IDENTIFIED IN LSTORE( , ) (J=1,ND10).  WHEN 
+C                       CORE( ) IS FULL DATA ARE STORED ON DISK.
+C                       (INPUT)
+C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE.  (INPUT)
+C              NFETCH = THE NUMBER OF TIMES RETVEC HAS BEEN ENTERED.
+C                       RETVEC KEEPS TRACK OF THIS AND RETURNS THE
+C                       VALUE.  (OUTPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3). 
+C                       (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+). 
+C                       (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12). 
+C                       (INTERNAL)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4). 
+C                       (INTERNAL)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED.  (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C              L3264W = NUMBER OF WORDS IN 64 BITS (EITHER 1 OR 2).  
+C                       CALCULATED BY PARAMETER, BASED ON L3464B.
+C                       (INPUT)
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                       102 = ID NOT ACCOMMODATED.
+C                       SEE RETVEC FOR OTHER VALUES.  (OUTPUT)
+C               LD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       XDATA( ) (J=1,4).  (INTERNAL)
+C           LDPARS(J) = PARSED VALUES CORRESPONDING TO LD( ) (J=1,15)
+C                       (INTERNAL)
+C            YDATA(K) = WORK ARRAY WHICH HOLD 3-H TEMPERATURES
+C                       (K=1,ND1).  (AUTOMATIC)
+C         ITABLE(I,J) = VALUES OF CCCFFF ACCOMMODATED (I=1) AND
+C                       THE ASSOCIATED VARIABLE NEEDED (I=2)
+C                       (J=1,NDIM).  (INTERNAL)
+C                NDIM = SECOND DIMENSION OF ITABLE( , ).  SET BY
+C                       PARAMETER.  (INTERNAL)
+C            S11(I,J) = 
+C              AVG(J) = AVERAGE OF PREDICTORS (J=1,4).  (INTERNAL)
+C                S(J) = SUM OF PREDICTORS (J=1,4).  (INTERNAL)
+C                T(J) = PREDICTOR VALUES (J=1,4).  (INTERNAL)
+C                T(J) = T, T**2, T**3, AND 1 (J=1,4), WHERE T = PROJECTION. 
+C                       (INTERNAL) 
+C            S11(J,K) = CROSS PRODUCT MATRIX OF T, T**2, T**3, AND 1, 
+C                       SUMMED OVER THE NUMBER OF HEIGHT FIELDS AVAILABLE 
+C                       (J=1,4) (K=1,4).  (INTERNAL) 
+C              WRK(J) = SUM OF PRODUCTS OF PREDICTANDS AND PREDICTORS
+C                       (J=1,5).  (INTERNAL)
+C                H(J) = PREDICTAND FOR UP TO 9 TAUS
+C                       (J=1,9).  AT COMPLETION, H( ) CONTAINS
+C                       THE EQUATION.  (INTERNAL) 
+C               JTIME = COUNTS THE NUMBER OF GOOD PROJECIONS READ.
+C                       (INTERNAL)
+C           ISPROJ(J) = THE STARTING PROJECTIONS FOR THE 6 TIME ZONES,
+C                       (J=1,6) FOR ATLANTIC ITIMEZ = -4 THROUGH
+C                       HAWAII ITIMEZ = -10 FOR THE FITTING.  (INTERNAL)
+C           IEPROJ(J) = THE ENDING PROJECTIONS FOR THE 6 TIME ZONES,
+C                       (J=1,6) FOR ATLANTIC ITIMEZ = -4 THROUGH
+C                       HAWAII ITIMEZ = -10 FOR THE FITTING.  (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C 
+C        NONSYSTEM SUBROUTINES CALLED 
+C            PRSID1,RETVEC
+C
+      PARAMETER(NDIM=2)
+C
+      CHARACTER*8 CCALL(ND1,6)
+      CHARACTER*8 CCALLD(ND5)
+      CHARACTER*60 RACESS(5)
+C
+      DIMENSION ITIMEZ(ND1),XDATA(ND1),YDATA(ND1)
+C        YDATA( ) IS AN AUTOMATIC ARRAY.
+      DIMENSION ID(4),IDPARS(15),JD(4),LD(4)
+      DIMENSION IPACK(ND5),IWORK(ND5),DATA(ND5)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION LSTORE(12,ND9),ICALLD(L3264W,ND5)
+      DIMENSION CORE(ND10),LDPARS(15),KFILRA(5)
+      DIMENSION ITABLE(2,NDIM)
+      DIMENSION S11(5,5),AVG(4),S(4),T(5),WRK(5),H(5)
+      DIMENSION FDATA(ND1,9)
+C        FDATA( , ) IS AN AUTOMATIC ARRAY.
+      DIMENSION ISCOL(7),IECOL(7)
+C               
+      DATA LDPARS/15*0/  
+      DATA ITABLE/202100,202000,
+     1            202200,202000/
+      DATA ISCOL/1,2,2,2,3,3,3/
+      DATA IECOL/6,6,7,7,7,8,8/
+C
+      IER=0
+C     
+C        VERIFY THE PROCESSING INDICATOR, IDPARS(1).
+C
+      DO 100 JJ=1,NDIM                                                 
+      IF(ITABLE(1,JJ).EQ.IDPARS(1)*1000+(IDPARS(2)/100)*100) GO TO 108
+ 100  CONTINUE
+C
+      WRITE(KFILDO,107)(JD(L),L=1,4)
+ 107  FORMAT(/,' ****MXMNFT ENTERED FOR VARIABLE',
+     1        2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+     2        ' NOT ACCOMMODATED.')
+      IER=102
+      GOTO 300
+C     
+C        INITIALIZE THE MAX OR MIN.
+C
+ 108  DO 110 K=1,NSTA
+      YDATA(K)=0.
+      ITIMEZ(K)=-6
+C        THIS INITIALIZATION OF ITIMEZ( ) IS TEMPORARY AND
+C        HERE CORRESPONDS TO THE CENTRAL TIME ZONE.
+ 110  CONTINUE
+C 
+C        GET THE FOUR WORD ID FOR 3-HOUR TEMPERATURES FOR THE
+C        CORRESPONDING PERIOD.
+C
+      L=IDPARS(2)/100 
+C        L = 1 FOR MAX, 2 FOR MIN.
+      IFIT=(IDPARS(2)-(IDPARS(2)/100)*100)/10
+C        IFIT = DEGREE OF FIT, 1, 2, 3, OR 4.
+C
+      IF(IFIT.LT.1.OR.IFIT.GT.4)THEN
+         WRITE(KFILDO,116)(ID(J),J=1,4)
+  116    FORMAT(/' ****VARIABLE DOES NOT HAVE IFIT IN RANGE 1-4 IN',
+     1           ' MXMNFT',2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+         GO TO 300
+      ENDIF
+C
+      NOVFIT=IDPARS(2)-(IDPARS(2)/10)*10
+C        NOVFIT = NUMBER OF VALUES TO FIT, NORMALLY 5 OR 7.
+C
+D     WRITE(KFILDO,1165)IFIT,NOVFIT
+D1165 FORMAT(/' AT 1165--IFIT,NOVFIT'2I4)
+      IF(NOVFIT-1.LT.IFIT)THEN
+C           THERE HAS TO BE AT LEAST ONE MORE VALUE TO FIT THAN
+C           THE DEGREE OF FIT.
+         WRITE(KFILDO,117)(ID(J),J=1,4)
+  117    FORMAT(/' ****VARIABLE HAS IFIT AND NUMBER OF VALUES TO FIT',
+     1           ' THAT DO NOT AGREE IN',
+     2           ' MXMNFT',2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+         GO TO 300
+      ENDIF
+C      
+      MTAU=0
+      LD(1)=ITABLE(2,L)*1000+IDPARS(4)
+      LD(2)=JD(2)
+      JTIME=0
+C
+      DO 129 J=8,1,-1 
+      LD(3)=JD(3)-(J-1)*3
+C        FOR ANY MAX OR MIN, 8 PROJECTIONS ARE USED, AND THE
+C        ALGORIHM ABOVE WORKS.  THE 8 PROJECTIONS SPAN THE
+C        7 TIME ZONES IN THE US.
+      LD(4)=IDPARS(13)*100+IDPARS(14)*10+IDPARS(15)     
+C            
+C         FETCH THE 3-H TEMPERATURES IN FDATA( ,9-J).
+C         JTIME KEEPS TRACK OF THE PROJECTIONS.  IF ONE IS 
+C         MISSING, MXMNFT WILL STILL OPERATE.
+C
+      CALL PRSID1(KFILDO,LD,LDPARS)
+      CALL RETVEC(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+     1            LD,LDPARS,JD,ITAU,
+     2            NDATE,MDATE,CCALL,ISDATA,FDATA(1,9-J),ND1,NSTA,
+     3            ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+     4            LSTORE,ND9,LITEMS,CORE,ND10,
+     5            NBLOCK,NFETCH,
+     6            IS0,IS1,IS2,IS4,ND7,
+     7            L3264B,L3264W,IER)
+C
+C        JD( ) IS NOT ACTUALLY USED IN RETVEC.  IT IS USED
+C        IN CALL TO CONST, BUT CONST DOES NOT USE IT EITHER.
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,127)(LD(M),M=1,4)
+  127    FORMAT(/' ****VARIABLE NOT RETRIEVED BY RETVEC IN MXMNFT',
+     1          2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+         GO TO 129
+C           THIS WILL ALLOW A MISSING PROJECTION.
+C           RETEC WILL RETURN MISSING = 9999 IN FDATA( ,9-J)
+C           IF IER NE 0.
+      ENDIF
+C
+      JTIME=JTIME+1
+C        JTIME COUNTS THE NUMBER OF GOOD PROJECIONS READ.
+D     WRITE(KFILDO,128)JTIME,(FDATA(K,9-J),K=1,NSTA)
+D128  FORMAT(' AT 128 IN MXMNFT--JTIME,(FDATA(K,9-J),K=1,NSTA)',
+D    1        I4/(' '10F10.2))
+ 129  CONTINUE
+C
+      IF(JTIME-1.LT.IFIT)THEN
+C           THERE HAS TO BE AT LEAST ONE MORE VALUE TO FIT THAN
+C           THE DEGREE OF FIT.
+         WRITE(KFILDO,130)JTIME,IFIT,(LD(J),J=1,4)
+ 130     FORMAT(/' ****NUMBER OF PROJECTIONS AVAILABLE =',I3, 
+     1           ' NOT SUFFICIENT FOR IFIT =',I3,' IN MXMNFT FOR',
+     2           ' VARIABLE ',2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+         GO TO 300
+      ENDIF
+C 
+C        COMPUTE MEANS OF PREDICTANDS AND CROSS-PRODUCTS OF PREDICTORS 
+C        AND PREDICTANDS.  THE PROJECTIONS TO USE DEPEND ON TIME ZONE.
+C        MUST DO BY STATION BECAUSE NUMBER OF VALUES TO FIT VARIES BY
+C        STATION TIME ZONE.
+C
+      DO 260 K=1,NSTA
+C
+C        ZERO WRK( , ).
+C
+      DO 131 N=1,5
+      WRK(N)=0.
+ 131  CONTINUE
+C
+C        ZERO S11( , ).
+C
+      DO 133 L=1,5 
+      DO 132 N=1,5 
+      S11(L,N)=0. 
+ 132  CONTINUE 
+ 133  CONTINUE 
+C
+     J=0
+C
+      DO 137 NC=ISCOL(-ITIMEZ(K)-3),IECOL(-ITIMEZ(K)-3)
+C        THE TIME ZONES CHANGE AT HOURLY INTERVALS FROM EAST TO
+C        WEST, BUT THE FORECASTS ARE AVAILABLE ONLY EVERY 3 HOURS
+C        AT BEST.  THE MRF MAY BE AVAILABLE EVERY 6 HOURS.
+C        THE MAX IS LABELED AT 30 HOURS FOR THE 00Z RUN AND WILL
+C        BE AT TAU = 24 FOR THE 06Z RUN.  FOR THE MAX, THE
+C        FOLLOWING 5 PROJECTIONS ARE USED:
+C            TIME          ITIMEZ( ) 3-H PROJECTIONS USED
+C           ATLANTIC          -4        9,12,15,18,21,24
+C           EASTERN           -5          12,15,18,21,24
+C           CENTRAL           -6          12,15,18,21,24,27
+C           MOUNTAIN          -7               (SAME)
+C           PACIFIC           -8             15,18,21,24,27
+C           ALASKA            -9             15,18,21,24,27,30
+C           HAWAII/ALEUTIANS -10               (SAME)
+C        COLUMN NC IN FDATA( , ) CORRESPONDS TO -ITIMEZ( ) + 5.
+C
+C        INITIALIZE THE PREDICTOR VALUES IN T( ).  THE SIZE OF T( )
+C        ACCOMMODATES A QUARTIC FIT.  NO MATTER WHAT PROJECTION,
+C        THE TIMES (PROJECTIONS) ARE 1, 2, ...  THE VALUES DON'T
+C        MATTER, JUST SO THEY ARE LINEAR.  THEN THESE SAME VALUES
+C        ARE USED IN EVALUATING THE EQUATIONS.  IF THE ACTUAL
+C        PROJECTIONS WERE USED, SOME PRODUCTS WOULD BE LARGE
+C        ENOUGH TO BEGIN TO LOSE SIGNIFICANCE.
+C 
+      J=J+1
+C        J = 1 FOR THE FIRST PROJECTION, 2 FOR THE SECOND, ETC.
+C        THE ACTUAL PROJECTION VARIES BY CALL TO MXMNFT AND STATION.
+      T(1)=J 
+C        T(1)=TAU. 
+      T(2)=J*J 
+C        T(2)=TAU SQUARED. 
+      T(3)=T(1)*T(2) 
+C        T(3)=TAU CUBED. 
+      T(4)=T(1)*T(3) 
+C        T(4)=TAU QUADRUPLED. 
+      T(5)=1. 
+C
+      DO 134 N=1,5
+C   
+      WRK(N)=WRK(N)+FDATA(K,NC)*T(N)
+D     WRITE(KFILDO,1335)K,N,NC,FDATA(K,NC),T(N),WRK(N)
+D1335 FORMAT(' AT 1335 IN MXMN--K,N,NC,FDATA(K,NC),T(N),WRK(N)',
+D    1         3I4,3F10.2)
+C
+ 134  CONTINUE
+C
+      DO 136 L=1,5 
+      DO 135 N=1,5 
+      S11(L,N)=S11(L,N)+T(L)*T(N) 
+ 135  CONTINUE 
+ 136  CONTINUE 
+C
+ 137  CONTINUE 
+C
+D     WRITE(KFILDO,952)((S11(M,N),N=1,5),M=1,5) 
+D952  FORMAT(/' S11-952'5E20.8/('        '5E20.8))
+C 
+C        SUMMATION OVER PROJECION DATA IS COMPLETE FOR ALL
+C        STATIONS.
+C
+      SMPL=S11(5,5) 
+C 
+      DO 210 N=1,4 
+      S(N)=S11(5,N) 
+      AVG(N)=S(N)/SMPL 
+ 210  CONTINUE 
+C 
+      DO 220 L=1,4 
+      DO 215 M=1,4 
+      S11(M,L)=S11(M,L)-AVG(L)*S(M) 
+ 215  CONTINUE 
+C 
+      H(L)=WRK(L)
+C
+      H(L)=H(L)-WRK(5)*AVG(L) 
+C 
+ 220  CONTINUE 
+C 
+      H(5)=WRK(5)/SMPL 
+C 
+D     WRITE(KFILDO,222)WRK(5),SMPL,H(5)
+D222  FORMAT(/' AT 222--WRK(5),SMPL,H(5)',3F10.2)
+C
+      DO 240 N=1,IFIT 
+C 
+      WRK(N)=H(N)
+C 
+      DO 230 L=1,IFIT 
+      IF(L.EQ.N)GO TO 230 
+      F=S11(L,N)/S11(N,N) 
+C 
+      DO 225 M=N,IFIT 
+      S11(L,M)=S11(L,M)-F*S11(N,M) 
+ 225  CONTINUE 
+C
+D     WRITE(KFILDO,954)((S11(M,NN),NN=1,5),M=1,5) 
+D954  FORMAT(/' S11-954'5E20.8/('        '5E20.8))
+C 
+      H(L)=H(L)-F*WRK(N) 
+C 
+ 230  CONTINUE 
+C 
+      F=S11(N,N) 
+C 
+      DO 235 M=N,IFIT 
+      S11(N,M)=S11(N,M)/F 
+ 235  CONTINUE 
+C 
+D     WRITE(KFILDO,955)((S11(M,NN),NN=1,5),M=1,5) 
+D955  FORMAT(/' S11-955'5E20.8/('        '5E20.8))
+      WRK(N)=WRK(N)/F 
+      H(N)=WRK(N)
+C 
+ 240  CONTINUE 
+C 
+      DO 250 M=1,IFIT 
+D     WRITE(KFILDO,245)M,WRK(M),H(M),AVG(M) 
+D245  FORMAT(/' M,WRK(M),H(M),AVG(M) ',I4,10F10.1) 
+C 
+      H(5)=H(5)-H(M)*AVG(M) 
+C 
+ 250  CONTINUE 
+C 
+D     WRITE(KFILDO,251)(WRK(M),M=1,5)
+D251  FORMAT(/' (WRK(M),M=1,5)',5E20.8)
+D     WRITE(KFILDO,252)((S11(M,N),N=1,5),M=1,5) 
+D252  FORMAT(/' S11    '5E20.8/('        '5E20.8))
+C
+D     WRITE(KFILDO,253)H(5),(H(L),L=1,IFIT)
+D253  FORMAT(/' COEF   '5F10.4)
+C
+C        AT THIS POINT, H(5) CONTAINS THE FITTING EQUATION CONSTANT,
+C        AND H(J), J=1,IFIT CONTAINS THE COEFFICIENTS OF THE LINEAR,
+C        QUADRATIC, CUBIC, AND QUARTIC TERMS IN ORDER, ACCORING TO
+C        IFIT = 1, 2, 3, OR 4.  NOW EVALUATE THE EQUATION FOR THIS
+C        STATION.  PUT THE MAXIMUM OF THE VALUES INTO XDATA(K).
+C*****************ONE MISSING 3-H TEMP?
+      XDATA(K)=-9999.
+C
+      DO 258 M=1,IFIT
+      VAL=H(5)
+C
+      DO 257 J=1,IFIT
+      VAL=VAL+H(J)*J**J
+ 257  CONTINUE
+C
+      IF(VAL.GT.XDATA(K))XDATA(K)=VAL
+ 258  CONTINUE
+C
+ 260  CONTINUE
+C  
+C        THIS VARIABLE CANNOT BE COMPUTED.  SET XDATA( ) TO MISSING.
+C        THIS IS FOR SAFETY; XDATA( ) SHOULD ALREADY BE SET TO MISSING.
+C        
+ 300  DO 310 K=1,NSTA
+         XDATA(K)=9999.
+ 310  CONTINUE
+C                                                        
+ 350  RETURN
+      END

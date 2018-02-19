@@ -1,0 +1,187 @@
+      SUBROUTINE SAMPLE(KFILDO,IP14,P,NX,NY,CCALL,XP,YP,LNDSEA,XLAPSE,
+     1                  XDATA,NSTA,ISMPL,MAXPT,SEALND,NXE,NYE,
+     2                  MESH,MESHE,GUESS,N4P,ISTOP,IER)
+C
+C        OCTOBER   2004   GLAHN   TDL   MOS-2000
+C        MARCH     2006   GLAHN   ADDED IP14 AND ISTOP( ) TO CALL
+C                                 AND CALL TO ITRPSL
+C        MARCH     2006   GLAHN   ADDED N4P
+C        DECEMBER  2007   GLAHN   ADDED ISTOP(6) CAPABILITY
+C
+C        PURPOSE
+C            TO SAMPLE THE FIRST GUESS GRID IN P( , ) AT POINTS
+C            DESIGNATED BY POSITIONS XP( ) AND YP( ), BETWEEN THE
+C            INITIAL VECTOR DATA INPUT (IF ANY) AND NSTA-ISMPL+MAXPT.
+C
+C        DATA SET USE
+C            KFILDO   - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C            IP14     - UNIT NUMBER FOR LISTING COMPUTED LAPSE
+C                       RATES AND PROBLEMS WITH LAPSE RATES AND 
+C                       PROBLEMS WITH LAPSE RATES.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C                IP14 = UNIT NUMBER FOR LISTING COMPUTED LAPSE
+C                       RATES AND PROBLEMS WITH LAPSE RATES.  (INPUT)
+C              P(I,J) = THE FIRST GUESS FROM FSTGS5 AND THE ANALYSIS
+C                       FROM BCD5 (I=1,NXL) (J=1,NYL).  AFTER SAMPLING,
+C                       THIS IS SET TO GUESS.  (INPUT)
+C                  NX = THE X EXTENT OF THE GRID IN P( , ).  (INPUT)
+C                  NY = THE Y EXTENT OF THE GRID IN P( , ).  (INPUT)
+C            CCALL(K) = 8-CHARACTER STATION CALL LETTERS (K=1,NSTA).
+C                       (INPUT)
+C               XP(K) = THE X POSITION FOR STATION K (K=1,NSTA) ON 
+C                       THE ANALYSIS GRID AREA AT THE CURRENT GRID MESH 
+C                       LENGTH.  THE INITIAL VECTOR DATA HAVE
+C                       BEEN, OR MAY HAVE BEEN, AUGMENTED BY ISMPL
+C                       POINTS, AND THE SUM IS NOW NSTA.  THE NAMIMUM
+C                       NUMBER OF SAMPLED POINTS TO USE FOR THIS
+C                       ANALYSIS IS MAXPT.  SO, THE SAMPLING IS FROM 
+C                       K=NSTA-ISMPL,NSTA-ISMPL+MAXPT.  THE NUMBER OF
+C                       POINTS ADDED TO XP( ) AND YP( ) IS ISMPL READ
+C                       IN INT155 AND APPLIES TO ALL ANALYSES IN THIS
+C                       RUN.  MAXPT APPLIES ONLY TO THIS ANALYSIS AND
+C                       NEVER EXCEEDS ISMPL.  (INPUT)
+C               YP(K) = THE Y POSITION FOR STATION K (K=1,NSTA) ON 
+C                       THE ANALYSIS GRID AREA AT THE CURRENT GRID MESH 
+C                       LENGTH XMESH.  SEE XP( ) ABOVE.  (INPUT)
+C           LNDSEA(K) = LAND/SEA INFLUENCE FLAG FOR EACH STATION
+C                       (K=1,ND1).
+C                       0 = WILL BE USED FOR ONLY OCEAN WATER (=0)
+C                           GRIDPOINTS.
+C                       3 = WILL BE USED FOR ONLY INLAND WATER (=3)
+C                           GRIDPOINTS.
+C                       6 = WILL BE USED FOR BOTH INLAND WATER (=3)
+C                           AND LAND (=9) GRIDPOINTS.
+C                       9 = WILL BE USED FOR ONLY LAND (=9) GRIDPOINTS.
+C                       (INPUT)
+C           XLAPSE(K) = CALCULATED LAPSE RATE IN UNITS OF THE VARIABLE
+C                       BEING ANALYZED PER M (K=1,KSTA).  (INPUT/OUTPUT)
+C            XDATA(K) = DATA TO ANALYZE.  ON INPUT, THERE ARE 
+C                       NSTA-ISMPL VALUES; ON OUTPUT, THERE ARE EITHER
+C                       MAXPT MORE VALUES.  (INPUT/OUTPUT)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT
+C                       WITH.  THIS INCLUDES BOTH VECTOR DATA AND
+C                       SAMPLED DATA.  (INPUT)
+C               ISMPL = NUMBER OF POINTS TO SAMPLE FROM THE FIRST GUESS
+C                       FIELD.  0 OTHERWISE.  THE POINTS TO ANALYZE
+C                       CAN COME FROM THE DIRECTORY (ISMPL=0), FROM
+C                       SAMPLED POINTS (ISMPL GT 0), OR BOTH 
+C                       ISMPL GT 0).  (INPUT)
+C           SEALND(J) = THE LAND/SEA MASK (J=1,NXE*NYE).
+C                       0 = OCEAN WATER GRIDPOINTS;
+C                       3 = INLAND WATER GRIDPOINTS.
+C                       9 = LAND GRIDPOINTS.
+C                       (INPUT)
+C                 NXE = X-EXTENT OF TELEV( ) AND SEALND( ) AT MESH
+C                       LENGTH MESHE.  (INPUT)
+C                 NYE = Y-EXTENT OF TELEV( ) AND SEALND( ) AT MESH
+C                       LENGTH MESHE.  (INPUT)
+C                MESH = THE NOMINAL MESH LENGTH OF THE GRID BEING DEALT
+C                       WITH WHOSE DIMENSIONS ARE NX AND NY, AND 
+C                       THE STATION LOCATIONS IN XP( ) AND YP( ) ARE
+C                       IN REFERENCE TO.  (INTERNAL)
+C               MESHE = THE NOMINAL MESH LENGTH OF THE TERRAIN GRID.
+C                       IT IS MANDATORY THE GRID AVAILABLE IS OF THIS
+C                       MESH SIZE AND COVER THE SAME AREA SPECIFIED
+C                       BY NXL BY NYL, EVEN IF MESHE IS NOT EQUAL
+C                       TO MESHB.  (INPUT)
+C               GUESS = THE CONSTANT TO REPLACE THE FIELD IN P( , )
+C                       WITH.  (INPUT)
+C                 N4P = 4 INDICATES THE SURROUNDING 4 POINTS WILL BE
+C                         CHECKED WHEN TRYING TO FIND A GRIDPOINT OF
+C                         THE SAME TYPE AS THE DATUM AND INTERPOLATION
+C                         CAN'T BE DONE.  CURRENTLY, THIS IS ALWAYS
+C                         DONE (DOES NOT REQUIRE N4P=4).
+C                       12 SAME AS ABOVE, EXCEPT 12 ADDITIONAL POINTS
+C                         WILL BE CHECKED WHEN NONE OF THE 4 POINTS
+C                         ARE OF THE CORRECT TYPE.
+C                       N4P IS OPERATIVE ONLY WHEN THE DATUM AND
+C                       THE SURROUNDING 4 POINTS ARE OF MIXED TYPE.
+C                       (INPUT)
+C            ISTOP(J) = ISTOP(1)--IS INCREMENTED BY 1 EACH TIME AN ERROR 
+C                                 OCCURS.
+C                       ISTOP(2)--IS INCREMENTED WHEN THERE ARE
+C                                 FEW DATA (200) FOR AN ANALYSIS.
+C                       ISTOP(3)--IS INCREMENTED WHEN A DATA RECORD 
+C                                 COULD NOT BE FOUND.
+C                       ISTOP(4)--IS INCREMTED WHEN A LAPSE RATE COULD
+C                                 NOT BE COMPUTED OR HAS TOO FEW CASES
+C                                 TO BE USED.
+C                       ISTOP(5)--IS INCREMENTED WHEN NO NON-MISSING
+C                                 GRIDPOINT AROUND THE DATA POINT IS
+C                                 OF THE SAME TYPE.
+C                       ISTOP(6)--IS INCREMENTED WHEN THERE IS A PROBLEM
+C                                 WITH MAKING BOGUS STATIONS.
+C                       (INPUT/OUTPUT)
+C                 IER = ERROR RETURN.
+C                       0 = GOOD RETURN.
+C                       (OUTPUT)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES USED 
+C           ITRPSL
+C   
+      CHARACTER*8 CCALL(NSTA)
+C         
+      DIMENSION XP(NSTA),YP(NSTA),XLAPSE(NSTA),LNDSEA(NSTA),XDATA(NSTA)
+      DIMENSION P(NX,NY),SEALND(NXE,NYE)
+      DIMENSION ISTOP(6)
+C
+      IER=0      
+C
+      IF(MAXPT.LE.0)GO TO 250
+C
+C        INTERPOLATE INTO P( , ) TO GET POINTS TO PUT INTO XDATA( ).
+C
+      DO 200 K=NSTA-ISMPL+1,NSTA-ISMPL+MAXPT
+C
+C        FIND INTERPOLATED VALUE OR NEAREST NEIGHBOR VALUE IN
+C        ITRPSL ACCORDING TO THE LAND/WATER TYPE LNDSEA(K).
+C
+      CALL ITRPSL(KFILDO,IP14,P,NX,NY,CCALL(K),XP(K),YP(K),LNDSEA(K),
+     1            SEALND,NXE,NYE,
+     2            MESH,MESHE,XDATA(K),N4P,ISTOP,IER)
+C        VALUE INTERPOLATED FROM FIRST GUESS TO LOCATION OF POINT IS
+C        NOW IN XDATA(K).  THIS CAN BE MISSING BECAUSE AN INTERPOLATED
+C        VALUE FOR A LAND (WATER) STATION IS ONLY TAKEN FROM LAND
+C        (WATER) STATIONS, AND IT IS POSSIBLE NONE EXIST.  ALSO,
+C        THE FIRST GUESS ANALYSIS AREA MAY NOT FILL GRID.
+C
+CD     WRITE(KFILDO,150)NX,NY,NXE,NYE,CCALL(K),XP(K),YP(K),
+CD    1                 LNDSEA(K),MESH,MESHE,XDATA(K)
+CD150  FORMAT(/' AT 150 IN SAMPLE--NX,NY,NXE,NYE,CCALL(K),XP(K),YP(K),',
+CD    1        'LNDSEA(K),MESH,MESHE,XDATA(K)',4I6,2X,A8,2F8.2,3I4,F8.2)
+CD    2             
+C
+      IF(IER.EQ.195)THEN
+         ISTOP(1)=ISTOP(1)+1
+C           IER = 195 = LNDSEA POINT VALUE NOT 0, 3, 6, OR 9.  A
+C           DIAGNOSTIC HAS BEEN PRINTED IN ITRPSL.
+C           IER = 196 IS NOT COUNTED AS AN ERROR.  IT MEANS BB = 9999.
+C           BECAUSE OF MISSING POINTS OR NON-MATCHING LAND/WATER
+C           DESIGNATION BETWEEN STATIONS AND LAND/WATER MASK.
+      ENDIF
+C
+      XLAPSE(K)=0.
+C        THIS IS A STOPGAP MEASURE.  EVENTUALLY A REASONABLE LAPSE
+C        RATE MUST BE DETERMINED.
+ 200  CONTINUE
+C
+      WRITE(KFILDO,205)MAXPT,GUESS
+ 205  FORMAT(/,' NUMBER OF POINTS SAMPLED FROM FIRST GUESS =',I7,
+     1         '.  FIRST GUESS REPLACED WITH CONSTANT =',F8.2)
+C
+C        REPLACE P( , ) WITH THE CONSTANT GUESS.
+C
+      DO 210 JY=1,NY
+      DO 209 IX=1,NX
+      P(IX,JY)=GUESS
+ 209  CONTINUE
+ 210  CONTINUE
+C
+      IER=0
+ 250  RETURN
+      END
+
+

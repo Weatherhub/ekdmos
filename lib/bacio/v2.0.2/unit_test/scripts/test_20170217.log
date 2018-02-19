@@ -1,0 +1,47 @@
+++ pwd
++ crtdir=/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts
++ libdir=/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../../lib
++ libsrcdir=/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../../src
++ srcdir=/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../src
++ datadir=/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../data
++ exedir=/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../exe
++ confdir=/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../conf
++ echo 'BACIO unit test start ...'
+BACIO unit test start ...
++ rm '/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../exe/*'
+rm: cannot remove `/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../exe/*': No such file or directory
++ case `hostid` in
+++ hostid
++ MACHINE_ID=wcoss
++ MACHINE_ID=cray
++ export TEST_NR=0
++ TEST_NR=0
++ echo ' **************** compiling start *********************** '
+ **************** compiling start *********************** 
++ '[' cray = zeus ']'
++ '[' cray = ccs ']'
++ '[' cray = theia ']'
++ '[' cray = wcoss ']'
++ echo ' **************** testing starts *********************** '
+ **************** testing starts *********************** 
++ echo ' '
+ 
++ ((  TEST_NR=TEST_NR+1  ))
++ echo ' test 1: test_baciof'
+ test 1: test_baciof
++ cd /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../src
++ make -f test_baciof_mk
+ftn -O3 -axCore-AVX2 -DUNDERSCORE -DLINUX -convert big_endian  test_baciof.f90 -o ../exe/test_baciof -L../../lib -lbacio_4
++ '[' '!' -s /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../exe/test_baciof ']'
++ cd /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts/../exe
++ ./test_baciof
+
+Please verify that both the operating system and the processor support Intel(R) MOVBE, FMA, BMI, LZCNT and AVX2 instructions.
+
+++ grep 'ends normally' aa
+++ wc -l
++ testend=0
++ '[' 0 -lt 1 ']'
++ echo 'test_baciof stoped!'
+test_baciof stoped!
++ exit 8

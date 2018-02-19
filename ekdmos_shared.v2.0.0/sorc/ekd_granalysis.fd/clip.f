@@ -1,0 +1,95 @@
+      SUBROUTINE CLIP(KFILDO,P,NX,NY,MESH,CPNDFD,NXE,NYE,MESHE,IER)
+C
+C        JUNE     2006   GLAHN   TDL   MOS-2000
+C                                ADAPTED FROM THINER FOR LAMP
+C        MARCH    2007   GLAHN   CHANGED EQ.0 TO LT..5
+C        AUGUST   2008   GLAHN   CORRECTED FORMAT 105
+C        OCTOBER  2008   COSGROVE   ADDED COMMA FOR IBM COMPILE
+C
+C        PURPOSE
+C           TO SET VALUES IN P( , ) TO 9999 WHEN THEY CORRESPOND TO
+C           GRIDPOINTS IN CPNDFD( , ) EQUAL TO ZERO.  THE SIZE OF
+C           THE GRIDS IN P( , ) AND CPNDFD( , ) NEED NOT BE THE SAME
+C           SIZE OR GRIDLENGTH.  HOWEVER, THE RULES FOR GRIDS USED
+C           IN U155 MUST APPLY.  NORMALLY, FOR CLIP TO BE ENTERED,
+C           THE GRIDS WOULD NOT BE AT THE SAME GRID LENGTH.  THE
+C           CLIPPING GRID MUST HAVE A GRIDLENGTH LESS THAN (OR EQUAL
+C           TO) THE  GRIDLENGTH OF THE GRID TO CLIP.
+C           
+C        DATA SET USE
+C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES 
+C
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C            P(IX,JY) = THE INPUT AND OUTPUT GRID (IX=1,NX) (JY=1,NY).
+C                       (INPUT/OUTPUT)
+C                  NX = THE SIZE OF P( , ) IN THE IX DIRECTION.
+C                       (INPUT)
+C                  NY = THE SIZE OF P( , ) IN THE JY DIRECTION.
+C                       (INPUT)
+C                MESH = MESH LENGTH OF P( , ).  (INPUT)
+C       CPNDFD(IX,JY) = THE GRID HOLDING THE MASK (IX=1,NXE) (JY=1,NYE).
+C                       (INPUT)
+C                 NXE = THE SIZE OF CPNDFD( , ) IN THE IX DIRECTION.
+C                       (INPUT)
+C                 NYE = THE SIZE OF CPNDFD( , ) IN THE JY DIRECTION.
+C                       (INPUT)
+C               MESHE = MESH LENGTH OF CPNDFD( , ).  (INPUT)
+C                 IER = RETURN CODE.
+C                         0 = GOOD RETURN.
+C                       777 = ERROR. IN MESH OR GRID SIZES.
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES USED 
+C            NONE
+C            
+      DIMENSION P(NX,NY)
+      DIMENSION CPNDFD(NXE,NYE)
+C
+      IER=0
+CD     CALL TIMPR(KFILDO,KFILDO,'START CLIP          ')
+C
+      IF(MESHE.GT.MESH)THEN
+         WRITE(KFILDO,105)MESHE,MESH
+ 105     FORMAT(/' ****MESHE =',I5,' IS GREATER THAN MESH IN CLIP =',I5,
+     1           '.  THE MESH LENGTH OF THE CLIPPING GRID MUST NOT BE',
+     2           ' GREATER THAN THE GRID TO CLIP.',/,
+     3           '  CLIPPING NOT DONE.  PROCEEDING.')
+         IER=777
+         GO TO 130
+      ENDIF
+C
+      NRATIO=MESH/MESHE
+CD     WRITE(KFILDO,107)NRATIO
+CD107  FORMAT(/' IN CLIP AT 107--NRATIO',I6)
+C
+C        CHECK FOR ODD DIMENSIONS OF THE INPUT GRID.
+C
+      IF(MOD(NX,2).EQ.0.OR.
+     1   MOD(NY,2).EQ.0)THEN
+         WRITE(KFILDO,110)NX,NY
+ 110     FORMAT(/' ****NX =',I6,' OR NY =',I6,' IN CLIP IS NOT',
+     1           ' ODD.  CLIPPING NOT DONE; THE SAME GRID IS RETURNED.')
+         IER=777
+         GO TO 130
+      ENDIF
+C
+C        DO THE CLIPPING.
+C
+      DO 120 JY=1,NY  
+      JYE=(JY-1)*NRATIO+1
+C
+      DO 119 IX=1,NX
+      IXE=(IX-1)*NRATIO+1
+C
+      IF(CPNDFD(IXE,JYE).LT..5)THEN
+         P(IX,JY)=9999.
+      ENDIF
+C          
+ 119  CONTINUE
+C
+ 120  CONTINUE
+C
+ 130  RETURN
+      END

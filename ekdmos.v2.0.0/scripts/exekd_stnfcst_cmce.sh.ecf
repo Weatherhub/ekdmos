@@ -1,0 +1,291 @@
+#!/bin/sh
+#######################################################################
+#  Job Name:  exekd_stnfcst.sh.ecf          
+#
+#  Purpose:   To run all steps neccessary to create input CMCE predictors
+#             for EKDMOS and generate statistical guidance for each member
+#
+#  Remarks:   This is the first script run for EKDMOS and is triggered
+#             by the completion of all the CMCE ensemble members. This 
+#             script will be run 22 times.  Once for each ensemble member
+#             and once for qpf mean fields. 
+#
+#
+#  HISTORY:   June   01, 2010  JLW - New Job for EKDMOS
+#             November   2012  JLW - Updated to run on the WCOSS 
+#
+#######################################################################
+echo EKDLOG: `date` - begin job exekd_stnfcst_cmce.sh.ecf
+
+export PS4='$SECONDS + '
+export PERT=$1
+
+msg="$job has begun on `hostname` at `date`"
+postmsg "$jlogfile" "$msg"
+
+export MODELCOMIN=${MCOMIN}/cmce.${PDY}/$cyc/pgrb2a
+echo $MCOMIN
+echo $MODELCOMIN
+if [[ ! -d $MODELCOMIN ]]; then
+   set +x
+   echo "**************************************************************"
+   echo "* $MODELCOMIN DOES NOT EXIST!!!!! *"
+   echo "********** EKDMOS WILL RUN WITHOUT CMCE DATA *****************"
+   echo "**************************************************************"
+   echo "$job will set itself to complete and proceed using only gefs data" 
+   set -x
+   touch $DATA/warning
+   exit 0
+fi
+
+########################################
+# Establish Subdirectories to make thread safe
+########################################
+export DATAsub=$DATA/cmce/$(printf %02d $PERT)
+mkdir -p $DATAsub
+cd $DATAsub
+
+#######################################################################
+# SETTING DATE AND CYCLE TIMES
+#######################################################################
+echo $PDY $cyc : Date and Cycle - echo PDY and cyc
+
+cp $DATA/NMCDATE $DATAsub
+cp $DATA/PDY $DATAsub
+cp $DATA/ncepdate $DATAsub
+
+export COMIN COMOUT
+#######################################################################
+# DEFINE THE GRID TO WHICH THE DATA IS TO BE INTERPOLATED ONTO.
+#######################################################################
+
+grid=`cat $FIXekd/ekd_finegds`
+
+######################################################################
+# LOOP THROUGH ALL PROJECTIONS OF CURRENT ENSEMBLE MEMBER
+# TO EXTRACT THE NECESSARY GRIB1 DATA AND PUT ON CORRECT GRID.
+######################################################################
+echo EKDLOG: `date` - start looping through all projections for ensemble member $(printf %02d $PERT)
+
+PROJECTION="00 06 12 18 24 30 36 42 48 54 60 66 72 78 84 90 96 102 \
+            108 114 120 126 132 138 144 150 156 162 168 174 180 186 \
+            192 198 204 210 216 222 228 234 240 246 252 258 264 270 \
+            276 282 288 294 300 306 312 318 324 330 336 342 348 354 \
+            360 366 372 378 384"
+
+let errcount=0
+set -x
+for PROJ in $PROJECTION;do
+    if (( $PROJ <= 180 )); then
+       if (( $PERT == 0 )); then
+          g1=cmc_gec00.$cycle.pgrb2af${PROJ}
+       else
+          g1=cmc_gep$(printf %02d $PERT).$cycle.pgrb2af${PROJ}
+       fi
+    elif (( $PERT == 0 )); then
+       if (( $cyc == 00 )); then
+          g1=cmc_gec00.$cycle.pgrb2af${PROJ}
+       else
+#
+#          GRAB THE LO-RES CONTROL MEMBER AT CERTAIN EXTENDED PROJECTIONS 
+#
+          case $PROJ in
+             186 | 198 | 210 | 222 | 234 | 246 | 258 | 270 | 282 | 294 |\
+             306 | 318 | 330 | 342 | 354 | 366 | 378 ) \
+                g1=cmc_gec$(printf %02d $PERT).$cycle.pgrb2af${PROJ}
+                x1=cmc_gec$(printf %02d $PERT).$cycle.pgrb2aif${PROJ};;
+             * ) \
+                g1=cmc_gec00.$cycle.pgrb2af${PROJ}
+          esac
+       fi
+    else
+          g1=cmc_gep$(printf %02d $PERT).$cycle.pgrb2af${PROJ}
+    fi
+    if [[ -f $MODELCOMIN/$g1 ]]; then
+       cp  $MODELCOMIN/$g1 $g1
+    else
+       echo "$MODELCOMIN/$g1 does not exist.  Skipping"
+       let errcount=$errcount+1
+       continue
+    fi
+set +x
+
+#######################################################################
+# RUN WGRIB2 
+# CONVERTS TO MDL GRID
+#######################################################################
+    GRID="nps:255.0000:60.0000 212.9360:137:95250.0000 6.9870:81:95250.0000 cmce.pgrb2a.$(printf %02d $PERT).grb2.${PROJ}.$cycle"
+
+    $WGRIB2 $g1 -new_grid_winds grid \
+                -new_grid_interpolation bilinear \
+                -if ":(APCP):" -new_grid_interpolation budget -fi \
+                -new_grid ${GRID}
+    export err=$?; err_chk							      
+    cat cmce.pgrb2a.$(printf %02d $PERT).grb2.${PROJ}.$cycle >> cmce.pgrb2a.$(printf %02d $PERT).grb2.$cycle
+done
+
+echo 'DONE CLIPPING GRID'
+
+echo EKDLOG: `date` - end looping and converting grib1 data to correct grid.
+
+set -x
+if [[ $errcount > 0 ]]; then
+   set +x
+   echo "**************************************************************"
+   echo "*********** $errcount CMCE model files were missing. *************"
+   echo "********** EKDMOS WILL RUN WITHOUT CMCE DATA *****************"
+   echo "**************************************************************"
+   echo "$job will set itself to complete and proceed using only gefs data"
+   set -x
+   ls -l cmce.pgrb2a.$(printf %02d $PERT).grb2.$cycle
+   if [[ ! -s cmce.pgrb2a.$(printf %02d $PERT).grb2.$cycle ]]; then
+      touch $DATA/warning
+      exit 0
+   fi
+fi
+echo 'DONE CLIPPING GRID'
+
+set +x
+echo EKDLOG: `date` - end looping and converting grib1 data to correct grid.
+
+########################################################################################
+# CREATE A GRIB2 INDEX FILE. EACH FILE CONTAINS ALL ARCHIVED ELEMENTS FOR
+# ALL PROJECTIONS FOR A PARTICULAR PERTURBATION.  GEFS USING PERTS 00-20, EKDMOS
+# SOFTWARE ID'S USE MODEL NUMBERS 40-60.
+########################################################################################
+
+echo EKDLOG: `date` - start convert grib2 to mdlp
+
+let DD=$PERT+40
+if [[ ${DD} = '40' ]]; then
+   vrbllist="ekd_cmce_grb2tomdlp.${DD}.lst"
+   cp $FIXekd/$vrbllist $DATAsub
+else
+   vrbllist="ekd_cmce_grb2tomdlp.${DD}.lst"
+   sed -e "s/YY/$(printf %02d $PERT)/g" -e "s/DD/$DD/g" $FIXekd/ekd_cmce_grb2tomdlp.DD > $DATAsub/$vrbllist
+fi
+
+$GRB2INDEX cmce.pgrb2a.$(printf %02d $PERT).grb2.$cycle cmce.pgrb2a.$(printf %02d $PERT).grb2.$cycle.index
+export err=$?; err_chk							      
+
+########################################################################################
+# USING GRIB2TOMDLPK TO CONVERT GRIB2 FILE INTO TDLPACK.
+########################################################################################
+
+export pgm=ekd_gribtomdlpk
+. prep_step
+export FORT10="ncepdate"
+export FORT20="cmce.pgrb2a.$(printf %02d $PERT).grb2.$cycle"
+export FORT21="cmce.pgrb2a.$(printf %02d $PERT).grb2.$cycle.index"
+export FORT27="cmce.mdlp.grid.$DD.$cycle"
+export FORT28="${vrbllist}"
+export FORT29="$FIXekd/ekd_grdlst"
+export FORT30="$FIXekd/ekd_mos2000id.tbl"
+startmsg
+$EXECekd/ekd_gribtomdlpk < $PARMekd/ekd_gribtomdlpk.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+echo EKDLOG: `date` - end convert grib2 to mdlp
+
+echo 'DONE RUNNING u130'
+######################################################################
+# FIRST EXECUTION OF PROGRAM MOSPRED
+# MOSPRED - USED TO COMPUTE AND INTERPOLATE GEFS VECTOR BASED FORECASTS
+#           THIS WILL BE USED AS INPUT INTO ENS_EQNEVAL
+######################################################################
+
+sed -e "s/DD/$DD/g" $PARMekd/ekd_cmcepredsids.DD.tbl > ekd_cmcepredsids.tbl
+sed -e "s/DD/$DD/g" $PARMekd/ekd_cmcepreds.cn > ekd_cmcepreds.cn      
+
+echo EKDLOG: `date` - begin job MOSPRED - INTERPOLATE CMCE MODEL DATA
+
+export pgm=ekd_mospred
+. prep_step
+export FORT10="ncepdate"
+export FORT20="cmce.mdlp.grid.${DD}.$cycle"
+export FORT60="cmce.preds.$DD.$cycle"
+export FORT33="$PARMekd/ekd_stnsfcst.lst"
+export FORT34="$PARMekd/ekd_stnsfcst.tbl"
+export FORT39="$FIXekd/ekd_mos2000id.tbl"
+export FORT35="ekd_cmcepredsids.tbl"
+startmsg
+$EXECekd/ekd_mospred < ekd_cmcepreds.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+echo 'DONE RUNNING U201'
+#######################################################################
+# PROGRAM RACREATE - MOS-2000 PROGRAM WHICH
+#                   CREATES RANDOM ACCESS FILES; IN THIS CASE, THE
+#                   CODE IS USED TO CREATE THE OPERATIONAL EKDMOS 
+#                   FORECAST FILE.
+#######################################################################
+echo EKDLOG: `date` - begin job RACREATE - CREATE EKDMOS FORECAST FILE
+
+export pgm=mdl_racreate
+. prep_step
+export FORT50="cmce_stnekdfcsts${DD}_ra.$cycle"
+startmsg
+$EXECmdl/mdl_racreate < $PARMekd/ekd_u350.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+echo EKDLOG: `date` -  RACREATE ended
+#######################################################################
+#  PROGRAM RAINIT - INITIALIZES RANDOM ACCESS EKDMOS FORECAST
+#                   FILE WITH STATION CALL LETTERS,
+#                   ELEVATION, LATITUDE, AND LONGITUDE
+#######################################################################
+
+echo EKDLOG: `date` - begin job RAINIT - INITIALIZE MOS FORECAST FILE
+export pgm=mdl_rainit
+. prep_step
+export FORT10="ncepdate"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT49="cmce_stnekdfcsts${DD}_ra.$cycle"
+startmsg
+$EXECmdl/mdl_rainit < $PARMekd/ekd_u351.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+echo EKDLOG: `date` -  RAINIT ended
+
+echo 'done creating an initializing ra file'
+
+#######################################################################
+#    PROGRAM EQNEVAL - CALCULATES SINGLE VALUE EKDMOS FORECASTS FOR
+#                      EACH ENSEMBLE MEMBER
+#######################################################################
+echo EKDLOG: `date` - begin job EQNEVAL - MAKE GEFS MOS FORECASTS FOR MEMBER $DD
+
+sed -e "s/DD/$DD/g" $PARMekd/ekd_eqneval_DD_cmce.cn > ekd_eqneval.cn
+
+export pgm=ekd_eqneval
+. prep_step
+export FORT10="ncepdate"
+export FORT24="cmce.preds.$DD.$cycle"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT28="$PARMekd/ekd_predtofcst"
+export FORT29="$FIXekd/ekd_mos2000id.tbl"
+export FORT33="$FIXekd/ekd_cmce_tdp.EQ.10010331.$cycle"
+export FORT34="$FIXekd/ekd_cmce_tdp.EQ.04010930.$cycle"
+export FORT35="$FIXekd/ekd_cmce_mxmn.EQ.10010331.$cycle"
+export FORT36="$FIXekd/ekd_cmce_mxmn.EQ.04010930.$cycle"
+export FORT45="$FIXekd/ekd_conststa"
+export FORT49="cmce_stnekdfcsts${DD}_ra.$cycle"
+startmsg
+$EXECekd/ekd_eqneval < ekd_eqneval.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+######################################################################
+#    COPING FILES TO COMOUT DIRECTORY FOR DEBUGGING AND LATER USE
+######################################################################
+
+if test "$SENDCOM" = 'YES'
+then
+   cp cmce.mdlp.grid.${DD}.$cycle $COMOUT
+   cp cmce_stnekdfcsts${DD}_ra.$cycle $COMOUT
+fi
+
+echo EKDLOG: `date -u` - job exekd_stnfcst.sh.ecf ended 
+
+exit 0

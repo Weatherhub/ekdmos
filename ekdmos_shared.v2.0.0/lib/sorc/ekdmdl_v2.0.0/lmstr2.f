@@ -1,0 +1,66 @@
+      SUBROUTINE LMSTR2(KFILDO,NRRDAT,LSTORE,LITEMS,ND9)
+C
+C        AUGUST 1994   GLAHN   TDL   MOS-2000
+C
+C        PURPOSE
+C           TO PREPARE LSTORE FOR GCPAC AFTER PRED2.
+C   
+C        DATA SET USE
+C            KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C              NRRDAT = THE NEXT DATE/TIME IN THE LIST.  NORMALLY, THIS
+C                       WOULD BE THE CURRENT DATE/TIME + INCCYL.  (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE CHARACTERISTICS
+C                              OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE FIRST PREDICTOR IN THE SORTED
+C                              LIST IN ID( ,N) (N=1,NPRED) FOR WHICH THIS
+C                              VARIABLE IS NEEDED, WHEN IT DOES NOT NEED
+C                              TO BE STORED AFTER DAY 1.  WHEN THE VARIABLE
+C                              MUST BE STORED (TO BE ACCESSED THROUGH OPTION)
+C                              FOR ALL DAYS, ID(11,N) IS 7777 + THE NUMBER
+C                              OF THE FIRST PREDICTOR IN THE SORTED LIST
+C                              FOR WHICH THIS VARIABLE IS NEEDED.
+C                       L=12 --LAST DATE/TIME FOR WHICH THIS VARIABLE MAY BE
+C                              NEEDED.  WHEN THIS VALUE IS LESS THAN THE
+C                              NEXT DATE IN THE LIST, IT CAN BE DISCARDED.
+C              LITEMS = THE NUMBER OF ITEMS IN LSTORE( , ).
+C                 ND9 = MAXIMUM NUMBER OF FIELDS STORED IN LSTORE( , ).
+C                       SECOND DIMENSION OF LSTORE( , ) 
+C
+C        NONSYSTEM SUBROUTINE USED
+C            NONE
+C
+      DIMENSION LSTORE(12,ND9)
+C
+D        WRITE(KFILDO,120)LITEMS,((LSTORE(J,K),J=1,12),K=1,LITEMS)
+D120     FORMAT(/' 'I4,' FIELDS STORED BEFORE COMPRESSION'/
+D    1          ('  '3I10,I11,3I8,I12,3I8,I12))
+C
+C        WHEN THE VALUE IN LSTORE(12, ) IS LT THE CURRENT DATE PLUS
+C        THE CYCLE INCREMENT, THE VARABLE IS NO LONGER NEEDED.
+C        LSTORE(1, ) = 0 SIGNIFIES THIS.
+C
+      IF(LITEMS.EQ.0)GO TO 200
+C      
+      DO 150 J=1,LITEMS
+      IF(LSTORE(12,J).LT.NRRDAT)LSTORE(1,J)=0
+ 150  CONTINUE
+C
+ 200  RETURN
+      END

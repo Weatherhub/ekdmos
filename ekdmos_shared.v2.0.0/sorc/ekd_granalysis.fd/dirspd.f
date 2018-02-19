@@ -1,0 +1,794 @@
+      SUBROUTINE DIRSPD(KFILDO,KFIL10,KFILIO,IP16,KFILRA,RACESS,NUMRA,
+     1                 ID,IDPARS,JD,ISCALD,IWRITS,ITABLE,JVAL,MODNO,
+     2                 IPLAIN,PLAIN,ND4,M,
+     3                 P,U,V,SPEED,NX,NY,
+     4                 ALATL,ALONL,NPROJ,ORIENT,XLAT,
+     5                 MESHB,BMESH,MESH,
+     6                 CPNDFD,NXE,NYE,MESHE,NCLIP,NCLIPY,
+     7                 LSTORE,ND9,LITEMS,NDATE,JDATE,
+     8                 IS0,IS1,IS2,IS4,ND7,
+     9                 IPACK,IWORK,DATA,ND5,
+     A                 CORE,ND10,NBLOCK,NFETCH,NSLAB,
+     B                 NTOTBY,NTOTRC,NTOTGB,NTOTGR,
+     C                 MINPK,L3264B,L3264W,ISTOP,IER)
+C
+C        MARCH     2008   GLAHN   MDL   MOS-2000
+C        APRIL     2008   GLAHN   MDL   NOW CALLED FROM DIRECTION
+C        APRIL     2008   GLAHN   ADDED ITABLE( , ), JVAL, MODNO TO CALL
+C        JUNE      2008   GLAHN   ADDED WRF MOS PLAIN LANGUAGE;
+C                                 ITABLE( ,1) TO ITABLE( ,4) BELOW 165;
+C                                 MODIFIED DIAGNOSTIC AT 185
+C        JUNE      2008   GLAHN   ADDED NTOTGB TO CALL
+C        JUNE      2008   GLAHN   IMPROVED COMMENTS
+C        JULY      2008   GLAHN   ADDED IWRITS = 2 AND 3 CAPABILITY
+C        AUGUST    2008   GLAHN   SKIP WRITING REVISED SPEED WHEN
+C                                 UNAVAILABLE
+C        OCTOBER   2008   COSGROVE   ADDED COMMAS FOR IBM COMPILE
+C        NOVEMBER  2008   GLAHN   MODIFIED TO SET SPEED = 0 WHEN
+C                                 DIR = 0
+C        DECEMBER  2008   GLAHN   MODIFIED TO SET DIRECTION TO ZERO
+C                                 WHEN BOTH U AND V LT 0.1 KT;
+C                                 COMMENTS
+C        DECEMBER  2008   GLAHN   MODIFIED PROCESS FOR CALM PLUS
+C                                 OTHER CHANGES
+C
+C        PURPOSE
+C            TO POSTPROCESS U- AND V-WIND AND SPEED FOR U155.
+C            PERFORMS THE FOLLOWING:
+C               1)  READS U, V, AND SPEED FROM INTERNAL STORAGE
+C                   INTO U( ), V( ), AND SPEED( ), RESPECTIVELY,
+C                   WITH IDS IN ITABLE( ,2), ITABLE( ,3) AND
+C                   ITABLE( ,4), RESPECTIVELY.
+C               2)  WHEN SPEED < 1.0 KT, SET DIRECTION IN P( )
+C                   AND SPEED = 0.
+C               3)  WHEN BOTH U AND V < 0.1 KT, SET DIRECTION
+C                   IN P( ) AND SPEED = 0.
+C               4)  OTHERWISE, CALCULATES DIRECTION IN P( ).
+C               5)  WHEN DIRECTION CAN BE CALCULATED, WRITES
+C                   IT UNCLIPPED INTO INTERNAL STORAGE WITH
+C                   ID = ID( ,M).
+C               6)  WRITES REVISED SPEED TO ARCHIVE AND/OR
+C                   EXTERNAL RANDOM ACCESS WITH 
+C                   ID = ITABLE( ,5)+IDPARS(3,M)*100+IDPARS(4,M).
+C                   HOWEVER, DOES NOT WRITE TO THE ARCHIVE FILE
+C                   IF THE ID IS THE SAME AS ID( ,M), AND DOES
+C                   NOT WRITE TO EXTERNAL RA IF ITABLE( ,5) = 0. 
+C
+C            WIND DIRECTION IS NOT ACTUALLY ANALYZED, BUT CAN BE
+C            AN ENTRY IN THE  U155.CN FILE.  PROCESSING WILL
+C            PROCEED DIRECTLY TO POSTPROCESSING.
+C
+C            DIRSPD IS CALLED AS A POSTPROCESSING ROUTINE FOR
+C            DIRECTION.  THE U, V, AND S ARE RETRIEVED FROM INTERNAL
+C            RANDOM ACCESS.  SPEED WILL HAVE ALREADY BEEN SET TO GE 0.
+C            UNITS OF U, V, AND SPEED WILL BE WHATEVER IS INCOMING,
+C            ASSUMED TO BE THE SAME FOR ALL THREE ELEMENTS, AND THE
+C            TESTS FOR SPEED ARE IN THE SAME UNITS; IT IS EXPECTED
+C            THE UNITS BE KTS.  DIRECTION WILL BE TO DEGREES,
+C            METEOROLOGICALLY ORIENTED.
+C
+C        DATA SET USE
+C            KFILDO   - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C            KFIL10   - UNIT NUMBER FOR INTERNAL RANDOM ACCESS STORAGE.
+C                       (INPUT)
+C            KFILIO   - UNIT NUMBER FOR WRITING FINAL GRIDPOINT
+C                       ANALYSES.  (OUTPUT)
+C            IP16     - UNIT NUMBER FOR INDICATING WHEN A RECORD IS
+C                       WRITTEN TO THE SEQUENTIAL OR RANCOM ACCESS
+C                       FILE.  (OUTPUT)
+C            KFILRA(J)- HOLDS THE UNIT NUMBERS FOR ACCESSING THE MOS-2000
+C                       EXTERNAL RANDOM ACCESS FILES (J=1,6). (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C              KFIL10 = UNIT NUMBER FOR INTERNAL RANDOM ACCESS STORAGE.
+C                       (INPUT)
+C              KFILIO = UNIT NUMBER FOR WRITING FINAL GRIDPOINT .CN
+C                       ANALYSES.  (INPUT)
+C                IP16 = INDICATES WHETHER (>0) OR NOT (=0) 
+C                       A STATEMENT WILL BE OUTPUT TO IP16
+C                       WHEN A SEQUENTIAL FILE IS WRITTEN THROUGH
+C                       PAWGTS, A RANDOM ACCESS FILE IS WRITTEN
+C                       THROUGH PACKGR, OR AN INTERNAL RANDOM
+C                       ACCESS STORE WITH PAWLPM.  (INPUT)
+C           KFILRA(J) = HOLDS THE UNIT NUMBERS FOR ACCESSING THE MOS-2000
+C                       EXTERNAL RANDOM ACCESS FILES (J=1,6).  (INPUT)
+C           RACESS(J) = THE FILE NAMES CORRESPONDING TO KFILRA(J) 
+C                       (J=1,6).  (CHARACTER*60)  (INPUT)
+C               NUMRA = THE NUMBER OF UNIT NUMBERS IN KFILRA( ) AND
+C                       NAMES IN RACESS( ).  (INPUT)
+C             ID(J,N) = THE INTEGER VARIABLE ID'S (J=1,4) (N=1,ND4).
+C                       (INPUT)
+C         IDPARS(J,N) = THE PARSED, INDIVIDUAL COMPONENTS OF THE
+C                       VARIABLE ID'S CORRESPONDING TO ID( ,N)
+C                       (J=1,15), (N=1,ND4).  (INPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 
+C                            1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK 
+C                            IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C           THRESH(N) = THE BINARY THRESHOLD ASSOCIATED WITH 
+C                       IDPARS( ,N), (N=1,ND4).  (INPUT)
+C             JD(J,N) = THE BASIC INTEGER VARIABLE ID'S (J=1,4) 
+C                       (N=1,ND4).  (INPUT)
+C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3, ),
+C                       T = IDPARS(8,),
+C                       I = IDPARS(13, ),
+C                       S = IDPARS(14, ),
+C                       G = IDPARS(15, ), AND
+C                       THRESH( ).
+C                       JD( , ) IS USED TO IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE.  (INPUT)
+C           ISCALD(N) = THE DECIMAL SCALING CONSTANT TO USE WHEN PACKING
+C                       THE DATA (N=1,ND4).  (INPUT)
+C           IWRITS(N) = CONTROLS WRITING TO INTERNAL STORAGE (N=1,ND4).
+C                       1 = WRITE GRID (ANALYSIS),
+C                       2 = WRITE LTAG AFTER LAST PASS,
+C                       3 = WRITE BOTH GRID AND LTAG,
+C                       0 = OTHERWISE.  (INPUT)
+C         ITABLE(J,L) = ID'S TO USE IN CALCULATION (J=1,4) (L=1,JVAL)
+C                       L = 1 -- VARIABLE TO COMPUTE = ID(1,M) 
+C                       L = 2 -- U-WIND FOR COMPUTATION
+C                       L = 3 -- V-WIND FOR COMPUTATION
+C                       L = 4 -- WIND SPEED FOR COMPUTATION
+C                       L = 5 -- MODIFIED SPEED FOR WRITING
+C                       (INPUT)
+C                JVAL = SECOND DIMENSION OF ITABLE( , ).  (INPUT)
+C               MODNO = MODEL NUMBER TO USE IN WRITING GRIDS.  (INPUT)
+C       IPLAIN(L,J,N) = 32 CHARACTERS (L=1,L3264W) (J=1,4) OF PLAIN
+C                       LANGUAGE DESCRIPTION OF VARIABLES (N=1,ND4).
+C                       NOTE THAT THIS REQUIRES TWO 32-BIT WORDS TO HOLD
+C                       THE DESCRIPTION BUT ONLY ONE 64-BIT WORD.
+C                       EQUIVALENCED TO PLAIN( ) IN DRU155.  (INPUT)
+C            PLAIN(N) = THE PLAIN LANGUAGE DESCRIPTION OF THE VARIABLES
+C                       IN ID( ,N) (N=1,ND4).  EQUIVALENCED TO 
+C                       IPLAIN( , ,N) IN DRU155.  (CHARACTER*32)  (INPUT)
+C                 ND4 = DIMENSION OF SEVERAL VARIABLES.  (INPUT)
+C               NPRED = THE NUMBER OF VARIABLES IN ID( , ), ETC.  (INPUT)
+C                   M = INDEX INTO ID( , ) AND OTHER VARIABLES 
+C                       INDICATING THE VARIABLE BEING DEALT WITH.
+C                       (INPUT)
+C            P(IX,JY) = WIND DIRECTION (IX=1,NY) (JY=1,NY).  (OUTPUT)
+C            U(IX,JY) = WORK ARRAY (IX=1,NY) (JY=1,NY) HOLDS U-WIND.
+C                       (INTERNAL)
+C            V(IX,JY) = WORK ARRAY (IX=1,NY) (JY=1,NY) HOLDS V-WIND.
+C                       (INTERNAL)
+C        SPEED(IX,JY) = WIND SPEED (IX=1,NY) (JY=1,NY).  (INTERNAL)
+C                  NX = THE X-EXTENT OF THE INCOMING GRID.  NX IS
+C                       NOT DEFINED UPON ENTRY BECAUSE FSTGS5 WAS
+C                       NOT ENTERED. (OUTPUT)
+C                  NY = THE Y-EXTENT OF THE INCOMING GRID.  NY IS
+C                       NOT DEFINED UPON ENTRY BECAUSE FSTGS5 WAS
+C                       NOT ENTERED. (OUTPUT)
+C               ALATL = NORTH LATITUDE OF LOWER LEFT CORNER POINT
+C                       OF A GRID OF THE SIZE  NXL, NYL.  TRUNCATED
+C                       TO TEN THOUSANDTHS OF DEGREES.  NOTE THAT THE
+C                       MOS-2000 ARCHIVE IS ONLY TO THOUSANDTHS OF
+C                       DEGREES.  (INPUT)
+C               ALONL = WEST LONGITUDE OF LOWER LEFT CORNER POINT
+C                       OF A  GRID OF THE SIZE  NXL, NYL.  TRUNCATED
+C                       TO TEN THOUSANDTHS OF DEGREES.  NOTE THAT THE
+C                       MOS-2000 ARCHIVE IS ONLY TO THOUSANDTHS OF
+C                       DEGREES.  (INPUT)
+C               NPROJ = NUMBER OF MAP PROJECTION TO WHICH THIS GRID
+C                       APPLIES.
+C                       3 = LAMBERT.
+C                       5 = POLAR STEREOGRAPHIC.
+C                       7 = MERCATOR.
+C                       (INPUT)
+C              ORIENT = ORIENTATION OF GRID IN WEST LONGITUDE.  (INPUT)
+C                XLAT = NORTH LATITUDE AT WHICH GRIDLENGTH IS SPECIFIED
+C                       IN DEGREES.  (INPUT)
+C               MESHB = THE NOMINAL MESH LENGTH OF THE ANALYSIS GRID
+C                       SPECIFIED BY NXL, NYL AT LATITUDE XLAT.
+C                       FOR INSTANCE, NOMINAL 80 CORRESPONDS
+C                       TO 95.25 KM FOR POLAR STEREOGRAPHIC.  FOR
+C                       ALL ROUTINES TO WORK, THIS VALUE MUST BE 
+C                       1, 3, 5, 10, 20, 40, 80, 160, OR 320.
+C                       THE LOWER NUMBERS ARE INTEGERS APPROXIMATING
+C                       EVEN FRACTIONS OF BEDIENTS.  (INPUT)
+C               BMESH = ACTUAL MESH LENGTH CORRESPONDING TO MESHB.
+C                       (INPUT)
+C                MESH = THE NOMINAL MESH LENGTH OF THE GRID BEING DEALT
+C                       WITH WHOSE DIMENSIONS ARE NX AND NY. (INPUT)
+C           CPNDFD(J) = THE NDFD MASK (J=1,NXE*NYE) AT NOMINAL
+C                       MESHLENGTH MESHE.  (INPUT)
+C                 NXE = X-EXTENT OF CPNDFD( ) AT MESH LENGTH MESHE.
+C                       (INPUT)
+C                 NYE = Y-EXTENT OF CPNDFD( ) AT MESH LENGTH MESHE.
+C                       (INPUT)
+C               MESHE = THE NOMINAL MESH LENGTH OF THE TERRAIN GRID.
+C                       (INPUT)
+C               NCLIP = 1 TO CLIP THE ARCHIVE OUTPUT GRID TO NDGD SIZE.
+C                       0 OTHERWISE.  (INTERNAL)
+C              NCLIPY = 1 WHEN THE NDGD MASK GRID IS AVAILABLE AND 
+C                         IN CPNDFD( ).
+C                       0 OTHERWISE.
+C                       (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT/OUTPUT)
+C                 ND9 = MAXIMUM NUMBER OF FIELDS STORED IN LSTORE( , ).
+C                       SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS J IN LSTORE( ,L).  
+C                       (INPUT/OUTPUT)
+C               NDATE = THE DATE/TIME OF THE RUN.  (INPUT)
+C            JDATE(J) = NDATE PARSED INTO ITS 4 COMPONENTS:
+C                       J=1 IS YYYY
+C                       J=2 IS MM
+C                       J=3 IS DD
+C                       J=4 IS HH
+C                       (INPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,4).
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,21+).
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       (INPUT)
+C            IPACK(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C             DATA(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ), AND IWORK( ).
+C                       (INPUT)
+C             CORE(J) = SPACE ALLOCATED FOR SAVING PACKED GRIDPOINT 
+C                       FIELDS (J=1,ND10).  WHEN THIS SPACE IS 
+C                       EXHAUSTED, SCRATCH DISK WILL BE USED.  THIS IS 
+C                       THE SPACE USED FOR THE MOS-2000 INTERNAL RANDOM 
+C                       ACCESS SYSTEM.  (INPUT)
+C                ND10 = THE MEMORY IN WORDS ALLOCATED TO THE SAVING OF 
+C                       DATA CORE( ).  WHEN THIS SPACE IS EXHAUSTED,
+C                       SCRATCH DISK WILL BE USED.  (INPUT)
+C              NBLOCK = BLOCK SIZE IN WORDS OF INTERNAL MOS-2000 DISK
+C                       STORAGE.  (INPUT)
+C              NFETCH = INCREMENTED EACH TIME DATA ARE FETCHED BY
+C                       GFETCH.  IT IS A RUNNING COUNT FROM THE
+C                       BEGINNING OF THE PROGRAM.  THIS COUNT 
+C                       IS MAINTAINED IN CASE THE USER NEEDS IT
+C                       (DIAGNOSTICS, ETC.).  (OUTPUT)
+C               NSLAB = SLAB OF THE GRID CHARACTERISTICS.  RETURNED
+C                       BY GFETCH.  USED FOR CHECKING FOR EQUAL
+C                       CHARACTERISTICS OF GRIDS READ.  (OUTPUT)
+C              NTOTBY = THE TOTAL NUMBER OF BYTES ON THE FILE ASSOCIATED
+C                       WITH UNIT NO. KFILIO (THE OUTPUT GRIDPOINT FILE).
+C                       (INPUT/OUTPUT)
+C              NTOTRC = THE TOTAL NUMBER OF RECORDS IN THE FILE WITH UNIT
+C                       NUMBER KFILIO.  (INPUT/OUTPUT)
+C              NTOTGB = THE TOTAL NUMBER OF EXTERNAL RANDOM ACCESS
+C                       BYTES WRITTEN TO KFILRA = 42.  (INPUT/OUTPUT)
+C              NTOTGR = THE TOTAL NUMBER OF EXTERNAL RANDOM ACCESS
+C                       RECORDS WRITTEN TO KFILRA = 42.  (INPUT/OUTPUT)
+C               MINPK = MINIMUM GROUP SIZE WHEN PACKING THE DATA.
+C                       (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C              L3264W = NUMBER OF WORDS IN 64 BITS (EITHER 1 OR 2).
+C                       (INPUT)
+C            ISTOP(J) = ISTOP(1)--IS INCREMENTED BY 1 EACH TIME AN ERROR 
+C                                 OCCURS.
+C                       ISTOP(3)--IS INCREMENTED WHEN A DATA RECORD 
+C                                 COULD NOT BE FOUND.
+C                       (INPUT/OUTPUT)
+C                 IER = ERROR RETURN.
+C                       0 = GOOD RETURN.
+C                       (OUTPUT)
+C              ISPYES = SWITCH FOR PROCESSING SPEED. IF THE INITIAL
+C                       GRID IS NOT AVAILABLE, THE ADJUSTED SPEED WILL
+C                       NOT BE WRITTEN.  THIS ALLOWS A DIRECTION TO
+C                       BE COMPUTED WITHOUT THE SPEED BEING PRESENT.
+C                       (INTERNAL)
+C              IDRYES = 0 WHEN THE DIRECTION GRID WILL BE MISSING.
+C                       THIS HAPPENS WHEN THE U OR V WIND IS NOT
+C                       AVAILABLE.  (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C 
+C        NONSYSTEM SUBROUTINES USED 
+C            GFETCH, CLIP, PAWGTS, PACKGR, TIMPR, PAWLPM, PRSID
+C
+      CHARACTER*32 PLAIN(ND4)
+      CHARACTER*32 PLAINJ/' '/
+C        THIS ASSUMES A 32-BIT WORD, BUT SHOULD WORK FOR 64-BIT ALSO.
+      CHARACTER*60 RACESS(6)
+C
+      DIMENSION ID(4,ND4),IDPARS(15,ND4),JD(4,ND4),
+     1          ISCALD(ND4),IWRITS(ND4)
+      DIMENSION IPLAIN(L3264W,4,ND4)
+      DIMENSION JPLAIN(8)
+      DIMENSION P(NX*NY),U(NX*NY),V(NX*NY),SPEED(NX*NY)
+      DIMENSION IPACK(ND5),IWORK(ND5),DATA(ND5)
+      DIMENSION CPNDFD(NXE*NYE)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION LSTORE(12,ND9)
+      DIMENSION CORE(ND10)
+      DIMENSION ITABLE(4,JVAL)
+      DIMENSION ISTOP(5),NGRIDT(6),JDATE(4),KFILRA(6),LD(4),ID1(4),
+     1          LDPARS(15)
+C
+      EQUIVALENCE (PLAINJ,JPLAIN)
+C
+CD     CALL TIMPR(KFILDO,KFILDO,'START DIRSPD        ')
+      IER=0
+C
+C        FIND THE VARIABLE.
+C
+CD     WRITE(KFILDO,101)ID(1,M),ITABLE(1,1)
+CD101  FORMAT(/' AT 101 IN DIRSPD--ID(1,M),ITABLE(1,1)',2I10)
+C
+      IF(ID(1,M)/100.EQ.ITABLE(1,1)/100)GO TO 120
+C
+C        DROP THROUGH HERE MEANS A MATCH BETWEEN THE ENTRY ID( , )
+C        AND THE CATEGORY WAS NOT FOUND.  THE DD IS NOT CHECKED,
+C        MAKING THIS GENERIC TO MODEL
+C
+      WRITE(KFILDO,115)(ID(J,M),J=1,4)
+ 115  FORMAT(/,' ****COULDN''T FIND ENTRY ID ',3I10.9,I10.3,
+     1         ' IN ITABLE IN DIRSPD.',/,
+     2         '     DIRECTION NOT COMPUTED AND SOME CHECKS NOT MADE.')
+C
+      IER=777
+      ISTOP(1)=ISTOP(1)+1
+      GO TO 500
+C
+C        THE  DIRECTION IN ID(1,M) AND ITABLE(1,1) AGREE.  FETCH THE
+C        U-WIND.
+C
+ 120  LD(1)=ITABLE(1,2)+IDPARS(3,M)*100+IDPARS(4,M)
+C        THE B AND DD PORTIONS OF LD( ) COME FROM THE
+C        DIRECTION ID AS DOES THE REST OF THE ID( ).
+      LD(2)=ID(2,M)
+      LD(3)=ID(3,M)
+      LD(4)=ID(4,M)
+      CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,U,ND5,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,130)(LD(J),J=1,4)
+ 130     FORMAT(/,' ****COULDN''T FETCH U-WIND ',4I10, 
+     1            ' FROM INTERNAL STORAGE IN DIRSPD.',/,
+     2            '     DIRECTION NOT COMPUTED AND SOME CHECKS NOT',
+     3            ' MADE.')
+         ISTOP(3)=ISTOP(3)+1
+         IDRYES=0
+         GO TO 133
+C           NO NEED TO FETCH V WIND IF U WIND IS NOT AVAILABLE.
+      ELSE
+         IDRYES=1
+      ENDIF
+C
+C        FETCH THE V-WIND.
+C
+      LD(1)=ITABLE(1,3)+IDPARS(3,M)*100+IDPARS(4,M)
+C        THE B AND DD PORTIONS OF LD( ) COME FROM THE
+C        DIRECTION ID AS DOES THE REST OF THE ID( ).
+      LD(2)=ID(2,M)
+      LD(3)=ID(3,M)
+      LD(4)=ID(4,M)
+      CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,V,ND5,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,132)(LD(J),J=1,4)
+ 132     FORMAT(/,' ****COULDN''T FETCH V-WIND ',4I10, 
+     1            ' FROM INTERNAL STORAGE IN DIRSPD.',/,
+     2            '     DIRECTION NOT COMPUTED AND SOME CHECKS NOT',
+     3            ' MADE.')
+         ISTOP(3)=ISTOP(3)+1
+         IDRYES=0
+C           DIRECTION WILL BE MISSING.
+      ENDIF
+C  
+C        FETCH THE WIND SPEED.  IT IS FETCHED AND WRITTEN TO THE
+C        THE ARCHIVES WITH ITS REVISED ID EVEN THOUGH NOT ACTUALLY
+C        MODIFIED.  THIS IS SO IT WILL BE AVAILABLE FOR OTHER
+C        PROGRAMS.
+C
+ 133  LD(1)=ITABLE(1,4)+IDPARS(3,M)*100+IDPARS(4,M)
+C        THE B AND DD PORTIONS OF LD( ) COME FROM THE
+C        DIRECTION ID AS DOES THE REST OF THE ID( ).
+      LD(2)=ID(2,M)
+      LD(3)=ID(3,M)
+      LD(4)=ID(4,M)
+      CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,SPEED,NX*NY,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,135)(LD(J),J=1,4)
+ 135     FORMAT(/,' ****COULDN''T FETCH SPEED  ',4I10, 
+     1            ' FROM INTERNAL STORAGE IN DIRSPD.',/,
+     2            '     DIRECTION NOT SET TO 0 WHEN SPEED LE 1.')
+C           NOTE THAT THE DIRECTION CAN BE COMPUTED.
+         ISTOP(3)=ISTOP(3)+1
+         ISPYES=0
+C           THE FOLLOWING JSCALD, JSCALE, JPLAIN( ) ARE FOR WRITING
+C           SPEED LATER.  NOTE THAT THE PLAIN LANGUAGE WILL BE THE
+C           SAME FOR THE ORIGINAL SPEED AND THE REVISED SPEED.
+         JSCALD=0
+         JSCALE=0
+      ELSE
+         ISPYES=1
+C           THE FOLLOWING JSCALD, JSCALE, JPLAIN( ) ARE FOR WRITING
+C           SPEED LATER.  NOTE THAT THE PLAIN LANGUAGE WILL BE THE
+C           SAME FOR THE ORIGINAL SPEED AND THE REVISED SPEED.
+         JSCALD=IS1(17)
+         JSCALE=IS1(18)
+      ENDIF
+C
+C        SET THE PLAIN LANGUAGE FOR THE MODIFIED SPEED.  BECAUSE
+C        THIS ENTRY IS NOT IN THE .CN TABLE, THE PLAIN LANGUAGE
+C        WAS NOT RETRIEVED FROM THE CONSTANT FILE.
+C
+      IF(IDPARS(4,M).EQ.8)THEN
+         PLAINJ(1:32)=' GFS GMOS WIND SPEED (MOD)      '
+      ELSEIF(IDPARS(4,M).EQ.7)THEN
+         PLAINJ(1:32)=' WRF GMOS WIND SPEED (MOD)      '
+      ELSEIF(IDPARS(4,M).EQ.5)THEN
+         PLAINJ(1:32)=' LMP GMOS WIND SPEED (MOD)      '
+      ELSE
+         PLAINJ(1:32)=' OBS WIND SPEED (MOD)           '
+      ENDIF    
+C
+C        COMPUTE DIRECTION AND CHECK CONSISTENCY WHEN POSSIBLE.
+C        NOTE THAT THERE CAN BE A MISSING DIRECTION AND A LEGITIMATE
+C        SPEED.  U-WIND IS IN U( ), V-WIND IS IN V( ).
+C
+      IF(IDRYES.EQ.1)THEN
+C
+         DO 150 J=1,NX*NY
+C
+         IF(U(J).LT.9998.5.AND.V(J).LT.9998.5)THEN
+C         
+            IF(SPEED(J).LT.1)THEN
+C                 SPEED IS < 1 KT, SO SET DIRECTION AND SPEED = 0.
+C                 THIS TEST WORKS EVEN IF THE SPEED GRID IS "MISSING."
+               P(J)=0.
+               IF(ISPYES.EQ.1)SPEED(J)=0.
+C                 DON'T INSERT ZEROS INTO A MISSING SPEED GRID.
+C
+            ELSEIF(ABS(V(J)).LT.0.1)THEN
+C
+               IF(ABS(U(J)).LT.0.1)THEN
+C                    IF BOTH COMPONENTS LT. 0.1 KT, SET BOTH
+C                    DIRECTION AND SPEED TO ZERO.  DON'T WANT
+C                    RANDOM MISSING VALUES IN GRID IF EVEN THIS
+C                    MIGHT BE OK FOR A STATION VALUE.
+                  P(J)=0.
+                  IF(ISPYES.EQ.1)SPEED(J)=0.
+C                    DON'T INSERT ZEROS INTO A MISSING SPEED GRID.
+C                    QUESTION:  SHOULD SPEED BE SET TO 0 HERE?
+               ELSE
+                  P(J)=SIGN(90.,U(J))+180.
+               ENDIF
+C
+            ELSE
+               P(J)=57.29578*ATAN2(U(J),V(J))+180.
+            ENDIF
+C
+         ELSE
+            P(J)=9999.
+C              THIS SHOULD HAPPEN ONLY THE ENTIRE GRID IS MISSING,
+C              IS AS SAFETY, AS CONTROL SHOULD NOT REACH HERE.
+         ENDIF
+C
+ 150     CONTINUE
+C
+C**************************************************************
+C
+C           ONLY AS A MAPPING TEST, THE DIRECTIONS ARE DIVIDED BY 10.
+C
+CCC         DO 151 J=1,NX*NY
+CCC            IF(P(J).NE.9999.)P(J)=P(J)/10.
+CCC 151     CONTINUE         
+C
+C**************************************************************
+C
+      ELSE
+C
+C           SET DIRECTION IN P( ) TO MISSING FOR RETURN.
+C
+         DO 152 J=1,NX*NY
+            P(J)=9999.
+ 152     CONTINUE
+C
+         ISTOP(1)=ISTOP(1)+1
+C
+      ENDIF
+C
+C        WRITE THE DIRECTION TO INTERNAL STORAGE WHEN IT IS NOT MISSING
+C        AND IWRITS(M) =1 OR 3.  NOTE THAT IT IS NOT CLIPPED.  IT WILL
+C        BE WRITTEN TO ARCHIVE IN U405A.
+C
+         ITAUM=0
+         NSEQ=0
+         NCHAR=32
+C           32 CHARACTERS OF PLAIN LANGUAGE ARE PACKED.
+         XMISSP=9999.
+         XMISSS=0.
+C           THERE MAY BE MISSING VALUES, SO SET XMISSP = 9999.  NOTE
+C           THAT THE ID IN ID( ,N) IS USED.
+C
+      IF(IDRYES.EQ.1)THEN
+C
+C           PACK THE DIRECTION GRID AT THE MESH LENGTH = MESH, WHICH
+C           WILL BE THE SAME AS THE INCOMING GRIDS, WHEN EITHER 
+C           IWRITS(M) =1 OR 3 AND KFILIO NE 0.  THIS WILL BE IN
+C           DEGREES, METEOROLOGICALLY ORIENTED.
+C
+         IF((IWRITS(M).EQ.1.OR.IWRITS(M).EQ.3).AND.KFIL10.NE.0)THEN
+C
+CD           WRITE(KFILDO,153)ALATL,ALONL,MESH,MESHB,NX,NY,NPROJ
+CD153        FORMAT(/' AT 153 IN DIRSPD--ALATL,ALONL,MESH,MESHB,NX,NY,',
+CD    1              'NPROJ',2F10.5,5I6)
+C
+C              PAWLPM PACKS DATA AND WRITES TO INTERNAL STORAGE ON
+C              FILE KFIL10 WHEN IWRITS(M) =1 OR 3.  MESH LENGTH IS MESH,
+C              THAT USED FOR THE LAST PASS.  NOTE THAT THIS IS NOT
+C              RECLIPPED AS IT MAY BE FOR OUTPUT TO OTHER MEDIA.
+C              THIS TO ALLOW FOR THE POSSIBILITY IT IS TO BE USED FOR
+C              COMPUTATION WITH ANOTHER GRID THAT MAY NOT BE TIGHTLY
+C              CLIPPED.
+C
+            CALL PAWLPM(KFILDO,KFIL10,NDATE,
+     1                  ID(1,M),IDPARS(12,M),ITAUM,MODNO,NSEQ,ISCALD(M),
+     2                  NPROJ,ALATL,ALONL,ORIENT,MESHB,MESH,XLAT,NX,NY,
+     3                  P,U,IWORK,IPACK,ND5,MINPK,
+     4                  LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,
+     5                  IS0,IS1,IS2,IS4,ND7,
+     6                  IPLAIN(1,1,M),NCHAR,
+     7                  XMISSP,XMISSS,LX,IOCTET,
+     8                  L3264B,L3264W,IER)
+C              MESHB IS USED BY PAWING ONLY FOR WRITING TO INTERNAL 
+C              STORAGE IN THE U201 "NSLAB" POSITION.  REASON UNCLEAR.
+C              U( ) IS NOT NEEDED AGAIN AND IS USED AS WORK ARRAY IN
+C              PAWLPM.
+C
+            IF(IER.EQ.0)THEN
+C
+               IF(IP16.NE.0)THEN
+                  WRITE(IP16,154)(ID(JJ,M),JJ=1,4),
+     1                        ((IPLAIN(I,JJ,M),I=1,L3264W),JJ=1,4),NDATE
+ 154              FORMAT(/' WRITING DATA TO UNIT KFIL10',
+     1                    3I10.9,I10.3,3X,8A4,' FOR DATE',I12)
+               ENDIF
+C
+            ELSE 
+C                 A DIAGNOSTIC WILL HAVE OCCURRED IN PAWLPM.
+               ISTOP(1)=ISTOP(1)+1
+               WRITE(KFILDO,155)(ID(JJ,M),JJ=1,4),PLAIN(M)
+ 155           FORMAT('     ERROR WRITING VARIABLE',
+     1                 3(1X,I9.9),1X,I10.3,3X,A32,
+     2               ' TO INTERNAL STORAGE.',/,
+     3               '     SOME COMPUTATIONS (PRE- OR POST-PROCESSING)',
+     4               ', MAY NOT BE ABLE TO BE MADE.  PROCEEDING.')
+            ENDIF
+C
+         ENDIF
+C
+      ENDIF
+C
+C        A ZERO ID IS PROVIDED FOR THE ID, THE SPEED CANNOT BE
+C        WRITTEN.
+C
+      IF(ITABLE(1,5).EQ.0)THEN
+         WRITE(KFILDO,1553)
+ 1553    FORMAT(/' ****REVISED SPEED NOT WRITTEN.  ID IN',
+     1           ' ITABLE(1,5) = 0.')
+         ISTOP(1)=ISTOP(1)+1
+         GO TO 500
+      ENDIF
+C
+C        CLIP THE REVISED SPEED WHEN IT HAS GOOD DATA, BUT NO USE TO
+C        CLIP WHEN ALL MISSING VALUES.
+C 
+CD     WRITE(KFILDO,1555)NCLIP,NCLIPY,ISPYES,MESH,MESHE
+CD1555 FORMAT(/' AT 1555 IN DIRSPD--NCLIP,NCLIPY,ISPYES,MESH,MESHE',5I6)
+C
+      IF(NCLIP.EQ.1)THEN
+C           IT IS DESIRED TO CLIP.
+C
+         IF(NCLIPY.EQ.1)THEN
+C              THE CLIPPING GRID IS AVAILABLE.
+C
+            IF(MESH.EQ.MESHE)THEN
+C                 WHEN MESH = MESHE, NXE*NYE = NX*NY.  THIS SHOULD
+C                 NORMALLY BE THE CASE.
+C
+               WRITE(KFILDO,156)
+ 156           FORMAT(/,' CLIPPING ARCHIVE MODIFIED WIND',
+     1                  ' SPEED GRID.')
+C
+               DO 160 JJ=1,NX*NY
+C
+               IF(CPNDFD(JJ).LT..5)THEN
+                  SPEED(JJ)=9999.
+               ENDIF
+C
+ 160           CONTINUE
+C         
+            ELSE
+C
+               CALL CLIP(KFILDO,SPEED,NX,NY,MESH,CPNDFD,NXE,NYE,
+     1                   MESHE,IER)
+C                 WHEN MESH NE MESHE, THE DOUBLE INDEXING HAS TO BE
+C                 DONE IN A SUBROUTINE.  NOTE THAT MESHE MUST NOT BE
+C                 GREATER THAN MESH.  ALSO, MESH MUST BE EQUAL TO
+C                 MESHE*2**M, WHERE M IS A LOW (POSITIVE) INTEGER.
+C
+               IF(IER.NE.0)THEN
+C                    A DIAGNOSTIC IS PRODUCED IN CLIP.  THIS IS NOT A 
+C                    FATAL ERROR, BUT THE GRID WILL NOT BE CLIPPED.
+                  ID1(1)=ITABLE(1,5)+IDPARS(3,M)*100+IDPARS(4,M)
+                  ID1(2)=ID(2,M)
+                  ID1(3)=ID(3,M)
+                  ID1(4)=ID(4,M)
+                  WRITE(KFILDO,162)(ID1(J),J=1,4),PLAINJ
+ 162              FORMAT(/,'     SPEED GRID NOT CLIPPED IS ',
+     1                     3I10.9,I10.3,3X,A32)
+                  ISTOP(1)=ISTOP(1)+1
+                  IER=0
+               ENDIF
+C
+            ENDIF
+C
+         ELSE
+            WRITE(KFILDO,165)
+ 165        FORMAT(' ****CLIPPING OF THE GRID TO NDGD AREA DESIRED',
+     1             ' BUT CLIPPING GRID NOT AVAILABLE IN DIRSPD.',
+     2             '  PROCEEDING.')
+C              SPEED WILL BE WRITTEN, BUT NOT CLIPPED.
+            ISTOP(1)=ISTOP(1)+1
+         ENDIF
+C
+      ENDIF         
+C
+C        NOW PACK AND WRITE THE REVISED SPEED GRID TO THE ARCHIVE UNIT
+C        KFILIO AT MESH LENGTH MESHB UNLESS KFILIO = 0.  ALL INPUT
+C        HAS BEEN AT MESHB, THE MESH LENGTH TO WRITE OUT.  NOTE THAT
+C        EVEN A "MISSING" GRID IS WRITTEN.
+C
+      IF(KFILIO.NE.0)THEN
+C
+C           HOWEVER, DO NOT WRITE TO THIS SEQUENTIAL FILE IF THE
+C           ID OF THE REVISED SPEED IS THE SAME AS THE UNREVISED SPEED.
+C           ITABLE( ,5) HOLDS THE ID OF THE REVISED SPEED.
+C
+         IF(ITABLE(1,4).NE.ITABLE(1,5).OR.
+     1      ITABLE(2,4).NE.ITABLE(2,5).OR.
+     2      ITABLE(3,4).NE.ITABLE(3,5).OR.
+     3      ITABLE(4,4).NE.ITABLE(4,5))THEN
+C
+            LD(1)=ITABLE(1,5)+IDPARS(3,M)*100+IDPARS(4,M)
+C              THE B AND DD PORTIONS OF LD( ) COME FROM THE
+C              DIRECTION ID AS DOES THE REST OF THE ID( ).
+            LD(2)=ID(2,M)
+            LD(3)=ID(3,M)
+            LD(4)=ID(4,M)
+            NCHAR=32
+C              32 CHARACTERS OF PLAIN LANGUAGE ARE PACKED.
+            XMISSP=9999.
+            XMISSS=0.
+C
+CD           WRITE(KFILDO,180)ITAUM,MODNO,NSEQ,JSCALD,NPROJ,PLAINJ
+CD180        FORMAT(/' AT 180 IN DIRSPD--',
+CD    1              'ITAUM,MODNO,NSEQ,JSCALD,NPROJ,PLAINJ',5I4,2X,A32)
+C
+            CALL PAWGTS(KFILDO,KFILIO,'KFILIO',IP16,NDATE,
+     1                  LD,IDPARS(12,M),ITAUM,MODNO,NSEQ,JSCALD,
+     2                  NPROJ,ALATL,ALONL,ORIENT,MESH,XLAT,NX,NY,
+     3                  SPEED,DATA,IWORK,IPACK,ND5,MINPK,
+     4                  IS0,IS1,IS2,IS4,ND7,
+     5                  JPLAIN,PLAINJ,NCHAR,
+     6                  XMISSP,XMISSS,LX,IOCTET,
+     7                  NTOTBY,NTOTRC,L3264B,L3264W,IER)
+C
+            IF(IER.NE.0)THEN
+               WRITE(KFILDO,185)
+ 185           FORMAT(/'     ERROR IN WRITING MODIFIED SPEED IN DIRSPD',
+     1                 ' AT 185.  MODIFIED SPEED GRID NOT WRITTEN.')
+               ISTOP(1)=ISTOP(1)+1
+C        
+            ELSE
+               WRITE(KFILDO,190)(LD(J),J=1,4),NDATE,PLAINJ
+ 190           FORMAT(/' WRITING GRIDPOINT RECORD FOR',
+     1                   3(1X,I9.9),1X,I10.3,
+     2                 ' TO KFILIO, DATE ',I11,1X,A32) 
+C                 NOTE THAT PAWGTS WRITES TO IP16.
+C
+               IF(ISPYES.EQ.0)THEN
+                  WRITE(KFILDO,191)
+ 191              FORMAT(' SPEED COULD NOT BE OBTAINED FROM INTERNAL',
+     1                   ' STORAGE, SO ALL VALUES WILL BE MISSING.')
+               ENDIF
+C
+            ENDIF
+C
+         ENDIF
+C
+      ENDIF
+C
+C        NOW PACK AND WRITE THE REVISED SPEED TO THE ARCHIVE RANDOM
+C        ACCESS FILE AT MESH LENGTH MESHB, WHEN KFILRA = 42.  IF THE
+C        REVISED SPEED ID IN ITABLE ( ,5) IS THE SAME AS THE 
+C        UNREVISED SPEED ID IN TABLE ( ,1), THE RECORD WILL BE
+C        OVERWRITTEN, AND THAT IS WHAT IS DESIRED.
+C
+      DO 230 JJ=1,NUMRA
+C
+      IF(KFILRA(JJ).EQ.42)THEN
+C
+         NGRIDT(1)=NPROJ
+         NGRIDT(2)=NINT(DBLE(BMESH)*DBLE(1000000.))
+C           WITHOUT CONVERTING TO DOUBLE PRECISION, THE 
+C           THE MULTIPLICATION AND CONVERSION TO INTEGER
+C           WAS OFF BY ONE UNIT FROM WHAT IS STORED WITH
+C           INCOMING GRIDS, AND FROM WHAT WOULD BE EXPECTED
+C           (FOR 5-KM CONUS GRID).
+         NGRIDT(3)=NINT(XLAT*10000.)
+         NGRIDT(4)=NINT(ORIENT*10000.)
+         NGRIDT(5)=NINT(ALATL*10000.)
+         NGRIDT(6)=NINT(ALONL*10000.)
+         NYR=JDATE(1)
+         NMO=JDATE(2)
+         NDA=JDATE(3)
+         NHR=JDATE(4)
+         XMISSP=9999.
+         XMISSS=0.
+C
+         LD(1)=ITABLE(1,5)+IDPARS(3,M)*100+IDPARS(4,M)
+C           THE B AND DD PORTIONS OF LD( ) COME FROM THE
+C           DIRECTION ID AS DOES THE REST OF THE ID( ).
+         LD(2)=ID(2,M)
+         LD(3)=ID(3,M)
+         LD(4)=ID(4,M)
+         CALL PRSID1(KFILDO,LD,LDPARS)
+         CALL PACKGR(KFILDO,KFILRA(JJ),RACESS(JJ),LD,LDPARS,
+     1               JSCALD,JSCALE,NGRIDT,
+     2               JPLAIN,NDATE,NYR,NMO,NDA,NHR,
+     3               U,SPEED,NX*NY,NX,NY,IPACK,IWORK,ND5,
+     4               MINPK,IS0,IS1,IS2,IS4,ND7,
+     5               XMISSP,XMISSS,NWORDS,NTOTGB,NTOTGR,
+     6               L3264B,L3264W,ISTOP,IER)
+C           NTOTGB IS NOT COUNTED IN U155, SO IS NOT USED.
+C
+         IF(IER.NE.0)THEN
+            WRITE(KFILDO,210)(LD(J),J=1,4),KFILRA(JJ),IER
+ 210        FORMAT(' ****ERROR WRITING MODIFIED SPEED GRID IN',
+     1             ' DIRSPD FOR ',1X,I9.9,2I10.9,I11.3,/,
+     2             '     ON RANDOM ACCESS FILE UNIT NO.',I4,
+     3             ', IER =',I4,'.  PROCEEDING.')
+C
+         ELSEIF(IP16.NE.0)THEN
+            WRITE(IP16,215)(LD(J),J=1,4),PLAINJ,NDATE,
+     1                     NX,NY,MESHB,ALATL,ALONL
+ 215        FORMAT(/' WRITING DATA TO UNIT KFILRA',
+     1                3I10.9,I10.3,3X,A32,
+     2              ' FOR DATE',I12,/,
+     3               77X,'NX,NY,MESH,ALAT,ALON =',3I5,2F9.4)
+         ENDIF
+C
+         GO TO 500
+      ENDIF
+C
+ 230  CONTINUE
+C
+         WRITE(KFILDO,235)
+ 235     FORMAT(/' RANDOM ACCESS FILE UNIT NO. 42 NOT AVAILABLE FOR',
+     1           ' WRITING ANALYSES IN DIRSPD.  NOT COUNTED AS',
+     2           ' AN ERROR.')
+C
+ 500  RETURN
+      END

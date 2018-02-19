@@ -1,0 +1,126 @@
+#!/bin/sh
+
+########################################
+# EKDMOS STATION FORECAST SCRIPT
+########################################
+
+date
+export PS4=' $SECONDS + '
+set -xa
+
+####################################
+# Specify NET Name and model
+# model - model grib field to repack
+####################################
+export NET=${NET:-ekd}
+export RUN=${RUN:-ekd}
+
+export DATA=${DATA:-${DATAROOT}/${jobid}}
+mkdir -m 775 -p $DATA
+cd $DATA
+export cycle=${cycle:-t${cyc}z}
+
+####################################
+# Determine Job Output Name on System
+####################################
+export outid="LL$job"
+export pgmout="OUTPUT.${jobid}"
+
+####################################
+# Specify EKDMOS version number
+####################################
+export EKDMOS_MODEL_VERSION=${EKDMOS_MODEL_VERSION:-${ekdmos_ver}}
+export EKDMOS_CODE_VERSION=${EKDMOS_CODE_VERSION:-${ekdmos_shared_ver}}
+export MOS_CODE_VERSION=${MOS_CODE_VERSION:-${mos_shared_ver}}
+
+####################################
+# Specify Execution Areas
+####################################
+export HOMEekd=${HOMEekd:-${NWROOT}/ekdmos.${EKDMOS_MODEL_VERSION}}
+export HOMEcode=${HOMEcode:-${NWROOT}/ekdmos_shared.${EKDMOS_CODE_VERSION}}
+export HOMEmdl=${HOMEmdl:-${NWROOT}/mos_shared.${MOS_CODE_VERSION}}
+export FIXekd=${FIXekd:-$HOMEekd/fix}
+export PARMekd=${PARMekd:-$HOMEekd/parm}
+export EXECekd=${EXECekd:-$HOMEcode/exec}
+export EXECmdl=${EXECmdl:-${HOMEmdl}/exec}
+
+##############################
+# Run setpdy and initialize PDY variables
+##############################
+setpdy.sh
+. PDY
+
+##############################################
+# Define COM directories
+##############################################
+export MCOMIN=${MCOMIN:-${COMROOTp2}/gens/prod}
+export COMIN=${COMIN:-${COMROOT}/${NET}/${envir}/$RUN.${PDY}}
+export COMOUT=${COMOUT:-${COMROOT}/${NET}/${envir}/$RUN.${PDY}}
+export COM=${COM:-${COMROOT}/${NET}/${envir}}
+export PCOM=${PCOM:-${PCOMROOT}/${NET}}
+
+mkdir -m 775 -p $COMOUT $PCOM
+
+env
+
+#############################################
+# Launch the driver script
+#############################################
+#if [[ -f $DATA/poescript ]]; then
+#   rm $DATA/poescript
+#fi
+if [[ -f $DATA/mpmdscript ]]; then
+   rm -f $DATA/mpmdscript
+fi
+
+for EFS in gefs cmce
+do
+pertlist="0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20"
+   for pert in $pertlist
+   do
+      echo "${HOMEekd}/scripts/exekd_stnfcst_${EFS}.sh.ecf $pert" >> $DATA/mpmdscript
+   done
+done
+
+chmod 775 $DATA/mpmdscript
+export MP_PGMMODEL=mpmd
+export MP_CMDFILE=$DATA/poescript
+export MP_LABELIO=YES
+export MP_STDOUTMODE=unordered
+
+aprun -n 42 -N 24 -d 1 -j 1 -cc depth cfp $DATA/mpmdscript
+export err=$?; err_chk
+
+#Print output for each job step
+set +x
+for EFS in gefs cmce
+do
+for pert in $pertlist
+do
+   echo "############# OUTPUT FOR RUN $pert #################"
+   cat $DATA/$EFS/$(printf "%02d" $pert)/$pgmout
+done
+done
+set -x
+
+if [ -f $DATA/warning ]; then
+   export curdate=`date -u +%H:%M`
+   echo ' ' > $DATA/warning
+   echo "*******************************************************************" >> $DATA/warning
+   echo "*** WARNING !! ${PDY} ${cyc}Z EKDMOS will run without CMCE data ***"  >> $DATA/warning
+   echo "*******************************************************************" >> $DATA/warning
+   echo " As of ${curdate}Z, the Canadian Ensemble Forecast System\
+ ensemble members are not yet available on NCEP's Central Computing\
+ System. The ${PDY} ${cyc}Z cycle of EKDMOS will contain only NCEP's\
+ Global Ensemble System ensemble members as input." >> $DATA/warning
+   echo "  This is an automated message, please do not reply." >>$DATA/warning
+
+   cat $DATA/warning | mail.py -c John.L.Wagner@noaa.gov
+
+fi
+date
+
+if [ "$KEEPDATA" != YES ]; then
+   cd $DATAROOT
+   rm -rf $DATA
+fi

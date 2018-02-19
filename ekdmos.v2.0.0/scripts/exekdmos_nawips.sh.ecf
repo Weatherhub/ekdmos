@@ -1,0 +1,102 @@
+###################################################################
+echo "----------------------------------------------------"
+echo "exnawips - convert NCEP GRIB files into GEMPAK Grids"
+echo "----------------------------------------------------"
+echo "History: Mar 2000 - First implementation of this new script."
+echo "S Lilly: May 2008 - add logic to make sure that all of the "
+echo "                    data produced from the restricted ECMWF"
+echo "                    data on the CCS is properly protected."
+echo "         Jan 2012 - Modified version for ekdmos grids only"
+#####################################################################
+
+set -xa
+
+cd $DATA
+
+msg="Begin job for $job"
+postmsg "$jlogfile" "$msg"
+
+#
+#NAGRIB_TABLE=/nwprod/gempak/fix/nagrib.tbl
+#utilfix_nam=${utilfix_nam:-/nwprod/util/fix}
+#NAGRIB=nagrib_nc
+#
+
+cpyfil=gds
+garea=dset
+gbtbls=
+maxgrd=4999
+kxky=
+grdarea=
+proj=
+output=T
+pdsext=no
+
+for domain in ak co hi pr; do
+ for elem in tmp dew min max; do
+
+cat $COMIN/naefs_${domain}gekdgb2${elem}_mean.$cycle >>naefs_${domain}gekdgb2_mean.$cycle.tmp
+
+ done
+
+  GRIBIN=naefs_${domain}gekdgb2_mean.$cycle.tmp
+  GEMGRD=ekdgem_${domain}mean_${PDY}${cyc}
+
+  NAGRIB=nagrib2
+
+  cp $GRIBIN grib${domain}_mean
+
+  $GEMEXE/$NAGRIB << EOF
+   GBFILE   = grib${domain}_mean
+   INDXFL   = 
+   GDOUTF   = $GEMGRD
+   PROJ     = $proj
+   GRDAREA  = $grdarea
+   KXKY     = $kxky
+   MAXGRD   = $maxgrd
+   CPYFIL   = $cpyfil
+   GAREA    = $garea
+   OUTPUT   = $output
+   GBTBLS   = $gbtbls
+   GBDIAG   = 
+   PDSEXT   = $pdsext
+  l
+  r
+EOF
+  export err=$?;err_chk
+
+  #####################################################
+  # GEMPAK DOES NOT ALWAYS HAVE A NON ZERO RETURN CODE
+  # WHEN IT CAN NOT PRODUCE THE DESIRED GRID.
+  #####################################################
+  gpend
+
+  if [ $SENDCOM = "YES" ] ; then
+     mv $GEMGRD $COMOUT/$GEMGRD
+     if [ $SENDDBN = "YES" ] ; then
+	 if [ $domain = "ak" ] || [ $domain = "co" ] ; then
+             $DBNROOT/bin/dbn_alert MDLFCST ${DBN_ALERT_TYPE} $job \
+		 $COMOUT/$GEMGRD
+	 else
+	     echo "alert skipped for domain $domain"
+	 fi
+     else
+	 echo "##### DBN_ALERT_TYPE is: ${DBN_ALERT_TYPE} #####"
+     fi
+  fi
+done
+
+#####################################################################
+# GOOD RUN
+set +x
+echo "**************JOB $RUN NAWIPS COMPLETED NORMALLY ON THE IBM"
+echo "**************JOB $RUN NAWIPS COMPLETED NORMALLY ON THE IBM"
+echo "**************JOB $RUN NAWIPS COMPLETED NORMALLY ON THE IBM"
+set -x
+#####################################################################
+
+msg='Job completed normally.'
+echo $msg
+postmsg "$jlogfile" "$msg"
+
+############################### END OF SCRIPT #######################

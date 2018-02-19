@@ -1,0 +1,128 @@
+      SUBROUTINE GLOOK(KFILDO,ID,LSTORE,ND9,LITEMS,
+     1                 NDATE,ITIME,IER)
+C
+C        DECEMBER  2002   GLAHN   TDL   MOS-2000
+C                                 ADAPTED FROM GFETCH2
+C 
+C        PURPOSE 
+C            TO DETERMINE WHETHER A VARIABLE ID FOR THE DESRIED DATE
+C            EXISTS IN LSTORE( , ).
+C
+C        DATA SET USE 
+C           KFILDO - UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES 
+C              KFILDO = UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (INPUT)
+C               ID(J) = THE 4-WORD ID OF THE VARIABLE TO FETCH
+C                       (J=1,4).  (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5-12--NOT USED.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , ).
+C                       (INPUT)
+C               NDATE = DATE/TIME OF THE DATA TO BE FETCHED IN FORMAT
+C                       YYYYMMDDHH.  THIS IS MATCHED TO THE VALUE STORED
+C                       IN LSTORE(8, ), AFTER POSSIBLE MODIFICATION
+C                       BY THE RR IN THE ID.  WHEN THE DATA ARE NOT
+C                       ATTACHED TO A SPECIFIC DATE, LIKE CLIMATOLOGICAL
+C                       VALUES OR INDICES FOR LINEARIZATION ROUTINES,
+C                       NDATE MUST BE INPUT AS ZERO.  (INPUT)
+C               ITIME = SERVES FOUR FUNCTIONS.
+C                       1--WHEN EQ 0, AN ADJUSTMENT IN TIME USING RR
+C                          IS NOT TO BE MADE.
+C                       2--WHEN 5555, RR ADJUSTMENT IS TO BE MADE AND
+C                          MAY BE GT 99.  THIS IS ACCOMMODATED BY 
+C                          USING TRR AS RRR.
+C                       3--GE 0 BUT NOT 5555, THE RR ADJUSTMENT IS TO 
+C                          BE MADE, 2 DIGITS ONLY.  THIS RETAINS USE 
+C                          OF T.
+C                       4--LESS THAN ZERO, ITIME IS STORED IN
+C                          LSTORE(12, ).
+C                       (INPUT)
+C                 IER = STATUS RETURN.  (OUTPUT)
+C                        0 = GOOD RETURN.
+C                       47 = DATA CANNOT BE FOUND.
+C               JD(J) = THE 4-WORD ID OF THE VARAIBLE TO RETRIEVE FROM
+C                       THE MOS-2000 INTERNAL STORAGE SYSTEM (J=1,4).
+C                       THIS MAY BE THE SAME AS ID( ), BUT MAY BE
+C                       MODIFIED WITH RR (SEE NRR).  (INTERNAL)
+C               LDATE = DATE/TIME OF THE DATA TO BE FETCHED IN FORMAT
+C                       YYYYMMDDHH AFTER POSSIBLE MODIFICATION BY RR
+C                       IN THE ID.  THIS IS MATCHED TO THE VALUE 
+C                       STORED IN LSTORE(8, ).  (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C                         
+C        NON SYSTEM SUBROUTINES CALLED 
+C           NONE
+C
+      DIMENSION ID(4),JD(4)
+      DIMENSION LSTORE(12,ND9)
+C
+C        MUST USE TIME OFFSET RR IN ID(3) TO ADJUST NDATE, UNLESS
+C        ITIME = 0, OR RR = 0.
+C
+      DO 105 J=1,4
+      JD(J)=ID(J)
+ 105  CONTINUE
+C
+      LDATE=NDATE
+      IF(NDATE.EQ.0)GO TO 106
+C        WHEN THE ABOVE TEST IS MET, THE DATE IS NOT TO BE MATCHED.
+C        RATHER, THE DATA ARE INDICES OR CLIMATOLOGICAL DATA THAT
+C        ARE NEVER DISCARDED.
+      IF(ITIME.EQ.0)GO TO 106
+C        WHEN ITIME NE 0, RR IS TO BE USED.
+      NR=ID(3)/1000000
+C
+      IF(ITIME.EQ.5555)THEN
+         NRR=NR
+      ELSE
+         NT=NR/100
+         NRR=NR-NT*100
+      ENDIF
+C
+      IF(NRR.NE.0)THEN
+         CALL UPDAT(NDATE,-NRR,LDATE)
+C         
+         IF(ITIME.EQ.5555)THEN
+            JD(3)=ID(3)-NRR*1000000
+C              THIS REMOVES RRR.
+         ELSE
+            JD(3)=NT*100000000+(ID(3)-NR*1000000)
+C              THIS REMOVES RR AND LEAVES T INTACT.
+         ENDIF
+C
+      ENDIF
+C
+ 106  CONTINUE
+D     WRITE(KFILDO,107)(JD(J),J=1,4),LDATE
+D107  FORMAT(/' IN GLOOK,'27X' LOOKING FOR'2XI9.9,2I10.9,I11.3,
+D    1        '  FOR DATE'I11)   
+C
+C        FIND A LOCATION IN LSTORE( , ) MATCHING ID( ), IF ANY.
+C
+      DO 170 J=1,LITEMS
+      IF(LSTORE(8,J).NE.LDATE.AND.
+     1   LSTORE(8,J).NE.0)GO TO 170
+C        DROP THROUGH HERE MEANS THE NEEDED DATE HAS BEEN FOUND,
+C        OR THE NEEDED "DATE" IS ZERO WHICH IS THE CASE FOR
+C        'CONSTANT" DATA. 
+C
+      DO 110 L=1,4
+      IF(LSTORE(L,J).NE.JD(L))GO TO 170
+ 110  CONTINUE
+C
+C        DROP THROUGH HERE MEANS THAT THE ID( ) HAS BEEN FOUND.
+C
+      GO TO 200
+ 170  CONTINUE
+C
+C        A FALL THROUGH HERE MEANS ID( ) HAS NOT BEEN FOUND.
+C
+      IER=47
+ 200  CONTINUE
+C
+      RETURN
+      END   

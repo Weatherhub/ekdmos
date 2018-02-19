@@ -1,0 +1,124 @@
+########################################################################
+# Job Name: exekd_cathigb2.sh.ecf
+# Purpose:  Cats together the grib2 files for tmp, dew, max, and min for 
+#           each probability level and the mean
+# Remarks: This script is kicked off when all instances of 
+#           exekd_higridded.sh.ecf have completed
+#
+#  HISTORY: June      2010    JLW  - new job for EKD MOS
+#           November  2012    JLW  - updated to run on the WCOSS
+#
+#######################################################################
+echo EKDLOG: `date` - Begin job exekd_cathigb2.sh.ecf
+set -x
+#######################################################################
+#                SETTING DATE AND CYCLE TIMES
+#######################################################################
+echo $PDY $cyc : Date and Cycle - echo PDY and cyc
+
+###################################################################
+# CAT THE GRIB2 FILES TOGETHER
+###################################################################
+if [[ -f $COMOUT/naefs_higekdgb2.$cycle ]]; then
+   rm -f $COMOUT/naefs_higekdgb2.$cycle
+fi
+
+for elem in tmp dew max min; do
+   for thresh in 10 50 90; do
+     if [[ -f $COMOUT/naefs_higekdgb2${elem}${thresh}.$cycle ]]; then
+         rm -f $COMOUT/naefs_higekdgb2${elem}${thresh}.$cycle
+     fi
+     if [[ $elem == "tmp" || $elem == "dew" ]];then
+         for step in 1 2 3 4 5 6;do
+            cat $COMOUT/naefs_higekdgb2${elem}${thresh}_${step}.$cycle >> $COMOUT/naefs_higekdgb2${elem}${thresh}.$cycle
+            cat $COMOUT/naefs_higekdgb2${elem}${thresh}_${step}.$cycle >> $COMOUT/naefs_higekdgb2.$cycle
+         done
+     else
+         for step in 1;do
+            cat $COMOUT/naefs_higekdgb2${elem}${thresh}_${step}.$cycle >> $COMOUT/naefs_higekdgb2${elem}${thresh}.$cycle
+            cat $COMOUT/naefs_higekdgb2${elem}${thresh}_${step}.$cycle >> $COMOUT/naefs_higekdgb2.$cycle                   
+         done
+     fi
+   done
+   if [[ -f $COMOUT/naefs_higekdgb2${elem}_mean.$cycle ]]; then
+      rm -f $COMOUT/naefs_higekdgb2${elem}_mean.$cycle
+   fi
+   for step in 1;do
+      if [[ -f $COMOUT/naefs_higekdgb2${elem}_mean_${step}.$cycle ]]; then
+         cat $COMOUT/naefs_higekdgb2${elem}_mean_${step}.$cycle >> $COMOUT/naefs_higekdgb2.$cycle
+         cat $COMOUT/naefs_higekdgb2${elem}_mean_${step}.$cycle >> $COMOUT/naefs_higekdgb2${elem}_mean.$cycle
+      else
+         echo "$COMOUT/naefs_higekdgb2${elem}_mean_${step}.$cycle does not exist"
+      fi
+   done
+done
+###################################################################
+# Make a grib2 index file for the large grib2 file
+###################################################################
+
+$GRB2INDEX $COMOUT/naefs_higekdgb2.$cycle $COMOUT/naefs_higekdgb2i.$cycle
+export err=$?; err_chk							      
+
+#
+# Headers are not yet required for these grids since they are not
+# tranmitted.  Exit now.
+#
+exit
+
+#######################################################################
+#   RUN AQM_SMOKE TO PUT SUPER HEADERS AND WMO HEADERS ON THE FILES.
+#   EVENTUALLY AQM_SMOKE WILL BE RENAMED.
+#######################################################################
+
+for tp in 001 002 003 004 005_007 008_450
+do
+  if [[ $tp == "005_007" ]]; then
+     tp2=005-007
+  elif [[ $tp == "008_450" ]]; then
+     tp2=008-450
+  else
+     tp2=$tp
+  fi
+  for elem in temp td maxt mint
+  do
+    for plevel in mn p05 p10 p20 p30 p40 p50 p60 p70 p80 p90 p95
+    do
+
+      #########################
+      # CALL AQM_SMOKE TWICE
+      #########################
+      rm -f ds.hi.${elem}${plevel}.${tp2}.temporary.bin
+      rm -f $COMOUT/ds.hi.${elem}${plevel}.${tp2}.bin
+      if [[ -f $PARMekd/mdl_hiekdmosgb2head.${elem}${plevel}.${tp}.${cycle} ]]; then
+         echo 0 > filesize
+         export XLFRTEOPTS="unit_vars=yes"
+         export FORT11="$COMOUT/naefs_higekdgb2.$cycle"
+         export FORT12="filesize"
+         export FORT31="$COMOUT/naefs_higekdgb2i.$cycle"
+         export FORT51="ds.hi.${elem}${plevel}.${tp2}.temporary.bin"
+         $TOCGRIB2SUPER <$PARMekd/mdl_hiekdmosgb2head.${elem}${plevel}.${tp}.${cycle} 1>> $pgmout 2>> errfil
+         export err=$?; err_chk							      
+
+
+         echo `ls -l ds.hi.${elem}${plevel}.${tp2}.temporary.bin | awk '{print $5} '` > filesize
+         export XLFRTEOPTS="unit_vars=yes"
+         export FORT11="ds.hi.${elem}${plevel}.${tp2}.temporary.bin"
+         export FORT12="filesize"
+         export FORT31=
+         export FORT51="mdl_gekdgb2head.hi.${cycle}.${elem}${plevel}.${tp2}.bin"
+         $TOCGRIB2SUPER <$PARMekd/mdl_hiekdmosgb2head.${elem}${plevel}.${tp}.${cycle} 1>> $pgmout 2>> errfile
+         export err=$?; err_chk							      
+         cp mdl_gekdgb2head.hi.${cycle}.${elem}${plevel}.${tp2}.bin $PCOM/.
+#
+# Send the file to the tgftp server
+#
+         if [[ $SENDDBN_NTC = "YES" ]]; then
+#        PCOM ALERT IS COMMENTED OUT UNTIL OKAY GIVEN BY DATAFLOW/TOC
+            $DBNROOT/bin/dbn_alert NTC_LOW EKDMOS $job $PCOM/mdl_gekdgb2head.hi.${cycle}.${elem}${plevel}.${tp2}.bin
+
+         fi
+         rm -f ds.hi.${elem}${plevel}.${tp2}.temporary.bin
+       fi
+    done
+  done
+done

@@ -1,0 +1,1931 @@
+      SUBROUTINE FSTGS5(KFILDO,KFIL10,KFILOG,KFILRA,RACESS,NUMRA,IP16,
+     1                  IP22,NDATE,ID,IDPARS,JD,JP,ISCALD,
+     2                  NGRIDC,ND11,XDATA,XP,YP,XPL,YPL,LTAG,
+     3                  ND1,NSTA,ITABLE,JVAL,PREPRO,POSTDS,
+     4                  NCAT,NSCALE,CONST,IPREX1,IPREX2,PREX3,PREX4,
+     5                  PREX5,
+     6                  TLOD,SETLOD,THID,SETHID,CONSTD,NSCALD,EX1D,EX2D,
+     7                  P,FD2,FD3,FD4,FD5,FD6,ND2X3,
+     8                  SEALND,CPNDFD,NXE,NYE,MESHE,
+     9                  MODNO,NPROJ,ORIENT,XLAT,
+     A                  NXL,NYL,ALATL,ALONL,MESHB,MESHL,
+     8                  NX,NY,MESH,MSHPAS,ITRPLQ,NSMTYP,B,NPASS,
+     C                  IBACKN,IBACKL,IGUESS,MGUESS,GUESS,IFSTGS,NBLEND,
+     D                  LSTORE,ND9,LITEMS,
+     E                  IS0,IS1,IS2,IS4,ND7,
+     F                  IPLAIN,PLAIN,
+     G                  IPACK,IWORK,DATA,ND5,MINPK,
+     H                  CORE,ND10,NBLOCK,NFETCH,MISTOT,NSLAB,
+     I                  CINT,ORIGIN,SMULT,SADD,TITLE,IOPT,
+     J                  JTOTBY,JTOTRC,L3264B,L3264W,ISTOP,IER)
+C
+C        JUNE      2004   GLAHN   TDL   MOS-2000
+C                                 ADAPTED FROM FSTGS
+C        SEPTEMBER 2004   GLAHN   MODIFIED ID OF FIRST GUESS WRITTEN
+C        OCTOBER   2004   GLAHN   CORRECTION OF DATES ACCESSED
+C        OCTOBER   2004   GLAHN   RESTRUCTURED TO ACCOMMODATE FIRST
+C                                 GUESS OF SIZE ND5
+C        OCTOBER   2004   GLAHN   MODIFIED FOR LAT/LON VICE POLE 
+C        OCTOBER   2004   GLAHN   CHANGED CALL TO PAWGTS TO PAWGTS
+C        OCTOBER   2004   GLAHN   INSERTED LAMBERT AND MERCATOR
+C                                 CAPABILITY 
+C        NOVEMBER  2004   GLAHN   EXCHANGED NOMINL FOR XMSMSH; 
+C                                 EXCHANGED ACTUAL FOR MSHXMS 
+C        NOVEMBER  2004   GLAHN   EXCHANGED 2 ARGUMENTS IN CALL TO
+C                                 ACTUAL
+C        NOVEMBER  2004   GLAHN   SWAPPED CKGRID FOR CHKGRD
+C        DECEMBER  2004   GLAHN   CHECKS FOR IER AND ISTOP( )
+C                                 INCREMENTED IN SEVERAL PLACES;
+C                                 REMOVED EXTRA ARGUMENT TO CUTIT
+C        DECEMBER  2004   GLAHN   ELIMINATED CALL TO CUTIT IN THREE
+C                                 PLACES IF INPUT AND OUTPUT GRIDS ARE
+C                                 THE SAME;  CHANGED ARGUMENTS TO LAST
+C                                 CALL TO CUTIT; REMOVED NXG=NX, NYG=NY,
+C                                 MESHG=MESH BEFORE 525
+C        JANUARY   2005   GLAHN   MULTIPLIED XMESHL BY 1000 IN CALLS
+C                                 TO PSIJLL, MCIJLL, AND LMIJLL.
+C        FEBRUARY  2005   GLAHN   CHANGED ITRPLX TO ITRPX
+C        FEBRUARY  2005   GLAHN   REMOVED PRINT OF RATIO AT 522
+C        FEBRUARY  2005   GLAHN   ADDED PRINT OF LD( ) AT 192, AND 193
+C        FEBRUARY  2005   GLAHN   ADDED LTAG TO CALL, CALL TO FLTAG, AND
+C                                 CHECK ON LTAG TO COMPUTE AVERAGE
+C        FEBRUARY  2005   GLAHN   ADDED CLIMO CAPABILITY FOR FOR FIRST
+C                                 GUESS; ADDED SEALND, NXE, NYE, AND
+C                                 MESHE TO CALL; ADDED CALL TO OVRRID
+C        FEBRUARY  2005   GLAHN   REMOVED UNUSED IVRBL FROM CALL
+C        APRIL     2005   GLAHN   REMOVED NORM OPTION AND ADDED NBLEND
+C                                 OPTION
+C        AUGUST    2005   GLAHN   ADDED CHECK ON IOPT(1) = 0 TO BYPASS 
+C                                 DISPOSABLE OUTPUT
+C        AUGUST    2005   GLAHN   CHANGED SEQUENCE OF SOME STATEMENT
+C                                 NUMBERS; ADDED PROCESSING OF FG
+C                                 FOR POPS; ADDED PREPRO TO CALL;
+C                                 ADDED CALL TO SCLSNO
+C        AUGUST    2005   GLAHN   CHANGED INCREMENTING ISTOP(2) TO (3)
+C        SEPTEMBER 2005   GLAHN   CHANGED NSCALE FOR SCLSNO FROM 1 TO 0
+C        OCTOBER   2005   GLAHN   MODIFIED FORMAT 340
+C        NOVEMBER  2005   GLAHN   ADDED SCALING OF SNOW FOR GEMPAK
+C        JANUARY   2006   GLAHN   TOOK CALL TO PAWGTS OUT OF SCALING
+C                                 LOOP
+C        MAY       2006   GLAHN   MODIFIED CALL TO SCLSNO; CHANGED
+C                                 FIRST GUESS OUTPUT GRID ID FROM
+C                                 LD(1)=ID(1) TO ITABLE(1,1)+B+DD
+C        JUNE      2006   GLAHN   CHANGED CALLS TO SZGRID TO SZGRDM
+C        JUNE      2006   GLAHN   ADDED CPNDFD( ), NCLIP, AND NCLIPY
+C                                 TO CALL AND CAPABILITY TO CLIP TO
+C                                 NDFD GRID
+C        JULY      2006   GLAHN   ELIMINATED IDPARS(3) IN DEFINITION OF
+C                                 LD(1) BELOW 521.
+C        JULY      2006   GLAHN   ADDED TO COMMENT AFTER CALL TO SCLSNO;
+C                                 CORRECTION OF COMMENT FOLLOWING CALL 
+C                                 TO CLIP
+C        JULY      2006   GLAHN   NSMTYP, B( , ), NPASS, AND NCLIPO
+C                                 ADDED TO CALL; CODE TO HANDLE CLIPPING
+C                                 BELOW 501
+C        AUGUST    2006   GLAHN   CORRECTED NCLIPO ERROR ABOVE 5010
+C        FEBRUARY  2007   GLAHN   MODIFIED TO ADAPT TO INCOMING GRID
+C                                 BEING ON LARGE AREA.  USE NCLIP AS
+C                                 PERTAINING TO OUTPUT GRID; NO CLIPPING
+C                                 OF FIRST GUESS; ADDED PREPROCESSOR 
+C                                 PREQPF 
+C        MARCH     2007   GLAHN   REMOVED NCLIP, NCLIPO, NCLIPY FROM
+C                                 CALL
+C        MARCH     2007   GLAHN   ADDED CALL TO SCLSKY
+C        MAY       2007   GLAHN   ADDED CALL TO SCLQPF
+C        MAY       2007   GLAHN   REPLACED SCLQPF WITH SCLQ06 AND SCLQ12
+C        JUNE      2007   GLAHN   ADDED BLANK LINE AT 340 PRINT
+C        SEPTEMBER 2007   GLAHN   CORRECTED DIAGNOSTIC D1475
+C        SEPTEMBER 2007   GLAHN   REPLACED NEWXY WITH NEWXY1; OTHER
+C                                 CHANGES TO ACCOMMODATE CHANGE IN MESH
+C        SEPTEMBER 2007   GLAHN   INSERTED DIAGNOSTICS 185, 186
+C        NOVEMBER  2007   GLAHN   INCREASED PREPRO FROM 1 TO PREPOR(3)
+C                                 ALONG WITH POSTPROCESSING PARAMETERS
+C                                 ADDED POSTDS(3) AND PROCESSING
+C                                 PARAMETERS
+C        NOVEMBER  2007   GLAHN   INSERTED AVG FOR BLEND VICE GUESS
+C        MARCH     2008   GLAHN   CHANGED 4TH ID WORD FOR FIRST GUESS.
+C        MARCH     2008   GLAHN   ADDED COMMA TO 148 AND 160 FOR IBM
+C        APRIL     2008   GLAHN   JUN TAE'S CORRECTIONS IN 2 PLACES
+C                                 BETWEEN 146 AND 147 PLUS DIAGNOSTIC
+C        MAY       2008   GLAHN   CORRECTION OF COMMENT FOR NBLEND NE 0
+C        MAY       2008   GLAHN   INSERTED DUMMY( ) INTO CALL TO SCLSKY
+C        MAY       2008   GLAHN   SCALING MOD AT 184 WHEN NBLEND NE 0
+C        MAY       2008   GLAHN   CHANGED CALL TO SCLSKY TO FGSKYA
+C        MAY       2008   GLAHN   INCREASED PREPROCESSORS TO 6 VICE 3
+C                                 REMOVED CALL TO SCLSKY
+C        JUNE      2008   GLAHN   ADDED CALL TO SCALXI; USED INCOMING
+C                                 CONST(NN), NSCALE(NN), NCAT(NN) IN
+C                                 ALL CALLS
+C        JUNE      2008   GLAHN   MODIFIED TO USE MOS FOR LAMP FG 
+C                                 BELOW DO 200
+C        JULY      2008   GLAHN   IP16 MOVED IN CALL
+C        AUGUST    2008   GLAHN   OMITTED ADDING DD TO ITABLE( ,3) IN
+C                                 CALLS TO SCLSNO, SCLQ06, SCLQ12,
+C                                 FGSKYA; CHANGED ITABLE( ,2) TO
+C                                 ITABLE( ,3) IN CALLS TO SCLQ06, SCLQ12
+C        AUGUST    2008   GLAHN   MODIFIED TO OBTAIN MOS FOR HOURLY 
+C                                 ANALYSES
+C        SEPTEMBER 2008   GLAHN   INSERTED NINT BEFORE CALL TO HSMTH
+C        SEPTEMBER 2008   COSGROVE   MODIFIED CONSTS ASSIGNMENT FOR
+C                                 IBM COMPILE
+C        NOVEMBER  2008   GLAHN   ADDED CHECKING FOR PAST 6-H FORECAST
+C                                 FOR MAX TEMP PROBLEM AT 198 HR
+C        DECEMBER  2008   GLAHN   CHANGE TO FORMAT FOR 502
+C        OCTOBER   2009   GLAHN   ADDED INCREMENTING OF ISTOP(1) AFTER
+C                                 UNSUCCESSFUL RETURN FROM SCLSNO,
+C                                 SCLQ06, SCLQ12
+C
+C        PURPOSE
+C            TO PROVIDE A FIRST GUESS FIELD IN P( ) FOR
+C            U405A ROUTINE.  THE FIRST GUESS CAN BE:
+C              1--A CONSTANT, GUESS, PROVIDED AS INPUT,
+C              2--A FIRST GUESS GRID (CURRENT PLUS IBACKN CYCLES
+C                 ARE TRIED AT 6-H INTERVALS),
+C              3--AN ALTERNATE FIRST GUESS GRID (CURRENT PLUS
+C                 IBACKL CYCLES ARE TRIED AT 6-H INTERVALS), OR
+C              4--THE AVERAGE OF ALL OBSERVATIONS TO BE USED
+C                 IN THE ANALYSIS.
+C            SEE IGUESS( ).
+C            IN ADDITION, WHEN NBLEND NE 0 AND IGUESS( ) = 2 OR 3,
+C            THE AVERAGE OF DATA OVER LAND WILL BE USED OVER LAND
+C            AS DESIGNATED BY SEALND( , ) NE 0
+C
+C            AN INPUT FIRST GUESS GRID CAN BE AT A DIFFERENT
+C            GRIDLENGTH THAN THE FIRST GUESS NEEDED (E.G., FIRST 
+C            GUESS NEEDED AT 5 KM BUT INCOMING GRID IS AT, SAY, 20 KM).
+C            THE MAP CHARACTERISTICS MUST BE THE SAME.
+C
+C            UPON RETURN, THE GRID WILL BE OVER THE CORRECT AREA
+C            AND HAVE THE GRID LENGTH NEEDED FOR THE FIRST GUESS
+C            FOR THE OPTION EXERCISED.  ALSO, XP( ) AND YP( ) WILL
+C            BE IN RELATION TO THAT GRID.
+C
+C            A "DISPOSABLE" OR "SUBSETTED" GRID, DIMENSIONS IN IOPT( ),
+C            CAN BE CREATED FOR (1) GRIDPRINTING AND WRITING TO UNIT
+C            NO. IP22 AND/OR (2) TDLPACKING AND WRITING TO UNIT 
+C            NO. KFILOG.  THIS GRID CAN BE USED FOR CHECKOUT AND
+C            QUALITY CONTROL.
+C
+C            THIS SHOULD WORK FOR:
+C               1--MOS FORECASTS CREATED AT 6-H CYCLES WITH PROJECTIONS
+C                  AT 3-H INTERVALS,
+C               2--LAMP FORECSTS CREATED AT ANY HOUR FOR ANY PROJECTION,
+C               3--OBSERVATIONS AT ANY HOUR WITH A PROJECTION OF ZERO.
+C
+C            THE FIRST GUESS MUST BE AVAILABLE FOR DAY 1 FOR IT TO BE
+C            FOUND ON SUBSEQUENT DAYS.
+C
+C            FATAL ERRORS, IER:
+C               777--CANNOT OBTAIN A FIRST GUESS.
+C
+C            ISTOP INCREMENTS:
+C               FIRST GUESS IS NOT FIRST CHOICE.
+C
+C        DATA SET USE
+C            KFILDO   - UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT)
+C            KFIL10   - UNIT NUMBER FOR INTERNAL RANDOM ACCESS STORAGE.
+C                       (INPUT)
+C            KFILOG   - UNIT NUMBER FOR DISPOSABLE TDLPACK GRIDPOINT
+C                       OUTPUT.  (OUTPUT)
+C            KFILRA(J)- HOLDS THE UNIT NUMBERS FOR ACCESSING THE MOS-2000
+C                       EXTERNAL RANDOM ACCESS FILES (J=1,NUMRA). (INPUT)
+C            IP16     - UNIT NUMBER FOR INDICATING WHEN A RECORD IS
+C                       WRITTEN TO THE SEQUENTIAL FILE.  (OUTPUT)
+C            IP22     - UNIT NUMBER FOR GRIDPRINTING OF FIRST GUESS.
+C                       (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (INPUT)
+C              KFIL10 = UNIT NUMBER FOR INTERNAL RANDOM ACCESS STORAGE.
+C                       (INPUT/OUTPUT)
+C              KFILOG = UNIT NUMBER FOR DISPOSABLE TDLPACK GRIDPOINT
+C                       OUTPUT.  THIS IS FOR THE FIRST GUESS AND 
+C                       DIFFERENT PASSES OF THE ANALYSES AND THEIR
+C                       SMOOTHINGS.  (OUTPUT)
+C           KFILRA(J) = HOLDS THE UNIT NUMBERS FOR ACCESSING THE MOS-2000
+C                       EXTERNAL RANDOM ACCESS FILES (J=1,NUMRA).
+C                       THE ACCESS ROUTINES ALLOW 6 RANDOM ACCESS
+C                       FILES.  HOWEVER, IT UNLIKELY U155 WILL NEED
+C                       MORE THAN 1 OR 2.  (INPUT)
+C           RACESS(J) = THE FILE NAMES CORRESPONDING TO KFILRA(J) 
+C                       (J=1,NUMRA).  (CHARACTER*60)  (INPUT)
+C               NUMRA = THE NUMBER OF UNIT NUMBERS IN KFILRA( ) AND
+C                       NAMES IN RACESS( ).  (INPUT)
+C                IP16 = INDICATES WHETHER (>0) OR NOT (=0) 
+C                       A STATEMENT WILL BE OUTPUT TO IP(16)
+C                       WHEN A DISPOSABLE GRID WILL BE WRITTED TO
+C                       A SEQUENTIAL FILE THROUGH PAWGTS.  (INPUT))
+C                IP22 = UNIT NUMBER FOR WRITING THE GRIDPRINTED 
+C                       DISPOSABLE GRID FIRST GUESS.  (INPUT)
+C               NDATE = DATE/TIME, YYYYMMDDHH, OF ANALYSIS RUN.
+C                       (INPUT)
+C               ID(J) = 4-WORD ID OF VARIABLE TO PROVIDE FIRST GUESS FOR
+C                       (J=1,4).  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE
+C                       PREDICTOR ID'S CORRESPONDING TO ID( ,N)
+C                       (J=1,15), (N=1,ND4).
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 
+C                            1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK 
+C                            IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C                       (INPUT)
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID'S (J=1,4) 
+C                       (N=1,ND4).
+C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3, ),
+C                       T = IDPARS(8,),
+C                       I = IDPARS(13, ),
+C                       S = IDPARS(14, ),
+C                       G = IDPARS(15, ), AND
+C                       THRESH( ).
+C                       NOT ACTUALLY USED.  (INPUT)
+C             JP(J,N) = INDICATES WHETHER A PARTICULAR VARIABLE N MAY
+C                       HAVE GRIDPRINTS (J=1), INTERMEDIATE TDLPACK
+C                       OUTPUT (J=2), OR PRINT OF VECTOR RECORDS IN
+C                       PACKV (J=3) (N=1,ND4).  PACKV IS FOR THE 
+C                       DATA SHOWING T0SSED DATA AS MISSING AND 
+C                       QUESTIONABLE DATA AS MISSING.  THIS IS
+C                       AN OVERRIDE FEATURE FOR THE PARAMETERS FOR 
+C                       GRIDPRINTING AND TDLPACKING IN EACH VARIABLE'S 
+C                       CONTROL FILE.  (INPUT)
+C              ISCALD = DECIMAL SCALING FOR TDLPACKING.  (INPUT)
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR EACH GRID
+C                       COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                            STEREOGRAPHIC). 
+C                       L=2--GRID LENGTH IN METERS,
+C                       L=3--LATITUDE AT WHICH GRID LENGTH IS CORRECT *1000,
+C                       L=4--GRID ORIENTATION IN DEGREES *1000,
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *1000,
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES *1000.
+C                       NGRIDC( , ) NOT ACTUALLY USED, BUT COULD BE
+C                       USED TO CALL COMPUTATION ROUTINES.  (INPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH ON THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ).  (INPUT)
+C            XDATA(K) = DATA TO AVERAGE FOR FIRST GUESS (K=1,NSTA).
+C                       ALSO THE CATEGORICAL FORECASTS FOR SCLSNO.
+C                       (INPUT)
+C               XP(K) = THE X POSITION FOR STATION K (K=1,NSTA) ON 
+C                       THE ANALYSIS GRID AREA AT THE CURRENT GRID MESH 
+C                       LENGTH MESH.  (OUTPUT)
+C               YP(K) = THE Y POSITION FOR STATION K (K=1,NSTA) ON 
+C                       THE ANALYSIS GRID AREA AT THE CURRENT GRID MESH 
+C                       LENGTH MESH.  (OUTPUT)
+C              XPL(K) = THE X POSITION FOR STATION K (K=1,NSTA) ON
+C                       THE ANALYSIS GRID AREA AT THE MESH LENGTH 
+C                       MESHB.  (INPUT)
+C              YPL(K) = THE Y POSITION FOR STATION K (K=1,NSTA) ON
+C                       THE ANALYSIS GRID AREA AT THE MESH LENGTH
+C                       MESHB.  (INPUT)
+C             LTAG(K) = DENOTES USE OF DATA IN DATA(K) FOR STATION K
+C                       (K=1,NSTA).
+C                       0 = USE DATA.
+C                       1 = STATION OUTSIDE RADIUS OF INFLUENCE FOR
+C                           AREA BEING ANALYZED OR MISSING DATUM.
+C                       2 = STATION LOCATION UNKNOWN.
+C                       (OUTPUT)
+C                 ND1 = THE MAXIMUM NUMBER OF STATIONS THAT CAN BE
+C                       DEALT WITH.  DIMENSION OF DATA( ), XP( ),
+C                       AND YP( ). (INPUT)
+C                NSTA = NUMBER OF STATIONS BEING USED.  (INPUT)
+C         ITABLE(I,L) = TABLE CONTAINING JVAL (L=1,JVAL) 4-WORD 
+C                       (I=1,4) IDS OF VARIABLES THAT CAN BE USED:
+C                       FOR L = 1:
+C                          THE ID OF THE VARIABLE BEING ANALYZED.
+C                       FOR L = 2:
+C                          THE ID OF DATA NEEDED TO ANALYZE THE FIELD.
+C                       FOR L = 3:
+C                          THIS IS THE FIELD NORMALLY NEEDED FOR THE
+c                          FIRST GUESS (WHEN IGUESS=2), AND IS USED IN
+c                          FSTGS5.
+C                       FOR L = 4:
+C                          THIS IS THE FIELD NEEDED FOR THE FIRST GUESS
+C                          WHEN IGUESS=3, AND IS USED IN FSTGS5.
+C                       OTHER ENTRIES CAN BE FOR OTHER PURPOSES.
+C                       (INPUT)
+C                JVAL = SECOND DIMENSION OF ITABLE( , ).  (INPUT)
+C           PREPRO(J) = NAME 0F PREPROCESSOR ROUTINE TO USE FOR
+C                       OPTION 2 OR 3 (J=1,6).  (CHARACTER*6)
+C                       (INPUT)
+C           POSTDS(J) = HOLDS NAME OF DISPOSABLE POSTPROCESSING ROUTINE
+C                       (J=1,3).  (CHARACTER*6)  (INPUT)
+C             NCAT(J) = NUMBER OF CATEGORIES FOR PREPROCESSING
+C                       ROUTINES (J=1,6).  (INTERNAL)
+C           NSCALE(J) = SCALE FACTOR FOR PREPROCESSING ROUTINES
+C                       (J=1,6).  (INTERNAL)
+C            CONST(J) = CONSTANT FOR PREPROCESSING ROUTINES
+C                       (J=1,6).  (INTERNAL)
+C           IPREX1(J) = PREPROCESSING PARAMETER (J=1,6).  (INTERNAL)
+C           IPREX2(J) = PREPROCESSING PARAMETER (J=1,6).  (INTERNAL)
+C            PREX3(J) = PREPROCESSING PARAMETER (J=1,6).  (INTERNAL)
+C            PREX4(J) = PREPROCESSING PARAMETER (J=1,6).  (INTERNAL)
+C            PREX5(J) = PREPROCESSING PARAMETER (J=1,6).  (INTERNAL)
+C             TLOD(J) = LOW THRESHOLD FOR DISPOSABLE GRIDS (J=1,3).
+C                       WHEN A LAST PASS GRIDPOINT IS
+C                       LT TLOD, IT IS SET TO SETLOD.  (INPUT)
+C           SETLOD(J) = SEE TLOD (J=1,3).  (INPUT)
+C             THID(J) = HIGH THRESHOLD FOR DISPOSABLE GRIDS (J=1,3).
+C                       WHEN A LAST PASS  GRIDPOINT IS
+C                       GT THID, IT IS SET TO SETHID.  (INPUT)
+C           SETHID(J) = SEE THID (J=1,3).  (INPUT)
+C           CONSTD(J) = ADDITIVE CONSTANT TO FURNISH TO THRESHOLDING
+C                       AND SCALING SUBROUTINE FOR DISPOSABLE GRIDS
+C                       (J=1,3).  (INPUT)
+C           NSCALD(J) = SCALING CONSTANT TO FURNISH TO THRESHOLDING
+C                       AND SCALING SUBROUTINE FOR DISPOSABLE GRIDS
+C                       (J=1,3).  (INPUT)
+C             EX1D(J) = EXTRA PARAMETER FOR DISPOSABLE GRIDS NOT YET
+C                       USED FOR THRESHOLDING (J=1,3).  (INPUT)
+C             EX2D(J) = EXTRA PARAMETER FOR DISPOSABLE GRIDS NOT YET
+C                       USED FOR THRESHOLDING (J=1,3).  (INPUT)
+C              P(IXY) = HOLDS FIRST GUESS FIELD (IXY=1,NX*NY), 
+C                       WHERE NX AND NY ARE THE SIZE OF THE GRID FOR
+C                       THE FIRST GUESS.  (OUTPUT)
+C  FD2(J),FD3(J), ETC = WORK ARRAYS USED WHEN TIME INTERPOLATION
+C                       OF GRID IS NECESSARY AND FOR POSSIBLE USE
+C                       IN COMPUTATION SUBROUTINES (J=1,ND2X3).
+C                       (INTERNAL)
+C               ND2X3 = DIMENSION OF P( ) AND FD2( ), ETC.  (INPUT)
+C           SEALND(J) = THE LAND/SEA MASK (J=1,NXE*NYE) AT NOMINAL
+C                       MESHLENGTH MESHE.
+C                       0 = OCEAN WATER GRIDPOINTS;
+C                       3 = INLAND WATER GRIDPOINTS.
+C                       9 = LAND GRIDPOINTS.
+C                       (OUTPUT)
+C           CPNDFD(J) = THE NDFD MASK FROM THE MOS-2000 EXTERNAL
+C                       RANDOM ACCESS FILE (J=1,NXE*NYE) AT NOMINAL
+C                       MESHLENGTH MESHE.  (INPUT)
+C                 NXE = X-EXTENT OF SEALND( ) AND CPNDFD( )
+C                       AT MESH LENGTH MESHE.  (INPUT)
+C                 NYE = Y-EXTENT OF SEALND( ) AND CPNDFD( )
+C                       AT MESH LENGTH MESHE.  (INPUT)
+C               MESHE = THE NOMINAL MESH LENGTH OF SEALND( ) AND
+C                       CPNDFD( ).  IT IS MANDATORY THESE GRIDS ARE OF
+C                       THIS MESH SIZE AND COVER THE SAME AREA SPECIFIED
+C                       BY NXL BY NYL, EVEN IF MESHE IS NOT EQUAL
+C                       TO MESHB.  (INPUT)
+C               MODNO = DD FOR WRITING GRIDS.  (INPUT)
+C               NPROJ = NUMBER OF MAP PROJECTION TO WHICH THIS GRID
+C                       APPLIES.
+C                       3 = LAMBERT.
+C                       5 = POLAR STEREOGRAPHIC.
+C                       7 = MERCATOR.
+C                       (INPUT)
+C              ORIENT = ORIENTATION W LONGITUDE, PARALLEL TO GRID
+C                       COLUMNS, IN DEGREES.  (INPUT)
+C                XLAT = N LATITUDE AT WHICH THE MESH LENGTH APPLIES.
+C                       (INPUT)
+C                 NXL = THE SIZE OF THE GRID FOR THIS RUN IN THE X
+C                       DIRECTION IN MESHB UNITS.  (INPUT)
+C                 NYL = THE SIZE OF THE GRID FOR THIS RUN IN THE Y
+C                       DIRECTION IN BESHB UNITS.  (INPUT)
+C               ALATL = LATITUDE IN DEGREES OF THE LOWER LEFT CORNER
+C                       POINT (1,1) OF THE ANALYSIS GRID.  NOTE
+C                       THAT THIS REMAINS CONSTANT FOR ALL GRIDS
+C                       AFTER THE INPUT GRID IS POSITIONED.  IT DOES
+C                       NOT PERTAIN TO THE DISPOSABLE GRID.  (INPUT)
+C               ALONL = LONGITUDE (WEST) IN DEGREES OF THE LOWER LEFT
+C                       CORNER POINT OF THE ANALYSIS GRID.  NOTE
+C                       THAT THIS REMAINS CONSTANT FOR ALL GRIDS
+C                       AFTER THE INPUT GRID IS POSITIONED.  (INPUT)
+C               MESHB = THE NOMINAL MESH LENGTH OF THE GRID TO WHICH
+C                       NXL AND NYL REFER.  (FOR INSTANCE, 1/4 BEDIENT
+C                       AT 60 N IS 95.25 KM WHICH IS ABOUT 80 KM 
+C                       OVER THE U.S.  MESH = 80 CORRESPONDS TO 
+C                       95.25 STORED WITH THE GRIDS.)  (INPUT)
+C               MESHL = NOMINAL MESH LENGTH OF QUALITY CONTROL
+C                       (SUBSETTED) GRID FOR CONTINUOUS VARIABLES.
+C                       (INPUT) 
+C              NX, NY = DIMENSION OF FIRST GUESS GRID RETURNED.  IT
+C                       IS THE GRID SIZE NEEDED FOR THE FIRST PASS
+C                       AT MESH LENGTH MESH.  (OUTPUT)
+C                MESH = NOMINAL MESH LENGTH OF RETURNED GRID IN P( ).
+C                       THIS IS MSHPAS( , ) FOR THE FIRST PASS
+C                       (I.E., MSHPAS(1,MGUESS).  (OUTPUT)
+C         MSHPAS(J,L) = THE NOMINAL MESH LENGTH FOR EACH PASS 
+C                       (J=1,NPASS) FOR EACH FIRST GUESS OPTION 
+C                       (L=1,4).  (INPUT)
+C         ITRPLQ(J,L) = TYPE OF INTERPOLATION TO GO FROM ONE MESH
+C                       LENGTH TO ONE OF HALF THAT FOR EACH PASS J
+C                       (J=1,NPASS) FOR EACH FIRST GUESS OPTION
+C                       (L=1,4).  FOR THE FIRST GUESS, THE PASS 1
+C                       VALUE IS USED.
+C                       1 = BILINEAR
+C                       2 = BIQUADRATIC
+C                       (INTERNAL)
+C              NSMTYP = TYPE OF SMOOTHING:
+C                       1 = NORMAL, 5-PT
+C                       2 = SAME EXCEPT NO CHANGE IS MADE UNLESS ONE
+C                           OF THE POINTS TO CONTRIBUTE TO THE NEW
+C                           VALUE HAS BEEN CHANGED.
+C                       3 = 9-POINT SMOOTHING USED ON LAST PASS ONLY,
+C                           ANY OTHER PASS DEFAULTS TO NSMTYP = 2.
+C                       4 = FOR PASSES GE 4, SAME AS 2 EXCEPT
+C                           A POINT IS NOT CHANGED IF IT IS LOWER THAN 
+C                           BOTH POINTS ABOVE AND BELOW OR IF IT IS
+C                           LOWER THAN BOTH SIDE POINTS.  DIAGONALS
+C                           ARE ALSO CONSIDERED.  FOR THE OTHER
+C                           PASSES, DEFAULTS TO 2.
+C                       5 = SPECIAL TERRAIN-FOLLOWING SMOOTHING.
+C                       6 = TWO PASSES OF 5 ABOVE.
+C                       7 = THREE PASSES OF 5 ABOVE.
+C                       (INPUT)
+C              B(J,L) = SMOOTHING PARAMETER FOR EACH PASS J (J=1,NPASS)
+C                       FOR EACH FIRST GUESS OPTION (L=1,4).
+C                       B( , ) = 0 MEANS NO SMOOTHING.  WHEN MGUESS = 
+C                       2 OR 3, THE GRID WILL BE CLIPPED, AND ONLY
+C                       SMOOTHING OPTIONS 5, 6, OR 7 ARE ALLOWED
+C                       BECAUSE THE SMOOTHERS FOR 1, 2, AND 3 DO NOT 
+C                       CHECK FOR MISSINGS, AND 4 DEFAULTS TO 2
+C                       EXCEPT FOR PASSES GE 4 AND SEA LEVEL PRESSURE;
+C                       THEREFORE, THE BOUNDARIES GET MESSED UP.
+C                       THEREFORE, WHEN MGUESS = 2 OR 3,
+C                       AND NSMTYP IS NOT 5, 6, OR 7, B( ,MGUESS)
+C                       IT IS SET TO ZERO.  (INPUT/OUTPUT)
+C               NPASS = THE NUMBER OF PASSES FOR THIS ANALYSIS.
+C                       UP TO 6 ARE  ACCOMMODATED.  (INPUT)
+C              IBACKN = NUMBER OF 6-H CYCLES TO LOOK BACK FOR FIRST
+C                       GUESS WHEN IGUESS = 2.  IBACKN = 1 MEANS 
+C                       CURRENT (MOST RECENT) CYCLE PLUS THE ONE
+C                       6 HOURS BEFORE).  NORMALLY, THIS IS 0 FOR
+C                       DEVELOPMENT; MAY BE OTHERWISE FOR OPERATIONS.
+C                       (INPUT)
+C              IBACKL = NUMBER OF 6-H CYCLES TO LOOK BACK FOR FIRST
+C                       GUESS WHEN IGUESS = 3.  IBACKN = 1 MEANS 
+C                       CURRENT (MOST RECENT) CYCLE PLUS THE ONE
+C                       6 HOURS BEFORE).  NORMALLY, THIS IS 0 FOR
+C                       DEVELOPMENT; MAY BE OTHERWISE FOR OPERATIONS.
+C                       (NOTE THAT THIS DOES NOT PROVIDE FOR A BACKUP
+C                       FIRST GUESS FROM LAMP AT 1-H INTERVALS.  A FIRST
+C                       GUESS (LAMP/MOS FORECASTS AT THE HOUR EXPECTED)
+C                       CAN BE USED, BUT JUST NOT A BACKUP.)
+C                       (INPUT)
+C           IGUESS(J) = TYPE OF FIRST GUESS TO USE IN PRIORITY ORDER
+C                       (J=1,4)
+C                       1 = CONSTANT.
+C                       2 = FIRST GUESS GRID.
+C                       3 = ALTERNATE FIRST GUESS GRID.
+C                       4 = AVERAGE OF OBSERVATIONS.
+C                       IF 4 OPTIONS ARE NOT DESIRED, ONE OR MORE
+C                       VALUES CAN BE ZERO.  (INPUT)
+C              MGUESS = THE TYPE OF FIRST GUESS ACTUALLY USED (SEE
+C                       (IGUESS( )).  (OUTPUT)
+C               GUESS = CONSTANT TO USE AS FIRST GUESS WHEN
+C                       IGUESS( ) = 1 IS USED.  (INPUT)
+C              IFSTGS = CONTROLS GRIDPRINTING AND TDLPACKING AND 
+C                       WRITING OF FIRST GUESS
+C                       0 = FIRST GUESS IS NEITHER GRIDPRINTED OR
+C                           TDLPACKED AND WRITTEN.
+C                       1 = FIRST GUESS IS TO BE GRIDPRINTED.
+C                       2 = FIRST GUESS IS TO BE TDLPACKED AND WRITTEN.
+C                       3 = FIRST GUESS IS TO BE BOTH GRIDPRINTED AND
+C                           TDLPACKED AND WRITTEN.
+C                       (INPUT)
+C              NBLEND = DEFINES HOW INPUT GRID FOR IFSTGS = 2 OR 3 IS
+C                       POSSIBLY BLENDED WITH A CONSTANT
+C                       0 = DISABLE.
+C                       1 = WHEN IGUESS = 2 OR 3, USE THAT GRID ONLY
+C                           OVER WATER AS DEFINED BY THE LAND/SEA MASK
+C                           SEALND( , ) = 0, AND USE THE AVERAGE OF THE
+C                           DATA TO BE ANALYZED OVER LAND.
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT/OUTPUT)
+C                 ND9 = MAXIMUM NUMBER OF FIELDS STORED IN LSTORE( , ).
+C                       SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS J IN LSTORE( ,L).  
+C                       (INPUT/OUTPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,4).
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,21+).
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       (INPUT)
+C         IPLAIN(L,J) = 32 CHARACTERS (L=1,L3264W) (J=1,4) OF PLAIN
+C                       LANGUAGE DESCRIPTION OF THE VARIABLE.
+C                       NOTE THAT THIS REQUIRES TWO 32-BIT WORDS TO HOLD
+C                       THE DESCRIPTION BUT ONLY ONE 64-BIT WORD.
+C                       (INPUT)
+C               PLAIN = THE PLAIN LANGUAGE DESCRIPTION OF THE VARIABLE
+C                       IN ID( ).  EQUIVALENCED TO IPLAIN( , ) IN
+C                       DRU155.  (CHARACTER*32)  (INPUT)
+C            IPACK(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C             DATA(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ), WORK( ), AND DATA( ).
+C                       (INPUT)
+C               MINPK = MINIMUM GROUP SIZE WHEN PACKING THE DATA.
+C                       (INPUT)
+C             CORE(J) = SPACE ALLOCATED FOR SAVING PACKED GRIDPOINT 
+C                       FIELDS (J=1,ND10).  WHEN THIS SPACE IS 
+C                       EXHAUSTED, SCRATCH DISK WILL BE USED.  THIS IS 
+C                       THE SPACE USED FOR THE MOS-2000 INTERNAL RANDOM 
+C                       ACCESS SYSTEM.  (INPUT)
+C                ND10 = THE MEMORY IN WORDS ALLOCATED TO THE SAVING OF 
+C                       DATA CORE( ).  WHEN THIS SPACE IS EXHAUSTED,
+C                       SCRATCH DISK WILL BE USED.  (INPUT)
+C              NBLOCK = BLOCK SIZE IN WORDS OF INTERNAL MOS-2000 DISK
+C                       STORAGE.  (INPUT)
+C              NFETCH = INCREMENTED EACH TIME DATA ARE FETCHED BY
+C                       GFETCH.  IT IS A RUNNING COUNT FROM THE
+C                       BEGINNING OF THE PROGRAM.  THIS COUNT 
+C                       IS MAINTAINED IN CASE THE USER NEEDS IT
+C                       (DIAGNOSTICS, ETC.).  (OUTPUT)
+C              MISTOT = RUNNING TOTAL OF RETRIEVED GRIDS WITH ONE OR
+C                       MORE MISSING VALUES.  (INPUT/OUTPUT)
+C               NSLAB = SLAB OF THE GRID CHARACTERISTICS.  RETURNED
+C                       BY GFETCH.  USED FOR CHECKING FOR EQUAL
+C                       CHARACTERISTICS OF GRIDS READ.  (OUTPUT)
+C              NCLIPY = 1 WHEN THE LARGE GRID MASK GRID IS AVAILABLE.
+C                       0 OTHERWISE.  (NOT YET IMPLEMENTED.)  (INTERNAL)
+C                CINT = CONTOUR INTERVAL FOR VARIABLE.
+C                       USED WITH SUBROUTINE PRTGR.  (INPUT)
+C              ORIGIN = CONTOUR ORIGIN FOR VARIABLE.
+C                       USED WITH SUBROUTINE PRTGR.  (INPUT)
+C               SMULT = MULTIPLICATIVE CONSTANT FOR VARIABLE.
+C                       NEW VALUE = OLD VALUE * SMULT +
+C                       SADD.  USED WITH SUBROUTINE PRTGR.  (INPUT)
+C                SADD = ADDITIVE CONSTANT FOR VARIABLE.  (INPUT)
+C                       USED WITH SUBROUTINE PRTGR.  (INPUT)
+C               TITLE = 40-CHARACTER TITLE FOR VARIABLE.  THE DATE/TIME IS 
+C                       INSERTED IN LOCATIONS 25:40.  (CHARACTER*40)
+C                       (INPUT/OUTPUT)
+C             IOPT(J) = USED FOR SUBSETTING IN PRTGR (J=1,8).
+C                       CALCULATED IN CALLING PROGRAM U405A FROM 
+C                       IOPTB( ) TO BE IN RELATION TO MESH LENGTH
+C                       OF SUBSETTED AREA MESHL.  (INPUT)
+C              JTOTBY = THE TOTAL NUMBER OF BYTES ON THE FILE ASSOCIATED
+C                       WITH UNIT NO. KFILOG. (INPUT/OUTPUT)
+C              JTOTRC = THE TOTAL NUMBER OF RECORDS IN THE FILE ON UNIT
+C                       NUMBER KFILOG. (INPUT/OUTPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C              L3264W = NUMBER OF WORDS IN 64 BITS (EITHER 1 OR 2).
+C                       (INPUT)
+C            ISTOP(J) = ISTOP(1) IS INCREMENTED BY 1 WHENEVER AN ERROR 
+C                       OCCURS AND THE PROGRAM PROCEEDS.  ISTOP IS
+C                       INCREMENTED WHEN THE FIRST CHOICE OF FIRST
+C                       GUESS IS NOT AVAILABLE (I.E., MGUESS NE 
+C                       IGUESS(1)).  ISTOP(3) IS INCREMENTED BY 1
+C                       WHEN A DATA RECORD COULD NOT BE FOUND.
+C                       (INPUT/OUTPUT)
+C                 IER = ERROR CODE. 
+C                         0 = GOOD RETURN.
+C                       777 = NO FIRST GUESS AVAILABLE.  FATAL ERROR.
+C                       (OUTPUT)
+C            MDATE(J) = NDATE PARSED INTO COMPONENTS (J=1,4):
+C                       1 = YEAR YYYY
+C                       2 = MONTH MM
+C                       3 = DAY DD
+C                       4 = HOUR HH
+C                       (INTERNAL)
+C              NWORDS = NUMBER OF WORDS IN THE FIELD READ BY GFETCH.
+C                       (INTERNAL)
+C               JTAU1 = THE FIRST PROJECTION OF GRID NEEDED FOR FIRST
+C                       GUESS.  FORECASTS ARE ASSUMED TO BE AVAILABLE
+C                       ONLY AT 3-HOUR INTERVALS.  IF THE PROJECTION
+C                       NEEDED IS NOT ONE OF THE PROJECTIONS AVAILABLE,
+C                       THEN INTERPOLATION WILL BE DONE, AND IN THAT 
+C                       CASE, JTAU1 IS THE EARLIER PROJECTION NEEDED.
+C                       (SEE JTAU2).  (INTERNAL)
+C               JTAU2 = THE SECOND PROJECTION GRID NEEDED FOR FIRST 
+C                       GUESS.  IF JTAU1 IS ONE OF THE PROJECTIONS
+C                       AVAILABLE, JTAU2 = 999 WHICH INDICATES
+C                       INTERPOLATION IS NOT NECESSARY.  (INTERNAL)
+C              TRATIO = THE FRACTION OF THE WAY BETWEEN 3-HOURLY GRIDS
+C                       TO GET THE PROJECTION NEEDED, WHEN TIME 
+C                       INTERPOLATION IS NEEDED.  WILL BE 0, 1/3, OR
+C                       2/3.  (INTERNAL)
+C             AFSTGS(J) TITLES OF FIRST GUESS OPTIONS (J=1,4).
+C                       (CHARACTER*23)  (INTERNAL)
+C                 NXD = THE X EXTENT OF THE DISPOSABLE GRID.  (INTERNAL)
+C                 NYD = THE Y EXTENT OF THE DISPOSABLE GRID.  (INTERNAL)
+C               ALATD = LL LATITUDE OF THE DISPOSABLE GRID.  TRUNCATED
+C                       TO THOUSANDS TO AGREE WITH ARCHIVE WHEN THE
+C                       GRIDS ARE THE SAME.  THIS IS NECESSARY FOR 
+C                       U203 FOR GEMPAK.  (INTERNAL)
+C               ALOND = LL LONGITUDE OF THE DISPOSABLE GRID.  SEE ALATD.
+C                       (INTERNAL)
+C               ITRPX = THE TYPE OF INTERPOLATION ACTUALLY BEING USED.
+C                       (INTERNAL)
+C            DUMMY(J) = DUMMY ARRAY TO SIMULATE CCALL( ) WHEN ENTRY
+C                       PERTAINS TO A GRID FROM FSTGS5 (J=1,ND1).
+C                      (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES CALLED
+C            TRNSFR, NWSIZE, GFETCH, CKGRID, NEWXY1, CUTIT, NWSIZE,
+C            SZGRDM, UPDAT, PRTGR, DATPRS, PSIJLL, LMIJLL, MCIJLL,
+C            PSLLIJ, LMLLIJ, MCLLIJ, PAWGTS, NOMINL, SCALX, SCLSNO,
+C            FLTAG
+C
+      CHARACTER*6 PREPRO(6),POSTDS(3)
+      CHARACTER*8 FSTGES/'FST GES '/
+      CHARACTER*8 DUMMY(ND1)
+      CHARACTER*23 AFSTGS(4)
+      CHARACTER*32 PLAIN
+      CHARACTER*40 TITLE
+      CHARACTER*60 RACESS(NUMRA)
+C
+      DIMENSION XDATA(ND1),XP(ND1),YP(ND1),XPL(ND1),YPL(ND1),LTAG(ND1)
+      DIMENSION ID(4),IDPARS(15),JD(4)
+      DIMENSION IPLAIN(L3264W,4)
+      DIMENSION P(ND2X3)
+      DIMENSION FD2(ND2X3),FD3(ND2X3),FD4(ND2X3),FD5(ND2X3),FD6(ND2X3)
+      DIMENSION SEALND(NXE*NYE),CPNDFD(NXE*NYE)
+      DIMENSION IPACK(ND5),IWORK(ND5),DATA(ND5)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION LSTORE(12,ND9)
+      DIMENSION CORE(ND10)
+      DIMENSION NGRIDC(6,ND11)
+      DIMENSION ITABLE(4,JVAL)
+      DIMENSION KFILRA(NUMRA),IGUESS(4),LD(4),MDATE(4)
+      DIMENSION MSHPAS(6,4),ITRPLQ(6,4),B(6,4)
+      DIMENSION NCAT(6),NSCALE(6),CONST(6),IPREX1(6),IPREX2(6),
+     1          PREX3(6),PREX4(6),PREX5(6)
+      DIMENSION TLOD(3),SETLOD(3),THID(3),SETHID(3),CONSTD(3),NSCALD(3),
+     1          EX1D(3),EX2D(3)
+      DIMENSION IOPT(8),JP(3),ISTOP(3)
+C
+      DATA AFSTGS/'CONSTANT               ',
+     1            'FIRST GUESS GRID       ',
+     2            'ALTERNATE FIRST GUESS  ',
+     3            'AVERAGE OF OBSERVATIONS'/
+C
+CD     CALL TIMPR(KFILDO,KFILDO,'START FSTGS5        ')
+      IER=0
+C
+C        SAVE IDPARS(12).
+C
+      IDPS12=IDPARS(12)
+C        THIS IS FOR RECYCLING TO USE UPPER AIR DATA FOR A PROJECTION
+C        6-H EARLIER PRIMARILY FOR THE 198-H MAX TEMP PROBLEM.
+C
+CD     WRITE(KFILDO,110)NXL,NYL,MESHB,ALATL,ALONL,MESHL
+CD110  FORMAT(/,' AT 110 IN FSTGS5--NXL,NYL,MESHB,ALATL,ALONL,MESHL',
+CD    1        3I6,2F10.5,10X,I6)
+C
+C        PUT DATE/TIME INTO TITLE(25:40).  FIRST PARSE IT INTO
+C        MDATE( ).
+C
+      CALL DATPRS(KFILDO,NDATE,MDATE)
+      JMIN=0
+      WRITE(TITLE(25:40),125)(MDATE(J),J=1,4),JMIN
+ 125  FORMAT(I4,1X,I2.2,1X,I2.2,1X,2I2.2,1X)
+C
+C        LOOP OVER THE 4 OPTIONS FOR FIRST GUESS IN IGUESS( ).
+C
+      DO 500 NGUESS=1,4
+C
+      IF(IGUESS(NGUESS).EQ.1)THEN
+C
+C           THIS IS A CONSTANT FIRST GUESS.
+C
+         MESH=MSHPAS(1,1)
+C           THE "CURRENT" MESH LENGTH IS THE MESH LENGTH FOR
+C           PASS 1.
+         ITRPX=ITRPLQ(1,1)
+C           ITRPX = THE TYPE OF INTERPOLATION FOR PASS 1.
+C
+         IF(MESH.LE.0)THEN
+            WRITE(KFILDO,127)MESH
+ 127        FORMAT(/' ****MESH =',I4,' INCORRECT IN FSTGS5.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+C           FILL XP( ) AND YP( ) WITH THE "CURRENT" LOCATIONS OF
+C           STATIONS, THE LOCATIONS THAT WILL CONFORM TO THE FIRST
+C           GUESS GRID.
+C
+         CALL NEWXY1(KFILDO,MESHB,XPL,YPL,MESH,XP,YP,NPROJ,NSTA)
+C
+         CALL ACTUAL(KFILDO,MESH,TRASH,AMESH,NPROJ,IER)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+         CALL ACTUAL(KFILDO,MESHB,TRASH,BMESH,NPROJ,IER)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+         CALL NWSIZE(KFILDO,BMESH,AMESH,
+     1               NXL,NYL,NX,NY,ND2X3,IER)
+C           NWSIZE COMPUTES NX,NY FOR MESH BASED ON NXL,NYL FOR MESHB
+C           = MESHB AND ASSURES ND2X3 IS LARGE ENOUGH.
+C
+CD        WRITE(KFILDO,128)MESHB,MESH,NXL,NYL,NX,NY
+CD128     FORMAT(/' AT 128 IN FSTGS5--MESHB,MESH,NXL,NYL,NX,NY',6I6)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+         DO 130 IXY=1,NX*NY
+            P(IXY)=GUESS
+ 130     CONTINUE
+C
+         MGUESS=IGUESS(NGUESS)
+C           MGUESS IS THE TYPE OF FIRST GUESS ACTUALLY USED.
+         GO TO 501
+C           TRANSFER WHEN FIRST GUESS HAS BEEN OBTAINED.
+C
+      ELSEIF(IGUESS(NGUESS).EQ.2.OR.IGUESS(NGUESS).EQ.3)THEN
+C
+C           THIS IS A GRID FOR FIRST GUESS.  IT MAY BE THE PRIMARY
+C           OR AN ALTERNATE.  THE PRIMARY CORRESPONDS TO IBACKN
+C           AND THE ALTERNATE TO IBACKL.
+C
+         IF(IGUESS(NGUESS).EQ.2)THEN
+            IBACK=IBACKN
+            ITRPX=ITRPLQ(1,2)
+C              ITRPX = THE TYPE OF INTERPOLATION FOR PASS 1.
+         ELSE
+            IBACK=IBACKL
+            ITRPX=ITRPLQ(1,3)
+C              ITRPX = THE TYPE OF INTERPOLATION FOR PASS 1.
+         ENDIF
+C
+C           CHECK WHETHER IBACK LT 0.  IF SO, THIS OPTION IS NOT USED.
+C
+         IF(IBACK.LT.0)THEN
+            WRITE(KFILDO,135)IGUESS(NGUESS),IBACK
+ 135        FORMAT(/' ****FIRST GUESS OPTION NO.',I2,
+     1              ' HAS IBACK =',I3,
+     2              '.  MUST TRY ANOTHER OPTION.')
+C              THIS IS COUNTED AS AN ISTOP( ) ERROR AT 701.
+            GO TO 500
+C
+         ENDIF
+C
+         MESH=MSHPAS(1,IGUESS(NGUESS))
+C           THE "CURRENT" MESH LENGTH IS THE MESH LENGTH FOR
+C           PASS 1.
+C
+         IF(MESH.LE.0)THEN
+            WRITE(KFILDO,127)MESH
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+C           FILL XP( ) AND YP( ) WITH THE "CURRENT" LOCATIONS OF
+C           STATIONS, THE LOCATIONS THAT WILL CONFORM TO THE FIRST
+C           GUESS GRID.
+C
+         CALL NEWXY1(KFILDO,MESHB,XPL,YPL,MESH,XP,YP,NPROJ,NSTA)
+C
+         CALL ACTUAL(KFILDO,MESH,TRASH,AMESH,NPROJ,IER)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+         CALL ACTUAL(KFILDO,MESHB,TRASH,BMESH,NPROJ,IER)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+C           COMPUTE NX,NY FOR MESH, THE WORKING MESH LENGTH,
+C           BASED ON NXL,NYL FOR MESHB.  BMESH IS THE FP VERSION
+C           OF MESHB AND AMESH IS THE FP VERSION OF MESH THAT
+C           ARE EXACT MULTIPLES OF 2 OF EACH OTHER.
+
+         CALL NWSIZE(KFILDO,BMESH,AMESH,
+     1               NXL,NYL,NX,NY,ND2X3,IER)
+C           NWSIZE COMPUTES NX,NY FOR MESH BASED ON NXL,NYL FOR MESHB
+C           AND ASSURES ND2X3 IS LARGE ENOUGH.
+C
+CD        WRITE(KFILDO,136)IGUESS(NGUESS),IBACK,MESHB,MESH,NXL,NYL,NX,NY
+CD136     FORMAT(/' AT 136 IN FSTGS5--',
+CD    1           'IGUESS(NGUESS),IBACK,MESHB,MESH,NXL,NYL,NX,NY',8I6)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+ 138     KDATE=NDATE
+C
+C           LOOK FOR UP TO IBACK RUN CYCLES OF FIRST GUESS AT 6-H 
+C           INTERVALS.  FOR IBACK = 3, THIS WILL GO BACK 18 HOURS
+C           WHETHER 6-H RUNS ARE THERE OR NOT.  (IF THIS IS USED
+C           FOR LAMP, A MOD WILL LIKELY NEED TO BE MADE.)
+C
+         DO 200 KCYCLE=0,IBACK
+            NHR=KDATE-(KDATE/100)*100
+C              NHR IS THE HOUR OF THE RUN.  IT IS EXPECTED THIS WILL BE
+C              0, 6, 12, OR 18 FOR MOS, BUT CAN BE ANY HOUR FOR LAMP
+C              OR OBS.
+            IHR=MOD(NHR,6)
+C              IHR IS THE CYCLE OF THE FIRST GUESS AT 6-H INTERVALS.
+C              IF IT IS AVAILABLE ONLY EVERY 12, IT STILL WORKS SO
+C              LONG AS IBACK IS LARGE ENOUGH.
+            CALL UPDAT(KDATE,-IHR,JDATE) 
+C              JDATE IS THE DATE OF THE FIRST GUESS GRID NEEDED.
+C
+C              IT IS ASSUMED THE FIRST GUESS FORECAST RUN TIMES ARE
+C              ARE AVAILABLE AT 6-H INTERVALS AND THE PROJECTIONS
+C              ARE AVAILABLE AT 3-H INTERVALS.  USE THE CORRECT
+C              PROJECTION IF IT IS AVAILABLE; IF NOT, USE LINEAR
+C              INTERPOLATION IN TIME.
+C
+            IF(IDPARS(12).EQ.0)THEN
+C                 WITH A TAU OF ZERO, THIS IS HOURLY DATA ANALYSIS.
+C                 MOS AND LAMP WILL NEVER HAVE A TAU OF ZERO.
+               IF(MOD(IHR,3).EQ.0)THEN
+                  JTAU1=IHR+KCYCLE*6
+                  JTAU2=999
+                  TRATIO=0
+               ELSE
+                  JTAU1=IHR-MOD(IHR,3)+KCYCLE*6
+                  JTAU2=JTAU1+3
+                  TRATIO=MOD(IHR,3)/3.
+               ENDIF
+C
+            ELSEIF(MOD(IDPARS(12),3).EQ.0.AND.MOD(IHR,3).EQ.0)THEN
+C                 COMES HERE FOR MOS AT 3-H PROJECTIONS OR LAMP
+C                 WHEN THE RUN TIME AND PROJECTION ARE BOTH EVENLY
+C                 DIVISIBLE BY 3.
+               JTAU1=IDPARS(12)+MOD(IHR,6)+KCYCLE*6
+C                 IF THIS IS A PREVIOUS CYCLE, THE PROJECTION IS
+C                 ADVANCED TO MATCH THE DATA BY KCYCLE*6 HOURS.
+               JTAU2=999
+               TRATIO=0
+            ELSE
+C                 COMES HERE ONLY FOR LAMP.
+               JTAU1=IDPARS(12)-MOD(IDPARS(12),3)+3+KCYCLE*6
+C                 IF THIS IS A PREVIOUS CYCLE, THE PROJECTION IS
+C                 ADVANCED TO MATCH THE DATA BY KCYCLE*6 HOURS.
+               JTAU2=JTAU1+3
+               TRATIO=MOD(NHR,3)/3.
+            ENDIF
+C              GET THE FIRST GUESS.
+C
+            LD(1)=ITABLE(1,IGUESS(NGUESS)+1)
+C              THE DD MUST COME IN.  THIS WAY, MOS CAN FURNISH A FG
+C              FOR LAMP, GFS FOR WRF, ETC.
+            LD(2)=ITABLE(2,IGUESS(NGUESS)+1)
+            LD(3)=JTAU1
+            LD(4)=ITABLE(4,IGUESS(NGUESS)+1)
+C            
+CCC            WRITE(KFILDO,140)NGUESS,(IGUESS(JJJ),JJJ=1,4)
+CCC 140        FORMAT(/' AT 140 IN FSTGS5--NGUESS,IGUESS(JJJ),JJJ=1,4)',
+CCC     1              5I12)
+C
+CCC            DO 142 LLL=1,JVAL
+CCC            WRITE(KFILDO,141)LLL,(ITABLE(JJJ,LLL),JJJ=1,4)
+CCC 141        FORMAT('   LLL,ITABLE(JJJ,LLL)',5I12)
+CCC 142        CONTINUE
+C
+            CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1                  IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,DATA,ND5,
+     2                  NWORDS,NPACK,JDATE,NTIMES,CORE,ND10,
+     3                  NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+            IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+C              LOOK FOR PROBABILISTIC DATA BY CHANGING THE SECOND WORD
+C
+            IF((IER.NE.0).AND.
+     1        ((IDPARS(4).EQ.61).OR.(IDPARS(4).EQ.62).OR.
+     2         (IDPARS(4).EQ.63)))THEN
+               LD(2)=IDPARS(6)*10000
+               CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1                  IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,DATA,ND5,
+     2                  NWORDS,NPACK,JDATE,NTIMES,CORE,ND10,
+     3                  NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+               IF(MISSP.NE.0)MISTOT=MISTOT+1
+            ENDIF
+C
+C              IF THIS GRID COULD NOT BE OBTAINED OR THE GRID CHARACTERISTICS
+C              WERE NOT WHAT WAS EXPECTED, COUNT IT AS A GRID THAT COULD 
+C              NOT BE OBTAINED BY INCREMENTING ISTOP(3).
+C
+            IF(IER.NE.0)THEN
+               ISTOP(3)=ISTOP(3)+1
+               GO TO 190
+            ENDIF
+C
+C              CHECK GRID PARAMETERS.
+C
+            CALL CKGRID(KFILDO,LD,NPROJ,ORIENT,XLAT,IS2,ND7,IER)
+C
+            IF(IER.NE.0)THEN
+               ISTOP(3)=ISTOP(3)+1
+               GO TO 190
+            ENDIF
+C
+C***D           DO 145 JY=1,IS2(4)
+C***D           ISTART=(JY-1)*IS2(3)+1
+C***D           WRITE(KFILDO,144)JY,(DATA(IX),IX=ISTART,ISTART+IS2(3)-1)
+C***D 144       FORMAT(' IN FSTGS5 AT 144, ROW =',I5,/,(' ',15F8.0))
+C***D 145       CONTINUE
+C
+C              IT IS ASSUMED THE FIRST GUESS IS ON A PARTICULAR GRID.
+C              IF THIS IS NOT FOUND, TRY ANOTHER RUN CYCLE.  CKGRID 
+C              ASSURES THE MAP PROJECTION (NPROJ), THE ORIENTATION
+C              (ORIENT), AND THE LATITUDE OF MESH LENGTH (XLAT) ARE
+C              WHAT ARE EXPECTED AND THAT THE MESH LENGTH IS ONE OF
+C              THE PERMISSIBLE ONES.  IT IS NOT ASSURED AT THIS POINT
+C              THAT THE LOCATION OF THE GRID, THE MESH LENGTH, OR THE
+C              DIMENSIONS OF THE GRID ARE WHAT ARE WANTED.
+C
+C              THE INPUT GRID AT ITS SIZE AND LOCATION IS IN DATA( ).
+C              POSITION THIS GRID (WITH THE SAME GRID LENGTH) OVER THE 
+C              ANALYSIS AREA.  ALATL AND ALONL REFER TO THE MESH
+C              LENGTH MESHB.  IS2(8) IS IN MILLIMETERS; PSLLIJ, LMLLIJ,
+C              AND MCLLIJ NEED METERS.  IS2(5) AND IS2(6) ARE IN
+C              TENTHS OF MILLIDEGREES.
+C 
+            IF(NPROJ.EQ.3)THEN
+               CALL LMLLIJ(KFILDO,ALATL,ALONL,IS2(8)/1000.,ORIENT,XLAT,
+     1                     (IS2(5)/10000.),(IS2(6)/10000.),
+     2                     XIFG,YJFG)
+            ELSEIF(NPROJ.EQ.5)THEN
+               CALL PSLLIJ(KFILDO,ALATL,ALONL,IS2(8)/1000.,ORIENT,XLAT,
+     1                     (IS2(5)/10000.),(IS2(6)/10000.),
+     2                     XIFG,YJFG)
+            ELSEIF(NPROJ.EQ.7)THEN
+               CALL MCLLIJ(KFILDO,ALATL,ALONL,IS2(8)/1000.,XLAT,
+     1                     (IS2(5)/10000.),(IS2(6)/10000.),
+     2                     XIFG,YJFG)
+            ELSE
+               WRITE(KFILDO,146)NPROJ
+ 146           FORMAT(/' ****MAP PROJECTION NUMBER NPROJ =',I3,
+     1                 ' NOT 3, 5, OR 7.  FATAL ERROR IN FSTGS5 AT',
+     2                 ' 146.')
+               ISTOP(1)=ISTOP(1)+1
+               IER=777
+               GO TO 800
+            ENDIF
+C
+            CALL NOMINL(KFILDO,IS2(8)/1000000.,MESHI,AMESHI,NPROJ,IER)
+C              MESHI IS THE GRID INPUT MESH LENGTH.
+C              IS2(8) IS IN KM*1000000; MESHI IS IN KM.
+C
+            IF(IER.NE.0)THEN
+               ISTOP(1)=ISTOP(1)+1
+               IER=777
+               GO TO 800
+            ENDIF
+C 
+C              COMPUTE RATIO, THE RATIO OF THE BASE MESHLENGTH BMESH
+C              TO AMESH THE INCOMING MESHLENGTH.  THEN COMPUTE NXI, NYI,
+C              THE EXTENTS OF THE GRID AT MESHLENGTH AMESH.
+C
+            RATIO=AMESH/AMESHI
+            NXI=NINT((NXL-1)*RATIO)+1
+            NYI=NINT((NYL-1)*RATIO)+1
+            NXOFF=NINT(XIFG)-1
+            NYOFF=NINT(YJFG)-1
+C
+CD           WRITE(KFILDO,147)RATIO,MESH,MESHI,TRASH,AMESH,AMESHI,
+CD    1                      NXI,NYI,NXOFF,NYOFF
+CD147        FORMAT(/' AT 147 IN FSTGS5--',
+CD    1              'RATIO,MESH,MESHI,TRASH,AMESH,AMESHI,',
+CD    2              'NXI,NYI,NXOFF,NYOFF',/,F8.5,2I8,3F12.6,4I8)
+CD           WRITE(KFILDO,1470)XIFG,YJFG,IS2(3),IS2(4)
+CD1470       FORMAT(' AT 1470 IN FSTGS5--XIFG,YJFG,IS2(3),IS2(4)',
+CD    1              2F12.5,2I12)
+C
+C              THE INCOMING GRID IS IS2(3) BY IS2(4).  IT HAS TO
+C              BE ASSUMED IT IS AT THE BASE MESHLENGTH MESHB.
+C              THE PURPOSE OF CUTIT IS ONLY TO POSITION THE INCOMING
+C              GRID ONTO THE NXL BY NYL AREA, WITH NO CHANGE IN
+C              MESHLENGTH.
+
+            IF(NXOFF.NE.0.OR.NYOFF.NE.0.OR.IS2(3).NE.NXL.
+     1                                  OR.IS2(4).NE.NYL)THEN
+               CALL CUTIT(KFILDO,DATA,IS2(3),IS2(4),NXOFF,NYOFF,
+     1                    DATA,NXI,NYI,IER)
+C                 IS2(3) AND IS2(4) ARE THE INPUT GRID DIMENSIONS IN
+C                 DATA( ).  NXI AND NYI ARE THE OUTPUT GRID DIMENSIONS
+C                 IN DATA( ).  THERE IS NO NEED TO CALL CUTIT IF 
+C                 THE INPUT AND OUTPUT GRIDS ARE THE SAME.  THIS
+C                 ONLY PUTS THE INCOMING GRID ON THE GRID NEEDED,
+C                 AND WOULD ONLY BE NEEDED IF THE INCOMING GRID
+C                 DID NOT MATCH EXACTLY THE GRID BEING USED.
+CD           ELSE
+CD              WRITE(KFILDO,535)
+            ENDIF
+C
+            IF(IER.NE.0)THEN
+               ISTOP(1)=ISTOP(1)+1
+               GO TO 190
+            ENDIF
+C
+CD           WRITE(KFILDO,1475)
+CD1475       FORMAT(/' AT 1475 IN FSTGS5, CALLING SZGRID.')
+C
+            NXT=NXI
+            NYT=NYI
+            CALL SZGRDM(KFILDO,DATA,NXT,NYT,MESHI,MESH,ITRPX,
+     1                  ND2X3)
+C              NXT AND NYT ARE THE DIMENSIONS IN OF THE INPUT
+C              GRID IN DATA( ), WHICH COVERS THE EXACT AREA NEEDED.
+C              THEY ARE CHANGED, IF NECESSARY, TO REFLECT THE 
+C              MESHLENGTH MESH RATHER THAN MESHI.  THEY WILL NOW AGREE
+C              WITH NX,NY CALCULATED PREVIOUSLY.  NXT AND NYT ARE
+C              THROWAWAY AND WILL NOT BE NEEDED AGAIN.
+C
+            IF(NXT.NE.NX.OR.NYT.NE.NY)THEN
+               WRITE(KFILDO,148)NX,NXT,NY,NYT
+ 148           FORMAT(/' ****NX AND NXT =,',2I6,' OR NY AND NYT =',2I6,
+     1                 ' DO NOT AGREE AT 148 IN FSTGS5.  FATAL ERROR.')
+               ISTOP(1)=ISTOP(1)+1
+               IER=777
+               GO TO 800
+            ENDIF
+C
+C              THE DATA HAVE TO BE RETRIEVED IN DATA( ) BECAUSE THE
+C              DIMENSION OF THE INCOMING MAY BE GT ND2X3.  CUTIT
+C              AND SZGRDM PUT IT ON AN NX BY NY GRID, SO P( ) WILL NOT BE 
+C              OVERFLOWED.
+C
+            DO 150 IXY=1,NX*NY  
+            P(IXY)=DATA(IXY)
+ 150        CONTINUE           
+C
+C              AT THIS POINT, THE FIRST GUESS FOR THE 1ST PROJECTION
+C              NEEDED FOR (POSSIBLE) TIME INTERPOLATION HAS BEEN READ 
+C              INTO P( ).  THE GRID CHARACTERISTICS ARE REPRESENTED 
+C              BY NSLAB FROM GFETCH AND THE TOTAL SIZE OF THE GRID 
+C              IS REPRESENTED BY NWORDS.  TRY FOR THE SECOND GRID.
+C
+            IF(JTAU2.EQ.999)GO TO 169
+C              TRANSFER WHEN NO SECOND FIELD NECESSARY.
+C
+            LX=IS2(3)
+            LY=IS2(4)
+C              THE DIMENSIONS OF THE FIRST GRID ARE SAVED TO MAKE SURE
+C              THE SECOND IS OF THE SAME SIZE.
+            LD(3)=JTAU2        
+C
+            CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1                  IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,DATA,ND5,
+     2                  NWORDS,NPACK,JDATE,NTIMES,CORE,ND10,
+     3                  NBLOCK,NFETCH,LSLAB,MISSP,MISSS,L3264B,1,IER)
+            IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+            IF(IER.NE.0)THEN
+               ISTOP(3)=ISTOP(3)+1
+               GO TO 190
+C                 IF THE GRID IS NOT AVAILABLE, TRY ANOTHER RUN CYCLE. 
+            ENDIF
+C
+C              CHECK GRID PARAMETERS.
+C
+            CALL CKGRID(KFILDO,LD,NPROJ,ORIENT,XLAT,IS2,ND7,IER)
+C
+            IF(IER.NE.0)THEN
+               ISTOP(3)=ISTOP(3)+1
+               GO TO 190
+C                 IF THE GRID IS NOT AVAILABLE, TRY ANOTHER RUN CYCLE. 
+            ENDIF
+C
+C              AT THIS POINT, TWO FIELDS HAVE BEEN RETURNED.
+C              MUST MAKE SURE THE GRIDS ARE THE SAME; CKGRID CHECKS
+C              ONLY CERTAIN THINGS.
+C
+            IF(NSLAB.NE.LSLAB.OR.LX.NE.IS2(3).OR.LY.NE.IS2(4))THEN
+               WRITE(KFILDO,155)NSLAB,LSLAB,LX,LY,IS2(3),IS2(4)
+ 155           FORMAT(/' ****TWO GRIDS OBTAINED IN FSTGS5 DO NOT',
+     1                 ' HAVE THE SAME CHARACTERISTICS AT 155'/
+     2                 '     NSLAB LSLAB   LX   LY IS2(3) IS2(4)'/
+     3                  I10,I6,I5,I5,I7,I7/
+     4                 '     TRY ANOTHER CYCLE.')
+               GO TO 190
+            ENDIF
+C
+C              THE INCOMING GRID IS IS2(3) BY IS2(4).  IT HAS TO
+C              BE ASSUMED IT IS AT THE BASE MESHLENGTH MESHB.
+C              THE PURPOSE OF CUTIT IS ONLY TO POSITION THE INCOMING
+C              GRID ONTO THE NXL BY NYL AREA, WITH NO CHANGE IN
+C              MESHLENGTH.
+C
+            IF(NXOFF.NE.0.OR.NYOFF.NE.0.OR.IS2(3).NE.NXI.
+     1                                  OR.IS2(4).NE.NYI)THEN
+               CALL CUTIT(KFILDO,DATA,IS2(3),IS2(4),NXOFF,NYOFF,
+     1                    DATA,NXI,NYI,IER)
+C                 IS2(3) AND IS2(4) ARE THE INPUT GRID DIMENSIONS IN
+C                 DATA( ).  NXI AND NYI ARE THE OUTPUT GRID DIMENSIONS
+C                 IN DATA( ).  THERE IS NO NEED TO CALL CUTIT IF 
+C                 THE INPUT AND OUTPUT GRIDS ARE THE SAME.  THIS
+C                 ONLY PUTS THE INCOMING GRID ON THE GRID NEEDED,
+C                 AND WOULD ONLY BE NEEDED IF THE INCOMING GRID
+C                 DID NOT MATCH EXACTLY THE GRID BEING USED.
+CD           ELSE
+CD              WRITE(KFILDO,535)
+            ENDIF
+C
+            IF(IER.NE.0)THEN
+               ISTOP(1)=ISTOP(1)+1
+               GO TO 190
+            ENDIF
+C
+CD           WRITE(KFILDO,1595)
+CD1595       FORMAT(/' AT 1595 IN FSTGS5, CALLING SZGRDM.')
+C
+            NXT=NXI
+            NYT=NYI
+            CALL SZGRDM(KFILDO,DATA,NXI,NYI,MESHI,MESH,ITRPX,
+     1                  ND2X3)
+C              NXT AND NYT ARE THE DIMENSIONS IN OF THE INPUT
+C              GRID IN DATA( ), WHICH COVERS THE EXACT AREA NEEDED.
+C              THEY ARE CHANGED, IF NECESSARY, TO REFLECT THE 
+C              MESHLENGTH MESH RATHER THAN MESHI.  THEY WILL NOW AGREE
+C              WITH NX,NY CALCULATED PREVIOUSLY.  NXT AND NYT ARE
+C              THROWAWAY AND WILL NOT BE NEEDED AGAIN.
+C
+            IF(NXT.NE.NX.OR.NYT.NE.NY)THEN
+               WRITE(KFILDO,160)NX,NXT,NY,NYT
+ 160           FORMAT(/' ****NX AND NXT =,',2I6,' OR NY AND NYT =',2I6,
+     1                 ' DO NOT AGREE AT 160 IN FSTGS5.  FATAL ERROR.')
+               ISTOP(1)=ISTOP(1)+1
+               IER=777
+               GO TO 800
+            ENDIF
+C
+C
+            DO 165 IXY=1,NX*NY
+               P(IXY)=(DATA(IXY)-P(IXY))*TRATIO+P(IXY)
+ 165        CONTINUE
+C
+ 169        IF(ID(1)/1000.EQ.001201)THEN
+C
+C                 CONVERT SLP IN PASCALS TO MB.
+C
+               DO 170 IXY=1,NX*NY
+                  P(IXY)=P(IXY)*.01
+ 170           CONTINUE
+C
+            ELSEIF(ID(1)/1000.EQ.002301.OR.ID(1)/1000.EQ.003301)THEN
+C
+C              CONVERT MODEL 1000-MB TEMPERATURE OR DEW POINT FROM
+C              DEG K TO DEG F.
+C
+               F=9./5.
+C
+               DO 180 IXY=1,NX*NY
+                  P(IXY)=(P(IXY)-273.)*F+32.
+ 180           CONTINUE
+            ENDIF
+C
+            MGUESS=IGUESS(NGUESS)
+C              MGUESS IS THE TYPE OF FIRST GUESS ACTUALLY USED.
+C
+            IF(NBLEND.NE.0)THEN
+C                 WHEN NBLEND NE 0, USE THE AVERAGE OVER LAND AND THE
+C                 DATA OBTAINED ABOVE ONLY OVER WATER.  THIS HAS TO BE
+C                 DONE IN A SUBROUTINE TO USE DOUBLE SUBSCRIPTING.
+C
+C                 USE FLTAG WITH RMAX = 0. AND LTAG( ) TO DETERMINE
+C                 AREA OVER WHICH TO COMPUTE THE AVERAGE (IF NEEDED)
+C                 AND IN THE CALLING PROGRAM TO COUNT THE STATIONS
+C                 IN THE ANALYSIS AREA.
+C
+               CALL FLTAG(KFILDO,XDATA,XP,YP,LTAG,NSTA,
+     1                    NX,NY,0.)
+C
+C                 ASSIGN AVERAGE VALUE OF DATA BEING ANALYZED TO 
+C                 LAND GRIDPOINTS IN THE FIRST GUESS GRID FIELD
+C                 WHEN BLEND IS USED.
+C
+C                 THE DATA ARE IN XDATA( ).  ONLY DATA FOR WHICH
+C                 LTAG( ) = 0 CAN BE USED.  MISSING DATA HAVE
+C                 BEEN CHECKED FOR IN FLTAG.
+C
+               K1=0
+               SUM=0.
+C
+               DO 181 K=1,NSTA
+                  IF(LTAG(K).NE.0)GO TO 181
+                  K1=K1+1
+                  SUM=SUM+XDATA(K)
+ 181           CONTINUE
+C
+               IF(K1.NE.0)THEN
+                  CONSTX=SUM/K1
+C******************************************
+C TEST TEST TEST TEST TEST TEST WITH FG = 0, DATA CAN BE READ ON BLANK MAP.
+CCC                  CONSTX=0.
+C******************************************
+        
+                  WRITE(KFILDO,182)K1,CONSTX,(ID(J),J=1,4),TITLE(1:16)
+ 182              FORMAT(/,' AVERAGE OF',I6,' VALUES USED',
+     1                     ' FOR LAND POINTS = ',F8.2,' FOR VARIABLE ',
+     2                      3I10.9,I10.3,' ',A16)
+C
+               ELSE
+                  WRITE(KFILDO,183)
+ 183              FORMAT(/,' ****NO OBSERVATIONS IN FSTGS5 WHEN TRYING',
+     1                     ' TO AVERAGE FOR MERGED FIRST GUESS.',
+     2                     '  CONSTANT GUESS USED.  PROCEEDING.')
+                  CONSTX=GUESS
+                  ISTOP(1)=ISTOP(1)+1
+                  GO TO 500
+C         
+               ENDIF
+C
+C                 WHEN DATA IN XDATA( ) HAVE BEEN SCALED, AND MERGING
+C                 IS DONE, THE SCALING OF THE COMPLETE GRID IS DONE IN
+C                 THE SCALING ROUTINE (E.G., SCLASKY), SO THE DATA
+C                 HAVE TO BE "DESCALED" HERE BEFORE MERGING.
+C
+               CONSTS=CONSTX
+C
+               DO 184 NN=1,6
+C
+               IF(PREPRO(NN).EQ.'SCLSKY')THEN
+C                    WILL PROBABLY NEED TO LOOK FOR OTHER SCALING
+C                    ROUTINES.
+                  CONSTS=CONSTX*(10.**(-1*(NSCALE(NN))))/CONST(NN)
+                  WRITE(KFILDO,1835)CONSTX,CONSTS,CONST(NN),NSCALE(NN)
+ 1835             FORMAT(/' IN FSTGS AT 1835--',
+     1                  'CONSTX,CONSTS,CONST(NN),NSCALE(NN),',3F10.2,I3)               
+               ENDIF
+C
+ 184           CONTINUE
+C               
+               CALL BLEND(KFILDO,P,NX,NY,MESH,
+     1                    SEALND,NXE,NYE,MESHE,CONSTS,IER)
+C                  IF IER IS NE 0, A DIAGNOSTIC WILL HAVE BEEN WRITTEN,
+C                  AND THE PROGRAM CAN PROCEED.  THE OVERRIDE JUST WILL
+C                  NOT HAVE OCCURRED, AND P( , ) WILL BE USED
+C                  EVERYWHERE.
+C
+               IF(IER.EQ.0)THEN
+                   WRITE(KFILDO,185)CONSTX
+ 185               FORMAT(/,' BLEND OF MODEL FG OVER WATER AND GUESS =',
+     1                     F10.3,' OVER LAND.')
+               ELSE
+                  WRITE(KFILDO,186)
+ 186              FORMAT(/,' ****BLEND FAILED.  MODEL FG USED.')
+                  ISTOP(1)=ISTOP(1)+1
+               ENDIF
+C
+            ENDIF
+C
+            GO TO 501
+C              TRANSFER WHEN FIRST GUESS HAS BEEN OBTAINED.
+C
+C              AT THIS POINT, THE MODEL FIRST GUESS HAS NOT BEEN
+C              OBTAINED.  TRY ANOTHER RUN CYCLE UNLESS KCYCLE.EQ.IBACK.
+C
+ 190        IF(KCYCLE.LT.IBACK)THEN
+               WRITE(KFILDO,192)(LD(J),J=1,4),JDATE
+ 192           FORMAT('     FIRST GUESS GRID ',3I10.9,I10.3,
+     1                '  UNAVAILABLE FOR DATE',I11,
+     2                '  TRY ANOTHER CYCLE.')
+C                 PREPARE DATE/TIME.
+               CALL UPDAT(KDATE,-6,KDATE) 
+            ELSE
+               WRITE(KFILDO,193)(LD(J),J=1,4),JDATE
+ 193           FORMAT('     FIRST GUESS GRID ',3I10.9,I10.3,
+     1                '  UNAVAILABLE FOR DATE',I11,
+     2                '  TRY ANOTHER OPTION.')
+            ENDIF
+C
+ 200     CONTINUE
+C
+C           DROP THROUGH HERE MEANS DATA WERE NOT RETRIEVED.  TRY A
+C           FORECAST FOR 6-H EARLIER PROJECTION.
+C
+         IF(IDPS12.EQ.IDPARS(12))THEN
+            IDPARS(12)=IDPARS(12)-6
+            WRITE(KFILDO,242)(ID(M1),M1=1,4)
+ 242        FORMAT(/,' FIRST GUESS FOR VARIABLE ',
+     1              I9.9,I10.9,I10.9,I4.3,' NOT AVAILABLE.  TRY A',
+     2              ' FORECAST FOR 6-H EARLIER PROJECTION.')
+            GO TO 138 
+         ENDIF
+C
+C              A FALL THROUGH HERE MEANS FIRST GUESS GRID HAS NOT
+C              BEEN OBTAINED.  TRY ANOTHER OPTION.
+C
+         IDPARS(12)=IDPS12
+         GO TO 500
+C
+      ELSEIF(IGUESS(NGUESS).EQ.4)THEN
+C
+C           ASSIGN THE AVERAGE OF ALL OBSERVATIONS AS A FIRST GUESS.
+C
+         MESH=MSHPAS(1,4)
+C           THE "CURRENT" MESH LENGTH IS THE MESH LENGTH FOR
+C           PASS 1.
+            ITRPX=ITRPLQ(1,4)
+C              ITRPX = THE TYPE OF INTERPOLATION FOR PASS 1.
+C
+         IF(MESH.LE.0)THEN
+            WRITE(KFILDO,127)MESH
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+C           FILL XP( ) AND YP( ) WITH THE "CURRENT" LOCATIONS OF
+C           STATIONS, THE LOCATIONS THAT WILL CONFORM TO THE FIRST
+C           GUESS GRID.
+C
+         CALL NEWXY1(KFILDO,MESHB,XPL,YPL,MESH,XP,YP,NPROJ,NSTA)
+C
+         CALL ACTUAL(KFILDO,MESH,TRASH,AMESH,NPROJ,IER)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+         CALL ACTUAL(KFILDO,MESHB,TRASH,BMESH,NPROJ,IER)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+         CALL NWSIZE(KFILDO,BMESH,AMESH,
+     1               NXL,NYL,NX,NY,ND2X3,IER)
+C           NWSIZE COMPUTES NX,NY FOR MESH BASED ON NXL,NYL FOR
+C           MESHB AND ASSURES ND2X3 IS LARGE ENOUGH.
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+C           USE FLTAG WITH RMAX = 0. AND LTAG( ) TO DETERMINE
+C           AREA OVER WHICH TO COMPUTE THE AVERAGE (IF NEEDED)
+C           AND IN THE CALLING PROGRAM TO COUNT THE STATIONS
+C           IN THE ANALYSIS AREA.
+C
+         CALL FLTAG(KFILDO,XDATA,XP,YP,LTAG,NSTA,
+     1              NX,NY,0.)
+C
+C           ASSIGN AVERAGE VALUE OF DATA BEING ANALYZED TO 
+C           EVERY GRIDPOINT IN THE FIRST GUESS GRID FIELD.
+C           THE DATA ARE IN XDATA( ).  ONLY DATA FOR WHICH
+C           LTAG( ) = 0 CAN BE USED.  MISSING DATA HAVE
+C           BEEN CHECKED FOR IN FLTAG.
+C
+         K1=0
+         SUM=0.
+C
+         DO 320 K=1,NSTA
+            IF(LTAG(K).NE.0)GO TO 320
+            K1=K1+1
+            SUM=SUM+XDATA(K)
+ 320     CONTINUE
+C
+         CONSTX=0.
+C
+         IF(K1.NE.0)THEN
+            CONSTX=SUM/K1
+C
+            DO 330 IXY=1,NX*NY
+               P(IXY)=CONSTX
+ 330        CONTINUE
+C
+            WRITE(KFILDO,340)K1,CONSTX,(ID(J),J=1,4),TITLE(1:16)
+ 340        FORMAT(/,' AVERAGE OF',I6,' VALUES USED',
+     1               ' FOR FIRST GUESS = ',F8.2,' FOR VARIABLE ',
+     2               3I10.9,I10.3,' ',A16)
+C
+         ELSE
+            WRITE(KFILDO,350)
+ 350        FORMAT(/' ****NO OBSERVATIONS IN FSTGS5 WHEN TRYING',
+     1              ' TO AVERAGE.')
+            GO TO 500
+C         
+         ENDIF
+C
+         MGUESS=IGUESS(NGUESS)
+C           MGUESS IS THE TYPE OF FIRST GUESS ACTUALLY USED.
+         GO TO 501
+C           TRANSFER WHEN FIRST GUESS HAS BEEN OBTAINED.
+      ENDIF
+C
+ 500  CONTINUE
+C
+C        DROP THROUGH HERE MEANS FIRST GUESS HAS NOT BEEN
+C        OBTAINED.  THIS IS COUNTED AS A FATAL ERROR.
+C
+      WRITE(KFILDO,5000)(ID(J),J=1,4),TITLE(1:16)
+ 5000 FORMAT(/' ****FIRST GUESS COULD NOT BE OBTAINED FOR VARIABLE ',
+     1        3I10.9,I10.3,'   ',A16)
+C
+C        SET P( ) = 9999. FOR SAFETY.  NOTE THAT NX, NY, NXP,
+C        AND NYP ARE NOT DEFINED.  ALSO, XP( ) AND YP( ) WILL
+C        EITHER NOT BE DEFINED OR MAY NOT BE CORRECT.
+C
+      DO 5005 IXY=1,ND2X3
+      P(IXY)=9999.
+ 5005 CONTINUE
+C
+      MGUESS=1
+C        MGUESS SET FOR SAFETY.  THIS SHOULD BE A FATAL ERROR
+C        IN CALLING ROUTINE.  NOTE THAT IT DOES NOT CAUSE THE
+C        DIAGNOSTIC AT 700.
+      ISTOP(1)=ISTOP(1)+1
+      IER=777
+      GO TO 800
+C
+C         USE FLTAG WITH RMAX = 0. AND LTAG( ) TO DETERMINE
+C         IN THE CALLING PROGRAM THE AREA OVER WHICH TO COUNT
+C         THE STATIONS.  THIS NEED NOT BE DONE IF DONE ABOVE
+C         IN COMPUTING THE AVERAGE.
+C
+ 501  IF(IGUESS(NGUESS).NE.4)THEN
+         CALL FLTAG(KFILDO,XDATA,XP,YP,LTAG,NSTA,
+     1              NX,NY,0.)
+      ENDIF
+C
+C*******************NOTE THAT CLIPPING OF CONSTANT GRIDS CAN BE
+C                   PUT IN LATER WHEN THE CLIPPING GRID IS AVAILABLE.
+C                   (IS THERE AN ADVANTAGE?)
+C***************************************************************
+C
+CD     WRITE(KFILDO,502)MGUESS,NX,NY,(PREPRO(NN),NN=1,6)
+CD502  FORMAT(' AT 502 IN FSTGS5--MGUESS,NX,NY,PREPRO( )',3I6,6(2X,A6))
+C
+C        DO ANY PREPROCESSING ON INPUT DATA NECESSARY.  THIS
+C        ASSUMES THE PREPROCESSING ON THE FIRST GUESS WILL
+C        BE THE SAME AS ON THE INPUT VECTOR DATA WHEN
+C        MGUESS = 2, OR 3.
+C
+      DO 5185 NN=1,6
+C
+      IF(PREPRO(NN).EQ.'SCALX '.AND.
+     1         (MGUESS.EQ.2.OR.MGUESS.EQ.3))THEN
+C           NOTE THAT WHEN MGUESS=1, THE CONSTANT SHOULD NOT HAVE
+C           TO BE SCALED, AND WHEN MGUESS = 4, THE DATA FROM WHICH
+C           THE AVERAGE WAS COMPUTED WERE ALREADY SCALED IN U405A.
+         CALL SCALX(KFILDO,P,NX*NY,CONST(NN),NSCALE(NN),IER)
+C           THE ABOVE CALL TO SCALX WILL MULTIPLY THE INPUT 
+C           DATA IN P( ) BY 10**2 (E.G., POPS ARE ANALYZED IN
+C           UNITS OF PERCENT).
+C
+         IF(IER.NE.0)THEN
+C              ACTUALLY, SCALX CURRENTLY HAS NO NON-ZERO ERROR RETURN.
+            WRITE(KFILDO,504)IER
+ 504           FORMAT(/'     FATAL ERROR AT 504 IN SCALX FROM FSTGS5,',
+     1                 ' IER =',I4)
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+      ELSEIF(PREPRO(NN).EQ.'SCALXI'.AND.
+     1         (MGUESS.EQ.2.OR.MGUESS.EQ.3))THEN
+C           NOTE THAT WHEN MGUESS=1, THE CONSTANT SHOULD NOT HAVE
+C           TO BE SCALED, AND WHEN MGUESS = 4, THE DATA FROM WHICH
+C           THE AVERAGE WAS COMPUTED WERE ALREADY SCALED IN U405A.
+         CALL SCALXI(KFILDO,P,NX*NY,CONST(NN),NSCALE(NN),IER)
+C           THE ABOVE CALL TO SCALXI WILL MULTIPLY THE INPUT 
+C           DATA IN P( ) BY 10**2 AND ROUND TO WHOLE PERCENT
+C           (E.G., POPS ARE ANALYZED IN UNITS OF PERCENT; THE ROUNDING
+C           KEEPS THE PLOTTING PROGRAM FROM TRUNCATING TO INTEGERS.)
+C
+         IF(IER.NE.0)THEN
+C              ACTUALLY, SCALXI CURRENTLY HAS NO NON-ZERO ERROR RETURN.
+            WRITE(KFILDO,505)IER
+ 505           FORMAT(/'     FATAL ERROR AT 504 IN SCALXI FROM FSTGS5,',
+     1                 ' IER =',I4)
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+      ELSEIF(PREPRO(NN).EQ.'SCLSNO'.AND.
+     1         (MGUESS.EQ.2.OR.MGUESS.EQ.3))THEN
+C           NOTE THAT WHEN MGUESS=1, THE CONSTANT SHOULD NOT HAVE
+C           TO BE SCALED, AND WHEN MGUESS = 4, THE DATA FROM WHICH
+C           THE AVERAGE WAS COMPUTED WERE ALREADY SCALED IN U405A.
+C           NOTE THAT THIS GIVES THE FIRST GUESS IN TENTHS OF INCHES.
+C           SNOW IS SCALED TO TENTHS OF INCHES.
+         LD(1)=ITABLE(1,3)
+         LD(2)=ITABLE(2,3)
+         LD(3)=ITABLE(3,3)+IDPARS(12)
+         LD(4)=ITABLE(4,3)
+C           THE VARIABLE IN ITABLE( ,3) IS THE ONE NORMALLY NEEDED
+C           FOR THE FIRST GUESS.
+         CALL PRSID1(KFILDO,LD,LDPARS)   
+C
+CD        DO 508 JY=1,NY
+CD        ISTART=(JY-1)*NX+1
+CD        WRITE(KFILDO,507)JY,(P(IX),IX=ISTART,ISTART+NX-1)
+CD 507    FORMAT(' IN FSTGS5 AT 507, ROW =',I5,/,(' ',15F8.0))
+CD 508    CONTINUE
+C
+         CALL SCLSNO(KFILDO,KFIL10,NDATE,LD,LDPARS,JD,
+     1               P,FD2,NX*NY,NX*NY,
+     2               NX,NY,NCAT(NN),CONST(NN),NSCALE(NN),
+     3               NPROJ,ALATL,ALONL,ORIENT,XLAT,MESH,ITRPX,
+     4               LSTORE,ND9,LITEMS,
+     5               IS0,IS1,IS2,IS4,ND7,
+     6               IPACK,IWORK,DATA,ND5,
+     7               CORE,ND10,NBLOCK,NFETCH,MISTOT,
+     8               L3264B,ISTOP,IER)
+C           THE ABOVE CALL TO SCLSNO WILL SCALE THE 
+C           VALUES IN EACH SNOWFALL CATEGORY TO THE FULL
+C           RANGE OF THE CATEGORY ACCORDING TO THE LOWEST
+C           AND HIGHEST PROBABILITY OCCURRING FOR THIS
+C           CASE OVER THE ANALYSIS AREA.  ERROR CHECKING
+C           AND INCREMENTING OF ISTOP( ) IS TAKEN CARE OF
+C           IN SCLSNO.  NOTE THAT THIS CALL IS FOR THE 
+C           FIRST GUESS GRID AND THE GRID VARIABLES
+C           (I.E., MESH) ARE USED IN SCLSNO.
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            GO TO 800
+         ENDIF
+C
+      ELSEIF(PREPRO(NN).EQ.'SCLQ06'.AND.
+     1         (MGUESS.EQ.2.OR.MGUESS.EQ.3))THEN
+C           NOTE THAT WHEN MGUESS=1, THE CONSTANT SHOULD NOT HAVE
+C           TO BE SCALED, AND WHEN MGUESS = 4, THE DATA FROM WHICH
+C           THE AVERAGE WAS COMPUTED WERE ALREADY SCALED IN U405A.
+         LD(1)=ITABLE(1,3)
+         LD(2)=ITABLE(2,3)
+         LD(3)=ITABLE(3,3)+IDPARS(12)
+         LD(4)=ITABLE(4,3)
+         CALL PRSID1(KFILDO,LD,LDPARS) 
+         CALL SCLQ06(KFILDO,KFIL10,NDATE,LD,LDPARS,JD,
+     1               P,FD2,NX*NY,NX*NY,
+     2               NX,NY,NCAT(NN),CONST(NN),NSCALE(NN),
+     3               NPROJ,ALATL,ALONL,ORIENT,XLAT,MESH,ITRPX,
+     4               LSTORE,ND9,LITEMS,
+     5               IS0,IS1,IS2,IS4,ND7,
+     6               IPACK,IWORK,DATA,ND5,
+     7               CORE,ND10,NBLOCK,NFETCH,MISTOT,
+     8               L3264B,ISTOP,IER)
+C           THE ABOVE CALL TO SCLQ06 WILL SCALE THE 
+C           VALUES IN EACH QPF CATEGORY TO THE FULL
+C           RANGE OF THE CATEGORY ACCORDING TO THE LOWEST
+C           AND HIGHEST PROBABILITY OCCURRING FOR THIS
+C           CASE OVER THE ANALYSIS AREA.
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            GO TO 800
+         ENDIF
+C
+      ELSEIF(PREPRO(NN).EQ.'SCLQ12'.AND.
+     1         (MGUESS.EQ.2.OR.MGUESS.EQ.3))THEN
+C           NOTE THAT WHEN MGUESS=1, THE CONSTANT SHOULD NOT HAVE
+C           TO BE SCALED, AND WHEN MGUESS = 4, THE DATA FROM WHICH
+C           THE AVERAGE WAS COMPUTED WERE ALREADY SCALED IN U405A.
+         LD(1)=ITABLE(1,3)
+         LD(2)=ITABLE(2,3)
+         LD(3)=ITABLE(3,3)+IDPARS(12)
+         LD(4)=ITABLE(4,3)
+         CALL PRSID1(KFILDO,LD,LDPARS) 
+         CALL SCLQ12(KFILDO,KFIL10,NDATE,LD,LDPARS,JD,
+     1               P,FD2,NX*NY,NX*NY,
+     2               NX,NY,NCAT(NN),CONST(NN),NSCALE(NN),
+     3               NPROJ,ALATL,ALONL,ORIENT,XLAT,MESH,ITRPX,
+     4               LSTORE,ND9,LITEMS,
+     5               IS0,IS1,IS2,IS4,ND7,
+     6               IPACK,IWORK,DATA,ND5,
+     7               CORE,ND10,NBLOCK,NFETCH,MISTOT,
+     8               L3264B,ISTOP,IER)
+C           THE ABOVE CALL TO SCLQ12 WILL SCALE THE 
+C           VALUES IN EACH QPF CATEGORY TO THE FULL
+C           RANGE OF THE CATEGORY ACCORDING TO THE LOWEST
+C           AND HIGHEST PROBABILITY OCCURRING FOR THIS
+C           CASE OVER THE ANALYSIS AREA.
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            GO TO 800
+         ENDIF
+C
+      ELSEIF(PREPRO(NN).EQ.'FGSKYA'.AND.
+     1         (MGUESS.EQ.2.OR.MGUESS.EQ.3))THEN
+C           NOTE THAT WHEN MGUESS=1, THE CONSTANT SHOULD NOT HAVE
+C           TO BE SCALED, AND WHEN MGUESS = 4, THE DATA FROM WHICH
+C           THE AVERAGE WAS COMPUTED WERE ALREADY SCALED IN U405A.
+         LD(1)=ITABLE(1,3)
+         LD(2)=ITABLE(2,3)
+         LD(3)=ITABLE(3,3)+IDPARS(12)
+         LD(4)=ITABLE(4,3)
+C           THE VARIABLE IN ITABLE( ,3) IS THE ONE NORMALLY NEEDED
+C           FOR THE FIRST GUESS.
+         CALL PRSID1(KFILDO,LD,LDPARS)   
+C
+         CALL FGSKYA(KFILDO,KFIL10,NDATE,LD,LDPARS,JD,
+     1               P,FD2,DUMMY,NX*NY,NX*NY,
+     2               NX,NY,NCAT(NN),CONST(NN),NSCALE(NN),
+     3               NPROJ,ALATL,ALONL,ORIENT,XLAT,MESH,ITRPX,
+     4               LSTORE,ND9,LITEMS,
+     5               IS0,IS1,IS2,IS4,ND7,
+     6               IPACK,IWORK,DATA,ND5,
+     7               CORE,ND10,NBLOCK,NFETCH,MISTOT,
+     8               L3264B,ISTOP,IER)
+C           THE ABOVE CALL TO SCLSKY WILL PROVIDE A PSEUDO
+C           EXPECTED VLAUE.  ERROR CHECKING AND INCREMENTING OF
+C           ISTOP( ) IS TAKEN CARE OF IN FGSKYA.  NOTE
+C           THAT THIS CALL IS FOR THE FIRST GUESS GRID AND 
+C           THE GRID VARIABLES (I.E., MESH) ARE USED IN SCLSKY.
+         IF(IER.NE.0)GO TO 800
+C
+C           IF BLENDING IS DONE, THE STATION VALUES HAD BEEN
+C           SCALED, AND A CONSTANT VALUE WAS INSERTED OVER
+C           LAND.  HOWEVER, THE FGSKYA HAS OVERWRITTEN THESE
+C           VALUES, SO SETLND WILL RESTORE THE CONSTANT.
+C
+         IF(NBLEND.NE.0)THEN
+            CALL SETLND(KFILDO,P,NX,NY,MESH,
+     1                  SEALND,NXE,NYE,MESHE,CONSTX,IER)
+            IF(IER.NE.0)GO TO 800
+         ENDIF
+C
+      ELSEIF(PREPRO(NN).EQ.'OSMTH ')THEN 
+         IOCEXT=IPREX1(NN)
+         IOCINC=IPREX2(NN)
+         CALL OSMTH(KFILDO,P,NX,NY,MESH,
+     1              SEALND,NXE,NYE,MESHE,
+     2              IOCEXT,IOCINC,ISTOP,IER)
+C           THE ABOVE SMOOTHS THE OCEAN (ONLY) WTIH THE PARAMETERS
+C           IPREX1( ) AND IPREX2( ).
+C
+      ELSEIF(PREPRO(NN).EQ.'HSMTH ')THEN 
+         IOCEXT=NINT(PREX4(NN))
+         IOCINC=NINT(PREX5(NN))
+         CALL HSMTH(KFILDO,P,NX,NY,
+     1              IOCEXT,IOCINC,ISTOP,IER)
+C           THE ABOVE SMOOTHS ALL POINTS WTIH THE PARAMETERS
+C           IPREX1( ) AND IPREX2( ).
+      ELSE
+C        PUT OTHER CHECKS AND CALLS HERE.
+      ENDIF
+C
+ 5185 CONTINUE
+C
+C***D           WRITE(KFILDO,519)(P(IXY),IXY=1,NX*NY)
+C***D519        FORMAT(/,' AT 519 IN FSTGS5--(P(IXY),IXY=1,NX*NY)',/,
+C***D    1              (20F6.2))
+C
+      IF(IOPT(1).EQ.0)GO TO 700
+      IF(IFSTGS.NE.0.AND.JP(1).NE.0.AND.IP22.NE.0)GO TO 520
+      IF(IFSTGS.NE.0.AND.JP(2).NE.0.AND.KFILOG.NE.0)GO TO 520
+      GO TO 700
+C 
+C        PREPARE FOR GRIDPRINTING AND/OR TDLPACKING.
+C
+ 520  TITLE(17:24)=FSTGES(1:8)
+      CALL TRNSFR(P,FD2,NX*NY)
+      NXG=NX
+      NYG=NY
+      MESHG=MESH
+C        NXG AND NYG ARE NECESSARY BECAUSE SZGRDM CHANGES THEM, AND
+C        NX AN NY MUST BE RETAINED.
+C
+CD     WRITE(KFILDO,5205)
+CD5205 FORMAT(/' AT 5205 IN FSTGS5, CALLING SZGRDM.')
+C
+      CALL SZGRDM(KFILDO,FD2,NXG,NYG,MESHG,MESHL,ITRPX,ND2X3)
+C        THE SAME INTERPOLATION IS USED (IF NEEDED) AS IS SPECIFIED
+C        FOR DEFINING THE FIRST GUESS.  THIS PUTS THE NXG BY NYG
+C        GRID IN FD2( ) AT MESH NESHL,THE DISPLAY RESOLUTION.
+C
+C        GRIDPRINT FIRST GUESS IF DESIRED.
+C
+      IF((IFSTGS.EQ.2.OR.IFSTGS.EQ.3).AND.JP(1).NE.0.AND.IP22.NE.0)THEN
+         CALL PRTGR(IP22,FD2,NXG,NYG,
+     1              CINT,ORIGIN,SMULT,SADD,IOPT,TITLE,IER)
+C
+         IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+C           ONLY NON ZERO IER FROM PRTGR IS SCALING OVERFLOW.
+C           DO NOT TREAT AS FATAL ERROR.
+      ENDIF
+C
+C        TDLPACK AND WRITE FIRST GUESS IF DESIRED.  NOTE THAT
+C        THIS IS IDENTIFIED WITH THE VARIABLE TO BE ANALYZED,
+C        NOT THE FIRST GUESS ITSELF.   CCCFFF
+C
+CD     WRITE(KFILDO,521)IFSTGS,JP(2),KFILOG,(ID(J),J=1,4)
+CD521  FORMAT(/' AT 521 IN FSTGS5--IFSTGS,JP(2),KFILOG,(ID(J),J=1,4)',
+CD    1        5X,3I4,4I12)
+C
+      IF(IFSTGS.GE.1.AND.JP(2).NE.0.AND.KFILOG.NE.0)THEN
+         LD(1)=ITABLE(1,1)+IDPARS(4)
+C           THE FIRST GUESS GRID HAS THE SAME ID(1) AS THE OUTPUT GRID.
+C           THE DISTINGUISHING FEATURE OF THE FIRST GUESS AND INDIVIDUAL
+C           PASSES' OUTPUT IS THE VALUE IN ID(2).  FOR POP, THE B IS
+C           ALREADY IN ITABLE(1,1).
+         LD(2)=99*10000+IDPARS(7)
+C           THE LLLL IN ID(2) IS SET TO 99 TO INDICATE A FIRST GUESS.
+C           IDPARS(7) MAINTAINS THE LEVEL.
+         LD(3)=ID(3)
+         LD(4)=ITABLE(4,1)
+C           THIS MAKES THE THRESHOLD THE SAME AS FOR THE VARIABLE
+C           BEING ANALYZED 
+         ITAUH=IDPARS(12)
+C
+CD        WRITE(KFILDO,522)IFSTGS,JP(2),KFILOG,(LD(J),J=1,4),ITAUH
+CD522     FORMAT(/' AT 522 IN FSTGS5--IFSTGS,JP(2),KFILOG,(LD(J),J=1,4)',
+CD    1           'ITAUH',3I4,4I12,I4)
+C
+         ITAUM=0
+         NSEQ=0
+         NCHAR=32
+C           32 CHARACTERS OF PLAIN LANGUAGE ARE PACKED.
+         XMISSP=0
+         XMISSS=0
+C           THESE ARE FIRST GUESS FIELDS AND NO MISSING VALUES ARE
+C           PROVIDED FOR.  IF THERE EVER ARE, JUST SET XMISSP=9999,
+C           OR WHATEVER THE MISSING VALUE IS.
+C
+C           THE GRID IN FD2( ) IS ALWAYS AT MESH LENGTH MESHL AS A
+C           RESULT OF SZGRDM, WHICH IS WHAT IS WANTED FOR THE
+C           DISPOSABLE GRID.  NOW CUT THE GRID TO THE DISPOSABLE
+C           AREA.
+C
+         NXD=IOPT(3)-IOPT(2)+1
+         NYD=IOPT(5)-IOPT(4)+1
+C           NXD AND NYD ARE THE CUT (DISPOSABLE) GRID DIMENSIONS AT
+C           MESH LENGTH MESHL.
+C
+         CALL ACTUAL(KFILDO,MESHL,XMESHL,TRASH,NPROJ,IER)
+C           XMESHL IS THE ACTUAL MESH LENGTH IN KM.         
+C
+         IF(IER.NE.0)THEN
+            WRITE(KFILDO,525)IER
+ 525        FORMAT(/'     FATAL ERROR IN ACTUAL FROM FSTGS5,',
+     1              ' IER =',I4)
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+CD        WRITE(KFILDO,530)NX,NY,NXG,NYG,NXD,NYD,
+CD    1         (IOPT(J),J=1,8)
+CD530     FORMAT(/' AT 530 IN FSTGS5--NX,NY,NXG,NYG,',
+CD    1           'NXD,NYD,IOPT(1-8)',/,6I8,/,(8I8))
+C
+C           THE GRID IN FD2( ) HAS ALREADY BE SIZED (CORRECT MESH
+C           LENGTH) AT MESHL.  NOW CUT IT TO THE DISPOSABLE SIZE.
+C
+         IF(IOPT(2)-1.NE.0.OR.IOPT(4)-1.NE.0.OR.NXG.NE.NXD.
+     1                                       OR.NYG.NE.NYD)THEN
+            CALL CUTIT(KFILDO,FD2,NXG,NYG,IOPT(2)-1,IOPT(4)-1,
+     1                 FD2,NXD,NYD,IER)
+C              NXG AND NYG ARE THE GRID DIMENSIONS IN DATA( ).
+C              THEY ARE NOT CHANGED BY CUTIT.  THERE IS NO NEED TO
+C              CALL CUTIT IF THE INPUT AND OUTPUT GRIDS ARE THE SAME.
+CD        ELSE
+CD           WRITE(KFILDO,535)
+CD535        FORMAT(/' CUTIT WAS NOT CALLED')
+         ENDIF
+C
+         IF(IER.NE.0)THEN
+            IER=777
+            ISTOP(1)=ISTOP(1)+1
+            GO TO 800
+         ENDIF
+C
+         IF(NPROJ.EQ.3)THEN
+            CALL LMIJLL(KFILDO,REAL(IOPT(2)),REAL(IOPT(4)),
+     1                  XMESHL*1000.,ORIENT,XLAT,
+     2                  ALATL,ALONL,ALATD,ALOND,IER)
+C
+            IF(IER.NE.0)THEN
+               WRITE(KFILDO,590)IER
+ 590           FORMAT(/'     FATAL ERROR IN LMIJLL FROM FSTGS5,',
+     1                 ' IER =',I4)
+               ISTOP(1)=ISTOP(1)+1
+               IER=777
+               GO TO 800
+            ENDIF
+C
+         ELSEIF(NPROJ.EQ.5)THEN
+            CALL PSIJLL(KFILDO,REAL(IOPT(2)),REAL(IOPT(4)),
+     1                  XMESHL*1000.,ORIENT,XLAT,
+     2                  ALATL,ALONL,ALATD,ALOND)
+         ELSEIF(NPROJ.EQ.7)THEN
+            CALL MCIJLL(KFILDO,REAL(IOPT(2)),REAL(IOPT(4)),
+     1                  XMESHL*1000.,XLAT,
+     2                  ALATL,ALONL,ALATD,ALOND)
+         ELSE
+            WRITE(KFILDO,599)NPROJ
+ 599        FORMAT(/' ****MAP PROJECTION NUMBER NPROJ =',I3,
+     1              ' NOT 3, 5, OR 7.  FATAL ERROR IN FSTGS5 AT 599.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+C           ALATD AND ALOND ARE THE LL LAT/LON GRID POSITION.
+C           TRUNCATE TO THREE DECIMAL PLACES TO ASSURE
+C           COMPATIBILITY WITH AVN ARCHIVE FOR U203 AND GEMPAK.
+C           NOTE:  IT SEEMS ALATD AND ALOND ARE NOT EXACTLY TO
+C           3 DECIMAL PLACES IN PAWGTS; HOWEVER, IN PACKING, THEY
+C           PROBABLY COME OUT THAT WAY IN THE PACKED DATA.
+C
+         ALATD=NINT(ALATD*1000)/1000.
+         ALOND=NINT(ALOND*1000)/1000.
+C
+CD        WRITE(KFILDO,600)NXG,NYG,NXD,NYD,ALATD,ALOND
+CD600     FORMAT(/' AT 600 IN FSTGS5--NXG,NYG,NXD,NYD,',
+CD    1           'ALATD,ALOND',/,4I10,2F14.8)
+C
+C           SCALE SNOW *10 FOR GEMPAK.  FD2( ) IS NO LONGER NEEDED
+C           AFTER WRITING.
+C 
+         DO 615 NN=1,3
+C
+         IF(POSTDS(NN).EQ.'SCLSNO'.AND.
+     1            (MGUESS.EQ.2.OR.MGUESS.EQ.3))THEN
+            CONST(NN)=1.
+            NSCALE(NN)=1
+            CALL SCALX(KFILDO,FD2,NXD*NYD,CONST(NN),NSCALE(NN),IER)
+C              THE ABOVE CALL TO SCALX WILL MULTIPLY THE INPUT 
+C              DATA IN XDATA( ) BY 10**1 (I.E., SNOW INCHES BECOME
+C              TENTHS OF INCHES FOR GMOS_PLOT).
+C
+            IF(IER.NE.0)THEN
+C                 ACTUALLY, SCALX CURRENTLY HAS NO NON-ZERO ERROR RETURN.
+               WRITE(KFILDO,610)IER
+ 610           FORMAT(/'     FATAL ERROR AT 610 IN SCALX FROM FSTGS5,',
+     1                 ' IER =',I4)
+               ISTOP(1)=ISTOP(1)+1
+               IER=777
+               GO TO 800
+            ENDIF
+C
+         ENDIF
+C
+ 615     CONTINUE
+C
+C           WRITES THE FIRST GUESS TO THE DISPOSABLE SEQUENTIAL FILE.
+C
+         CALL PAWGTS(KFILDO,KFILOG,'KFILOG',IP16,NDATE,
+     1               LD,ITAUH,ITAUM,MODNO,NSEQ,ISCALD,
+     2               NPROJ,ALATD,ALOND,ORIENT,MESHL,XLAT,NXD,NYD,
+     3               FD2,FD3,IWORK,IPACK,ND2X3,MINPK,
+     4               IS0,IS1,IS2,IS4,ND7,
+     5               IPLAIN,PLAIN,NCHAR,
+     6               XMISSP,XMISSS,LX,IOCTET,
+     7               JTOTBY,JTOTRC,L3264B,L3264W,IER)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 800
+         ENDIF
+C
+      ENDIF
+C
+C
+ 700  IF(MGUESS.NE.IGUESS(1))THEN
+         WRITE(KFILDO,701)IGUESS(1),MGUESS,AFSTGS(MGUESS)
+ 701     FORMAT(/' ****THE PRIORITY 1 FIRST GUESS OPTION NO.',I2,
+     1           ' WAS NOT AVAILABLE.',
+     1           '  THE FIRST GUESS USED WAS OPTION NO.',I2,' = ',A23) 
+         ISTOP(1)=ISTOP(1)+1
+      ENDIF
+C
+C        THE ABOVE APPLIES WHEN A FIRST GUESS WAS OBTAINED, BUT
+C        NOT THE FIRST CHOICE.  WHEN NO FIRST GUESS COULD BE
+C        PROVIDED, IER IS RETURNED = 777.
+C
+      IER=0
+ 800  IDPARS(12)=IDPS12
+C        ALWAYS RESTORES IDPARS(12) IN CASE IT WAS CHANGED.
+CD     CALL TIMPR(KFILDO,KFILDO,'END   FSTGS5        ')
+      RETURN
+      END

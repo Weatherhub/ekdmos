@@ -1,0 +1,104 @@
+      SUBROUTINE CIGOBC(KFILDO,XDATA,NVAL,IER)
+C
+C        APRIL     2010   GLAHN, SUN  MDL   MOS-2000
+C
+C        PURPOSE
+C            TO PREPROCESS A CEILING HEIGHT IN HUNDREDS OF FT TO A
+C            SCALED CATEGORICAL VALUE MATCHING THE CEILING HEIGHT
+C            CATEGORIES USED IN MOS.  THE CATEGORY IS GIVEN
+C            AS A SCALED CONTINUOUS VALUE REPRESENTING THE ACTUAL
+C            HEIGHT.  FOR INSTANCE, ANY VALUE IN FT THAT IS
+C            LE TABLE(2) (200 FT) WILL BE GIVEN A VALUE FROM
+C            1. TO < 2, INDICATING THE NEARNESS TO THE END
+C            POINTS 0. AND 200.  THE DISCRETE NATURE OF CEILING
+C            HEIGHT MAKE ONLY CERTAIN VALUES POSSIBLE.  A VALUE
+C            OF 888 IS UNLIMITED AND IS GIVEN A SCALED CATEGORY
+C            VALUE OF 8.99.  A VALUE JUST OVER 12,000 FT IS GIVEN
+C            A VALUE JUST OVER 8.
+C
+C            THE CATEGORIES ARE DEFINED SUCH THE THE LOWEST OF
+C            THE FOLLOWING IS MET:
+C
+C            CATEGORY    HEIGHT (FT)
+C                1        <     200
+C                2        <     500
+C                3        <   1,000
+C                4        <   2,000
+C                5        <=  3,000
+C                6        <=  6,500
+C                7        <= 12,000
+C                8        <= 45,000
+C
+C
+C        DATA SET USE
+C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C            XDATA(K) = THE DATA TO TRANSFORM TO CATEGORIES (K=1,NVAL).
+C                       IT IS ASSUMED INCOMING DATA ARE IN HUNDREDS OF
+C                       FEET.  (INPUT-OUTPUT)
+C                NVAL = THE NUMBER OF VALUES IN XDATA( ) BEING DEALT
+C                       WITH.  (INPUT)
+C                 IER = ERROR RETURN.
+C                       0 = GOOD RETURN.
+C                       (OUTPUT)
+C            TABLE(J) = HOLDS THE UPPER CATEGORY BREAKPOINTS FOR THE
+C                       NOCAT CATEGORIES OF CEILING (M=2,NOCAT+1).
+C                       THE LAST ONE REPRESENTS A LIMIT TO REPORTABLE
+C                       VALUES.  (INTERNAL)
+C               NOCAT = THE NUMBER OF CEILING HEIGHT CATEGORIES.
+C                       (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C 
+C        NONSYSTEM SUBROUTINES USED 
+C            NONE
+C
+      PARAMETER(NOCAT=8)
+C
+      DIMENSION XDATA(NVAL)
+      DIMENSION TABLE(NOCAT+1)
+C
+      DATA TABLE/ 0., 2., 5. ,10., 20., 30.01, 65.01, 120.01, 450.01/
+C
+D     CALL TIMPR(KFILDO,KFILDO,'START CIGOBC        ')
+      IER=0
+C
+CCCCD     WRITE(KFILDO,105)(K,XDATA(K),K=1,NVAL)
+CCCCD105  FORMAT(/,' IN CIGOBC AT 105',/,(8(I7,F8.2)))
+C
+      DO 160 K=1,NVAL
+C
+      IF(XDATA(K).GT.9998.9)GO TO 160
+C     
+      IF(NINT(XDATA(K)).EQ.888)THEN
+         XDATA(K)=8.99
+         GO TO 160      
+      ENDIF
+C
+      DO 150 J=1,NOCAT
+C
+      IF(XDATA(K).GE.TABLE(J).AND.XDATA(K).LT.TABLE(J+1))THEN 
+C
+D        SAVEX=XDATA(K)
+C
+         XDATA(K)=J+(XDATA(K)-TABLE(J))/(TABLE(J+1)-TABLE(J))
+C
+D        WRITE(KFILDO,144)K,J,SAVEX,XDATA(K),TABLE(J+1),TABLE(J)
+D144     FORMAT(' IN CIGOBC--K,J,SAVEX,XDATA(K),TABLE(J+1),TABLE(J)--',
+D    1          2I6,F8.1,F12.5,2F8.2)             
+C
+         GO TO 160
+      ENDIF
+C
+ 150  CONTINUE
+C
+C        DROP THROUGH HERE IS CONSIDERED AN ERROR AS THE CEILING
+C        IS GT 45,000 FT OR LT ZERO.
+C
+      XDATA(K)=9999.
+C
+ 160  CONTINUE
+C
+      RETURN
+      END

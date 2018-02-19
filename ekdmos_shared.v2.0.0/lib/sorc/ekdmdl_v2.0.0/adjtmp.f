@@ -1,0 +1,560 @@
+       SUBROUTINE ADJTMP(KFILDO,KFIL10,IDPARS,JD,NDATE,
+     1                   KFILRA,RACESS,NUMRA,CCALL,ICALLD,CCALLD,
+     2                   NAME,NELEV,STALAT,STALON,ISDATA,SDATA,
+     3                   DIR,ND1,NSTA,NGRIDC,NGRID,ND11,NSLAB,
+     4                   IPACK,IWORK,DATA,ND5,LSTORE,ND9,LITEMS,
+     5                   CORE,ND10,LASTL,NBLOCK,LASTD,NSTORE,NFETCH,
+     6                   IS0,IS1,IS2,IS4,ND7,FD1,FD2,FD3,FD4, 
+     7                   ND2X3,IP12,IP16,ISTAV,L3264B,L3264W,
+     8                   MISTOT,IER)
+C
+C         MAY 2004   SFANOS/CARROLL   TDL   MOS-2000  
+C         FEB 2005   CARROLL                REWORKED DIMENSIONS,MODIFIED
+C                                           STRUCTURE, SET ISTAV=1 FOR
+C                                           STATION DATA UPON EXIT.
+C                                           ADDED NELEV TO OBTAIN
+C                                           ELEVATION FROM CONSTANT FILE.
+C         FEB 2005   CARROLL                CLEANED UP ARGUMENTS IN CALL,
+C                                           ADDED GRID CHARACTERISTIC CHECK,
+C                                           AND SIMPLIFIED WORK ARRAYS.
+C              
+C        PURPOSE
+C            TO COMPUTE THE ADJUSTED TEMPERATURE BASED ON ELEVATION,
+C            LAPSE RATE, AND TERRAIN. 
+C            FORMULA IS ADJUSTED TEMP = 2-M TEMP + LAPSE RATE
+C                                       * (STA. ELEVATION - GFS TERRAIN)
+C
+C            THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED:
+C
+C               002 081 - ADJUSTED TEMPERATURE 
+C
+C        DATA SET USE
+C            KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT(PRINT) FILE.
+C                     (OUTPUT)
+C            KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM
+C                     ACCESS.(INPUT-OUTPUT)
+C              IP12 = INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                     STATIONS ON THE INPUT FILES WILL BE PRINTED TO
+C                     THE FILE WHOSE UNIT NUMBER IS IP12.
+C
+C        VARIABLES
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+C                       DATA ARE KEYED TO THIS LIST, EXCEPT POSSIBLY 
+C                       CCALLD( ) AND CCALLP( ).  (CHARACTER*8)
+C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,ND5).  THIS LIST IS USED
+C                       IN L1D1 TO READ THE REGION LISTS.  (CHARACTER*8)
+C                       (INTERNAL)
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA IDENTIFIED IN
+C                       LSTORE( , ) (J=1,ND10).  WHEN CORE( ) IS FULL
+C                       DATA ARE STORED ON DISK.  (INPUT/OUTPUT)
+C           DATA(ND5) = INTERNAL WORK ARRAY USED IN CALL TO CONST1 TO OPTAIN
+C                       THE GFS INTERPOLATED STATION ELEVATION. (INTERNAL)
+C          DATA1(ND5) = INTERNAL WORK ARRAY USED IN CALL TO LAPSER TO
+C                       OBTAIN THE LAPSE RATE. (INTERNAL)
+C           DIR(K,J,) = THE IX (J=1) AND JY (J=2) POSITIONS ON THE
+C                       GRID FOR STATION K (K=1,NSTA).  (INPUT)  
+C              FD1(J) = INTERNAL WORK ARRAY CALLED BY GFETCH TO OBTAIN
+C                       THE 2-M TEMPERATURE. (INTERNAL)
+C                       (J=1,ND2X3). (INTERNAL)
+C              FD2(J) = INTERNAL WORK ARRAY
+C                       (J=1,ND2X3). (INTERNAL)
+C              FD3(J) = INTERNAL WORK ARRAY.
+C                       (J=1,ND2X3). (INTERNAL)
+C              FD4(J) = INTERNAL WORK ARRAY. 
+C                       (J=1,ND2X3). (INTERNAL)
+C                   I = LOOP CONTROL VARIABLE
+C           ICCCFFF() = CONTAINS IDPARS(1) AND IDPARS(2) ID FOR THE
+C                       METEOROLOGICAL PARAMETERS BEING USED.
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTOR ID CORRESPONDING TO ID() (J=1,15).
+C                       (INPUT)
+C                       J=1--CCC      (CLASS OF VARIABLE),
+C                       J=2--FFF      (SUBCLASS OF VARIABLE),
+C                       J=3--B        (BINARY INDICATOR),
+C                       J=4--DD       (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V        (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY
+C                                      1 LAYER)
+C                       J=7--LTLTLTLT (TOP OF LAYER)
+C                       J=8--T        (TRANSFORMATION)
+C                       J=9--RR       (RUN TIME OFFSET, ALWAYS +
+C                                      AND BACK IN TIME)
+C                       J=10-OT       (TIME APPLICATION)
+C                       J=11-OH       (TIME PERIOD IN HOURS)
+C                       J=12-TAU      (PROJECTION IN HOURS)
+C                       J=13-I        (INTERPOLATION TYPE)
+C                       J=14-S        (SMOOTHING INDICATOR)
+C                       J=15-G        (GRID INDICATOR)
+C                 IER = STATUS RETURN
+C                         0 = GOOD RETURN
+C                       100 = THE TWO GRIDS NEEDED ARE NOT THE SAME SIZE
+C                       103 = IDPARS(1) AND IDPARS(2) DO NOT INDICATE
+C                             THE LAPSE RATE.
+C                       SEE GFETCH FOR OTHER VALUES.
+C                       WHEN IER NE 0, DATA ARE RETURNED AS MISSING.
+C                       (INTERNAL-OUTPUT)
+C            IPACK(J) = WORK ARRAY (J=1,ND5). (INTERNAL)
+C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN INTEGER
+C                       VARIABLE (L=1,L3264W) (K=1,NSTA).
+C                       (INTERNAL)
+C           ISDATA(K) = WORK ARRAY (K=1,ND1).  (INTERNAL)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).
+C                       (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).
+C                       (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C                       IS2(3) AND IS2(4) ARE USED BY THE CALLING
+C                       PROGRAM AS THE GRID DIMENSIONS.
+C                       (INTERNAL-OUTPUT)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                       (INTERNAL)
+C               ISTAV = 1 SINCE THE DATA RETURNED ARE STATION DATA.
+C                       (OUTPUT)
+C            IWORK(J) = WORK ARRAY (J=1,ND5). (INTERNAL)
+C                   J = LOOP CONTROL VARIABLE
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).
+C                       THIS IS THE SAME AS ID(J), EXCEPT THAT
+C                       THE PORTIONS PERTAINING TO PROCESSING
+C                       ARE OMITTED:
+C                       B = IDPARS(3),
+C                       T = IDPARS(8),
+C                       I = IDPARS(13),
+C                       S = IDPARS(14),
+C                       G = IDPARS(15), AND
+C                       THRESH.
+C                       JD() IS USED TO HELP IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE. (INPUT)
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                       (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT)
+C               LD(J) = THE PREDICTOR ID (J=1,4). (INPUT)
+C              LD1(J) = THE PREDICTOR ID (J=1,4). (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING 
+C                       USED (EITHER 32 OR 64). (INPUT)
+C               LASTD = TOTAL NUMBER OF PHYSICAL RECORDS ON DISK FOR MOS-2000
+C                       INTERNAL STORAGE.  MUST BE CARRIED WHENEVER GSTORE
+C                       IS TO BE CALLED.  (INPUT)
+C               LASTL = THE LAST LOCATION IN CORE( ) USED FOR MOS-2000 INTERNAL
+C                       STORAGE.  INITIALIZED TO 0 ON FIRST ENTRY TO GSTORE.
+C                       ALSO INITIALIZED IN U201 IN CASE GSTORE IS NOT ENTERED.
+C                       (INPUT-OUTPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE(,)
+C                       THAT HAVE BEEN USED IN THIS RUN. (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE
+C                       DATA STORED (L=1,12) (J=1,LITEMS).
+C                       (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE() WHERE
+C                              THE DATA START.  WHEN ON DISK,
+C                              THIS IS MINUS THE RECORD NUMBER WHERE
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR(, ,L) AND
+C                              IN NGRIDC(,L) DEFINING THE
+C                              CHARACTERISTICS OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE SORTED
+C                              LIST IN ID(,N) (N=1,NPRED) FOR WHICH
+C                              THIS VARIABLE IS NEEDED, WHEN IT IS
+C                              NEEDED ONLY ONCE FROM LSTORE(,).
+C                              WHEN IT IS NEEDED MORE THAN ONCE, THE 
+C                              VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING
+C                              MSTORE(,). LATER USED AS A WAY OF
+C                              DETERMINING WHETHER TO KEEP THIS
+C                              VARIABLE.
+C             MDLR(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD4() (J=1,4). (INTERNAL)
+C             MDTT(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD3() (J=1,4). (INTERNAL)
+C             MCX,MCY = DIMENSIONS OF GRID RETURNED FOR GFS TERRAIN
+C                       HEIGHT. (INTERNAL)
+C             MDX,MDY = DIMENSIONS OF GRID RETURNED FOR 2-M
+C                       TEMPERATURE. (INTERNAL)
+C               MISSP = PRIMARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       0 FROM CALLING GFETCH WHEN THERE IS NO
+C                       PRIMARY MISSING VALUE. (INTERNAL)
+C               MISSS = SECONDARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       0 FROM CALLING GFETCH WHEN THERE IS NO
+C                       SECONDARY MISSING VALUE.  (INTERNAL)
+C              MISTOT = TOTAL NUMBER OF TIMES A MISSING INDICATOR
+C                       HAS BEEN ENCOUNTERED IN UNPACKING GRIDS.
+C                       (INPUT-OUTPUT)
+C             MNX,MNY = DIMENSIONS OF GRID RETURNED FOR LAPSE RATE.
+C                       (INTERNAL)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE. (INPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+C                       DIMENSION OF SEVERAL VARIABLES.  (INPUT)
+C               ND2X3 = DIMENSION OF SEVERAL VARIABLES.  THE SIZE OF
+C                       THE GRID IS NOT KNOWN BEFORE FD1 AND FD2
+C                       ARE FETCHED.  (INPUT)
+C                 ND5 = DIMENSION OF IPACK( ), AND IWORK( ) AND
+C                       FDRV( ) TO ND5.  (INPUT)
+C                 ND7 = DIMENSION OF IS0(),IS1(),IS2(), AND IS4().
+C                       NOT ALL LOCATIONS ARE USED. (INPUT)
+C                 ND9 = THE SECOND DIMENSION OF LSTORE(,). (INPUT)
+C                ND10 = DIMENSION OF CORE(). (INPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN
+C                       BE DEALT WITH ON THIS RUN.  LAST DIMENSION 
+C                       OF NGRIDC(,). (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED.
+C                       (INPUT)
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.
+C                       IT IS A RUNNING COUNT FROM THE BEGINNING OF
+C                       THE PROGRAM.  THIS COUNT IS MAINTAINED IN
+C                       CASE THE USER NEEDS IT(DIAGNOSTICS, ETC.).
+C                       (OUTPUT)
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR
+C                       EACH GRID COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=
+C                            POLAR STEREOGRAPHIC).
+C                       L=2--GRID LENGTH IN METERS.
+C                       L=3--LATITUDE AT WHICH THE GRID LENGTH IS
+C                            CORRECT *1000.
+C                       L=4--GRID ORIENTATION IN DEGREES * 1000.
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *1000.
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES
+C                            *1000.
+C             NAME(K) = NAMES OF STATIONS (K=1,NSTA).  USED FOR PRINTOUT
+C                       ONLY.  (CHARACTER*20)  (INPUT)
+C               NELEV = STATION ELEVATION OBTAINED FROM THE CONSTANT
+C                       FILE. (INPUT)
+C               NGRID = THE NUMBER OF GRID COMBINATIONS IN NGRIDC( , ),
+C                       MAXIMUM OF ND11.  (INPUT-OUTPUT)
+C               NPACK = 2 FOR TDL GRIB PACKED DATA; 1 FOR NOT PACKED
+C                       THIS IS RETURNED FROM GFETCH. (INTERNAL)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR(, ,) AND
+C                       IN NGRIDC(,) DEFINING THE CHARACTERISTICS
+C                       OF THIS GRID FOR GFS TERAIN. (OUTPUT)
+C              NSLABD = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR LAPSE RATE. (INTERNAL)
+C              NSLABT = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 2-M TEMPERATURE. (INTERNAL)
+C              NSTORE = THE NUMBER OF TIMES GSTORE HAS BEEN ENTERED.  GSTORE
+C                       KEEPS TRACK OF THIS AND RETURNS THE VALUE.  (OUTPUT)
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE,
+C                       THAT THE RECORD HAS BEEN FETCHED.  THIS IS 
+C                       STORED IN LSTORE(9,). (INTERNAL)
+C              NWORDS = NUMBER OF WORDS RETURNED IN DATA().  THIS 
+C                       IS RETURNED FROM GFETCH (INTERNAL)
+C           RACESS(J) = THE FILE NAME ASSOCIATED WITH KFILRA.
+C                       (CHARACTER*60) (INPUT).
+C            SDATA(J) = DATA ARRAY TO HOLD RETURNED DATA AS
+C                       STATION DATA. IN THIS CASE, THE ADJUSTED
+C                       TEMPERATURE(J=1,ND5). (OUTPUT)
+C           STALAT(K) = LATITUDE OF STATIONS (K=1,NSTA).  (INPUT)
+C           STALON(K) = LONGITUDE OF STATIONS (K=1,NSTA).  (INPUT)
+C
+C     NON SYSTEM SUBROUTINES USED
+C        GFETCH, SMTH5, SMTH9, SMTH25, SMTH2X, SMTH3X, INTRPA, INTRPB, INTRPC,
+C        LAPSER, PRSID1
+C
+      IMPLICIT NONE
+C
+      CHARACTER*60 RACESS(NUMRA)
+      CHARACTER*8 CCALL(ND1,6),CCALLD(ND5)
+      CHARACTER*20 NAME(ND1)
+C
+      INTEGER IDPARS(15),MDPARS(15),LDPARS(15),
+     1        LD1PARS(15)
+      INTEGER IPACK(ND5),IWORK(ND5)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER LSTORE(12,ND9)
+      INTEGER NGRIDC(6,ND11)
+      INTEGER ICCCFFF(2),JD(4),LD(4),LD1(4),MDTT(4),
+     1        MDLR(4)
+      INTEGER KFILRA(NUMRA),ICALLD(L3264W,ND5),
+     1        ISDATA(ND1),NELEV(ND1)
+      INTEGER I,IER,IP12,IP16,ISMTH,ISTAV,J,JNTRP,
+     1        KFILDO,KFIL10,L3264B,L3264W,LASTD,
+     2        LASTL,LITEMS,MDX,MDY,MISSP,MISSS,
+     3        MISTOT,MNX,MNY,NBLOCK,ND2X3,ND1,ND5,ND7,ND9,
+     4        ND10,ND11,NDATE,NFETCH,NGRID,NPACK,NSLAB,
+     5        NSLABD,NSLABT,NSTA,NSTORE,
+     6        NTIMES,NUMRA,NWORDS,MCX,MCY
+C
+      REAL DATA(ND5),DATA1(ND5)
+      REAL FD1(ND2X3),FD2(ND2X3),FD3(ND2X3),FD4(ND2X3)
+      REAL CORE(ND10)
+      REAL STALAT(ND1),STALON(ND1),SDATA(ND1)
+      REAL DIR(ND1,2,ND11)
+C
+C        INITIALIZE
+C
+      DATA ICCCFFF/002001,
+     1             002770/
+C
+      IER=0
+C
+C        MAKE SURE THIS SUBROUTINE DEALS WITH THE THE ADJUSTED
+C        TEMPERATURE.
+C
+      IF(IDPARS(1).NE.002.OR.(IDPARS(2).NE.081))THEN
+         WRITE(KFILDO,101)(JD(J),J=1,4)
+ 101     FORMAT(/' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE ',
+     1           'ADJUSTED TEMPERATURE',
+     2          /'     PREDICTOR ',I9.9,I10.9,I10.9,I4.3,' NOT',
+     3           ' ACCOMMODATED IN ADTEMP.  IER =',I4)
+         IER=103
+         GOTO 800
+      END IF
+C
+C       GET THE GFS TERRAIN USING CONST1.
+C
+      LD(1)=409020000
+      LD(2)=000000000
+      LD(3)=000000000
+      LD(4)=000000000
+C
+      CALL PRSID1(KFILDO,LD,LDPARS)
+      CALL CONST1(KFILDO,KFIL10,IP12,
+     1            LD,LDPARS,LD,NDATE,
+     2            KFILRA,RACESS,NUMRA,
+     3            CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4            ISDATA,SDATA,DIR,ND1,NSTA,
+     5            NGRIDC,NGRID,ND11,NSLAB,
+     6            IPACK,IWORK,DATA,ND5,
+     7            LSTORE,ND9,LITEMS,CORE,ND10,LASTL,
+     8            NBLOCK,LASTD,NSTORE,NFETCH,
+     9            IS0,IS1,IS2,IS4,ND7,
+     A            ISTAV,L3264B,L3264W,IER)
+C
+      IF(IER.NE.0)THEN
+        WRITE(KFILDO,110)IER
+ 110    FORMAT(/,'****CALL TO CONST1 READING GFS TERRAIN ',
+     1         'FAILED.  IER = ',I3)
+        GOTO 800
+      END IF
+      MCX=IS2(3)
+      MCY=IS2(4)
+C
+C        CREATE ID FOR 2-M TEMP
+C
+      MDTT(1)=ICCCFFF(1)*1000+IDPARS(4)
+      MDTT(2)=2
+      MDTT(3)=IDPARS(9)*1000000+IDPARS(12)
+      MDTT(4)=0
+C
+C        FETCH THE 2-M TEMP USING GFETCH.
+C        FD1 IS DIMENSIONED AS ND2X3 HERE.
+C
+      CALL GFETCH(KFILDO,KFIL10,MDTT,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3            NFETCH,NSLABT,MISSP,MISSS,L3264B,1,IER)
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+      IF(IER.NE.0)GOTO 800
+      MDX=IS2(3)
+      MDY=IS2(4)
+C
+C        COMPARE THE GRID CHARACTERISTICS.
+C
+      IF(NSLAB.NE.NSLABT)THEN
+        WRITE(KFILDO,120)NSLABT,NSLAB,(JD(J),J=1,4)
+ 120    FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1          ' 2-M TEMP AND THE GFS TERRAIN HEIGHT',
+     2          '.',I3,2X,I3,
+     3         /'     VARIABLE ',I9.9,2I10.9,I4.3,
+     4          ' NOT COMPUTED IN ADTEMP.')
+        IER=100
+        GOTO 800
+      END IF
+C
+      IF(MCX.NE.MDX.OR.MCY.NE.MDY)THEN
+C
+C        THE GRID CHARACTERISTICS ARE NOT THE SAME
+C
+        WRITE(KFILDO,125)(MDTT(J),J=1,4),(NGRIDC(J,NSLABT),J=1,6),
+     1                    MDX,MDY,
+     2                   (LD(J),J=1,4),(NGRIDC(J,NSLAB),J=1,6),
+     3                    MCX,MCY
+ 125    FORMAT(/' ****THE GRIDS NEEDED IN ADTEMP HAVE ',
+     1          'DIFFERENT CHARACTERISTICS AT 125.  PREDICTOR ',
+     2          'NOT COMPUTED. VALUES FROM NGRIDC(,) AND ',
+     3          'MX,MY.',
+     4        (/5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+        IER=100
+        GOTO 800
+      END IF
+C
+C       CREATE ID FOR LAPSE RATE
+C
+      MDLR(1)=ICCCFFF(2)*1000+IDPARS(4)
+      MDLR(2)=970
+      MDLR(3)=IDPARS(9)*1000000+IDPARS(12)
+      MDLR(4)=0
+C
+C        FETCH THE LAPSE RATE.
+C        DATA1 IS DIMENSIONED AS ND5 HERE.
+C        ID FOR LAPSE RATE IS 002077.
+C
+      CALL PRSID1(KFILDO,MDLR,MDPARS)
+      CALL LAPSER(KFILDO,KFIL10,MDPARS,MDLR,NDATE,
+     1            NGRIDC,ND11,NSLABD,IPACK,IWORK,DATA1,ND5,
+     2            LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3            IS0,IS1,IS2,IS4,ND7,
+     4            FD2,FD3,FD4,ND2X3,ISTAV,
+     5            L3264B,MISTOT,IER)
+C
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+      IF(IER.NE.0)GOTO 800
+      MNX=IS2(3)
+      MNY=IS2(4)
+C
+C        COMPARE THE GRID CHARACTERISTICS.
+C
+      IF(NSLABD.NE.NSLABT)THEN
+        WRITE(KFILDO,140)NSLABT,NSLABD,(JD(J),J=1,4)
+ 140    FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1          ' 2-M TEMP AND THE LAPSE RATE',
+     2          '.',I3,2X,I3,
+     3         /'     VARIABLE ',I9.9,2I10.9,I4.3,
+     4          ' NOT COMPUTED IN ADTEMP.')
+        IER=100
+        GOTO 800
+      END IF
+C
+      IF(MNX.NE.MDX.OR.MNY.NE.MDY)THEN
+C
+C        THE GRID CHARACTERISTICS ARE NOT THE SAME
+C
+        WRITE(KFILDO,145)(MDTT(J),J=1,4),(NGRIDC(J,NSLABT),J=1,6),
+     1                    MDX,MDY,
+     2                   (MDLR(J),J=1,4),(NGRIDC(J,NSLABD),J=1,6),
+     3                    MNX,MNY
+ 145    FORMAT(/' ****THE GRIDS NEEDED IN ADTEMP HAVE ',
+     1          'DIFFERENT CHARACTERISTICS AT 145.  PREDICTOR ',
+     2          'NOT COMPUTED. VALUES FROM NGRIDC(,) AND ',
+     3          'MX,MY.',
+     4        (/5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+        IER=100
+        GOTO 800
+      END IF
+C
+C        SMOOTH GRID POINT DATA BEFORE INTERPOLATION.
+C
+      ISMTH=IDPARS(14)
+C
+      IF(ISMTH.LT.0.OR.ISMTH.GT.5) THEN
+        WRITE(KFILDO,FMT='(1X,''**** THE TYPE OF SMOOTHING IS NOT '',
+     1        ''ACCOMMODATED BY SUBROUTINE ADTEMP, IDPARS(14) = '',I2)') 
+     2        IDPARS(14)
+        IER=150
+        GOTO 800
+      END IF
+      IF(ISMTH.EQ.0) GOTO 700
+C 
+      SELECT CASE(ISMTH) 
+C
+C        FIVE-POINT SMOOTHING
+C
+        CASE(1)
+          CALL SMTH5 (KFILDO,FD1,FD2,MNX,MNY)
+          CALL SMTH5 (KFILDO,DATA1,FD3,MNX,MNY)
+C
+C        NINE-POINT SMOOTHING
+C
+        CASE(2)
+          CALL SMTH9 (KFILDO,FD1,FD2,MNX,MNY)
+          CALL SMTH9 (KFILDO,DATA1,FD3,MNX,MNY)
+C
+C        25-POINT SMOOTHING
+C
+        CASE(3)
+          CALL SMTH25 (KFILDO,FD1,FD2,MNX,MNY)        
+          CALL SMTH25 (KFILDO,DATA1,FD3,MNX,MNY)        
+C
+C        81-POINT SMOOTHING
+C
+        CASE(4)
+          CALL SMTH2X (KFILDO,FD1,FD2,MNX,MNY)        
+          CALL SMTH2X (KFILDO,DATA1,FD3,MNX,MNY)        
+C
+C        169-POINT SMOOTHING
+C
+        CASE(5)
+          CALL SMTH3X (KFILDO,FD1,FD2,MNX,MNY)        
+          CALL SMTH3X (KFILDO,DATA1,FD3,MNX,MNY)        
+      END SELECT
+C
+C        INTERPOLATE FROM GRIDPOINTS TO STATIONS.
+C        ELEVATION ALREADY INTERPOLATED AT STATIONS.
+C
+ 700  JNTRP=IDPARS(13)
+C
+      IF(JNTRP.NE.1.AND.JNTRP.NE.2.AND.JNTRP.NE.4) THEN
+       WRITE(KFILDO,FMT='(1X,''**** THE TYPE OF INTERPOLATION IS NOT '',
+     1       ''ACCOMMODATED BY SUBROUTINE ADTEMP, IDPARS(13) = '',I2)') 
+     2        IDPARS(13)
+        IER=160
+        GOTO 800
+      ENDIF
+C
+C        INTERPOLATE DATA
+C        NSLAB IS SET TO NSLABD FOR UNIFORMITY OF CODE
+C
+      NSLAB=NSLABD
+C
+      SELECT CASE(JNTRP)
+C
+C        BIQUADRATIC INTERPOLATION
+C
+        CASE(1)
+          CALL INTRPA(KFILDO,DATA,MNX,MNY,DIR(1,1,NSLAB),ND1,NSTA,FD2)
+          CALL INTRPA(KFILDO,FD1,MNX,MNY,DIR(1,1,NSLAB),ND1,NSTA,FD3)
+          CALL INTRPA(KFILDO,DATA1,MNX,MNY,DIR(1,1,NSLAB),ND1,NSTA,FD4)
+C
+C        BILINEAR INTERPOLATION
+C
+        CASE(2)
+          CALL INTRPB(KFILDO,DATA,MNX,MNY,DIR(1,1,NSLAB),ND1,NSTA,FD2)
+          CALL INTRPB(KFILDO,FD1,MNX,MNY,DIR(1,1,NSLAB),ND1,NSTA,FD3)
+          CALL INTRPB(KFILDO,DATA1,MNX,MNY,DIR(1,1,NSLAB),ND1,NSTA,FD4)
+C
+C        CLOSEST GRID POINT
+C
+        CASE(4)
+          CALL INTRPC(KFILDO,DATA,MNX,MNY,DIR(1,1,NSLAB),ND1,NSTA,FD2)
+          CALL INTRPC(KFILDO,FD1,MNX,MNY,DIR(1,1,NSLAB),ND1,NSTA,FD3)
+          CALL INTRPC(KFILDO,DATA1,MNX,MNY,DIR(1,1,NSLAB),ND1,NSTA,FD4)
+C
+      END SELECT
+C
+C        COMPUTATION OF ADJUSTED TEMPERATURE.
+C
+      DO I=1,NSTA
+C
+C        FORMULA IS ADJUSTED TEMP = 2-M TEMP + LAPSE RATE *
+C                                   (STA ELEVATION - GFS TERRAIN)
+C
+        IF(NINT(FD2(I)).NE.9999.AND.NINT(FD3(I)).NE.9999.AND.
+     1     NINT(FD4(I)).NE.9999.AND.NELEV(I).NE.9999) THEN
+           SDATA(I) = FD3(I) + (FD4(I)*((NELEV(I)*0.3408)-FD2(I)))
+        ELSE
+           SDATA(I)=9999.
+        ENDIF
+C        
+      END DO
+C
+      GOTO 900
+C
+C        SET OUTPUT FIELD TO MISSING WHEN AN ERROR HAS OCCURRED.
+C 
+ 800  DO 801 J=1,ND1
+        SDATA(J)=9999.
+ 801  CONTINUE
+C
+ 900  ISTAV=1
+      RETURN
+      END

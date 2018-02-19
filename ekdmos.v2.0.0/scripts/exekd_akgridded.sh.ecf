@@ -1,0 +1,199 @@
+########################################################################
+#  Job Name: exekd_akgridded.sh.ecf
+#  Purpose:  To run ekd_granalysis to create gridded EKDMOS CDF
+#           percentile for each element on the NDFD grid at 2.9 km
+#           for the Alaska domain.
+#
+#  Remarks: This script is kicked off when exekd_stnpst.sh.ecf 
+#           has completed.  It will simultaneously start runs for 
+#           tmp, dew, max, min, and all. This are supplied
+#           by command line arguments.  A command line arguement of
+#           "all"  will run every elements single value forecast rather
+#           then the CDF precentiles.
+#
+#  HISTORY: June      2010    JLW  - Created from Jerry's script
+#           November  2012    JLW  - Updated to run on the WCOSS
+#
+#######################################################################
+echo EKDLOG: `date` - Begin job exekd_akgridded.sh.ecf
+
+export PS4='$SECONDS + '
+set -x
+export ELEM=$1
+export STEP=$2
+msg="$job has begun on `hostname` at `date` for $ELEM $STEP"
+postmsg "$jlogfile" "$msg"
+
+########################################
+# Establish Subdirectories to make thread safe
+########################################
+export DATAsub=$DATA/${ELEM}_${STEP}
+mkdir $DATAsub
+cd $DATAsub 
+
+#######################################################################
+# SETTING DATE AND CYCLE TIMES
+#######################################################################
+echo $PDY $cyc : Date and Cycle - echo PDY and cyc
+
+cp $DATA/NMCDATE $DATAsub
+cp $DATA/ncepdate $DATAsub
+
+export COMIN COMOUT
+#######################################################################
+#  COPY THE EKDMOS FORECASTS FROM COM TO DATAsub DIRECTORY
+#######################################################################
+cp ${COMIN}/naefs_akgekddmo_sq.$cycle $DATAsub
+cp $COMIN/naefs_stnekdcdffcsts_sq.$cycle  $DATAsub
+cp $COMIN/naefs_stnekdsngvfcsts_sq.$cycle $DATAsub
+
+#######################################################################
+#
+# PROGRAM GRANALYSIS - PERFORMS THE ANALYSIS OF THE MOS FORECASTS 
+#                      ONTO A GRID.
+#   FIRST:  COPY THE RANDOM ACCESS TEMPLATE FILE FROM FIX
+#######################################################################
+cp $FIXekd/ekd_rafile_template naefs_akgekdfcsts_${ELEM}_ra_${STEP}.$cycle
+cp $FIXekd/ekd_analysisgrconst_ak ${DATAsub}
+cp $PARMekd/ekd_ak_granlstation_radii $DATAsub
+cp $PARMekd/ekd_akbogusfile.temp $DATAsub
+#########################################################
+echo EKDLOG: `date` - begin job GRANALYSIS for $ELEM probabilities
+export pgm=mdl_granalyis
+. prep_step
+export FORT10="ncepdate"
+export FORT20="ekd_akbogusfile.temp"
+export FORT26="$PARMekd/ekd_granlsta_ak.lst"
+export FORT27="$PARMekd/ekd_granlsta_ak.tbl"
+export FORT29="$FIXekd/ekd_mos2000id.tbl"
+export FORT37="$PARMekd/ekd_akgranlstation_pairs"
+export FORT38="${PARMekd}/ekd_akgranlids_${ELEM}_${STEP}.$cycle"
+export FORT40="ekd_ak_granlstation_radii"
+export FORT44="ekd_analysisgrconst_ak"
+
+export FORT30="naefs_akgekddmo_sq.$cycle"
+export FORT42="naefs_akgekdfcsts_${ELEM}_ra_${STEP}.$cycle"
+export FORT35="naefs_akgekdfcsts_${ELEM}_sq_${STEP}.$cycle"
+#
+if [[ $ELEM == "all" ]]; then
+   export FORT50="$PARMekd/ekd_u405atmpmakcn"
+   export FORT51="$PARMekd/ekd_u405adewmakcn"
+   export FORT52="$PARMekd/ekd_u405amaxmakcn"
+   export FORT53="$PARMekd/ekd_u405aminmakcn"
+   export FORT80="naefs_stnekdsngvfcsts_sq.$cycle"
+   export FORT81="naefs_stnekdsngvfcsts_sq.$prevcycle"
+   startmsg
+   $EXECekd/ekd_granalysis < $PARMekd/ekd_granalysis_all_ak.cn >> $pgmout
+   export err=$?;err_chk
+else
+   export FORT50="$PARMekd/ekd_u405a${ELEM}akcn"
+   export FORT80="naefs_stnekdcdffcsts_sq.$cycle"
+   export FORT81="naefs_stnekdcdffcsts_sq.$prevcycle"
+   startmsg
+   $EXECekd/ekd_granalysis < $PARMekd/ekd_granalysis_ak.cn >> $pgmout
+   export err=$?;err_chk
+fi
+cp naefs_akgekdfcsts_${ELEM}_sq_${STEP}.$cycle $COMOUT
+
+#######################################################################
+#
+# PROGRAM GRIDPOST - PERFORMS POST-PROCESSING OF THE GRIDDED MOS
+#                    FORECASTS.
+#######################################################################
+export pgm=ekd_gridpost 
+. prep_step
+export FORT10="ncepdate"
+export FORT26="$PARMekd/ekd_granlsta_ak.lst"
+export FORT27="$PARMekd/ekd_granlsta_ak.tbl"
+export FORT28="${PARMekd}/ekd_akgridpost_${ELEM}_${STEP}.$cycle"
+export FORT29="$FIXekd/ekd_mos2000id.tbl"
+export FORT35="naefs_akgekdpst_${ELEM}_sq_${STEP}.$cycle"
+export FORT42="naefs_akgekdfcsts_${ELEM}_ra_${STEP}.$cycle"
+startmsg
+$EXECekd/ekd_gridpost < $PARMekd/ekd_gridpost.cn  >> $pgmout
+export err=$?;err_chk
+
+echo EKDLOG: `date` -  GRIDPOST ended
+
+#######################################################################
+# PROGRAM GRD2GRD - INTERPOLATE DATA TO BE PUT IN GRIB2 FROM U155 3KM 
+#         (U365)    AK GRID TO FULL NDFD 3KM AK GRID (THE 1.8 MILLION)
+#######################################################################
+cp $FIXekd/ekd_rafile_template naefs_akgekdndgd_${ELEM}_ra_${STEP}.$cycle
+echo EKDLOG: `date` - begin job GRD2GRD - INTERPOLATE TO NDFD GRID
+
+export pgm=ekd_grd2grd
+. prep_step
+startmsg
+export FORT10="ncepdate"
+export FORT25="naefs_akgekdpst_${ELEM}_sq_${STEP}.$cycle"
+export FORT28="$FIXekd/ekd_mos2000id.tbl"
+export FORT27="$PARMekd/ekd_akgrd2grd_${ELEM}_${STEP}.$cycle"     
+export FORT42="naefs_akgekdndgd_${ELEM}_ra_${STEP}.$cycle"
+$EXECmdl/mdl_grd2grd < $PARMekd/ekd_grd2grd_akndfd.cn >> $pgmout 2>errfile
+export err=$?; err_chk
+if test "$SENDCOM" = 'YES'
+then
+   cp naefs_akgekdndgd_${ELEM}_ra_${STEP}.$cycle $COMOUT
+   cp naefs_akgekdpst_${ELEM}_sq_${STEP}.$cycle $COMOUT
+   cp naefs_akgekdfcsts_${ELEM}_ra_${STEP}.$cycle $COMOUT
+fi
+echo MDLLOG: `date` - GRD2GRD ended
+
+#######################################################################
+# PROGRAM RA2GRIB2 - CODES TDLPACK ENSMOS FORECASTS INTO GRIB2. 
+#
+####################################################################### 
+if [[ $ELEM == "tmp" || $ELEM == "dew" || $ELEM == "max" || $ELEM == "min" ]]; then
+   echo "ELEM=$ELEM"
+   for threshold in 05 10 20 30 40 50 60 70 80 90 95;do
+      echo "threshold=$threshold"
+      sed -e "s/TT/$threshold/g" $FIXekd/naefs_akgekdgb2sect4${ELEM}_${STEP}.$cycle > ${DATAsub}/naefs_akgekdgb2sect4${ELEM}_${STEP}.$cycle
+      export pgm=ekd_ra2grib2
+      . prep_step
+      export FORT10="ncepdate"
+      export FORT31="$FIXekd/naefs_gekdgb2sect0-1"
+      export FORT32="$FIXekd/naefs_akgekdgb2sect3"
+      export FORT33="naefs_akgekdgb2sect4${ELEM}_${STEP}.$cycle"
+      export FORT34="$FIXekd/naefs_akgekdgb2sect5${ELEM}_${STEP}.$cycle"
+      export FORT29="$FIXekd/ekd_mos2000id.tbl"
+      export FORT44="naefs_akgekdndgd_${ELEM}_ra_${STEP}.$cycle"
+      export FORT60="naefs_akgekdgb2${ELEM}${threshold}_${STEP}.$cycle"
+      startmsg
+      $EXECekd/ekd_ra2grib2 < $PARMekd/ekd_ra2grib2ak.cn >> $pgmout
+      export err=$?;err_chk
+      if test "$SENDCOM" = 'YES'
+         then
+            cp naefs_akgekdgb2${ELEM}${threshold}_${STEP}.$cycle $COMOUT
+      fi
+
+      echo EKDLOG: `date` -  RA2GRIB2 for $ELEM $threshold ended
+   done
+
+elif [[ $ELEM == "all" ]]; then
+   for ELEMs in tmp dew max min;do
+      export pgm=ekd_ra2grib2
+      . prep_step
+      export FORT10="ncepdate"
+      export FORT31="$FIXekd/naefs_gekdgb2sect0-1"
+      export FORT32="$FIXekd/naefs_akgekdgb2sect3"
+      export FORT33="$FIXekd/naefs_akgekdgb2sect4${ELEMs}_mean_${STEP}.$cycle"
+      export FORT34="$FIXekd/naefs_akgekdgb2sect5${ELEMs}_mean_${STEP}.$cycle"
+      export FORT29="$FIXekd/ekd_mos2000id.tbl"
+      export FORT44="naefs_akgekdndgd_${ELEM}_ra_${STEP}.$cycle" 
+      export FORT60="naefs_akgekdgb2${ELEMs}_mean_${STEP}.$cycle"
+      startmsg
+      $EXECekd/ekd_ra2grib2 < $PARMekd/ekd_ra2grib2ak.cn >> $pgmout
+      export err=$?;err_chk
+      if test "$SENDCOM" = 'YES'
+       then
+         cp naefs_akgekdgb2${ELEMs}_mean_${STEP}.$cycle $COMOUT
+      fi
+
+      echo EKDLOG: `date` -  RA2GRIB2 for $ELEMs ended
+   done
+fi
+
+#######################################################################
+echo EKDLOG: `date` -  exekd_gridded.sh.ecf ended for $ELEM step $STEP
+#######################################################################

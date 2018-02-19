@@ -1,0 +1,397 @@
+      SUBROUTINE TMPADV(KFILDO,KFIL10,IDPARS,JD,NDATE,
+     1                  NGRIDC,ND11,NSLAB,IPACK,IWORK,FDTA,ND5,
+     2                  LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                  IS0,IS1,IS2,IS4,ND7,
+     4                  FD1,FD2,FD3,FD4,FDSINS,FDMS,ND2X3,
+     5                  ISTAV,L3264B,MISTOT,IER)
+C
+C        FEBRUARY 1998   YAN     TDL   MOS-2000
+C        MAY      2000   DALLAVALLE  ELIMINATED SOME OF THE WRITE
+C                                STATEMENTS; ALSO CONVERTED
+C                                THE LOWER-CASE COMMENTS TO
+C                                UPPER-CASE AND CHANGED THE
+C                                FORMAT STATEMENTS TO CONFORM
+C                                TO FORTRAN 90 STANDARDS ON
+C                                THE IBM-SP
+C        OCTOBER  2002   WEISS   CHANGED ND5 TO ND2X3 
+C        MAY      2003   GLAHN   REARRANGED CALL AND TYPE STATEMENTS;
+C                                DIAGNOSTICS; CHANGED STATEMENT NUMBER
+C                                400 TO 650; 
+C        AUGUST   2003   GLAHN   MODIFIED TO USE WINDS AT 10 M WHEN A
+C                                CONSTANT HEIGHT SURFACE OF 2 IS
+C                                SPECIFIED; ADDED ND( ) AND NDPARS( )
+C        OCTOBER  2003   SMB     MODIFIED FORMAT STATEMENT 650 FOR   
+C                                THE IBM
+C
+C        PURPOSE 
+C            TO COMPUTE TEMPERATURE ADVECTION ON AN ISOBARIC, OR A
+C            CONSTANT HEIGHT, OR A SIGMA SURFACE.  SPECIFIC HUMIDITY AND
+C            U AND V WIND COMPONENTS ARE REQUIRED IN THE COMPUTATION.
+C
+C            THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED:
+C
+C               004 320 - ADVECTION OF TEMPERATURE COMPUTED FROM 
+C                         U AND V COMPONENTS ON AN ISOBARIC SURFACE
+C               004 321 - ADVECTION OF TEMPERATURE COMPUTED FROM 
+C                         U AND V COMPONENTS ON A CONSTANT HEIGHT SURFACE
+C                         10-M WINDS USED FOR 2-M TEMPERATURE 
+C                         [IDPARS(7)=2)].
+C               004 326 - ADVECTION OF TEMPERATURE COMPUTED FROM 
+C                         U AND V COMPONENTS ON A CONSTANT SIGMA SURFACE
+C
+C        DATA SET USE 
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS 
+C                     (INPUT-OUTPUT) 
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE   
+C                     (OUTPUT) 
+C 
+C        VARIABLES 
+C             CORE(J) = ARRAY TO STORE OR RETRIEVE DATA IDENTIFIED IN
+C                       LSTORE( , ) (J=1,ND10).  WHEN CORE( ) IS FULL,
+C                       DATA ARE STORED ON DISK.  UPON RETURN TO THE
+C                       CALLING PROGRAM, THE ARRAY WILL BE IN THE SIZE
+C                       OF LX*LY (OUTPUT).
+C              FD1(J) = DUMMY WORK ARRAY (J=1,ND2X3) (INTERNAL)
+C              FD2(J) = DUMMY WORK ARRAY (J=1,ND2X3) (INTERNAL)
+C              FD3(J) = DUMMY WORK ARRAY (J=1,ND2X3) (INTERNAL)
+C              FD4(J) = DUMMY WORK ARRAY (J=1,ND2X3) (INTERNAL)
+C             FDTA(J) = DATA ARRAY TO HOLD TEMPERATURE (DEG K) AND
+C                       TEMPERATURE ADVECTION (DEG K/SEC) (ND5) 
+C                       (OUTPUT)
+C           FDMS(I,J) = ARRAY TO SAVE THE MAP FACTOR IN SUBROUTINE
+C                       ADVCTW (I=1,LX) (J=1,LY).  IT IS ONLY USED AS A
+C                       PLACEHOLDER FOR SUBROUTINE CALLS. (INTERNAL)
+C         FDSINS(I,J) = ARRAY TO SAVE THE SINE OF THE LATITUDE IN
+C                       SUBROUTINES ADVCTW (I=1,LX) (J=1,LY).  IT IS 
+C                       ONLY USED AS A PLACEHOLDER FOR SUBROUTINE CALLS.
+C                       (INTERNAL)
+C                 I,J = LOOP COUNT (INTERNAL)
+C       ICCCFFF ( , ) = CONTAINS IDPARS(1) AND IDPARS(2) ID FOR THE 
+C                       METEOROLOGICAL FIELDS BEING FETCHED OR COMPUTED.
+C                       COLUMN 1 CONTAINS ID FOR ISOBARIC SURFACE,
+C                       COLUMN 2 CONTAINS ID FOR CONSTANT HEIGHT SURFACE
+C                       AND COLUMN 3 CONTAINS ID FOR SIGMA SURFACE.  ROW
+C                       1 IS FOR TEMPERATURE IN DEG K, AND ROW 2 IS FOR
+C                       U WIND COMPONENT IN M/S. (INTERNAL)
+C           IDPARS(J) = PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID CORRESPONDING TO ID(J) (J=1,15) DEFINED IN
+C                       THE CALLING PROGRAM (INPUT)
+C                       J=1 -- CCC (CLASS OF VARIABLE)
+C                       J=2 -- FFF (SUBCLASS OF VARIABLE)
+C                       J=3 -- B (BINARY INDICATOR)
+C                       J=4 -- DD (DATA SOURCE, MODEL NUMBER)
+C                       J=5 -- V (VERTICAL APPLICATION)
+C                       J=6 -- LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 
+C                              LAYER)
+C                       J=7 -- LTLTLTLT (TOP OF LAYER)
+C                       J=8 -- T (TRANSFORMATION)
+C                       J=9 -- RR (RUN TIME OFFSET -- PREVIOUS CYCLE.
+C                              IT IS ALWAYS A POSITIVE NUMBER AND
+C                              COUNTED BACKWARDS IN TIME)
+C                       J=10 -- OT (TIME APPLICATION)
+C                       J=11 -- OH (TIME PERIOD IN HOURS)
+C                       J=12 -- TAU (PROJECTION IN HOURS)
+C                       J=13 -- I (INTERPOLATION TYPE)
+C                       J=14 -- S (SMOOTHING INDICATOR)
+C                       J=15 -- G (GRID INDICATOR)
+C                 IER = STATUS RETURN
+C                         0 = GOOD RETURN
+C                       100 = GRID CHARACTERISTICS ARE DIFFERENT FOR THE
+C                             2 FIELDS.
+C                       103 = IDPARS(1) AND IDPARS(2) NOT ACCOMMODATED
+C                             IN THIS SUBROUTINE
+C                       SEE GFETCH FOR OTHER VALUES WHEN IER.NE.0 AND
+C                       DATA ARE RETURNED AS MISSING (INTERNAL-OUTPUT)
+C            IPACK(J) = WORK ARRAY (J=1,ND5) (INTERNAL)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 IDS (J=1,3) (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 IDS (J=1,22+) (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 IDS (J=1,12)
+C                       IS2(3) AND IS2(4) ARE USED BY THE CALLING
+C                       PROGRAM AS GRID DIMENSION (INTERNAL-OUTPUT)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 IDS (J=1,4) (INTERNAL)
+C                 ISO = VARIABLE TO INDICATE WHICH SURFACE TO COMPUTE
+C                       TEMPERATURE ADVECTION ON.  (1 FOR ISOBARIC, 2 FOR
+C                       CONSTANT HEIGHT, 3 FOR SIGMA SURFACE) (INTERNAL)
+C               ISTAV = 0 -- WHEN THE DATA RETURNED ARE GRID DATA OR
+C                            DATA ARE NOT AVAILABLE FOR RETURN
+C                       1 -- WHEN THE DATA RETURNED ARE STATION DATA
+C                       (OUTPUT)
+C            IWORK(J) = WORK ARRAY (J=1,ND5) (INTERNAL)
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).  THIS IS
+C                       THE SAME AS ID(J) EXCEPT THAT THE PORTIONS
+C                       PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3)
+C                       T = IDPARS(8)
+C                       I = IDPARS(13)
+C                       S = IDPARS(14)
+C                       G = IDPARS(15)
+C                       JD( ) IS USED TO HELP IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS
+C                       (INPUT)
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                       (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS DEPENDING ON THE
+C                       MACHINE BEING USED (EITHER 32 OR 64) (INPUT)
+C               LD(J) = WORK ARRAY HOLDING THE 4 ID WORDS OF TEMPERATURE
+C                       BEING FETCHED (J=1,4) (INTERNAL)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT HAVE BEEN USED IN THIS RUN (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS) (INPUT-OUTPUT)
+C                       L=1,4-- THE 4 IDS FOR THE DATA
+C                       L=5  -- LOCATION OF STORED DATA.  WHEN IN CORE,
+C                               THIS IS THE LOCATION IN CORE( ) WHERE
+C                               THE DATA START.  WHEN ON DISK, THIS IS
+C                               MINUS THE RECORD NUMBER WHERE THE DATA
+C                               START.
+C                       L=6  -- THE NUMBER OF 4-BYTE WORDS STORED
+C                       L=7  -- 2 FOR DATA PACKED IN TDL GRIB FORMAT,
+C                               1 OTHERWISE
+C                       L=8  -- DATE/TIME OF THE DATA IN FORMAT
+C                               YYYYMMDDHH
+C                       L=9  -- NUMBER OF TIMES DATA HAVE BEEN RETRIEVED
+C                       L=10 -- NUMBER OF THE SLAB IN DIR( , ,L) AND IN
+C                               NGRIDC( ,L) DEFINING THE CHARACTERISTICS
+C                               OF THE GRID
+C                       L=11 -- NUMBER OF PREDICTORS IN THE SORTED LIST
+C                               IN IS( ,N) (N=1,NPRED) FOR WHICH THIS
+C                               VARIABLE IS NEEDED ONLY ONCE FROM
+C                               LSTORE( , ).  WHEN IT IS NEEDED MORE
+C                               THAN ONCE, THE VALUE IS SET TO 7777.
+C                       L=12 -- USED INITIALLY IN ESTABLISHING
+C                               MSTORE( , ).  LATER USED TO DETERMINE
+C                               WHETHER TO KEEP THIS VARIABLE
+C               LX,LY = DIMENSIONS OF THE GRID RETURNED FROM CALLING
+C                       GFETCH FOR FETCHING TEMPERATURE (INTERNAL)
+C               MD(J) = WORK ARRAY HOLDING THE 4 ID WORDS OF U WIND
+C                       COMPONENT FOR PRINTING PURPOSE (J=1,4) IF THE
+C                       GRID CHARACTERISTICS ARE DIFFERENT (INTERNAL)
+C               MISSP = PRIMARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO
+C                       MISSING VALUE (INTERNAL)
+C               MISSS = SECONDARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO
+C                       SECONDARY MISSING VALUE (INTERNAL)
+C              MISTOT = TOTAL NUMBER OF MISSING ITEMS ENCOUNTED IN
+C                       UNPACKING GRIDS (INPUT-OUTPUT)
+C               MX,MY = DIMENSIONS OF THE GRID RETURNED FROM CALLING
+C                       ADVCTW FOR TEMPERATURE ADVECTION (INTERNAL)
+C              NBLOCK = BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM DISK
+C                       FILE (INPUT)
+C               ND2X3 = DIMENSION OF FD1( ), FD2( ), FD3( ), FD4( ),
+C                       FDMS( ), AND FDSINS( ) (INPUT)
+C                 ND5 = FORMER DIMENSION OF IPACK( ),IWORK( ), AND 
+C                       FDTA( ) (INPUT)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED. (INPUT)
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ) (INPUT)
+C                ND10 = DIMENSION OF CORE( ) (INPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH IN THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ) (INPUT)
+C               NDATE = DATE/TIME FOR WHICH THE PREDICTOR IS NEEDED
+C                       (INPUT)
+C               ND(J) = WORK ARRAY HOLDING THE 4 ID WORDS OF FOR 
+C                       ENTERING WIND ADVECTION (J=1,4) (INTERNAL)
+C           NDPARS(J) = PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID CORRESPONDING TO WIND ADVECTION (J=1,15).
+C                       (INTERNAL)
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.  IT IS
+C                       A RUNNING COUNT FROM THE BEGINNING OF THE MAIN
+C                       PROGRAM.  THIS COUNT IS MAINTAINED IN CASE THE
+C                       USER NEEDS IT FOR DIAGNOSTICS, ETC. (OUTPUT)
+C         NGRIDC(L,M) = HOLDING THE GRID CHARACTERISTICS (L=1,6) FOR
+C                       EACH GRID COMBINATION (M=1,NGRID) (INPUT-OUTPUT)
+C                       L=1 -- MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                              STEREOGRAPHIC)
+C                       L=2 -- GRID LENGTH IN METERS
+C                       L=3 -- LATITUDE AT WHICH GRID LENGTH IS CORRECT
+C                              *1000
+C                       L=4 -- GRID ORIENTATION IN DEGREES *1000
+C                       L=5 -- LATITUDE OF LL CORNER IN DEGREES *1000
+C                       L=6 -- LONGITUDE OF LL CORNER IN DEGREES *1000
+C               NPACK = 2 FOR TDL GRIB PACKED DATA; 1 OTHERWISE.  THIS 
+C                       IS RETURNED FROM CALLING GFETCH. (INTERNAL)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR( , , ) AND IN
+C                       NGRIDC( , ) DEFINING THE CHARACTERISTICS OF THE
+C                       GRID.  IT IS USED TO IDENTIFY THE DATA SOURCE,
+C                       I.E., THE MODEL. (OUTPUT)
+C              NSLABL = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH FOR
+C                       TEMPERATURE (INTERNAL)
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE, THAT
+C                       THE RECORD HAS BEEN FETCHED.  THIS IS STORED IN
+C                       LSTORE(9, ) (INTERNAL)
+C              NWORDS = NUMBER OF WORDS RETURNED IN FDTA( ).  THIS IS
+C                       RETURNED FROM CALLING GFETCH. (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES CALLED 
+C            ADVCTW, GFETCH, PRSID1
+C
+      IMPLICIT NONE
+C
+      INTEGER JD(4),IDPARS(15)
+      INTEGER IPACK(ND5),IWORK(ND5)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER LSTORE(12,ND9)
+      INTEGER NGRIDC(6,ND11)
+      INTEGER ICCCFFF(3,3),LD(4),MD(4),ND(4),NDPARS(15)
+      INTEGER I,IER,ISO,ISTAV,J,KFILDO,KFIL10,L3264B,LITEMS,LX,LY,MISSP,
+     +        MISSS,MISTOT,MX,MY,NBLOCK,ND2X3,ND5,ND7,ND9,ND10,ND11,
+     +        NDATE,NFETCH,NPACK,NSLAB,NSLABL,NTIMES,NWORDS
+C
+      REAL FDTA(ND5)
+      REAL FD1(ND2X3),FD2(ND2X3),FD3(ND2X3),FD4(ND2X3),FDMS(ND2X3),
+     +     FDSINS(ND2X3)
+      REAL CORE(ND10)
+C
+      DATA ((ICCCFFF(I,J),J=1,3),I=1,2) /002000,002001,002006,
+     +                                   004000,004020,004016/
+C
+      IER=0
+      ISTAV=0
+C
+C        CHECK IF THIS CODE ACCOMMODATES TEMPERATURE ADVECTION.
+C
+      IF(IDPARS(1).NE.004.OR.(IDPARS(2).NE.320.AND.
+     +   IDPARS(2).NE.321.AND.IDPARS(2).NE.326))THEN
+         IER=103
+         WRITE(KFILDO,100)(JD(J),J=1,4)
+ 100     FORMAT(/' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE',
+     1           ' TEMPERATURE ADVECTION.',
+     2          /'  VARIABLE ',3(I10.9),I4.3,' NOT ',
+     3           ' COMPUTED IN TMPADV.')
+         GO TO 900
+      END IF
+C
+C        DETERMINE IF TEMPERATURE ADVECTION IS TO BE COMPUTED ON AN
+C        ISOBARIC, OR A CONSTANT HEIGHT, OR A SIGMA SURFACE 
+C
+      IF(IDPARS(2).EQ.320)THEN
+C           THIS IS DATA FOR A CONSTANT PRESSURE SURFACE.
+         ISO=1
+      ELSE IF(IDPARS(2).EQ.321)THEN
+C           THIS IS DATA FOR A CONSTANT HEIGHT SURFACE.
+         ISO=2
+      ELSE 
+C           THIS IS DATA FOR A SIGMA SURFACE.
+         ISO=3
+      ENDIF
+C 
+C        OBTAIN TEMPERATURE IN COMPUTING ITS ADVECTION.
+
+C        CREATE IDS FOR FETCHING TEMPERATURE
+C
+      LD(1)=ICCCFFF(1,ISO)*1000+IDPARS(4)
+      LD(2)=IDPARS(7)
+      LD(3)=IDPARS(9)*1000000+IDPARS(12)
+      LD(4)=0
+C
+C        CALL GFETCH TO FETCH TEMPERATURE FDTA( ).
+C
+      CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FDTA,ND5,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLABL,MISSP,MISSS,L3264B,1,IER)
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,300)(JD(J),J=1,4)
+ 300     FORMAT(/' ****ATTEMPT TO FETCH TEMPERATURE FAILED IN GFETCH.',
+     1           '  VARIABLE ',3(I10.9),I4.3,' NOT ',
+     2           ' COMPUTED IN TMPADV.')
+         GOTO 900
+      ENDIF
+C
+      LX=IS2(3)
+      LY=IS2(4)
+C
+C        CREATE IDS FOR ENTERING ADVCTW.
+C
+      ND(1)=ICCCFFF(1,ISO)*1000+IDPARS(4)
+C
+      IF(ISO.EQ.2.AND.IDPARS(7).EQ.2)THEN
+C           FOR A CONSTANT HEIGHT SURFACE OF 2 M, THE MATCHING
+C           WIND MUST BE AT 10 M.
+         ND(2)=10
+      ELSE
+         ND(2)=IDPARS(7)
+      ENDIF
+C
+      ND(3)=IDPARS(9)*1000000+IDPARS(12)
+      ND(4)=0
+C
+C        CALL PRSID1 TO PARSE IDS LD( ) TO LDPARS( )    
+C
+      CALL PRSID1(KFILDO,ND,NDPARS)
+C
+C        COMPUTE TEMPERATURE ADVECTION (UDT/DX+VDT/DY) BY CALLING
+C        ADVCTW.
+C
+      CALL ADVCTW(KFILDO,KFIL10,NDPARS,ICCCFFF(2,ISO),NDATE,
+     1            NGRIDC,ND11,NSLAB,IPACK,IWORK,FDTA,ND5,
+     2            LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3            IS0,IS1,IS2,IS4,ND7,
+     4            FD1,FD2,FD3,FD4,FDSINS,FDMS,ND2X3,
+     5            ISTAV,L3264B,MISTOT,IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,600)(JD(J),J=1,4)
+ 600     FORMAT(/'     ATTEMPT TO COMPUTE TEMPERATURE ADVECTION',
+     1           ' FAILED.  VARIABLE ',3(I10.9),I4.3,' NOT ',
+     2           ' COMPUTED IN TMPADV.')
+C           THIS DIAGNOSTIC WILL FOLLOW ONE IN ADVCTW.
+         GOTO 900
+      ENDIF
+C
+      MX=IS2(3)
+      MY=IS2(4)
+C
+      IF(NSLABL.NE.NSLAB.OR.LX.NE.MX.OR.LY.NE.MY)THEN
+C           THE GRID CHARACTERISTICS ARE NOT THE SAME.
+         IER=100
+C           CREATE IDS OF U WIND COMPONENT FOR PRINTING PURPOSE.
+	 MD(1)=ICCCFFF(2,ISO)*1000+IDPARS(4)
+	 MD(2)=IDPARS(7)
+         MD(3)=IDPARS(9)*1000000+IDPARS(12)
+	 MD(4)=0
+         WRITE(KFILDO,650)(LD(J),J=1,4),(NGRIDC(J,NSLABL),J=1,6),LX,LY,
+     +                    (MD(J),J=1,4),(NGRIDC(J,NSLAB),J=1,6),MX,MY, 
+     +                    IER
+ 650     FORMAT(/' ****DIFFERENT GRID CHARACTERISTICS.  PREDICTOR NOT ',
+     +           'COMPUTED IN TMPADV.  VALUES FROM NGRIDC( , ) AND X*Y '
+     +          ,'ARE: ',2(/,2X,3I10.9,I4.3,4X,6I10,4X,I3,'*',I3),
+     +           '  IER=',I3)
+         GOTO 900
+      ENDIF
+C
+C        SCALE THE TEMPERATURE ADVECTION.
+C
+      DO 700 I=1,LX*LY
+C
+         IF(FDTA(I).NE.9999.)THEN
+C              MULTIPLY THE TEMPERATURE ADVECTION FIELD BY 10^5.  THIS
+C              FACTOR WAS DECIDED BY COMPUTING THE RANGE, MEAN, AND
+C              STANDARD DEVIATION OF THE TEMPERATURE FIELD AT 1000 MB
+C              AND 500 MB DURING BOTH A SUMMER AND A WINTER CASE, AND
+C              THEN DETERMINING AN APPROPRIATE MULTIPLICATION FACTOR
+C              WHICH WOULD OBTAIN VALUES WHOSE METEOROLOGICAL SIGNIFI-
+C              CANCE IS CONTAINED IN THE INTEGER PART OF THE NUMBER.
+            FDTA(I)=FDTA(I)*100000.
+         ELSE
+            FDTA(I)=9999.
+         END IF
+C
+ 700  CONTINUE
+C
+      GOTO 999
+C
+C        FILL IN THE TEMPERATURE ADVECTION DATA ARRAY WITH MISSING VALUES.
+C
+ 900  DO I=1,ND2X3
+         FDTA(I)=9999.
+      ENDDO
+C
+ 999  RETURN
+      END

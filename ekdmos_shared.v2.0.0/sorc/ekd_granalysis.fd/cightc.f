@@ -1,0 +1,86 @@
+      SUBROUTINE CIGHTC(KFILDO,XDATA,NVAL,IER)
+C
+C        NOVEMBER  2009   GLAHN   TDL   MOS-2000
+C
+C        PURPOSE
+C            TO PREPROCESS A CEILING HEIGHT IN METERS TO A
+C            CATEGORICAL VALUE MATCHING THE CEILING HEITHT
+C            CATEGORIES USED IN MOS.  THE CATEGORY IS GIVEN
+C            A SCALED CONTINUOUS VALUE REPRESENTING THE ACTUAL
+C            HEIGHT.  FOR INSTANCE, ANY VALUE IN FT THAT IS
+C            LE TALBE(2,1) (200 FT) WIL BE GIVEN A VALUE FROM
+C            1. TO 1.9999, INDICATING THE NEARNESS TO THE END
+C            POINTS 0. AND 200.
+C
+C        DATA SET USE
+C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C            XDATA(K) = THE DATA TO TRANSORM TO CATEGORIES (K=1,NVAL).
+C                       IT IS ASSUMED INCOMING DATA ARE IN METERS.
+C                       (INPUT-OUTPUT)
+C                NVAL = THE NUMBER OF VALUES IN XDATA( ) BEING DEALT
+C                       WITH.  (INPUT)
+C                 IER = ERROR RETURN.
+C                       0 = GOOD RETURN.
+C                       (OUTPUT)
+C          TABLE(J,M) = HOLDS THE LOWER AND UPPER CATEGORY BREAKPOINTS
+C                       FOR THE NOCAT CATEGORIES OF CEILING HEIGHT
+C                       (M=1,NOCAT), (J=1,2).  (INTERNAL)
+C               NOCAT = THE NUMBER OF CEILING HEIGHT CATEGORIES FORECAST
+C                       BY LAMP.  A VALUE NOT LE TABLE(2,NOCAT) IS PUT
+C                       INTO A CATEGORY 8, MEANING UNLIMITED. 
+C                       (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C 
+C        NONSYSTEM SUBROUTINES USED 
+C            NONE
+C
+      PARAMETER(NOCAT=7)
+C
+      DIMENSION XDATA(NVAL)
+      DIMENSION TABLE(2,NOCAT)
+C
+      DATA TABLE/  0.,   2.,
+     2             2.,   5.,
+     3             5.,  10.,
+     4            10.,  20.,
+     5            20.,  30.,
+     6            30.,  65.,
+     7            65., 120./
+C
+D     CALL TIMPR(KFILDO,KFILDO,'START CIGHTC        ')
+      IER=0
+C
+D     WRITE(KFILDO,105)(XDATA(K),K=1,NVAL)
+D105  FORMAT(/,' IN CIGHTC AT 105--XDATA(K)',/,(15F8.2))
+C
+      DO 120 K=1,NVAL
+C
+      IF(NINT(XDATA(K)).NE.9999)THEN
+C
+      XDATA(K)=XDATA(K)*.003048006
+C        THE ABOVE TRANSFORMS SREF METERS TO HUNDREDS OF FT.
+      ENDIF
+C
+      DO 115 L=1,7
+C      
+      IF(XDATA(K).GT.TABLE(2,7))THEN
+         XDATA(K)=8.
+         GO TO 120
+C           
+      ELSEIF(XDATA(K).LT.TABLE(2,L))THEN
+         XDATA(K)=(XDATA(K)-TABLE(1,L))/(TABLE(2,L)-TABLE(1,L))
+         GO TO 120
+      ENDIF
+C
+ 115  CONTINUE
+C
+ 120  CONTINUE
+C
+D     WRITE(KFILDO,125)(XDATA(K),K=1,NVAL)
+D125  FORMAT(/,' IN CIGHTC AT 125--XDATA(K)',/,(15F8.2))
+C
+      RETURN
+      END

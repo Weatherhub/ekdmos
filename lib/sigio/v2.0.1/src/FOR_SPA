@@ -1,0 +1,18 @@
+Installation instructions:
+
+On the Cray system:
+- create module files for the new version in .../nwprod/lib/modulefiles/
+- cd into src folder 
+- module load PrgEnv-intel sigio-intel craype-sandybridge
+- make clean
+- module list 2>compile-intel.log
+- make &>>compile-intel.log
+- make nco_install
+- module switch PrgEnv-intel PrgEnv-cray
+- module switch sigio-intel sigio-cray-haswell
+- module switch craype-sandybridge craype-haswell
+- make clean
+- module list 2>compile-cray.log
+- make &>>compile-cray.log
+- make nco_install
+

@@ -1,0 +1,159 @@
++ module load PrgEnv-intel
+++ /opt/modules/3.2.6.7/bin/modulecmd bash load PrgEnv-intel
++ eval
++ module list
+++ /opt/modules/3.2.6.7/bin/modulecmd bash list
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.7
+  2) switch/1.0-1.0502.57058.1.58.ari
+  3) craype-network-aries
+  4) ncep/1.0
+  5) xt-lsfhpc/9.1.3
+  6) craype-haswell
+  7) craype/2.3.0
+  8) intel/15.0.3.187
+  9) cray-libsci/13.0.3
+ 10) udreg/2.3.2-1.0502.9889.2.20.ari
+ 11) ugni/6.0-1.0502.10245.9.9.ari
+ 12) pmi/5.0.6-1.0000.10439.140.2.ari
+ 13) dmapp/7.0.1-1.0502.10246.8.47.ari
+ 14) gni-headers/4.0-1.0502.10317.9.2.ari
+ 15) xpmem/0.1-2.0502.57015.1.15.ari
+ 16) alps/5.2.3-2.0502.9295.14.14.ari
+ 17) rca/1.0.0-2.0502.57212.2.56.ari
+ 18) atp/1.8.1
+ 19) PrgEnv-intel/5.2.56
+ 20) bacio-intel/2.0.2
++ eval
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts
++ set -x
++ export KMP_AFFINITY=disabled
++ KMP_AFFINITY=disabled
++ export OMP_NUM_THREADS=1
++ OMP_NUM_THREADS=1
++ export NODES=1
++ NODES=1
++ '[' -z /usrx/local/nceplibs//bacio/v2.0.2/intel/libbacio_v2.0.2_4.a -o -z /usrx/local/nceplibs//bacio/v2.0.2/intel/libbacio_v2.0.2_8.a ']'
++ crtdir=/usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts
++ libdir=/usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../../
++ libsrcdir=/usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../../src
++ srcdir=/usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../src
++ datadir=/usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../data
++ exedir=/usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../exe
++ confdir=/usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../conf
++ echo 'BACIO unit test start ...'
++ case `hostid` in
+++ hostid
++ MACHINE_ID=wcoss
++ MACHINE_ID=cray
++ export TEST_NR=0
++ TEST_NR=0
++ echo ' **************** compiling start *********************** '
++ '[' cray = cray ']'
++ echo ' Compile bacio lib....'
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../../src
++ ./makebacio_cray.sh
+ar: creating /usrx/local/nceplibs//bacio/v2.0.2/intel/libbacio_v2.0.2_4.a
+byteswap.c(9): warning #47: incompatible redefinition of macro "LINUX"
+  #define LINUX
+          ^
+
+ar: creating /usrx/local/nceplibs//bacio/v2.0.2/intel/libbacio_v2.0.2_8.a
+byteswap.c(9): warning #47: incompatible redefinition of macro "LINUX"
+  #define LINUX
+          ^
+
++ '[' -s /usrx/local/nceplibs//bacio/v2.0.2/intel/libbacio_v2.0.2_4.a -a -s /usrx/local/nceplibs//bacio/v2.0.2/intel/libbacio_v2.0.2_8.a ']'
++ echo ' Compile bacio lib.... finished'
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../conf
++ cp conf_current conf_unittest
++ echo ' **************** testing starts *********************** '
++ echo ' '
++ ((  TEST_NR=TEST_NR+1  ))
++ echo ' test 1: test_baciof'
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../src
++ make -f test_baciof_mk
++ '[' '!' -s /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../exe/test_baciof ']'
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../exe
++ ./test_baciof
+ FAST_BYTESWAP ALGORITHM HAS BEEN USED AND DATA ALIGNMENT IS CORRECT FOR          4  )
+++ grep 'ends normally' aa
+++ wc -l
++ testend=1
++ '[' 1 -lt 1 ']'
++ cmp /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../data/data_be data_baciof_be
+++ grep differ: aa
+++ wc -l
++ testend=0
++ '[' 0 -ne 0 ']'
++ rm data_baciof_be aa
++ echo ' '
++ ((  TEST_NR=TEST_NR+1  ))
++ echo ' test 2: test_bafrof'
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../src
++ make -f test_bafrio_mk
++ '[' '!' -s /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../exe/test_bafrio ']'
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../exe
++ ./test_bafrio
+ FAST_BYTESWAP ALGORITHM HAS BEEN USED AND DATA ALIGNMENT IS CORRECT FOR          4  )
+++ grep 'ends normally' aa
+++ wc -l
++ testend=1
++ '[' 1 -lt 1 ']'
++ cmp /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../data/data_be data_bafrio_be
+++ grep differ: aa
+++ wc -l
++ testend=0
++ cmp /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../data/data_be data_bafrio_be1
+++ grep differ: bb
+++ wc -l
++ testend1=0
+++ expr 0 + 0
++ testend=0
++ '[' 0 -ne 0 ']'
++ rm data_bafrio_be data_bafrio_be1 aa bb
++ '[' cray '!=' ccs ']'
++ echo ' '
++ ((  TEST_NR=TEST_NR+1  ))
++ echo ' test 3: test_bafriof_le'
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../src
++ make -f test_bafrio_le_mk
++ '[' '!' -s /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../exe/test_bafrio_le ']'
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../exe
++ ./test_bafrio_le
+++ grep 'ends normally' aa
+++ wc -l
++ testend=1
++ '[' 1 -lt 1 ']'
++ cmp /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../data/data_le data_bafrio_le
+++ grep differ: aa
+++ wc -l
++ testend=0
++ cmp /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../data/data_le data_bafrio_le1
+++ grep differ: bb
+++ wc -l
++ testend1=0
+++ expr 0 + 0
++ testend=0
++ '[' 0 -ne 0 ']'
++ rm data_bafrio_le data_bafrio_le1 aa bb
++ echo ' '
++ ((  TEST_NR=TEST_NR+1  ))
++ echo ' test 4: test_wryte'
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../src
++ make -f test_wryte_mk
++ '[' '!' -s /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../exe/test_wryte ']'
++ cd /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../exe
++ ./test_wryte
+++ grep 'ends normally' aa
+++ wc -l
++ testend=1
++ '[' 1 -lt 1 ']'
++ cmp /usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts/../data/data_wryte data_wryte
+++ grep differ: aa
+++ wc -l
++ testend=0
++ '[' 0 -ne 0 ']'
++ rm data_wryte aa
++ echo ' '
++ echo 'BACIO lib unit test finished!'

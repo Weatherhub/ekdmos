@@ -1,0 +1,118 @@
+#!/bin/sh
+
+########################################
+# EKDMOS HIGRIDDED SCRIPT
+########################################
+
+date
+export PS4=' $SECONDS + '
+set -xa
+
+####################################
+# Specify NET Name and model
+# model - model grib field to repack
+####################################
+export NET=${NET:-ekd}
+export RUN=${RUN:-ekd}
+
+export DATA=${DATA:-${DATAROOT}/${jobid}}
+mkdir -m 775 -p $DATA
+cd $DATA
+export cycle=${cycle:-t${cyc}z}
+
+####################################
+# Determine Job Output Name on System
+####################################
+export outid="LL$job"
+export pgmout="OUTPUT.${jobid}"
+
+####################################
+# Specify EKDMOS version number
+####################################
+export EKDMOS_MODEL_VERSION=${EKDMOS_MODEL_VERSION:-${ekdmos_ver}}
+export EKDMOS_CODE_VERSION=${EKDMOS_CODE_VERSION:-${ekdmos_shared_ver}}
+export MOS_CODE_VERSION=${MOS_CODE_VERSION:-${mos_shared_ver}}
+
+####################################
+# Specify Execution Areas
+####################################
+export HOMEekd=${HOMEekd:-${NWROOT}/ekdmos.${EKDMOS_MODEL_VERSION}}
+export HOMEcode=${HOMEcode:-${NWROOT}/ekdmos_shared.${EKDMOS_CODE_VERSION}}
+export HOMEmdl=${HOMEmdl:-${NWROOT}/mos_shared.${MOS_CODE_VERSION}}
+export FIXekd=${FIXekd:-$HOMEekd/fix}
+export PARMekd=${PARMekd:-$HOMEekd/parm}
+export EXECekd=${EXECekd:-$HOMEcode/exec}
+export EXECmdl=${EXECmdl:-${HOMEmdl}/exec}
+
+##############################
+# Run setpdy and initialize PDY variables
+##############################
+setpdy.sh
+. PDY
+
+##############################################
+# Define COM directories
+##############################################
+export COMIN=${COMIN:-${COMROOT}/${NET}/${envir}/$RUN.${PDY}}
+export COMOUT=${COMOUT:-${COMROOT}/${NET}/${envir}/$RUN.${PDY}}
+export COMINm1=${COMINm1:-${COMROOT}/${NET}/${envir}/$RUN.${PDYm1}}
+export PCOM=${PCOM:-${PCOMROOT}/${NET}}
+
+mkdir -m 775 -p $COMOUT $PCOM
+
+
+env
+
+#############################################
+# Launch the driver script
+#############################################
+
+if [[ -f $DATA/mpmdscript ]]; then
+   rm $DATA/mpmdscript
+fi
+
+#  Set-up a mpmdscript that will allow for all ensembles to be processed 
+#  simultaneously. 
+for elem in tmp dew;do
+   for step in 1 2 3 4 5 6;do
+      echo "${HOMEekd}/scripts/exekd_higridded.sh.ecf $elem $step" >> $DATA/mpmdscript
+   done
+done
+for elem in max min;do
+   for step in 1 2;do
+      echo "${HOMEekd}/scripts/exekd_higridded.sh.ecf $elem $step" >> $DATA/mpmdscript
+   done 
+done
+echo "${HOMEekd}/scripts/exekd_higridded.sh.ecf all 1" >> $DATA/mpmdscript
+
+chmod 775 $DATA/mpmdscript
+export MP_PGMMODEL=mpmd
+export MP_CMDFILE=$DATA/mpmdscript
+export MP_LABELIO=YES
+export MP_STDOUTMODE=unordered
+
+aprun -n 17 -N 17 -d 1 -j 1 -cc depth cfp $DATA/mpmdscript
+export err=$?; err_chk
+
+#Print output for each job step
+set +x
+for elem in tmp dew;do
+   for step in 1 2 3 4 5 6;do
+      echo "############# OUTPUT FOR RUN $elem $step #################"
+      cat ${elem}_${step}/$pgmout
+   done
+done
+for elem in max min all;do
+   for step in 1 2;do
+      echo "############# OUTPUT FOR RUN $elem $step #################"
+      cat ${elem}_${step}/$pgmout
+   done
+done
+set -x
+
+date
+
+if [ "$KEEPDATA" != YES ]; then
+   cd $DATAROOT
+   rm -rf $DATA
+fi

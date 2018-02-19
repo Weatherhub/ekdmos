@@ -1,0 +1,308 @@
+#!/bin/sh
+#######################################################################
+#  Job Name:  exekd_stnpst.sh.ecf
+#  Purpose:   To run all steps neccessary to create EKDMOS station based
+#             probalistic guidance using Cumulative Density Functions
+#             station based single value forecasts.
+#
+#  Remarks:   This script is triggerd by completion of all 21 simultaneious
+#             runs of exekd_stnfcst.sh.ecf.  It also requires the 
+#             ability to run an executable that will run in parallel, 
+#             ekd_makecdf.  
+#
+#  HISTORY:   June   03, 2010  JLW - created from Jerry's original script
+#             November   2012  JLW - Updated to run on the WCOSS
+#
+#######################################################################
+echo EKDLOG: `date` - begin job exekd_stnpst.sh.ecf
+
+export PS4='$SECONDS + '
+
+msg="$job has begun on `hostname` at `date`"
+postmsg "$jlogfile" "$msg"
+
+cd $DATA
+
+#######################################################################
+#                SETTING DATE AND CYCLE TIMES
+#######################################################################
+month=`echo $PDY | cut -c5-6`
+if (( 10#$month >= 4 && 10#$month <= 9 )); then
+   season="04010930"
+else
+   season="10010331"
+fi
+export season
+echo "season=$season\n"
+
+echo $PDY $cyc : Date and Cycle - echo PDY and cyc
+
+export COMIN COMOUT PDY
+#########################################################################
+#  COPY DATA TO COMOUT DIRECTORY FOR USE IN OTHER RUN TIMES
+#########################################################################
+echo EKDLOG: `date` - begin copying data
+
+cp $COMIN/gefs_stnekdfcsts*_ra.$cycle $DATA
+cp $COMIN/cmce_stnekdfcsts*_ra.$cycle $DATA
+
+echo EKDLOG: `date` - end copying data
+#######################################################################
+#
+# PROGRAM RACREATE - MOS-2000 PROGRAM WHICH
+#                   CREATES RANDOM ACCESS FILES; IN THIS CASE, THE
+#                   CODE IS USED TO CREATE THE OPERATIONAL EKDMOS
+#                   FORECAST FILE.
+#######################################################################
+echo EKDLOG: `date` - begin job RACREATE - CREATE EKDMOS FORECAST FILE
+
+if [[ -a $DATA/naefs_stnekdfcsts_ra.$cycle ]];then
+    rm $DATA/naefs_stnekdfcsts_ra.$cycle
+fi
+ 
+export pgm=mdl_racreate
+. prep_step
+export FORT50="$DATA/naefs_stnekdfcsts_ra.$cycle"
+startmsg
+$EXECmdl/mdl_racreate < $PARMekd/ekd_u350.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+echo EKDLOG: `date` -  RACREATE ended
+
+#######################################################################
+#
+#  PROGRAM RA2RA  - MERGES RANDOM ACCESS FILES FROM INDIVIDUAL ENSEMBLE
+#                   MEMBERS INTO ONE RANDOM ACCESS FILE FOR USE IN U915
+#
+#######################################################################
+# Check to see how many ra files are available
+let gefs_count=0
+let cmce_count=0
+let cntrl_count=0
+let count=40
+for model in gefs cmce; do
+   if [[ -f ${model}_stnekdfcsts40_ra.$cycle ]]; then
+      let cntrl_count=$cntrl_count+1
+   fi
+done
+while (( $count <= 60 )); do   
+   if [[ -f  gefs_stnekdfcsts${count}_ra.$cycle ]]; then
+      let gefs_count=$gefs_count+1
+   fi
+   if [[ -f  cmce_stnekdfcsts${count}_ra.$cycle ]]; then
+      let cmce_count=$cmce_count+1
+   fi
+   let count=$count+1
+done
+echo "gefs_count=$gefs_count cmce_count=$cmce_count"
+if [[ $gefs_count == 21 ]] && [[ $cmce_count == 21 ]]; then
+#
+# Both models exist.  Run for all 42 members.
+#
+set -x
+   echo EKDLOG: `date` - begin job RA2RA - MERGE 42 EKDMOS FORECAST FILES
+   export pgm=ekd_ra2ra
+   . prep_step
+   export FORT26="$PARMekd/ekd_stnsfcst.lst"
+   export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+   export FORT60="naefs_stnekdfcsts_ra.$cycle"
+   export FORT30="gefs_stnekdfcsts40_ra.$cycle"
+   export FORT31="gefs_stnekdfcsts41_ra.$cycle"
+   export FORT32="gefs_stnekdfcsts42_ra.$cycle"
+   export FORT33="gefs_stnekdfcsts43_ra.$cycle"
+   export FORT34="gefs_stnekdfcsts44_ra.$cycle"
+   export FORT35="gefs_stnekdfcsts45_ra.$cycle"
+   export FORT36="gefs_stnekdfcsts46_ra.$cycle"
+   export FORT37="gefs_stnekdfcsts47_ra.$cycle"
+   export FORT38="gefs_stnekdfcsts48_ra.$cycle"
+   export FORT39="gefs_stnekdfcsts49_ra.$cycle"
+   export FORT40="gefs_stnekdfcsts50_ra.$cycle"
+   export FORT41="gefs_stnekdfcsts51_ra.$cycle"
+   export FORT42="gefs_stnekdfcsts52_ra.$cycle"
+   export FORT43="gefs_stnekdfcsts53_ra.$cycle"
+   export FORT44="gefs_stnekdfcsts54_ra.$cycle"
+   export FORT45="gefs_stnekdfcsts55_ra.$cycle"
+   export FORT46="gefs_stnekdfcsts56_ra.$cycle"
+   export FORT47="gefs_stnekdfcsts57_ra.$cycle"
+   export FORT48="gefs_stnekdfcsts58_ra.$cycle"
+   export FORT49="gefs_stnekdfcsts59_ra.$cycle"
+   export FORT50="gefs_stnekdfcsts60_ra.$cycle"
+   export FORT130="cmce_stnekdfcsts40_ra.$cycle"
+   export FORT131="cmce_stnekdfcsts41_ra.$cycle"
+   export FORT132="cmce_stnekdfcsts42_ra.$cycle"
+   export FORT133="cmce_stnekdfcsts43_ra.$cycle"
+   export FORT134="cmce_stnekdfcsts44_ra.$cycle"
+   export FORT135="cmce_stnekdfcsts45_ra.$cycle"
+   export FORT136="cmce_stnekdfcsts46_ra.$cycle"
+   export FORT137="cmce_stnekdfcsts47_ra.$cycle"
+   export FORT138="cmce_stnekdfcsts48_ra.$cycle"
+   export FORT139="cmce_stnekdfcsts49_ra.$cycle"
+   export FORT140="cmce_stnekdfcsts50_ra.$cycle"
+   export FORT141="cmce_stnekdfcsts51_ra.$cycle"
+   export FORT142="cmce_stnekdfcsts52_ra.$cycle"
+   export FORT143="cmce_stnekdfcsts53_ra.$cycle"
+   export FORT144="cmce_stnekdfcsts54_ra.$cycle"
+   export FORT145="cmce_stnekdfcsts55_ra.$cycle"
+   export FORT146="cmce_stnekdfcsts56_ra.$cycle"
+   export FORT147="cmce_stnekdfcsts57_ra.$cycle"
+   export FORT148="cmce_stnekdfcsts58_ra.$cycle"
+   export FORT149="cmce_stnekdfcsts59_ra.$cycle"
+   export FORT150="cmce_stnekdfcsts60_ra.$cycle"
+   startmsg
+   $EXECekd/ekd_ra2ra < $PARMekd/ekd_ra2ra.cn >> $pgmout 2>errfile
+   export err=$?;err_chk
+elif [[ $gefs_count == 21 ]] && [[ $cmce_count != 21 ]]; then
+#
+# Only the GEFS exists.  Run for just 21 members
+#
+   echo EKDLOG: `date` - begin job RA2RA - MERGE 21 GEFS FORECAST FILES
+   export pgm=ekd_ra2ra
+   . prep_step
+   export FORT26="$PARMekd/ekd_stnsfcst.lst"
+   export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+   export FORT60="naefs_stnekdfcsts_ra.$cycle"
+   export FORT30="gefs_stnekdfcsts40_ra.$cycle"
+   export FORT31="gefs_stnekdfcsts41_ra.$cycle"
+   export FORT32="gefs_stnekdfcsts42_ra.$cycle"
+   export FORT33="gefs_stnekdfcsts43_ra.$cycle"
+   export FORT34="gefs_stnekdfcsts44_ra.$cycle"
+   export FORT35="gefs_stnekdfcsts45_ra.$cycle"
+   export FORT36="gefs_stnekdfcsts46_ra.$cycle"
+   export FORT37="gefs_stnekdfcsts47_ra.$cycle"
+   export FORT38="gefs_stnekdfcsts48_ra.$cycle"
+   export FORT39="gefs_stnekdfcsts49_ra.$cycle"
+   export FORT40="gefs_stnekdfcsts50_ra.$cycle"
+   export FORT41="gefs_stnekdfcsts51_ra.$cycle"
+   export FORT42="gefs_stnekdfcsts52_ra.$cycle"
+   export FORT43="gefs_stnekdfcsts53_ra.$cycle"
+   export FORT44="gefs_stnekdfcsts54_ra.$cycle"
+   export FORT45="gefs_stnekdfcsts55_ra.$cycle"
+   export FORT46="gefs_stnekdfcsts56_ra.$cycle"
+   export FORT47="gefs_stnekdfcsts57_ra.$cycle"
+   export FORT48="gefs_stnekdfcsts58_ra.$cycle"
+   export FORT49="gefs_stnekdfcsts59_ra.$cycle"
+   export FORT50="gefs_stnekdfcsts60_ra.$cycle"
+   startmsg
+   $EXECekd/ekd_ra2ra < $PARMekd/ekd_ra2ra_onemodel.cn >> $pgmout 2>errfile
+   export err=$?;err_chk
+elif [[ $gefs_count != 21 ]] && [[ $cmce_count == 21 ]]; then
+#
+# Only the CMCE exists.  Run for just 21 members
+#
+   echo EKDLOG: `date` - begin job RA2RA - MERGE 21 CMCE FORECAST FILES
+   export pgm=ekd_ra2ra
+   . prep_step
+   export FORT26="$PARMekd/ekd_stnsfcst.lst"
+   export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+   export FORT60="naefs_stnekdfcsts_ra.$cycle"
+   export FORT30="cmce_stnekdfcsts40_ra.$cycle"
+   export FORT31="cmce_stnekdfcsts41_ra.$cycle"
+   export FORT32="cmce_stnekdfcsts42_ra.$cycle"
+   export FORT33="cmce_stnekdfcsts43_ra.$cycle"
+   export FORT34="cmce_stnekdfcsts44_ra.$cycle"
+   export FORT35="cmce_stnekdfcsts45_ra.$cycle"
+   export FORT36="cmce_stnekdfcsts46_ra.$cycle"
+   export FORT37="cmce_stnekdfcsts47_ra.$cycle"
+   export FORT38="cmce_stnekdfcsts48_ra.$cycle"
+   export FORT39="cmce_stnekdfcsts49_ra.$cycle"
+   export FORT40="cmce_stnekdfcsts50_ra.$cycle"
+   export FORT41="cmce_stnekdfcsts51_ra.$cycle"
+   export FORT42="cmce_stnekdfcsts52_ra.$cycle"
+   export FORT43="cmce_stnekdfcsts53_ra.$cycle"
+   export FORT44="cmce_stnekdfcsts54_ra.$cycle"
+   export FORT45="cmce_stnekdfcsts55_ra.$cycle"
+   export FORT46="cmce_stnekdfcsts56_ra.$cycle"
+   export FORT47="cmce_stnekdfcsts57_ra.$cycle"
+   export FORT48="cmce_stnekdfcsts58_ra.$cycle"
+   export FORT49="cmce_stnekdfcsts59_ra.$cycle"
+   export FORT50="cmce_stnekdfcsts60_ra.$cycle"
+   startmsg
+   $EXECekd/ekd_ra2ra < $PARMekd/ekd_ra2ra_onemodel.cn >> $pgmout 2>errfile
+   export err=$?;err_chk
+elif [[ $cntrl_count == 2 ]]; then
+#
+# Members are missing for both models.  Just use the controls.
+#
+   echo EKDLOG: `date` - begin job RA2RA - MERGE 2 EKDMOS CONTROL FORECAST FILES
+   export pgm=ekd_ra2ra
+   . prep_step
+   export FORT26="$PARMekd/ekd_stnsfcst.lst"
+   export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+   export FORT60="naefs_stnekdfcsts_ra.$cycle"
+   export FORT30="cmce_stnekdfcsts40_ra.$cycle"
+   export FORT31="gefs_stnekdfcsts40_ra.$cycle"
+   startmsg
+   $EXECekd/ekd_ra2ra < $PARMekd/ekd_ra2ra_control.cn >> $pgmout 2>errfile
+   export err=$?;err_chk
+else
+   echo "Random access files are missing for both the GEFS and CMCE"
+   pgm=ekdmos_stnpst
+   export err=1; err_chk
+fi
+
+echo EKDLOG: `date` -  RA2RA ended
+#######################################################################
+#
+#    PROGRAM MAKECDF - CREATE CDF OF EKDMOS FORECASTS
+#                    - THIS CODE WAS COMPILED WITH XLF_R.  IT RUNS
+#                      IN PARELLEL ON AT LEAST 16 CPU'S
+#
+#######################################################################
+echo EKDLOG: `date` - begin job MAKECDF - CREATE CDF OF ENS MOS FORECASTS
+
+export pgm=ekd_makecdf
+. prep_step
+
+export FORT10="ncepdate"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT28="$PARMekd/ekd_makecdfid.tbl.$cycle"
+export FORT29="$PARMekd/ekd_naefs_sprdsk_${season}.$cycle"
+export FORT30="$FIXekd/ekd_mos2000id.tbl"
+export FORT31="$PARMekd/ekd_cdfthresh.lst"
+export FORT49="naefs_stnekdfcsts_ra.$cycle"
+export FORT60="naefs_stnekdcdffcsts_sq.$cycle"
+startmsg
+$EXECekd/ekd_makecdf < $PARMekd/ekd_makecdf.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+echo EKDLOG: `date` -  MAKECDF ended
+#######################################################################
+#
+#    PROGRAM FCSTPOST - CREATES POST-PROCCESSED MEAN SINGLE VALUE 
+#                       FORECASTS FOR ALL ELEMENTS
+#
+#######################################################################
+echo EKDLOG: `date` - begin job FCSTPOST - POST PROCESS SINGLE VALUE FORECASTS
+
+export pgm=ekd_fcstpost
+. prep_step 
+export FORT10="ncepdate"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT28="$PARMekd/ekd_sngvpostid.tbl.$cycle"
+export FORT29="$FIXekd/ekd_mos2000id.tbl"
+export FORT47="$FIXekd/ekd_threshold"
+export FORT49="naefs_stnekdfcsts_ra.$cycle"
+export FORT60="naefs_stnekdsngvfcsts_sq.$cycle"
+
+startmsg
+$EXECekd/ekd_fcstpost < $PARMekd/ekd_sngvpost.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+cp naefs_stnekdfcsts_ra.$cycle $COMOUT/naefs_stnekdfcsts_ra.$cycle
+cp naefs_stnekdcdffcsts_sq.$cycle $COMOUT/naefs_stnekdcdffcsts_sq.$cycle
+cp naefs_stnekdsngvfcsts_sq.$cycle $COMOUT/naefs_stnekdsngvfcsts_sq.$cycle
+echo EKDLOG: `date` -  FCSTPOST ended
+#########################################################################
+#  COPY DATA TO COMOUT DIRECTORY FOR USE IN OTHER RUN TIMES
+#########################################################################
+if test "$SENDCOM" = 'YES'
+then
+   cp naefs_stnekdfcsts_ra.$cycle $COMOUT/naefs_stnekdfcsts_ra.$cycle
+   cp naefs_stnekdcdffcsts_sq.$cycle $COMOUT/naefs_stnekdcdffcsts_sq.$cycle
+   cp naefs_stnekdsngvfcsts_sq.$cycle $COMOUT/naefs_stnekdsngvfcsts_sq.$cycle
+fi
+
+echo EKDLOG: `date -u` - job exekd_stnpst.sh.ecf ended
+
+exit 0

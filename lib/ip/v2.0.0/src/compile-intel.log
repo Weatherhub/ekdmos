@@ -1,0 +1,735 @@
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.7
+  2) eswrap/1.1.0-1.020200.1231.0
+  3) switch/1.0-1.0502.57058.1.58.ari
+  4) craype-network-aries
+  5) ncep/1.0
+  6) xt-lsfhpc/9.1.3
+  7) craype/2.3.0
+  8) intel/15.0.3.187
+  9) cray-libsci/13.0.3
+ 10) udreg/2.3.2-1.0502.9889.2.20.ari
+ 11) ugni/6.0-1.0502.10245.9.9.ari
+ 12) pmi/5.0.6-1.0000.10439.140.2.ari
+ 13) dmapp/7.0.1-1.0502.10246.8.47.ari
+ 14) gni-headers/4.0-1.0502.10317.9.2.ari
+ 15) xpmem/0.1-2.0502.57015.1.15.ari
+ 16) dvs/2.5_0.9.0-1.0502.1958.2.55.ari
+ 17) alps/5.2.3-2.0502.9295.14.14.ari
+ 18) rca/1.0.0-2.0502.57212.2.56.ari
+ 19) atp/1.8.1
+ 20) PrgEnv-intel/5.2.56
+ 21) ip-intel/2.0.0
+ 22) craype-sandybridge
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gausslat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gausslat.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a
+a - gausslat.o
+rm -f gausslat.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gcdist.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gcdist.o
+a - gcdist.o
+rm -f gcdist.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdsawt.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdsawt.o
+a - gdsawt.o
+rm -f gdsawt.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswiz.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswiz.o
+a - gdswiz.o
+rm -f gdswiz.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswiz00.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswiz00.o
+a - gdswiz00.o
+rm -f gdswiz00.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswiz01.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswiz01.o
+a - gdswiz01.o
+rm -f gdswiz01.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswiz03.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswiz03.o
+a - gdswiz03.o
+rm -f gdswiz03.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswiz04.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswiz04.o
+a - gdswiz04.o
+rm -f gdswiz04.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswiz05.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswiz05.o
+a - gdswiz05.o
+rm -f gdswiz05.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswizc9.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswizc9.o
+a - gdswizc9.o
+rm -f gdswizc9.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswizca.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswizca.o
+a - gdswizca.o
+rm -f gdswizca.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswizcb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswizcb.o
+a - gdswizcb.o
+rm -f gdswizcb.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswizcd.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswizcd.o
+a - gdswizcd.o
+rm -f gdswizcd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswzd.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswzd.o
+a - gdswzd.o
+rm -f gdswzd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswzd00.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswzd00.o
+a - gdswzd00.o
+rm -f gdswzd00.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswzd01.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswzd01.o
+a - gdswzd01.o
+rm -f gdswzd01.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswzd03.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswzd03.o
+a - gdswzd03.o
+rm -f gdswzd03.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswzd04.f
+gdswzd04.f(2): (col. 18) remark: gdswzd04_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswzd04.o
+a - gdswzd04.o
+rm -f gdswzd04.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswzd05.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswzd05.o
+a - gdswzd05.o
+rm -f gdswzd05.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswzdc9.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswzdc9.o
+a - gdswzdc9.o
+rm -f gdswzdc9.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswzdca.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswzdca.o
+a - gdswzdca.o
+rm -f gdswzdca.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswzdcb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswzdcb.o
+a - gdswzdcb.o
+rm -f gdswzdcb.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 gdswzdcd.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a gdswzdcd.o
+a - gdswzdcd.o
+rm -f gdswzdcd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ijkgds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ijkgds.o
+a - ijkgds.o
+rm -f ijkgds.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ijkgds0.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ijkgds0.o
+a - ijkgds0.o
+rm -f ijkgds0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ijkgds1.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ijkgds1.o
+a - ijkgds1.o
+rm -f ijkgds1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ipmerge2.f
+ipmerge2.f(2): (col. 18) remark: ipmerge2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ipmerge2.o
+a - ipmerge2.o
+rm -f ipmerge2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ipolates.f
+ipolates.f(2): (col. 18) remark: ipolates_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ipolates.o
+a - ipolates.o
+rm -f ipolates.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ipolatev.f
+ipolatev.f(2): (col. 18) remark: ipolatev_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ipolatev.o
+a - ipolatev.o
+rm -f ipolatev.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ipsector.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ipsector.o
+a - ipsector.o
+rm -f ipsector.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ipspaste.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ipspaste.o
+a - ipspaste.o
+rm -f ipspaste.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ipxetas.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ipxetas.o
+a - ipxetas.o
+rm -f ipxetas.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ipxwafs.f
+ipxwafs.f(2): (col. 18) remark: ipxwafs_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ipxwafs.o
+a - ipxwafs.o
+rm -f ipxwafs.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ipxwafs2.f
+ipxwafs2.f(2): (col. 18) remark: ipxwafs2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ipxwafs2.o
+a - ipxwafs2.o
+rm -f ipxwafs2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 ipxwafs3.f
+ipxwafs3.f(2): (col. 18) remark: ipxwafs3_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a ipxwafs3.o
+a - ipxwafs3.o
+rm -f ipxwafs3.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 makgds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a makgds.o
+a - makgds.o
+rm -f makgds.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 movect.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a movect.o
+a - movect.o
+rm -f movect.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polateg0.f
+polateg0.f(2): (col. 18) remark: polateg0_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polateg0.o
+a - polateg0.o
+rm -f polateg0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polateg1.f
+polateg1.f(2): (col. 18) remark: polateg1_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polateg1.o
+a - polateg1.o
+rm -f polateg1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polateg4.f
+polateg4.f(2): (col. 18) remark: polateg4_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polateg4.o
+a - polateg4.o
+rm -f polateg4.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polates0.f
+polates0.f(2): (col. 18) remark: polates0_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polates0.o
+a - polates0.o
+rm -f polates0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polates1.f
+polates1.f(2): (col. 18) remark: polates1_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polates1.o
+a - polates1.o
+rm -f polates1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polates2.f
+polates2.f(2): (col. 18) remark: polates2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polates2.o
+a - polates2.o
+rm -f polates2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polates3.f
+polates3.f(2): (col. 18) remark: polates3_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polates3.o
+a - polates3.o
+rm -f polates3.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polates4.f
+polates4.f(2): (col. 18) remark: polates4_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polates4.o
+a - polates4.o
+rm -f polates4.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polates6.f
+polates6.f(2): (col. 18) remark: polates6_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polates6.o
+a - polates6.o
+rm -f polates6.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polatev0.f
+polatev0.f(2): (col. 18) remark: polatev0_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polatev0.o
+a - polatev0.o
+rm -f polatev0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polatev1.f
+polatev1.f(2): (col. 18) remark: polatev1_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polatev1.o
+a - polatev1.o
+rm -f polatev1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polatev2.f
+polatev2.f(2): (col. 18) remark: polatev2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polatev2.o
+a - polatev2.o
+rm -f polatev2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polatev3.f
+polatev3.f(2): (col. 18) remark: polatev3_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polatev3.o
+a - polatev3.o
+rm -f polatev3.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polatev4.f
+polatev4.f(2): (col. 18) remark: polatev4_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polatev4.o
+a - polatev4.o
+rm -f polatev4.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polatev6.f
+polatev6.f(2): (col. 18) remark: polatev6_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polatev6.o
+a - polatev6.o
+rm -f polatev6.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polfixs.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polfixs.o
+a - polfixs.o
+rm -f polfixs.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 32 -integer-size 32 polfixv.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_4.a polfixv.o
+a - polfixv.o
+rm -f polfixv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gausslat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gausslat.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a
+a - gausslat.o
+rm -f gausslat.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gcdist.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gcdist.o
+a - gcdist.o
+rm -f gcdist.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdsawt.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdsawt.o
+a - gdsawt.o
+rm -f gdsawt.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswiz.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswiz.o
+a - gdswiz.o
+rm -f gdswiz.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswiz00.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswiz00.o
+a - gdswiz00.o
+rm -f gdswiz00.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswiz01.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswiz01.o
+a - gdswiz01.o
+rm -f gdswiz01.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswiz03.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswiz03.o
+a - gdswiz03.o
+rm -f gdswiz03.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswiz04.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswiz04.o
+a - gdswiz04.o
+rm -f gdswiz04.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswiz05.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswiz05.o
+a - gdswiz05.o
+rm -f gdswiz05.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswizc9.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswizc9.o
+a - gdswizc9.o
+rm -f gdswizc9.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswizca.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswizca.o
+a - gdswizca.o
+rm -f gdswizca.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswizcb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswizcb.o
+a - gdswizcb.o
+rm -f gdswizcb.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswizcd.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswizcd.o
+a - gdswizcd.o
+rm -f gdswizcd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswzd.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswzd.o
+a - gdswzd.o
+rm -f gdswzd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswzd00.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswzd00.o
+a - gdswzd00.o
+rm -f gdswzd00.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswzd01.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswzd01.o
+a - gdswzd01.o
+rm -f gdswzd01.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswzd03.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswzd03.o
+a - gdswzd03.o
+rm -f gdswzd03.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswzd04.f
+gdswzd04.f(2): (col. 18) remark: gdswzd04_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswzd04.o
+a - gdswzd04.o
+rm -f gdswzd04.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswzd05.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswzd05.o
+a - gdswzd05.o
+rm -f gdswzd05.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswzdc9.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswzdc9.o
+a - gdswzdc9.o
+rm -f gdswzdc9.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswzdca.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswzdca.o
+a - gdswzdca.o
+rm -f gdswzdca.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswzdcb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswzdcb.o
+a - gdswzdcb.o
+rm -f gdswzdcb.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 gdswzdcd.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a gdswzdcd.o
+a - gdswzdcd.o
+rm -f gdswzdcd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ijkgds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ijkgds.o
+a - ijkgds.o
+rm -f ijkgds.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ijkgds0.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ijkgds0.o
+a - ijkgds0.o
+rm -f ijkgds0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ijkgds1.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ijkgds1.o
+a - ijkgds1.o
+rm -f ijkgds1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ipmerge2.f
+ipmerge2.f(2): (col. 18) remark: ipmerge2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ipmerge2.o
+a - ipmerge2.o
+rm -f ipmerge2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ipolates.f
+ipolates.f(2): (col. 18) remark: ipolates_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ipolates.o
+a - ipolates.o
+rm -f ipolates.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ipolatev.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ipolatev.o
+a - ipolatev.o
+rm -f ipolatev.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ipsector.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ipsector.o
+a - ipsector.o
+rm -f ipsector.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ipspaste.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ipspaste.o
+a - ipspaste.o
+rm -f ipspaste.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ipxetas.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ipxetas.o
+a - ipxetas.o
+rm -f ipxetas.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ipxwafs.f
+ipxwafs.f(2): (col. 18) remark: ipxwafs_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ipxwafs.o
+a - ipxwafs.o
+rm -f ipxwafs.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ipxwafs2.f
+ipxwafs2.f(2): (col. 18) remark: ipxwafs2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ipxwafs2.o
+a - ipxwafs2.o
+rm -f ipxwafs2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 ipxwafs3.f
+ipxwafs3.f(2): (col. 18) remark: ipxwafs3_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a ipxwafs3.o
+a - ipxwafs3.o
+rm -f ipxwafs3.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 makgds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a makgds.o
+a - makgds.o
+rm -f makgds.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 movect.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a movect.o
+a - movect.o
+rm -f movect.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polateg0.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polateg0.o
+a - polateg0.o
+rm -f polateg0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polateg1.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polateg1.o
+a - polateg1.o
+rm -f polateg1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polateg4.f
+polateg4.f(2): (col. 18) remark: polateg4_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polateg4.o
+a - polateg4.o
+rm -f polateg4.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polates0.f
+polates0.f(2): (col. 18) remark: polates0_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polates0.o
+a - polates0.o
+rm -f polates0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polates1.f
+polates1.f(2): (col. 18) remark: polates1_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polates1.o
+a - polates1.o
+rm -f polates1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polates2.f
+polates2.f(2): (col. 18) remark: polates2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polates2.o
+a - polates2.o
+rm -f polates2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polates3.f
+polates3.f(2): (col. 18) remark: polates3_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polates3.o
+a - polates3.o
+rm -f polates3.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polates4.f
+polates4.f(2): (col. 18) remark: polates4_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polates4.o
+a - polates4.o
+rm -f polates4.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polates6.f
+polates6.f(2): (col. 18) remark: polates6_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polates6.o
+a - polates6.o
+rm -f polates6.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polatev0.f
+polatev0.f(2): (col. 18) remark: polatev0_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polatev0.o
+a - polatev0.o
+rm -f polatev0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polatev1.f
+polatev1.f(2): (col. 18) remark: polatev1_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polatev1.o
+a - polatev1.o
+rm -f polatev1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polatev2.f
+polatev2.f(2): (col. 18) remark: polatev2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polatev2.o
+a - polatev2.o
+rm -f polatev2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polatev3.f
+polatev3.f(2): (col. 18) remark: polatev3_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polatev3.o
+a - polatev3.o
+rm -f polatev3.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polatev4.f
+polatev4.f(2): (col. 18) remark: polatev4_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polatev4.o
+a - polatev4.o
+rm -f polatev4.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polatev6.f
+polatev6.f(2): (col. 18) remark: polatev6_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polatev6.o
+a - polatev6.o
+rm -f polatev6.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polfixs.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polfixs.o
+a - polfixs.o
+rm -f polfixs.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 64 polfixv.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_8.a polfixv.o
+a - polfixv.o
+rm -f polfixv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gausslat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gausslat.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a
+a - gausslat.o
+rm -f gausslat.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gcdist.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gcdist.o
+a - gcdist.o
+rm -f gcdist.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdsawt.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdsawt.o
+a - gdsawt.o
+rm -f gdsawt.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswiz.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswiz.o
+a - gdswiz.o
+rm -f gdswiz.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswiz00.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswiz00.o
+a - gdswiz00.o
+rm -f gdswiz00.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswiz01.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswiz01.o
+a - gdswiz01.o
+rm -f gdswiz01.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswiz03.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswiz03.o
+a - gdswiz03.o
+rm -f gdswiz03.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswiz04.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswiz04.o
+a - gdswiz04.o
+rm -f gdswiz04.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswiz05.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswiz05.o
+a - gdswiz05.o
+rm -f gdswiz05.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswizc9.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswizc9.o
+a - gdswizc9.o
+rm -f gdswizc9.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswizca.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswizca.o
+a - gdswizca.o
+rm -f gdswizca.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswizcb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswizcb.o
+a - gdswizcb.o
+rm -f gdswizcb.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswizcd.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswizcd.o
+a - gdswizcd.o
+rm -f gdswizcd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswzd.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswzd.o
+a - gdswzd.o
+rm -f gdswzd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswzd00.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswzd00.o
+a - gdswzd00.o
+rm -f gdswzd00.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswzd01.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswzd01.o
+a - gdswzd01.o
+rm -f gdswzd01.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswzd03.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswzd03.o
+a - gdswzd03.o
+rm -f gdswzd03.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswzd04.f
+gdswzd04.f(2): (col. 18) remark: gdswzd04_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswzd04.o
+a - gdswzd04.o
+rm -f gdswzd04.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswzd05.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswzd05.o
+a - gdswzd05.o
+rm -f gdswzd05.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswzdc9.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswzdc9.o
+a - gdswzdc9.o
+rm -f gdswzdc9.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswzdca.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswzdca.o
+a - gdswzdca.o
+rm -f gdswzdca.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswzdcb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswzdcb.o
+a - gdswzdcb.o
+rm -f gdswzdcb.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 gdswzdcd.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a gdswzdcd.o
+a - gdswzdcd.o
+rm -f gdswzdcd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ijkgds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ijkgds.o
+a - ijkgds.o
+rm -f ijkgds.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ijkgds0.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ijkgds0.o
+a - ijkgds0.o
+rm -f ijkgds0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ijkgds1.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ijkgds1.o
+a - ijkgds1.o
+rm -f ijkgds1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ipmerge2.f
+ipmerge2.f(2): (col. 18) remark: ipmerge2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ipmerge2.o
+a - ipmerge2.o
+rm -f ipmerge2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ipolates.f
+ipolates.f(2): (col. 18) remark: ipolates_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ipolates.o
+a - ipolates.o
+rm -f ipolates.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ipolatev.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ipolatev.o
+a - ipolatev.o
+rm -f ipolatev.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ipsector.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ipsector.o
+a - ipsector.o
+rm -f ipsector.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ipspaste.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ipspaste.o
+a - ipspaste.o
+rm -f ipspaste.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ipxetas.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ipxetas.o
+a - ipxetas.o
+rm -f ipxetas.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ipxwafs.f
+ipxwafs.f(2): (col. 18) remark: ipxwafs_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ipxwafs.o
+a - ipxwafs.o
+rm -f ipxwafs.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ipxwafs2.f
+ipxwafs2.f(2): (col. 18) remark: ipxwafs2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ipxwafs2.o
+a - ipxwafs2.o
+rm -f ipxwafs2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 ipxwafs3.f
+ipxwafs3.f(2): (col. 18) remark: ipxwafs3_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a ipxwafs3.o
+a - ipxwafs3.o
+rm -f ipxwafs3.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 makgds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a makgds.o
+a - makgds.o
+rm -f makgds.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 movect.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a movect.o
+a - movect.o
+rm -f movect.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polateg0.f
+polateg0.f(2): (col. 18) remark: polateg0_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polateg0.o
+a - polateg0.o
+rm -f polateg0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polateg1.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polateg1.o
+a - polateg1.o
+rm -f polateg1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polateg4.f
+polateg4.f(2): (col. 18) remark: polateg4_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polateg4.o
+a - polateg4.o
+rm -f polateg4.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polates0.f
+polates0.f(2): (col. 18) remark: polates0_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polates0.o
+a - polates0.o
+rm -f polates0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polates1.f
+polates1.f(2): (col. 18) remark: polates1_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polates1.o
+a - polates1.o
+rm -f polates1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polates2.f
+polates2.f(2): (col. 18) remark: polates2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polates2.o
+a - polates2.o
+rm -f polates2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polates3.f
+polates3.f(2): (col. 18) remark: polates3_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polates3.o
+a - polates3.o
+rm -f polates3.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polates4.f
+polates4.f(2): (col. 18) remark: polates4_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polates4.o
+a - polates4.o
+rm -f polates4.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polates6.f
+polates6.f(2): (col. 18) remark: polates6_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polates6.o
+a - polates6.o
+rm -f polates6.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polatev0.f
+polatev0.f(2): (col. 18) remark: polatev0_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polatev0.o
+a - polatev0.o
+rm -f polatev0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polatev1.f
+polatev1.f(2): (col. 18) remark: polatev1_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polatev1.o
+a - polatev1.o
+rm -f polatev1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polatev2.f
+polatev2.f(2): (col. 18) remark: polatev2_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polatev2.o
+a - polatev2.o
+rm -f polatev2.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polatev3.f
+polatev3.f(2): (col. 18) remark: polatev3_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polatev3.o
+a - polatev3.o
+rm -f polatev3.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polatev4.f
+polatev4.f(2): (col. 18) remark: polatev4_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polatev4.o
+a - polatev4.o
+rm -f polatev4.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polatev6.f
+polatev6.f(2): (col. 18) remark: polatev6_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polatev6.o
+a - polatev6.o
+rm -f polatev6.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polfixs.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polfixs.o
+a - polfixs.o
+rm -f polfixs.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -real-size 64 -integer-size 32 polfixv.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/ip/v2.0.0/intel/libip_v2.0.0_d.a polfixv.o
+a - polfixv.o
+rm -f polfixv.o

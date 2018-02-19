@@ -1,0 +1,25 @@
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.7
+  2) switch/1.0-1.0502.57058.1.58.ari
+  3) /opt/cray/craype/default/modulefiles/craype-network-aries
+  4) ugni/6.0-1.0502.10245.9.9.ari
+  5) xpmem/0.1-2.0502.57015.1.15.ari
+  6) alps/5.2.3-2.0502.9295.14.14.ari
+  7) ncep/1.0
+  8) craype-haswell
+  9) xt-lsfhpc/9.1.3
+ 10) craype/2.3.0
+ 11) intel/15.0.3.187
+ 12) cray-libsci/13.0.3
+ 13) pmi/5.0.6-1.0000.10439.140.2.ari
+ 14) atp/1.8.1
+ 15) PrgEnv-intel/5.2.56
++ export KMP_AFFINITY=disabled
++ KMP_AFFINITY=disabled
++ export OMP_NUM_THREADS=1
++ OMP_NUM_THREADS=1
++ export NODES=1
++ NODES=1
++ '[' -z '' -o -z '' ']'
++ echo ' bacio module not loaded. Cannot continue'
++ exit 1

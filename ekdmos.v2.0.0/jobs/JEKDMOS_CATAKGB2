@@ -1,0 +1,77 @@
+#!/bin/sh
+
+########################################
+# EKDMOS CATAKGB2 SCRIPT
+########################################
+
+date
+export PS4=' $SECONDS + '
+set -xa
+
+####################################
+# Specify NET Name and model
+# model - model grib field to repack
+####################################
+export NET=ekd
+export RUN=ekd
+
+export DATA=${DATA:-${DATAROOT}/${jobid}}
+mkdir -m 775 -p $DATA
+cd $DATA
+export cycle=${cycle:-t${cyc}z}
+
+####################################
+# Determine Job Output Name on System
+####################################
+export outid="LL$job"
+export pgmout="OUTPUT.${jobid}"
+
+####################################
+# Specify EKDMOS version number
+####################################
+export EKDMOS_MODEL_VERSION=${EKDMOS_MODEL_VERSION:-${ekdmos_ver}}
+export EKDMOS_CODE_VERSION=${EKDMOS_CODE_VERSION:-${ekdmos_shared_ver}}
+export MOS_CODE_VERSION=${MOS_CODE_VERSION:-${mos_shared_ver}}
+
+####################################
+# Specify Execution Areas
+####################################
+export HOMEekd=${HOMEekd:-${NWROOT}/ekdmos.${EKDMOS_MODEL_VERSION}}
+export HOMEcode=${HOMEcode:-${NWROOT}/ekdmos_shared.${EKDMOS_CODE_VERSION}}
+export HOMEmdl=${HOMEmdl:-${NWROOT}/mos_shared.${MOS_CODE_VERSION}}
+export FIXekd=${FIXekd:-$HOMEekd/fix}
+export PARMekd=${PARMekd:-$HOMEekd/parm}
+export EXECekd=${EXECekd:-$HOMEcode/exec}
+export EXECmdl=${EXECmdl:-${HOMEmdl}/exec}
+
+##############################
+# Run setpdy and initialize PDY variables
+##############################
+setpdy.sh
+. PDY
+
+##############################################
+# Define COM directories
+##############################################
+export COMIN=${COMIN:-${COMROOT}/${NET}/${envir}/$RUN.${PDY}}
+export COMOUT=${COMOUT:-${COMROOT}/${NET}/${envir}/$RUN.${PDY}}
+export PCOM=${PCOM:-${PCOMROOT}/${NET}}
+
+mkdir -m 775 -p $COMOUT $PCOM
+
+env
+
+#############################################
+# Launch the driver script
+
+${HOMEekd}/scripts/exekd_catakgb2.sh.ecf
+#############################################
+
+cat $pgmout
+
+date
+
+if [ "$KEEPDATA" != YES ]; then
+   cd $DATAROOT
+   rm -rf $DATA
+fi 

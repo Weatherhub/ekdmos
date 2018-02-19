@@ -1,0 +1,713 @@
+      SUBROUTINE STSNOZ(KFILDO,KFILZO,FLZERO,NAREA,
+     1                  ID,IDPARS,JD,
+     2                  CCALL,NAME,XDATA,LNDSEA,NSTA,ND1,
+     3                  L3264B,ISTOP,IER)
+C
+C        JUNE      2009   GLAHN   TDL   MOS-2000
+C                                 ADAPTED FROM AUGMT1
+C        JUNE      2009   GLAHN   ADDED 6-H QPF; MADE DD GENERIC
+C        JULY      2009   GLAHN   REQUIRED FOR AVERAGING A VALUE >.05
+c        JULY      2009   GLAHN   ADDED 6-H QPF WITHOUT TERRAIN
+C        JULY      2009   GLAHN   ADDED VARIABLES THRESH AND SET AND
+C                                 SET THOSE VALUES TO .51 AND -4.
+C        SEPTEMBER 2009   GAW     MODIFIED OPEN STATEMENT FOR OPERATIONS.
+C                            
+C                                                            
+C        PURPOSE
+C            TO CALCULATE A VALUE FROM SURROUNDING NON-ZERO
+C            POINTS TO SUBSTITUE FOR ZERO SNOW AMOUNTS FOR THE
+C            U155 ANALYSIS.  THIS MAY ALSO WORK FOR QPF.
+C
+C            THE U179 FILE IS ALWAYS READ THE FIRST TIME THIS ROUTINE
+C            IS ENTERED FOR A RUN.  THE STATION LIST ON IT IS
+C            COORDINATED WITH THE ONE BEING USED IN U155.  BOTH THE
+C            FILE NAME AND THE ID IN THE FIRST RECORD ARE SAVED.
+C            ON SUBSEQUENT ENTIRES, THE FIRST RECORD IS READ, AND IF
+C            THE FILE AND ID ARE THE SAME, IT NEED NOT BE READ. 
+C            READ.
+C
+C            HAVING BEEN ADAPTED FROM THE AUGMENTING ROUTINE AUGMT1,
+C            SOME OF THE TERMINOLOGY WAS LEFT THAT WAY.  ACTUALLY,
+C            THE ZERO VALUES ARE BEING AUGMENTED, BUT IN A QUITE
+C            DIFFERENT WAY THAN IN AUGMT1.
+C
+C            THE DATA COMING IN IS AFTER THE SCALING AND AVERAGING
+C            OVER CYCLES IF THAT IS BEING DONE.
+C
+C        DATA SET USE
+C            KFILDO   - UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT)
+C            KFILZO   - THE UNIT NUMBER FOR THE FILE HOLDING THE
+C                       AUXILIARY DATA.  (INPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (INPUT)
+C              KFILZO = THE UNIT NUMBER FOR THE FILE HOLDING THE
+C                       AUXILIARY DATA.  (INPUT)
+C              FLZERO = THE FILE NAME OF THE AUXILIARY DATA.  
+C                       (CHARACTER*60)  (INPUT)
+C               NAREA = THE AREA OVER WHICH THE ANALYSIS IS MADE:
+C                       1 = CONUS,
+C                       2 = ALASKA,
+C                       3 = HAWAII,
+C                       4 = PUERTO RICO.
+C                       NOT CURRENTLY USED, BUT MIGHT BE NEEDED.
+C               ID(J) = 4-WORD ID OF VARIABLE TO PROVIDE FIRST GUESS FOR
+C                       (J=1,4).  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE
+C                       VARIABLE ID'S CORRESPONDING TO ID( ,N)
+C                       (J=1,15), (N=1,ND4).
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 
+C                            1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK 
+C                            IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C                       (INPUT)
+C               JD(J) = THE BASIC INTEGER VARIABLE ID'S (J=1,4) 
+C                       (N=1,ND4).
+C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3, ),
+C                       T = IDPARS(8,),
+C                       I = IDPARS(13, ),
+C                       S = IDPARS(14, ),
+C                       G = IDPARS(15, ), AND
+C                       THRESH( ).
+C                       NOT ACTUALLY USED.  (INPUT)
+C            CCALL(K) = CALL LETTERS OF STATIONS BEING DEALT WITH.
+C                       (CHARACTER*8)  (INPUT)
+C             NAME(K) = NAMES OF STATIONS (K=1,NSTA).  (CHARACTER*20)
+C                       (INPUT)
+C            XDATA(K) = DATA VALUES ON INPUT; MODIFIED VALUES
+C                       ON OUTPUT (K=1,NSTA). (INPUT/OUTPUT)
+C           LNDSEA(K) = LAND/SEA INFLUENCE FLAG FOR EACH STATION
+C                       (K=1,NSTA).
+C                       0 = WILL BE USED FOR ONLY OCEAN WATER (=0)
+C                           GRIDPOINTS.
+C                       3 = WILL BE USED FOR ONLY INLAND WATER (=3)
+C                           GRIDPOINTS.
+C                       6 = WILL BE USED FOR BOTH INLAND WATER (=3)
+C                           AND LAND (=9) GRIDPOINTS.
+C                       9 = WILL BE USED FOR ONLY LAND (=9) GRIDPOINTS.
+C                       NOT CURRENTLY USED, BUT MIGHT BE NEEDED.
+C                       (INPUT)
+C                 ND1 = FIRST DIMENSION OF XDATA( ) AND DIMENSION
+C                       OF FD1( ).  (INPUT)
+C                NSTA = NUMBER OF STATIONS BEING USED; THE NUMBER
+C                       OF VALUES IN XDATA( ).  (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C            ISTOP(J) = ISTOP(1) IS INCREMENTED BY 1 WHENEVER AN ERROR 
+C                       OCCURS AND THE PROGRAM PROCEEDS.  ISTOP IS
+C                       INCREMENTED WHEN THE FIRST CHOICE OF FIRST
+C                       GUESS IS NOT AVAILABLE (I.E., MGUESS NE 
+C                       IGUESS(1)).  ISTOP(3) IS INCREMENTED BY 1
+C                       WHEN A DATA RECORD COULD NOT BE FOUND.
+C                       (INPUT/OUTPUT)
+C            ISTOP(J) = ISTOP(1) IS INCREMENTED BY 1 EACH TIME AN ERROR
+C                                OCCURS.
+C                       ISTOP(2) IS INCREMENTED WHEN LESS THAN
+C                                200 STATIONS ARE AVAILABLE FOR AN
+C                                ANALYSIS.
+C                       ISTOP(3) IS INCREMENTED WHEN A DATA RECORD 
+C                                CANNOT BE FOUND.
+C                       (INPUT/OUTPUT)
+C                 IER = ERROR CODE. 
+C                         0 = GOOD RETURN.
+C                       103 = COULD NOT IDENTIFY ID IN INTERNAL TABLE.
+C                       777 = NO FIRST GUESS AVAILABLE.  FATAL ERROR.
+C                        OTHER VALUES FROM CALLED ROUTNES.  EVERY
+C                        ERROR IS FATAL FOR THIS ELEMENT.
+C                       (OUTPUT)
+C               NSLAB = SLAB OF THE GRID CHARACTERISTICS.  RETURNED
+C                       BY GFETCH.  USED FOR CHECKING FOR EQUAL
+C                       CHARACTERISTICS OF GRIDS READ.  (INTERNAL)
+C         ITABLE(J,L) = HOLDS THE 4-WORD IDS (J=1,4) OF THE NCAT
+C                       VARIABLES TO WHICH THIS ROUTINE APPLIES 
+C                       AND THE DATA TO ACCESS (L=1,NCAT).  (INTERNAL)     
+C              TRATIO = THE FRACTION OF THE WAY BETWEEN 3-HOURLY GRIDS
+C                       TO GET THE PROJECTION NEEDED, WHEN TIME 
+C                       INTERPOLATION IS NEEDED.  WILL BE 0, 1/3, OR
+C                       2/3.  (INTERNAL)
+C               JDATE = THE DATE TIME TO LOOK FOR MOS DATA.  (INTERNAL)
+C               JTAU1 = THE FIRST PROJECTION AUXILIARY DATA ARE NEEDED.
+C                       (INTERNAL)
+C               JTAU2 = THE SECOND PROJECTION AUXILIARY DATA ARE NEEDED.
+C                       (INTERNAL)
+C              MAXSTA = THE MAXIMUM NUMBER OF NEIGHBORS (AUGMENTING
+C                       STATIONS) PROVIDED ON THE FILE WITH UNIT NUMBER
+C                       KFILZO.  (INTERNAL)
+C             LIST(K) = THE LOCATION IN THE STATION LIST (K=1,NSTA) OF
+C                       THE SAME STATION IN THE AUGMENTING LIST.
+C                       (INTERNAL)
+C           LISTD(KK) = THIS LOCATION IN THE CCALLD( ) LIST OF THE 
+C                       STATION IN THE CCALL( ) LIST (K=1,NSTA).
+C                       (INTERNAL)
+C             TEMP(K) = TEMPORARY ARRAY FOR AUGMENTING XDATA( ).  
+C                       (INTERNAL)
+C           CCALLD(M) = THE AUGMENTING STATION CALL LETTERS (M=1,MSTA). 
+C                       (INTERNAL)
+C           NOALOC(M) = THE NUMBER OF AUGMENTING STATIONS FOR STATION M
+C                       (M=1,MSTA).  (INTERNAL)
+C          IALOC(M,L) = THE POSITIONS OF THE AUGMENTING STATIONS
+C                       (L=1,MAXSTA) IN THE AUGMENTING LIST (M=1,MSTA).
+C                       (INTERNAL)
+C          RDIST(M,L) = THE DISTANCES OF THE OF THE AUGMENTING STATIONS
+C                       (L=1,MAXSTA) IN THE AUGMENTING LIST FROM THE
+C                       STATION BEING AUGMENTED. (M=1,MSTA).  (INTERNAL)
+C                MSTA = THE NUMBER OF STATIONS THAT HAVE A LIST.
+C                       (INTERNAL)
+C              IFIRST = CONTROLS PRINTING AND SPACING OF DIAGNOSTICS AT
+C                       194, 195, 196. (INTERNAL)
+C              JFIRST = CONTROLS PRINTING AND SPACING OF DIAGNOSTICS AT
+C                       2185, ETC.  (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES USED 
+C            GFETCH, TIMPR
+C
+      PARAMETER (IDCAT=3)
+C
+      CHARACTER*4 STATE
+      CHARACTER*8 CCALL(ND1),CCALLD,TRASH
+      CHARACTER*20 NAME(ND1)
+      CHARACTER*60 FLZERO,FILEID,SAVFL,SAVID
+C
+      DIMENSION ID(4),IDPARS(15),JD(4)
+      DIMENSION XDATA(ND1),LNDSEA(ND1)
+      DIMENSION ISTOP(3),ITABLE(4,IDCAT),LD(4)
+C
+      ALLOCATABLE CCALLD(:),NOALOC(:),IALOC(:,:),RDIST(:,:),LIST(:),
+     1            LISTD(:),TEMP(:)
+C
+      DATA SAVFL/' '/,
+     1     SAVID/' '/
+      DATA TRESH/.51/
+      DATA SET/-4./
+C
+      SAVE SAVFL,SAVID
+      SAVE CCALLD,NOALOC,IALOC,RDIST,LIST,LISTD,TEMP
+      SAVE IALL
+C
+      DATA ITABLE/228470000,0,0,0,
+     1            223270000,0,0,0,
+     2            223271000,0,0,0/
+C        THE ABOVE ACCOMMODATES FOR:
+C           GMOS SNOW AMOUNT,
+C           GMOS 6-H QPF, WITH TERRAIN,
+C           GMOS 6-H QPF WITHOUT TERRAIN.
+C
+CD     CALL TIMPR(KFILDO,KFILDO,'START STSNOZ        ')
+C
+      IER=0
+      IFIRST=0
+      JFIRST=0
+C
+C        DETERMINE WHETHER VARIABLE IS IN THE LIST.
+C        THE TAU IS NOT IN THE TABLE TO MAKE IT GENERIC, BUT
+C        IS IN ID(3).
+C
+      DO 105 L=1,IDCAT
+CD     WRITE(KFILDO,103)(ITABLE(J,L),J=1,4)
+CD103  FORMAT(/' AT 103 IN STSNOZ--(ITABLE(J,M),J=1,4)',4I11)
+C
+      IF(ID(1)/100.EQ.ITABLE(1,L)/100.AND.
+     1   (ID(3)/1000).EQ.(ITABLE(3,L)/1000).AND.
+     2   ID(4).EQ.ITABLE(4,L))THEN
+         GO TO 111
+C           THIS DEFINES L.  NOTE THAT ID(2) IS NOT CHECKED HERE.
+C           IT MAY BE THAT EKDMOS WILL BE CONSIDERED WITH THE
+C           MEAN DESIGNATION IN ID(2).
+      ENDIF
+C
+ 105  CONTINUE
+C
+C        DROP THROUGH HERE MEANS THE ID WAS NOT FOUND.
+C
+      ISTOP(1)=ISTOP(1)+1
+      IER=103
+      WRITE(KFILDO,110)(ID(J),J=1,4),IER
+ 110  FORMAT(/,' ****VARIABLE ',I9.9,I10.9,I10.9,I4.3,' NOT',
+     1         ' ACCOMMODATED IN SUBROUTINE STSNOZ.  IER =',I3,/,
+     2         '     MODIFICATIO OF ZEROS NOT DONE.  PROCEEDING.')
+      GO TO 900
+C
+C         MAKE SURE THIS IS EITHER A MEAN OR PROBABILITY FORECAST
+C         WHEN EKDMOS.
+C
+ 111  IF(IDPARS(4).EQ.61)THEN
+C
+         IF((IDPARS(6)-(IDPARS(6)/1000)*1000).EQ.0)THEN
+            IER=103
+            WRITE(KFILDO,1110)(ID(J),J=1,4),IER
+ 1110       FORMAT(/' ****LLLL DOES NOT INDICATE EITHER A MEAN OR',
+     1              ' PROBABILITY FORECAST FOR EKDMOS VARIABLE ',
+     2                I9.9,I10.9,I10.9,I4.3,/,
+     3              '     IER =',I5,'.  ABORT SETTOMG ZEROS.',
+     4              '  PROCEEDING.')
+            GO TO 900
+         ENDIF
+C
+      ENDIF
+C    
+C        OPEN THE FILE AND READ THE PAIRS LIST.  THE FIRST RECORD
+C        IS AN IDENTIFICATION.  READ IT IN ASCII AND RETAIN IT.
+C        IF THE FILE NAME AND THE ID MATCH, THE DATA DO NOT
+C        HAVE TO BE READ AND MATCHED WITH THE CURRENT LIST.
+C
+ 125  STATE='130 '
+COPS      OPEN(UNIT=KFILZO,FILE=FLZERO,STATUS='OLD',
+      OPEN(UNIT=KFILZO,STATUS='OLD',
+     1     IOSTAT=IOS,ERR=126)
+C        IF THE FILE IS ALREADY OPEN THIS IS A NOP.
+      GO TO 129
+C
+ 126  WRITE(KFILDO,127)FLZERO,KFILZO
+ 127  FORMAT(/' ****U179 PAIRS FILE ',A60,' ON UNIT NO.',I4,
+     1        ' COULD NOT BE OPENED.'/'     SETTING ZEROS NOT DONE.')
+      ISTOP(1)=ISTOP(1)+1
+      GO TO 900
+C      
+ 129  WRITE(KFILDO,130)KFILZO,FLZERO
+ 130  FORMAT(/,' OPENING PAIRS FILE ON UNIT NO.',I3,
+     1         ' FILE = ',A60)
+      REWIND KFILZO
+C        FILE MAY HAVE ALREADY BEEN OPENED AND READ. THEREFORE,
+C        REWIND.
+      STATE='132 '
+      READ(KFILZO,132,ERR=900)FILEID
+ 132  FORMAT(A60)
+C
+      IF(FILEID.EQ.SAVID.AND.FLZERO.EQ.SAVFL)THEN
+C           THE FILE FOR AUXILIARY FORECASTS IS THE SAME AS USED
+C           PREVIOUSLY.
+C           FLZERO IS THE FILE NAME; FILEID IS THE FILE
+C           IDENTIFICATION PUT THERE BY U179.
+C         WRITE(KFILDO,135)
+ 135     FORMAT(' THE FILE FOR AUXILIARY FORECASTS IN STSNOZ',
+     1          ' IS THE SAME AS USED BEFORE.',
+     2          '  IT DOES NOT HAVE TO BE READ.')
+         GO TO 201
+C           THE TWO LISTS OF STATIONS ARE THE SAME, SO ALL
+C           ARRAYS ARE THE SAME, EXCEPT TEMP( ) TO HOLD THE 
+C           DATA NEEDS TO BE INITIALIZED.
+      ELSE
+         SAVID(1:60)=FILEID(1:60)
+         SAVFL(1:60)=FLZERO(1:60)
+         WRITE(KFILDO,137)FILEID
+ 137     FORMAT(' IDENTIFICATION ON THIS FILE IS:  ',A60)
+C
+C           READ THE NUMBER OF STATIONS AND MAXIMUM PAIRS.
+C
+         STATE='138 '
+         READ(KFILZO,138,ERR=900)MSTA,MAXSTA
+ 138     FORMAT(2I6)
+         WRITE(KFILDO,139)MAXSTA,MSTA,FLZERO
+ 139     FORMAT(' UP TO',I3,' STATIONS IN EACH LIST FOR ',
+     1           I7,' STATIONS READ FROM FILE ',A60)
+C
+C           IF THIS IS A DIFFERENT FILE, LIKELY MSTA OR MAXSTA
+C           WILL BE DIFFERENT.  DEALLOCATE AND REALLOCATE.
+C           IT WON'T HURT IF THEY HAVE HAVEN'T BEEN ALLOCATED.
+C
+         DEALLOCATE(CCALLD,NOALOC,IALOC,RDIST,LIST,LISTD,TEMP,
+     1              STAT=IOS)
+         IALL=MAX(NSTA,MSTA)         
+C           NOTE THAT MSTA CAN BE LARGER OR SMALLER THAN NSTA.
+         ALLOCATE(CCALLD(IALL),NOALOC(IALL),IALOC(IALL,MAXSTA),
+     1            RDIST(IALL,MAXSTA),LIST(IALL),LISTD(IALL),
+     2            TEMP(IALL),STAT=IOS)
+C
+         IF(IOS.EQ.1)THEN
+            WRITE(KFILDO,140)
+ 140        FORMAT(/' ****ALLOCATION OF ARRAYS FAILED IN STSNOZ AT',
+     1              ' 120.  ARRAY ALREADY ALLOCATED.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 900
+C
+         ELSEIF(IOS.EQ.2)THEN
+            WRITE(KFILDO,141)
+ 141        FORMAT(/' ****ALLOCATION OF ARRAYS FAILED IN STSNOZ AT',
+     1              ' 121.  ARRAY NOT ALLOCATED.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 900
+         ENDIF
+C
+C           INITIALIZE LIST( ) AND LISTD( ).
+C
+         DO 145 K=1,IALL
+         LIST(K)=999999
+         LISTD(K)=999999
+ 145     CONTINUE
+C  
+C           READ THE PAIRS.
+C  
+         DO 160 KK=1,MSTA
+         STATE='150 '
+         READ(KFILZO,150,IOSTAT=IOS,ERR=910)CCALLD(KK),NOALOC(KK)
+ 150     FORMAT(A8,I8)
+C
+CCC         WRITE(KFILDO,151)KK,MSTA,CCALLD(KK),NOALOC(KK)
+CCC 151     FORMAT(' AT 151--KK,MSTA,CCALLD(KK),NOALOC(KK)',2I6,2X,A8,I6)
+C
+         IF(NOALOC(KK).EQ.9999)GO TO 160
+C           NOALOC( ) = 9999 SIGNIFIES THERE IS NO LIST TO READ.
+C           IALOC( , ) AND RDIST( ,) WILL BE UNDEFINED.
+C
+         IF(NOALOC(KK).GT.MAXSTA)THEN
+            WRITE(KFILDO,152)KK,NOALOC(KK),MAXSTA
+ 152        FORMAT(/' ****NALOC(KK) =',I8,' GT MAXSTA =',I4,
+     1              ' FOR STATION NO. KK =',I6,' IN STSNOZ AT 152.',/,
+     2              '     FATAL ERROR.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 900
+         ENDIF
+C
+         STATE='155 '
+         READ(KFILZO,155,IOSTAT=IOS,ERR=910)(IALOC(KK,J),RDIST(KK,J),
+     1                            J=1,NOALOC(KK)) 
+ 155     FORMAT(10(I6,F10.2))
+C
+         DO 1558 J=1,NOALOC(KK)
+C
+         IF(IALOC(KK,J).GT.MSTA)THEN
+            WRITE(KFILDO,1555)IALOC(KK,J),MSTA,CCALLD(KK)
+1555        FORMAT(/,' ****LOCATION IN IALOC(KK,J) =',I9,
+     1               ' GREATER THAN SIZE OF LIST =',I6,
+     2               ' FOR STATION ',A8,/,
+     3               '     FATAL ERROR.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 900
+         ENDIF
+C
+ 1558    CONTINUE
+C
+CCC         WRITE(KFILDO,156)KK,(IALOC(KK,J),RDIST(KK,J),J=1,NOALOC(KK))
+CCC 156     FORMAT(' AT 156 IN STSNOZ--KK,(IALOC(KK,J),RDIST(KK,J),',
+CCC     1          'J=1,NOALOC(KK))',I6,/,(I6,F10.2))
+ 160     CONTINUE
+C
+C           READ THE TERMINATOR.
+C
+         STATE='162 '
+         READ(KFILZO,150,IOSTAT=IOS,ERR=910)TRASH
+C
+         IF(TRASH.NE.'999999  ')THEN
+            WRITE(KFILDO,165)TRASH
+ 165        FORMAT(' ****DID NOT FIND TERMINATOR ON FILE IN STSNOZ.',
+     1             '  FOUND INSTEAD ',A8,/,
+     2             '     COUNT AS FATAL ERROR.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 900
+         ENDIF
+C
+      ENDIF
+C    
+      WRITE(KFILDO,167)NSTA,MSTA
+ 167  FORMAT(/' THERE ARE',I6,' STATIONS BEING ANALYZED, AND',I6,
+     1        ' STATIONS FOR AUGMENTATION.  SOME MAY HAVE MISSING',
+     2        ' DATA.')
+C
+C        FIND THE LINKS FROM THE AUXILIARY MSTA LIST TO THE
+C        PRIMARY NSTA LIST.
+C
+      ISTART=1
+      IEND=MSTA
+C
+      DO 200 K=1,NSTA
+C
+C        FIND THE STATION IN CCALL(K) IN THE CCALLD(KK) LIST.
+C        THEY OUGHT TO BOTH BE AT LEAST APPROXIMATELY IN ORDER, 
+C        AND STORE THE ORDER IN LIST( ).
+C
+ 170  DO 190 KK=ISTART,IEND
+C
+      IF(CCALLD(KK).EQ.CCALL(K))THEN
+         LIST(K)=KK
+         LISTD(KK)=K
+         ISTART=KK
+C           ISTART SET TO KK RATHER THAN KK+1 TO KEEP FROM INDEXING
+C           PAST END OF ARRAY WHEN ISTART = IEND.
+         IEND=MSTA
+CCCD        WRITE(KFILDO,175)K,KK,CCALL(K),LIST(K),ISTART,IEND
+CCCD175     FORMAT(' AT 175--K,KK,CCALL(K),LIST(K),ISTART,IEND',
+CCCD    1          2I6,2X,A8,3I6)
+         GO TO 200
+      ENDIF
+C
+ 190  CONTINUE
+C
+      IF(ISTART.NE.1)THEN
+         IEND=ISTART
+         ISTART=1
+         GO TO 170
+      ENDIF
+C
+C        DROP THROUGH HERE MEANS AUXILIARY STATION NOT FOUND.
+C
+      IF(IFIRST.EQ.0)THEN 
+         WRITE(KFILDO,194)
+ 194     FORMAT(' ')
+         IFIRST=IFIRST+1
+         ISTOP(1)=ISTOP(1)+1
+      ENDIF
+C    
+      IF(IFIRST.LE.3)THEN
+         WRITE(KFILDO,195)CCALL(K),NAME(K)
+ 195     FORMAT(' ****STATION ',A8,A20,' NOT FOUND IN AUXILIARY LIST.',
+     1         '  PROCEEDING.')
+         IFIRST=IFIRST+1
+      ENDIF
+C  
+      IF(IFIRST.EQ.4)THEN
+         WRITE(KFILDO,196)
+ 196     FORMAT('     THIS DIAGNOSTIC WILL NOT PRINT AGAIN.',
+     1          '  COUNTED AS ONE ISTOP ERROR.')
+         IFIRST=IFIRST+1
+      ENDIF
+C      
+      LIST(K)=999999
+      ISTART=1
+      IEND=MSTA
+      IFIRST=IFIRST+1
+C        IF STATION NOT FOUND, RESTART THE PROCESS FROM THE TOP.
+C        THIS SHOULD BE UNUSUAL.
+C
+ 200  CONTINUE
+C
+      IF(IFIRST.NE.0)THEN
+         WRITE(KFILDO,2001)IFIRST
+ 2001    FORMAT('     THERE WERE',I6,' ERRORS OF THIS TYPE.')
+      ENDIF
+C
+CD     DO 2005 K=1,MIN(IALL,ND1)
+C        IALL COULD EXCEED ND1.
+CD     WRITE(KFILDO,2000)K,CCALL(K),LIST(K),LISTD(K),XDATA(K)
+CD2000 FORMAT(' AT 2000--K,CCALL(K),LIST(K),LISTD(K),XDATA(K),',
+CD    1       I6,2X,A8,2I8,F8.1)
+CD2005 CONTINUE
+C
+C       AUGMENT THE LIST OF DATA IN XDATA( ).
+C
+ 201  DO 220 K=1,NSTA
+      TEMP(K)=9999.
+C
+      IF(LIST(K).NE.999999)THEN
+C           LIST(K) IS THE LOCATION OF THE SAME STATION IN THE
+C           PAIRS LIST.
+C     
+CD        WRITE(KFILDO,2015)K,LIST(K),LISTD(K),NOALOC(LIST(K)),
+CD    1                     IALOC(LIST(K),1)
+CD2015    FORMAT(/' AT 2015--K,LIST(K),LISTD(K),NOALOC(LIST(K)),',
+CD    1           'IALOC(LIST(K),1)',5I10)
+C
+         IF(NOALOC(LIST(K)).NE.9999)THEN
+C
+CD           IF(LISTD(K).NE.999999)THEN
+C
+C                 LOC AND THE FOLLOWING IF STATEMENT ONLY FOR
+C                 DIAGNOSTIC PRINTING.
+C
+CD              LOC=LISTD(IALOC(LIST(K),1))
+C                 NOTE THE 1.
+C
+CD              IF(LOC.NE.999999)THEN
+CD                 WRITE(KFILDO,2017)K,LIST(K),LISTD(K),
+CD    1                              IALOC(LIST(K),1),LOC
+CD2017             FORMAT(/' AT 2017--K,LIST(K),LISTD(K),',
+CD    1                    'IALOC(LIST(K),1),LOC',6I10)
+C
+CD                 WRITE(KFILDO,202)K,CCALL(K),LIST(K),NOALOC(LIST(K)),
+CD    1                             XDATA(K),XDATA(LOC)
+CD202              FORMAT(/,' AT 202--K,CCALL(K),LIST(K),',
+CD    1                     'NOALOC(LIST(K)),',
+CD    2                     'XDATA(K),XDATA(LOC)',/,
+CD    3                      I7,2X,A8,I8,I3,2F8.1)
+CD              ENDIF
+C
+CD           ENDIF
+C
+            IF(XDATA(K).GT.TRESH)THEN
+C                 THIS MEANS THE DATA VALUE IS EITHER MISSING OR HAS
+C                 A NON-ZERO VALUE, SO DON'T CHANGE IT.  THE TRESH = .51
+C                 IS JUST OVER A HALF A TENTH OF AN INCH SCALED.
+C                 IF ZERO IS USED, A VERY SMALL POSITIVE VALUE IS LEFT.
+C                 THIS IN EFFECT TRUNCATES LESS THAN A HALF A TENTH
+C                 OF AN INCH TO ZERO.  THE VALUE TRESH IS USED SO IT WILL
+C                 NOT BECOME ZERO SCALED.
+               TEMP(K)=XDATA(K)
+C
+CD              WRITE(KFILDO,2018)K,CCALL(K),NAME(K),XDATA(K),TEMP(K)
+CD2018          FORMAT(' AT 2018--K,CCALL(K),NAME(K),XDATA(K),TEMP(K)',
+CD    1                I6,2X,A8,2X,A20,2F10.2)
+               GO TO 220
+            ENDIF
+C
+C              DATA VALUE IS ZERO.  COMPUTE THE OFFSET.
+C
+            SUM=0.
+            KOUNT=0
+C
+            DO 205 M=1,NOALOC(LIST(K))
+            IF(IALOC(LIST(K),M).GT.IALL)GO TO 205
+C
+            LOC=LISTD(IALOC(LIST(K),M))
+C
+            IF(LOC.EQ.999999)THEN
+C
+CD              WRITE(KFILDO,2021)
+CD2021          FORMAT('STATION IN PAIRS LIST IS NOT A',
+CD    1                ' STATION BEING ANALYZED, SO CANNOT BE USED IN',
+CD    2                ' SETTING ZERO VALUES IN STSNOZ.')
+C
+CD              WRITE(KFILDO,2022)K,M,LIST(K),LISTD(K),
+CD    1                          IALOC(LIST(K),M),LOC
+CD2022          FORMAT(' AT 2022--K,M,LIST(K),LISTD(K),',
+CD    1                'IALOC(LIST(K),M),LOC',6I9)
+               GO TO 205
+            ENDIF
+C
+CD           IF(CCALL(K).EQ.'PASY    ')THEN
+CD              WRITE(KFILDO,2025)K,LIST(K),CCALL(K),CCALLD(LIST(K)),
+CD    1              XDATA(LOC),IALOC(LIST(K),M),
+CD    2              CCALL(IALOC(LIST(K),M)),NAME(IALOC(LIST(K),M))
+CD2025          FORMAT(/' AT 2025--K,LIST(K),CCALL(K),CCALLD(LIST(K)),',
+CD    1             'XDATA(LOC),IALOC(LIST(K),M)',
+CD    2             'CCALL(IALOC(LIST(K),M)),NAME(IALOC(LIST(K),M))',
+CD    3             /,10X,2I5,2X,2A8,F10.1,I10,2X,A8,2X,A20)
+CD           ENDIF
+C
+            IF(XDATA(LOC).LT.9998..AND.XDATA(LOC).GT.TRESH)THEN
+               SUM=SUM+XDATA(LOC)
+               KOUNT=KOUNT+1
+C
+CD              WRITE(KFILDO,2027)K,XDATA(LOC),SUM,KOUNT
+CD2027          FORMAT(' AT 2027 IN STSNOZ--K,XDATA(LOC),SUM,KOUNT',
+CD    1                I6,2F10.4,I4)
+C
+               IF(KOUNT.GE.3)GO TO 2050
+C                 LIMIT AVERAGING TO 4 STATIONS.  THE STATION LIST IS
+C                 ORDERED, SO THE 4 CLOSEST ONES WITH DATA WILL BE USED.
+            ENDIF
+C
+ 205        CONTINUE
+C
+ 2050       IF(KOUNT.NE.0)THEN
+               TEMP(K)=-MAX(SUM/KOUNT,1.)
+C
+CD              WRITE(KFILDO,2051)K,CCALL(K),NAME(K),XDATA(K),TEMP(K)
+CD2051          FORMAT(' AT 2051--K,CCALL(K),NAME(K),XDATA(K),TEMP(K)',
+CD    1                I6,2X,A8,2X,A20,2F10.2)
+C 
+            ELSE
+               TEMP(K)=SET
+C                 IF THERE ARE NO NON-ZEROS TO AVERAGE, THE VALUE IS
+C                 SET TO SET
+C
+CD              WRITE(KFILDO,2052)K,CCALL(K),NAME(K),XDATA(K),TEMP(K)
+CD2052          FORMAT(' AT 2052--K,CCALL(K),NAME(K),XDATA(K),TEMP(K)',
+CD    1                I6,2X,A8,2X,A20,2F10.2)
+            ENDIF 
+C
+         ELSE     
+            IF(XDATA(K).GE.TRESH)THEN
+               TEMP(K)=XDATA(K)
+            ELSE
+               TEMP(K)=-1.
+C                 THIS HAPPENS IF THERE IS NO LIST FOR THE STATION.
+C                 -1 IS USED INSTEAD OF SET (= -4) BECAUSE THIS COULD
+C                 BE CLOSE TO SMALL POSITIVE VALUES.
+            ENDIF
+C
+CD           WRITE(KFILDO,2053)K,CCALL(K),NAME(K),XDATA(K),TEMP(K)
+CD2053       FORMAT(' AT 2053--K,CCALL(K),NAME(K),XDATA(K),TEMP(K)',
+CD    1                I6,2X,A8,2X,A20,2F10.2)
+C 
+         ENDIF
+C
+      ELSE
+         TEMP(K)=XDATA(K)
+C
+C         WRITE(KFILDO,2054)K,CCALL(K),NAME(K),XDATA(K),TEMP(K)
+C 2054    FORMAT(' AT 2054--K,CCALL(K),NAME(K),XDATA(K),TEMP(K)',
+C     1             I6,2X,A8,2X,A20,2F10.2)
+C
+         IF(TEMP(K).LT.TRESH)THEN
+C              IF THIS IS NOT DONE, A ZERO MAY BE LEFT IN A
+C              GROUP OF "SET'S".
+            TEMP(K)=SET
+            WRITE(KFILDO,210)TEMP(K)
+ 210        FORMAT('STATION VALUE SET TO',F7.2)
+         ENDIF
+C
+         IF(JFIRST.EQ.0)THEN 
+            WRITE(KFILDO,2185)
+ 2185       FORMAT(' ')
+            ISTOP(1)=ISTOP(1)+1
+         ENDIF
+C    
+         IF(JFIRST.LE.1)THEN
+            WRITE(KFILDO,219)K,LIST(K),CCALL(K),NAME(K)
+ 219        FORMAT(' ****STATION IN ANALYSIS LIST NOT IN PAIRS',
+     1             ' LIST.  K,LIST(K),CCALL(K) ARE',I6,I10,2X,A8,A20)
+            JFIRST=JFIRST+1
+         ENDIF
+C  
+         IF(JFIRST.EQ.2)THEN
+            WRITE(KFILDO,2191)
+ 2191       FORMAT('     THIS DIAGNOSTIC WILL NOT PRINT AGAIN FOR',
+     1             ' THIS ZERO MODIFICATION.  COUNTED AS ONE ISTOP',
+     2             ' ERROR.')
+            JFIRST=JFIRST+1
+         ENDIF
+C
+         IF(JFIRST.GT.2)THEN
+            JFIRST=JFIRST+1
+         ENDIF
+C
+      ENDIF
+C
+ 220  CONTINUE
+C
+      IF(JFIRST.NE.0)THEN
+         WRITE(KFILDO,221)JFIRST
+ 221     FORMAT(/'     THERE WERE',I6,' CASES IN WHICH A STATION IN',
+     1           ' THE ANALYSIS LIST WAS NOT IN PAIRS LIST.',
+     2           '     LOOK AT HOW U179 WAS RUN.')
+      ENDIF
+C
+C        REPLACE XDATA( ) WITH THE AUGMENTED DATA IN TEMP( ).
+C
+      DO 222 K=1,NSTA
+      XDATA(K)=TEMP(K)
+ 222  CONTINUE
+C
+CD     WRITE(KFILDO,225)(K,XDATA(K),K=1,NSTA)
+C        NOTE THAT THESE VALUES ARE NOT SCALED--JUST WHAT IS
+C        BEING ANALYZED.  SCALING COULD BE DONE HERE OR IN A
+C        FOLLOWING ROUTINE.
+CD225  FORMAT(/,' IN STSNOZ AT 225',/,(I6,F8.2))
+C
+CD     CALL TIMPR(KFILDO,KFILDO,'END   STSNOZ        ')
+C
+ 900  RETURN
+C        ERROR STOP BELOW IS FOR ERRORS OF CONTROL INFORMATION INPUT.
+ 910  CALL IERX(KFILDO,KFILDO,IOS,'STSNOZ',STATE)
+      STOP 9999
+      END

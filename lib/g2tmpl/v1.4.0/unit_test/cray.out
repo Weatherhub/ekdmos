@@ -1,0 +1,119 @@
+  
+  
+Original PRODUCT TEMPLATE 4. 1 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 3 5 10
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.1                
+  
+  NEW    PRODUCT TEMPLATE 4. 1 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 3 5 10
+  
+  
+  
+Original PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 3 5 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.11                
+  
+  pos_pert_fcst=  3 
+  
+  NEW    PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 3 5 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  
+Original PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 3 5 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.11                
+  
+  unpert_hi_res_ctrl_fcst = 0 
+  
+  NEW    PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 0 6 12 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  
+Original PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 3 5 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.11                
+  
+  unpert_lo_res_ctrl_fcst = 1 
+  
+  NEW    PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 1 6 12 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  
+Original PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 3 5 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.11                
+  
+  neg_pert_fcst =  2 
+  
+  NEW    PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 2 6 12 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  
+Original PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 3 5 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.11                
+  
+  multi_model_fcst = 4 
+  
+  NEW    PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 4 6 12 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  
+Original PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 3 5 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.11                
+  
+  pert_ens_member =  192 
+  
+  NEW    PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 192 6 12 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+ get_g2_typeofensfcst key: pert_12ens_member1                                                               not found.
+  
+Original PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 3 5 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.11                
+  
+  pert_ens_12member1 = ERROR 
+  
+ *** NEW    PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 255 6 12 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  
+Original PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 1 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.12                
+  weighted_mean_all_mem = 1 
+  
+  NEW    PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 1 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  
+Original PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 1 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.12                
+  unweighted_mean_all_mem = 0 
+  
+  NEW    PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 0 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  
+Original PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 1 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  Compiled with NEW g2tmpl library 
+  for  new PDT 4.12                
+  std_devn_res_cluster_mean = 2 
+  
+  NEW    PRODUCT TEMPLATE 4. 11 :  0 4 4 0 107 0 0 1 6 103 0 2 255 0 0 2 10 2015 1 9 0 0 0 1 0 2 2 1 6 255 0
+  
+  
+  
+OLD_PRODUCT TEMPLATE 4. 8 :  2 220 2 0 84 0 0 1 10 100 0 40000 100 0 100000 2014 12 24 12 0 0 1 0 2 2 1 1 255 0
+  
+  Compiled with NEW g2tmpl library 
+  It fixed  the scale value of first fixed surface= 400000
+  and second fixed surface = 100000
+  
+NEW_PRODUCT TEMPLATE 4. 8 :  2 220 2 0 84 0 0 1 10 100 0 40000 100 0 100000 2014 12 24 12 0 0 1 0 2 2 1 1 255 0
+  
+  

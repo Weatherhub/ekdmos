@@ -1,0 +1,79 @@
+      SUBROUTINE MCMAPS(KFILDO,XMESHL,XLAT,ALATLL,ALONLL,
+     1                  XI,YJ,SINL,XMAPF,NSTA,IER)
+C
+C        JULY     2002   GLAHN   TDL   MOS-2000 
+C                                ADAPTED FROM MCMAPF
+C        AUGUST   2002   GLAHN   CORRECTED COMMENT IN STATEMENT 100
+C
+C        PURPOSE 
+C            TO RETURN THE SIN OF THE LATITUDE AND THE MAP FACTOR FOR
+C            A SET OF NSTA POINTS WHOSE X, Y COORDINATES ARE IN 
+C            YI( ) AND XI( ) FOR A MERCATOR MAP.
+C
+C        DATA SET USE 
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                     (OUTPUT) 
+C 
+C        VARIABLES 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                       (INPUT) 
+C              XMESHL = GRID LENGTH IN M AT THE LATITUDE XLAT.  (INPUT)
+C                XLAT = THE LATITUDE IN DEGREES N AT WHICH XMESHL IS
+C                       CORRECT.  DO NOT USE NEGATIVE.  (INPUT)
+C              ALATLL = THE LATITUDE OF THE LOWER LEFT CORNER POINT OF
+C                       THE GRID IN DEGREES NORTH.  (INPUT)
+C              ALONLL = THE LONGITUDE OF THE LOWER LEFT CORNER POINT OF
+C                       THE GRID IN DEGREES WEST.  DO NOT USE NEGATIVE.
+C                       (INPUT)
+C               XI(K) = THE X LOCATION OF THE POINTS (K=1,NSTA).
+C                       (INPUT)
+C               YJ(K) = THE Y LOCATION OF THE POINTS (K=1,NSTA). 
+C                       (INPUT)
+C             SINL(K) = SINE OF LATITUDE AT THE POINT XI(K),YJ(K)
+C                       (K=1,NSTA).  (OUTPUT)
+C            XMAPF(K) = THE MAP FACTOR AT THE POINT XI(K),YJ(K)
+C                       (K=1,NSTA).  (OUTPUT)
+C                NSTA = NUMBER OF VALUES BEING DEALT WITH.  (INPUT)
+C                 IER = STATUS RETURN.  (OUTPUT)
+C                         0 = GOOD RETURN.
+C                       184 = PROBLEM WITH EITHER XMESHL, ORIENT,
+C                             XLAT, OR ALONLL.
+C                  PI = PI.  SET BY PARAMETER.  (INTERNAL)
+C              RADPDG = RADIANS PER DEGREE.  SET BY PARAMETER.
+C                       (INTERNAL)
+C              COXLAT = COLATITUDE OF XLAT IN RADIANS.  (INTERNAL)
+C 
+C        NONSYSTEM SUBROUTINES CALLED 
+C            MCIJLL
+C
+      PARAMETER (PI=3.14159,
+     1           RADPDG=PI/180.)
+c
+      DIMENSION XI(NSTA),YJ(NSTA),SINL(NSTA),XMAPF(NSTA)
+C
+      IF(XMESHL.LE.0..OR.XLAT.LT.0..OR.ALONLL.LT.0.)THEN
+         WRITE(KFILDO,100)XMESHL,XLAT,ALONLL
+ 100     FORMAT(/' ****PROBLEM IN MCMAPS WITH EITHER'/
+     1           '     XMESHL =',F12.4,',',
+     2           '     XLAT   =',F12.4,', OR',
+     3           '     ALONLL =',F12.4,'.')
+         IER=184
+         GO TO 200
+      ENDIF
+C
+      COXLAT=COS(XLAT)
+C
+C        CALCULATE THE LATITUDE AND LONGITUDE OF EACH POINT, THEN
+C        THE SINE OF THE LATITUDE AND THE MAP FACTOR.
+C
+      DO 150 K=1,NSTA
+      CALL MCIJLL(KFILDO,XI(K),YJ(K),XMESHL,XLAT,
+     1            ALATLL,ALONLL,ALAT,ALON)
+      SINL(K)=SIN(RADPDG*ALAT)
+      XMAPF(K)=COXLAT/COS(ALAT)
+ 150  CONTINUE
+C
+ 200  RETURN
+      END      
+      
+      

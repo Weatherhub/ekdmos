@@ -1,0 +1,105 @@
+BACIO unit test start ...
+ **************** compiling start *********************** 
+ Compile bacio lib....
+make: Nothing to be done for `/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/intel/libbacio_v2.0.2_4.a'.
+make: Nothing to be done for `/gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/intel/libbacio_v2.0.2_8.a'.
+ Compile bacio lib.... finished
+ **************** testing starts *********************** 
+ 
+ test 1: test_baciof
+ftn -O3 -axCore-AVX2 -DUNDERSCORE -DLINUX -convert big_endian  test_baciof.f90 -o ../exe/test_baciof -L../../lib -lbacio_4
+test_baciof stoped!
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@nid00252>
+Subject: Job 427694: <sp_test_u01> in cluster <NCEP-ORLANDO> Exited
+
+Job <sp_test_u01> was submitted from host <slogin1> by user <nwprod> in cluster <NCEP-ORLANDO>.
+Job was executed on host(s) <1*nid00252>, in queue <preprod>, as user <nwprod> in cluster <NCEP-ORLANDO>.
+                            <24*nid00008>
+</u/nwprod> was used as the home directory.
+</gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.2/unit_test/scripts> was used as the working directory.
+Started at Mon Feb 27 18:00:23 2017
+Results reported on Mon Feb 27 18:01:00 2017
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash -x
+#BSUB -W 0:05                   # wall clock time of 5 mins
+#BSUB -o test.intel.stdout.%J           # stdout
+#BSUB -e test.intel.stderr.%J                   # stderr
+#BSUB -R rusage[mem=600]                # memory req in MB
+#BSUB -J sp_test_u01                    # job name
+#BSUB -q "preprod"                  # Serial job queue
+#BSUB -P NAM-T2O                        # Project code
+###BSUB -n 32
+#BSUB -extsched 'CRAYLINUX[]'
+##BSUB -extsched 'CRAYLINUX[]' -R  '1*{select[craylinux && !vnode]} + 72*{select[craylinux && vnode]span[ptile=24] cu[type=cabinet]}'
+
+module load PrgEnv-intel
+module use /gpfs/hps/nco/ops/nwtest/lib/modulefiles
+module load bacio-intel/2.0.2
+module list
+cd ${LS_SUBCWD}     # cd to submission dir
+set -x
+##./exe-4
+##./exe-8
+##./exe-d
+
+export KMP_AFFINITY=disabled
+export OMP_NUM_THREADS=1
+export NODES=1
+
+if [ -z "$BACIO_LIB4" -o -z "$BACIO_LIB8" ]; then
+  echo " bacio module not loaded. Cannot continue"
+  exit 1
+fi
+ 
+crtdir=/usrx/local/nceplibs/bacio/v2.0.2/unit_test/scripts
+libdir=${crtdir}/../../
+libsrcdir=${crtdir}/../../src
+srcdir=${crtdir}/../src
+datadir=${crtdir}/../data
+exedir=${crtdir}/../exe
+confdir=${crtdir}/../conf
+
+echo "BACIO unit test start ..."
+#rm -f $exedir/*
+
+###########################################################
+# detect machine:
+case `hostid` in
+
+  0xac7c006)          MACHINE_ID=ccs ;; ### cirrus1
+  0xac7c012)          MACHINE_ID=ccs ;; ### cirrus2
+
+  0xac7a006)          MACHINE_ID=ccs ;; ### stratus1
+
+(... more ...)
+------------------------------------------------------------
+
+Exited with exit code 8.
+
+Resource usage summary:
+
+    CPU time :                                   1.08 sec.
+    Max Memory :                                 245 MB
+    Average Memory :                             -
+    Total Requested Memory :                     600.00 MB
+    Delta Memory :                               355.00 MB
+    Max Swap :                                   -
+    Max Processes :                              -
+    Max Threads :                                -
+    Run time :                                   35 sec.
+    Turnaround time :                            37 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <test.intel.stderr.427694> for stderr output of this job.
+

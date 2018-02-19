@@ -1,0 +1,547 @@
+      SUBROUTINE STRATVAR(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+     1                    IDSTRT,IDSTRP,ITAUX,
+     2                    NDATE,CCALL,ISDATA,XDATA,ND1,
+     3                    NCAT,NSTA,ICALLD,CCALLD,IPACK,IWORK,
+     4                    DATA,ND5,LSTORE,ND9,LITEMS,CORE,ND10,
+     5                    LASTL,LASTD,NBLOCK,NSTORE,NFETCH,
+     6                    IS0,IS1,IS2,IS4,ND7,
+     7                    L3264B,L3264W,ISTAB,IER)
+C
+C        JANUARY   2004   RUDACK  MOS-2000 (ADAPTED FROM STRAT.F)
+C        MARCH     2004   GLAHN   ADDED VARAIBLES 970200 AND 920202
+C        MARCH     2004   GLAHN   ADDED IDSTRP TO CALL AND TAU TO
+C                                 BASE VARIABLE
+C        APRIL     2004   WIEDENFELD MODIFIED SO VARIABLE JDTAB(4,M,JJ)
+C                                 CAN HAVE A NON 0 VALUE AFTER BASICP
+C                                 IS CALLED; MODIFIED TO USE VARIABLES
+C                                 U, V, S STRATIFIED ON FRONT LOCATION 
+C        MAY       2004   GLAHN   ADDED TEMP, DEW POINT STRATIFICATION
+C                                 ON FRONT LOCATION
+C        MAY       2004   GLAHN   ADDED THICKNESS ADVECTION ON FRONT
+C        MAY       2004   GLAHN   CORRECTED FOR PROJECTION BEFORE PRSID2
+C        MAY       2004   GLAHN   LIMITED TO 3 STRAT ON FRONT FOR TEMP
+C
+C        PURPOSE
+C           TO COMPUTE A STRATIFICATION VARIABLE THAT WAS CREATED 
+C           THROUGH U602.  ONE VARIABLE IS RETURNED PER CALL.
+C           THE IDS OF THE STRATIFICATION VARIABLES ACCOMMODATED,
+C           THE ASSOCIATED BASE VARIABLES, AND UP TO 4 VARIABLES
+C           EACH USED TO STRATIFY THE BASE VARIABLE ARE HARDWIRED
+C           INTO IDSTAB( , , ).  
+C   
+C        DATA SET USE
+C            KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                     (INPUT-OUTPUT) 
+C            IP12   - INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                     STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                     THE FILE WHOSE UNIT NUMBER IS IP12.
+C         KFILRA(J) - UNIT NUMBERS FOR READING MOS-2000 EXTERNAL
+C                     RANDOM ACCESS FILES (J=1,NUMRA).  (INPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT)
+C                IP12 = INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                       STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                       THE FILE WHOSE UNIT NUMBER IS IP12.  (INPUT)
+C           KFILRA(J) = UNIT NUMBERS FOR READING MOS-2000 EXTERNAL
+C                       RANDOM ACCESS FILES (J=1,NUMRA).  (INPUT)
+C           RACESS(J) = FILE NAMES FOR MOS-2000 EXTERNAL RANDOM ACCESS
+C                       FILES HOLDING CONSTANT DATA READ ON UNIT NOS.
+C                       KFILRA(J) IN OPTX (J=1,NUMRA).  (CHARACTER*60)
+C                       (INPUT)
+C               NUMRA = NUMBER OF VALUES IN KFILRA( ) AND RACESS( ).
+C                       (INPUT)
+C           IDSTRT(J) = THE STRATIFICATION VARIABLE ID (J=1,4).  (INPUT)
+C           IDSTRP(J) = THE PARSED STRATIFICATION VARIABLE ID (J=1,15).
+C                       (INPUT)
+C               ITAUX = THE NUMBER OF HOURS TO ADD TO NDATE TO GET 
+C                       THE VARIABLE.  THIS IS THE "LOOKAHEAD" FEATURE.
+C                       (INPUT)
+C                       PARSED INTO THEIR COMPONENT PARTS.  (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTORS ARE TO BE
+C                       FURNISHED ON THIS CALL TO STRAT.  (INPUT)
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+C                       DATA ARE KEYED TO THIS LIST.  (CHARACTER*8)
+C                       (INPUT)
+C           ISDATA(K) = WORK ARRAY (K=1,ND1).  (INTERNAL)
+C            XDATA(K) = THE DATA FOR THE NSTA STATIONS FOR THE VARIABLE
+C                       IDSTRT( , ) BEING PROCESSED (K=1,NSTA).
+C                       (OUTPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT
+C                       WITH.   MUST BE LE ND5.  (INPUT)
+C                NCAT = A CATEGORY NUMBER USED BY U710 AND U910 FOR
+C                       INPUT TO OPTX.  (INPUT)
+C                NSTA = THE NUMBER OF STATIONS IN CCALL( ).  (INPUT)
+C         ICALLD(L,K) = 8-CHARACTER STATION CALL LETTERS AS CHARACTERS
+C                       IN AN INTEGER VARIABLE (L=1,L3264W) (K=1,NSTA).
+C                       NOTE THAT THIS REQUIRES TWO 32-BIT WORDS TO HOLD
+C                       THE DESCRIPTION BUT ONLY ONE 64-BIT WORD.
+C                       NEEDED IN CONST6 FOR ARGUMENT TO RDTDLM.
+C                       EQUIVALENCED TO CCALLD( ).  (INTERNAL)
+C           CCALLD(K) = 8-CHARACTER STATION CALL LETTERS (K=1,ND5).
+C                       EQUIVALENCED TO ICALLD( , ).  (CHARACTER*8)
+C                       (INTERNAL)
+C            IPACK(J) = HOLDS THE TDL GRIB RECORD (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY (J=1,ND5).  FURNISHED TO UNPACK, BUT
+C                       NOT ACTUALLY USED BECAUSE ONLY THE ID'S ARE
+C                       UNPACKED.  (INTERNAL)
+C             DATA(J) = WORK ARRAY (J=1,ND5).  FURNISHED TO UNPACK, BUT
+C                       NOT ACTUALLY USED BECAUSE ONLY THE ID'S ARE
+C                       UNPACKED.  (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), AND DATA( ).
+C                       (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED IN THE MOS-2000 INTERNAL STORAGE SYSTEM
+C                       (L=1,11) (J=1,LITEMS).  (INPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NOT USED.
+C                       L=11 --THE NUMBER OF THE FIRST PREDICTOR IN 
+C                              THE SORTED LIST IN ID( ,N) (N=1,NVRBL)
+C                              FOR WHICH THIS VARIABLE IS NEEDED, WHEN 
+C                              IT DOES NOT NEED TO BE STORED AFTER 
+C                              DAY 1.  WHEN THE VARIABLE MUST BE STORED 
+C                              (TO BE ACCESSED THROUGH OPTION) FOR ALL
+C                              DAYS, ID(11,N) IS 7777 + THE NUMBER OF
+C                              THE FIRST PREDICTOR IN THE SORTED LIST
+C                              FOR WHICH THIS VARIABLE IS NEEDED.
+C                       L=12 --USED INITIALLY IN ESTABLISHING 
+C                              MSTORE( , ).  LATER USED AS A WAY OF 
+C                              DETERMINING WHETHER TO KEEP THIS
+C                              VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ) AND 
+C                       MSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT HAVE BEEN USED IN THIS RUN.  (INPUT)
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA 
+C                       IDENTIFIED IN LSTORE( , ) (J=1,ND10).  WHEN
+C                       CORE( ) IS FULL DATA ARE STORED ON DISK. 
+C                       (INPUT)
+C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+C               LASTL = THE LAST LOCATION IN CORE( ) USED.  THIS MAY BE
+C                       MODIFIED, ALONG WITH ITEMS, IF COMPACTION IS
+C                       DONE BY GCPAC.  INITIALIZED TO ZERO ON FIRST 
+C                       ENTRY TO GSTORE.  (INPUT-OUTPUT)
+C               LASTD = TOTAL NUMBER OF PHYSICAL RECORDS ON DISK.
+C                       INITIALIZED TO ZERO ON FIRST ENTRY TO GSTORE.
+C                       (INPUT-OUTPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE.  (INPUT)
+C              NSTORE = RUNNING COUNT OF NUMBER OF TIMES DATA ARE 
+C                       STORED BY GSTORE.  INITIALIZED TO ZERO THE
+C                       FIRST TIME GSTORE IS CALLED.  GSTORE KEEPS 
+C                       TRACK OF THIS AND RETURNS THE VALUE.  (OUTPUT)
+C              NFETCH = THE NUMBER OF TIMES GFETCH HAS BEEN ENTERED.
+C                       GFETCH  KEEPS TRACK OF THIS AND RETURNS THE
+C                       VALUE.  (OUTPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3). 
+C                       (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).
+C                       (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C                       (INTERNAL)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                       (INTERNAL)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED.  (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE 
+C                       BEING USED (EITHER 32 OR 64).  (INPUT)
+C              L3264W = NUMBER OF WORDS IN 64 BITS (EITHER 1 OR 2).
+C                       (INPUT) 
+C               ISTAB = USUALLY  ZERO, BUT SET TO ONE WHEN CERTAIN
+C                       SUBROUTINES ARE CALLED FROM OPTX.  A "1" MEANS
+C                       THE VARIABLE IS ALREADY BINARY AND SHOULDN'T
+C                       BE SO PROCESSED IN THE CALLING ROUTINE.
+C                       (OUTPUT)
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                       139 = MISSING DATA FOR THIS VARIABLE.
+C                       (OUTPUT)
+C       IDSTAB(J,M,L) = THE FOUR WORD ID (J=1,4) OF THE STRATIFICATION
+C                       VARIABLE (M=1), OF THE BASE VARIABLE (M=2),
+C                       AND UP TO 3 VARIABLES TO BE USED TO STRATIFY
+C                       THE BASE VARIABLE (M=3,6) FOR EACH OF J
+C                       VARIABLES (J=1,NDIM).  (INTERNAL)  
+C        JDTAB(J,M,L) = THE BASIC FOUR WORD STRATIFICATION ID.  
+C                       (J=1,4) (K=1,6) (J=1,NDIM). (INTERNAL)  
+C       IDPTAB(J,M,L) = THE PARSED FORM OF THE BASE AND AUXILIARY ID'S 
+C                       (J=1,15) (K=1,6) (J=1,NDIM).  (INTERNAL)
+C            SDATA(K) = WORK ARRAY (K=1,ND1).  (INTERNAL)
+C              NSTRAT = TOTAL NUMBER OF VARIABLES DEFINED IN
+C                       ITAB( , ,JJ).  "NSTRAT" CAN VARY BETWEEN
+C                       3 AND 6).  (INTERNAL)
+C      THRESHOLD(6,J) = THE THRESHOLD VALUES IN FLOATING POINT FORM
+C                       FOR THE BASE AND AUXILIARY VARIABLES IN ITAB( )
+C                       (J=1,NDIM).  (INTERNAL)
+C               MDATE = NDATE UPDATED WITH ITAUX.  (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C 
+C        NONSYSTEM SUBROUTINES USED 
+C            OPTX, TIMPR, UPDAT, PRSID2, BASICP, GFETCH, BINARY
+C
+      PARAMETER(NDIM=3)
+C
+      CHARACTER*8 CCALL(ND1,6)
+      CHARACTER*8 CCALLD(ND5)
+      CHARACTER*60 RACESS(NUMRA)
+C
+      DIMENSION IDSTRT(4),IDSTRP(15)
+      DIMENSION ISDATA(ND1),SDATA(ND1),XDATA(ND1)
+      DIMENSION ICALLD(L3264W,ND5),IPACK(ND5),IWORK(ND5),DATA(ND5)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION LSTORE(12,ND9)
+      DIMENSION CORE(ND10)
+      DIMENSION KFILRA(NUMRA)
+      DIMENSION IDSTAB(4,6,NDIM),JDTAB(4,6,NDIM),IDPTAB(15,6,NDIM),
+     1          IDTAB(4,6,NDIM)
+      DIMENSION THRESHOLD(6,NDIM)
+C
+      DATA IDSTAB/
+C                    THICKNESS ADVECTION STRATIFIED BY FRONT, FAR=7
+     1            904360005,0,0,0,
+     2            004360005,10000500,0,400,
+     3            001997105,1000,0,500000400,
+     4            0,0,0,0,
+     5            0,0,0,0,
+     6            0,0,0,0,
+C                    OBSERVED TEMPERATURE STRATIFIED BY FRONT, FAR=7
+     1            970200000,0,0,0,   
+     2            702000000,0,0,0,
+     3            001997105,1000,0,500000400,
+     4            0,0,0,0,
+     5            0,0,0,0,
+     6            0,0,0,0,
+C                    MOS TEMPERATURE STRATIFIED BY FRONT, FAR=7
+     1            920202000,0,007000008,0,
+     2            202020008,0,007000000,0,
+     3            001997105,1000,0,500000400,
+     4            0,0,0,0,
+     5            0,0,0,0,
+     6            0,0,0,0/
+      DATA THRESHOLD/.0000E+00,.0000E+00,.5000E+00,.0000E+00,
+     1               .0000E+00,.0000E+00,
+     2               .0000E+00,.0000E+00,.5000E+00,.0000E+00,
+     3               .0000E+00,.0000E+00,
+     4               .0000E+00,.0000E+00,.5000E+00,.0000E+00,
+     5               .0000E+00,.0000E+00/  
+C
+D     CALL TIMPR(KFILDO,KFILDO,'START STRAT         ')
+C
+      IER=0
+      ISTABT=0
+C
+      DO 50 JJ=1,NDIM
+         IF((IDSTRP(1)*1000000+IDSTRP(2)*1000+IDSTRP(4)).EQ.
+     1      (IDSTAB(1,1,JJ))) GO TO 63
+C          NOTE THAT THE BINARY B IS NOT USED.
+ 50   CONTINUE
+C
+      IER=103
+      WRITE(KFILDO,55) (IDSTRT(KK),KK=1,4),IER
+ 55   FORMAT(/' ****ID(1), DOES NOT INDICATE CORRECT',
+     1        ' ID FOR STRATVAR.  PREDICTOR ',
+     2          I9.9,2I10.9,I4.3,' NOT COMPUTED.  IER =',I4)
+      GOTO 590
+C
+C        SET MDATE AND ITIME FOR THIS VARIABLE.
+C
+ 63   IF(ITAUX.EQ.0)THEN
+         MDATE=NDATE
+         ITIME=0
+      ELSE
+         CALL UPDAT(NDATE,ITAUX,MDATE)
+         ITIME=-ITAUX
+      ENDIF
+C
+C        DETERMINE THE NUMBER OF VARIABLES TO FETCH.
+C
+      NSTRAT=0
+C
+      DO 65 M=1,6
+         IF(IDSTAB(1,M,JJ).NE.0) NSTRAT=NSTRAT+1
+ 65   CONTINUE 
+C
+C        RETRIEVE THE BASE AND AUXILIARY STRATIFICATION VARIABLES.
+C
+      DO 586 M=2,NSTRAT
+C
+C           ASSIGN IDTAB( , , ) SO THAT VALUES IN DATA STATEMENT
+C           ARE NOT MODIFIED.
+C
+         IDTAB(1,M,JJ)=IDSTAB(1,M,JJ)
+         IDTAB(2,M,JJ)=IDSTAB(2,M,JJ)
+         IDTAB(3,M,JJ)=IDSTAB(3,M,JJ)
+         IDTAB(4,M,JJ)=IDSTAB(4,M,JJ)
+C
+C           ASSIGN THE PROJECTION.  ADD THE PROJECTION OF THE
+C           STRATIFICATION VARIABLE UNLESS THE VARIABLE IS AN
+C           OBSERVATION (CCC=7XX) OR A CONSTANT (CCC=4XX).
+C           ADJUSTMENT BY RR MAY NEED TO BE MADE.
+C
+         IF(IDTAB(1,M,JJ)/100000000.EQ.7.OR.
+     1      IDTAB(1,M,JJ)/100000000.EQ.4)THEN
+            IDTAB(3,M,JJ)=(IDTAB(3,M,JJ)/1000)*1000 
+C              THE PROJECTION OF CCC = 4XX OR 7XX HAS A TAU = 0. 
+         ELSEIF(IDTAB(1,M,JJ)/100000000.EQ.2)THEN
+            IDTAB(3,M,JJ)=IDTAB(3,M,JJ)+IDSTRP(12)
+C              THE PROJECTION OF MOS FORECASTS HAS THE TAU
+C              LEFT INTACT.
+         ELSE
+            IDTAB(3,M,JJ)=IDTAB(3,M,JJ)+IDSTRP(12)-IDSTRP(9)
+C              THIS ASSUMES RR IN THE STRATIFICATION VARIABLE
+C              IS THE SAME FOR THE VARIABLE TO BE STRATIFIED.
+         ENDIF
+C
+C           PARSE THE VARIABLE ID INTO ITS 15 COMPONENT PARTS.
+C
+         CALL PRSID2(KFILDO,IDTAB(1,M,JJ),IDPTAB(1,M,JJ),
+     1               THRESHOLD(M,JJ))
+C
+C           PLACE THE BASE VARIABLE INTO ITS BASIC JD( ) FORM.
+C
+         CALL BASICP(KFILDO,IDPTAB(1,M,JJ),JDTAB(1,M,JJ))
+C
+C           SINCE IT IS POSSIBLE TO HAVE SMOOTHING AND INTERPOLATION
+C           FOR FORECASTS MUST MODIFY JDTAB TO COMPENSATE.
+C
+         JDTAB(4,M,JJ)=IDPTAB(13,M,JJ)*100+IDPTAB(14,M,JJ)*10+
+     1                 IDPTAB(15,M,JJ)
+C
+C           TRY TO FIND A VARIABLE IN LSTORE AND RETURN IT IN SDATA( ).
+C           NOTE THAT JDTAB( , , ) IS USED IN THE CALL.  ALSO, THE DATE  
+C           HAS BEEN ADJUSTED FOR LOOKAHEAD.  THE BASE VARIABLE IS
+C           JDTAB( , ,2).
+C
+D        WRITE(KFILDO,110)(IDSTRT(J),J=1,4)
+D110     FORMAT(/' AT 110 IN STRAT--(IDSTRT(J),J=1,4)',4I10)
+C
+         IF(JDTAB(1,M,JJ).EQ.IDTAB(1,M,JJ).AND.
+     1      JDTAB(4,M,JJ).EQ.IDTAB(4,M,JJ))GO TO 425
+C
+C           THE ABOVE TEST KEEPS GFETCH FROM BEING CALLED TWICE 
+C           FOR NO REASON.  THAT IS, THE FULL AND PARTIAL IDS
+C           ARE THE SAME.  JDTAB(2, , ) AND JDTAB(3, , ) ALWAYS EQUAL
+C           IDTAB(2, , ) AND IDTAB(3, , ), RESPECTIVELY.
+C
+         CALL GFETCH(KFILDO,KFIL10,JDTAB(1,M,JJ),7777,LSTORE,ND9,LITEMS,
+     1               IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,SDATA,ND1,
+     2               NWORDS,NPACK,MDATE,NTIMES,CORE,ND10,
+     3               NBLOCK,NFETCH,NSOURC,MISSP,MISSS,L3264B,ITIME,
+     4               IER)
+C
+C           NOTE THAT JDTAB( , , ) IS USED IN THE ABOVE CALL.
+C
+         IF(IER.EQ.0)THEN
+C    
+            IF(M.EQ.2)THEN
+C            
+               IF(IDPTAB(3,M,JJ).NE.0)THEN
+C
+C                    WHEN THE "BASIC" ID IS FOUND, IT MAY BE IT NEEDS TO
+C                    MADE INTO A BINARY.   
+C
+                  CALL BINARY(KFILDO,IDTAB(1,M,JJ),IDPTAB(3,M,JJ),
+     1                        THRESHOLD(M,JJ),SDATA,NSTA,IER)  
+                  ISTAB=1
+C
+C                    SET ISTAB = 1 TO INDICATE BINARY WHEN APPROPRIATE.
+C                    APPLY ONLY TO THE BASE (2ND) VARIABLE.  THIS KEEPS
+C                    THE CALLING PROGRAM FROM MAKING A BINARY.  NOTE
+C                    THAT THE BASE VARIABLE CONTROLS WHETHER THE 9XX
+C                    VARIABLE IS A BINARY OR NOT AT THIS POINT.  IF
+C                    THE 9XX VARIABLE IS BINARY, AND ISTAB NE 1, THEN
+C                    IT WILL BE MADE INTO BINARY IN CALLING PROGRAM.
+C
+               ENDIF
+C
+            ELSE
+C
+               IF(IDPTAB(3,M,JJ).EQ.1.OR.IDPTAB(3,M,JJ).EQ.2)THEN
+C
+C                    WHEN THE "BASIC" ID IS FOUND FOR AN AUXILIARY
+C                    VARIABLE, IT NEEDS TO MADE INTO A BINARY UNLESS
+C                    IT IS ALREADY A BINARY. 
+C
+                  CALL BINARY(KFILDO,IDTAB(1,M,JJ),IDPTAB(3,M,JJ),
+     1                        THRESHOLD(M,JJ),SDATA,NSTA,IER)
+C
+               ELSE
+                  WRITE(KFILDO,120)(IDTAB(J,M,JJ),J=1,4),NDATE
+ 120              FORMAT(/,' ****BINARY INDICATOR IS NOT 1 OR 2 IN',
+     1                     ' STRATVAR FOR AUXILIARY VARIABLE',
+     2                    3(1X,I9.9),1X,I10.3,' FOR DATE ',I11,'.')
+                  GO TO 587
+               ENDIF
+C         
+            ENDIF
+C
+            GO TO 445
+C
+C           ALWAYS TRANSFERS WHEN IER = 0.
+C
+         ENDIF
+C
+C              IF THE ABOVE FETCH FAILED, MUST TRY FULL ID.
+C
+ 425        CALL GFETCH(KFILDO,KFIL10,IDTAB(1,M,JJ),7777,LSTORE,ND9,
+     1                  LITEMS,IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,SDATA,
+     2                  ND1,NWORDS,NPACK,MDATE,NTIMES,CORE,ND10,
+     3                  NBLOCK,NFETCH,NSOURC,MISSP,MISSS,L3264B,ITIME,
+     4                  IER)
+C
+C           NOTE THAT IDTAB( , , ) IS USED IN THE ABOVE CALL.
+C
+         IF(IER.EQ.0)THEN
+C      
+            IF(M.EQ.2)THEN
+C
+               IF(IDPTAB(3,M,JJ).NE.0)THEN
+                  ISTAB=1
+C
+C                 WHEN THE "FULL" ID IS FOUND, IT WILL ALREADY BE
+C                 A BINARY IF IT NEEDS TO BE.         
+C                 SET ISTAB = 1 TO INDICATE BINARY WHEN APPROPRIATE.
+C                 APPLY ONLY TO THE BASE (2ND) VARIABLE.  THIS KEEPS
+C                 THE CALLING PROGRAM FROM MAKING A BINARY.  NOTE
+C                 THAT THE BASE VARIABLE CONTROLS WHETHER THE 9XX
+C                 VARIABLE IS A BINARY OR NOT AT THIS POINT.  IF
+C                 THE 9XX VARIABLE IS BINARY, AND ISTAB NE 1, THEN
+C                 IT WILL BE MADE INTO BINARY IN CALLING PROGRAM.
+C
+               ENDIF
+C
+            ELSE
+C
+               IF(IDPTAB(3,M,JJ).NE.1.AND.IDPTAB(3,M,JJ).NE.2)THEN
+C
+C                    WHEN THE "FULL" ID IS FOUND AND IT IS AN AUXILIARY
+C                    VARIABLE, IT MUST BE BINARY.   
+C
+                  WRITE(KFILDO,120)(IDTAB(J,M,JJ),J=1,4),NDATE
+                  GO TO 587
+               ENDIF
+C         
+            ENDIF
+C
+            GO TO 445
+C
+C           ALWAYS TRANSFERS WHEN IER = 0.
+C
+         ENDIF
+C
+C           MUST COMPUTE THIS PREDICTOR.
+C
+         CALL OPTX(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+     1             IDTAB(1,M,JJ),IDPTAB(1,M,JJ),THRESHOLD(M,JJ),
+     2             JDTAB(1,M,JJ),ITAUX,
+     3             NDATE,MDATE,CCALL,ISDATA,SDATA,ND1,NCAT,NSTA,
+     4             ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+     5             LSTORE,ND9,LITEMS,CORE,ND10,
+     6             LASTL,LASTD,NBLOCK,NSTORE,NFETCH,
+     7             IS0,IS1,IS2,IS4,ND7,
+     8             L3264B,L3264W,ISTABT,IER)
+C
+C           AN ERROR IN OPTX WILL GENERATE A DIAGNOSTIC.  AN IER = 120
+C           FROM FINDST FROM CONST MEANS NOT ALL STATIONS COULD BE
+C           FOUND IN THE DIRECTORY.
+C
+         IF(IER.EQ.0.OR.IER.EQ.120)THEN
+            IER=0
+C
+C              WHEN IER = 120, IT IS JUST A MISSING STATION, NOT FATAL.
+C      
+            IF(M.EQ.2)THEN
+C
+               ISTAB=ISTABT
+C
+C                 SET ISTAB = ISTABT TO INDICATE BINARY WHEN APPROPRIATE.
+C                 APPLY ONLY TO THE BASE (2ND) VARIABLE.  THIS KEEPS THE
+C                 CALLING PROGRAM FROM MAKING A BINARY.  NOTE
+C                 THAT THE BASE VARIABLE CONTROLS WHETHER THE 9XX
+C                 VARIABLE IS A BINARY OR NOT AT THIS POINT.  IF
+C                 THE 9XX VARIABLE IS BINARY, AND ISTAB NE 1, THEN
+C                 IT WILL BE MADE INTO BINARY IN CALLING PROGRAM.
+            ELSE
+C
+               IF(ISTABT.NE.1.AND.ISTABT.NE.2)THEN
+                  WRITE(KFILDO,120)(IDSTRT(J),J=1,4),NDATE
+                  GO TO 587
+               ENDIF
+C
+            ENDIF
+C
+C              WILL DROP TO 445 WHEN IER = 0 OR 120 FROM OPTX.
+         ELSE
+C
+            IER=99
+C
+C              THE DATA ARE MISSING.  ALL VALUES HAVE BEEN RETURNED
+C              AS 9999.  IER = 99 IS CONSISTENT WITH OPTX = 99 WHEN
+C              THE VARIABLE IS NOT IDENTIFIED. 
+
+            WRITE(KFILDO,440)(IDSTRT(J),J=1,4),MDATE
+ 440        FORMAT(' ****CANNOT OBTAIN VRBL IN STRATVAR ',
+     1             3(1X,I9.9),1X,I10.3,' FOR DATE ',I11,'.')
+            GO TO 600
+         ENDIF
+C
+C           PROCESS DATA INTO THE STRATIFICATION VARIABLE.
+C
+ 445     IF(M.EQ.2)THEN
+C
+C              THIS IS THE BASE VARIABLE.
+C
+            DO 450 K=1,NSTA
+               XDATA(K)=SDATA(K)
+ 450        CONTINUE
+C
+         ELSE
+C
+            DO 460 K=1,NSTA
+C
+               IF(XDATA(K).NE.9999..AND.SDATA(K).NE.9999.)THEN
+C
+C                    VALUES OF 9997 HAVE ALREADY BEEN DEALT WITH.
+C
+                  XDATA(K)=XDATA(K)*SDATA(K)
+C
+               ENDIF
+C
+ 460        CONTINUE
+C
+         ENDIF
+C     
+ 586  CONTINUE
+C
+C        PROCESSING COMPLETE.
+C
+      GO TO 600
+C
+ 587  IER=139
+C
+C        A DROP THROUGH HERE MEANS THAT NO DATA WAS FOUND.  SET THE 
+C        STRATIFICATION VARIABLE VALUES TO MISSING.
+C
+ 590  DO 598 K=1,NSTA
+         XDATA(K)=9999.
+ 598  CONTINUE
+C
+ 600  RETURN
+      END

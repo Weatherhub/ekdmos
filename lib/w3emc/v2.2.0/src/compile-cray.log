@@ -1,0 +1,979 @@
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.7
+  2) eswrap/1.1.0-1.020200.1231.0
+  3) switch/1.0-1.0502.57058.1.58.ari
+  4) craype-network-aries
+  5) ncep/1.0
+  6) xt-lsfhpc/9.1.3
+  7) craype/2.3.0
+  8) sigio-cray-haswell/2.0.1
+  9) w3emc-cray-haswell/2.2.0
+ 10) craype-haswell
+ 11) cce/8.3.10
+ 12) cray-libsci/13.0.3
+ 13) udreg/2.3.2-1.0502.9889.2.20.ari
+ 14) ugni/6.0-1.0502.10245.9.9.ari
+ 15) pmi/5.0.6-1.0000.10439.140.2.ari
+ 16) dmapp/7.0.1-1.0502.10246.8.47.ari
+ 17) gni-headers/4.0-1.0502.10317.9.2.ari
+ 18) xpmem/0.1-2.0502.57015.1.15.ari
+ 19) dvs/2.5_0.9.0-1.0502.1958.2.55.ari
+ 20) alps/5.2.3-2.0502.9295.14.14.ari
+ 21) rca/1.0.0-2.0502.57212.2.56.ari
+ 22) atp/1.8.1
+ 23) PrgEnv-cray/5.2.56
+
+
+===============================================================
+Checking for required environment variables
+===============================================================
+
+  Checking SIGIO_INC4...defined as /gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4
+  Checking SIGIO_LIB4...defined as /gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/libsigio_v2.0.1_4.a
+
+
+
+
+===============================================================
+===============================================================
+Configuring for precision 4 build
+===============================================================
+===============================================================
+
+./configure --prefix=/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src --enable-promote=4
+configure: nceplibs w3emc v2.2.0
+checking for Fortran compiler default output file name... a.out
+checking whether the Fortran compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables... 
+checking for suffix of object files... o
+checking whether we are using the GNU Fortran compiler... yes
+checking whether ftn accepts -g... yes
+checking for a BSD-compatible install... /usr/bin/install -c
+checking for ranlib... ranlib
+checking for ar... ar
+checking for Fortran flag to compile .f files... none
+configure: Building precision 4 version.
+configure: Using SIGIO_INC4 value: "/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4"
+configure: Using SIGIO_LIB4 value: "/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/libsigio_v2.0.1_4.a"
+checking for library containing sigio_head definition... yes
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating libsrc/Makefile
+
+
+===============================================================
+Starting precision 4 build
+===============================================================
+
+cd libsrc && make clean
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm *.o *.mod *.a >/dev/null 2>&1
+make[1]: [clean] Error 1 (ignored)
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+cd libsrc && make all
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c args_mod.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c gblevents.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c getgbens.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c isrchne.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c iw3mat.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c mersenne_twister.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c mova2i.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c orders.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c putgbens.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c summary.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ai40.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ai41.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ctzdat.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa01.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa03.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa03v.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa04.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa06.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa09.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa11.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa12.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa13.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb00.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb01.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb02.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb03.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb04.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb05.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb06.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb07.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb08.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb09.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb10.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb11.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb12.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc02.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc05.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc06.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc07.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc08.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi02.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi03.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi18.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi19.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi20.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi32.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi47.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi48.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi52.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi61.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi65.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi66.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi67.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi70.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi78.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi85.f
+
+                  CALL FI8501(KARY,ISTEP,KCLASS,KSEG,IDATA,RDATA,
+                                                     ^            
+ftn-1615 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1696, Column = 54 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "IDATA" is an array argument.  This argument is scalar.
+                                                           ^      
+ftn-1615 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1696, Column = 60 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "RDATA" is an array argument.  This argument is scalar.
+
+                  CALL FI8502(*4200,KBUFR,KCLASS,KSEG,
+                                    ^                  
+ftn-1278 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1704, Column = 37 
+  Procedure "FI8502" is defined at line 1164 (w3fi85.f).  Dummy argument "KBUFR" is scalar.  This argument is an array argument.
+
+     *            KARY,KDATA,ISECT3,KRFVSW,NEWRFV,LDESC,IERRTN,INDEXB)
+                                                               ^       
+ftn-1660 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1706, Column = 64 
+  Procedure "FI8502" is defined at line 1164 (w3fi85.f) with dummy argument "indexb_".  This argument is a procedure.
+
+          CALL FI8501(KARY,ISTEP,KCLASS,KSEG,IDATA,RDATA,
+                                                   ^      
+ftn-1615 crayftn: WARNING FI8508, File = w3fi85.f, Line = 1993, Column = 52 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "RDATA" is an array argument.  This argument is scalar.
+
+          CALL FI8501(KARY,ISTEP,KCLASS,KSEG,IDATA,RDATA,
+                                             ^            
+ftn-1615 crayftn: WARNING FI8509, File = w3fi85.f, Line = 2238, Column = 46 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "IDATA" is an array argument.  This argument is scalar.
+
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fm07.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fm08.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp04.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp05.f
+
+       DATA  CRMX  /10.E70/
+                    ^       
+ftn-1189 crayftn: WARNING W3FP05, File = w3fp05.f, Line = 105, Column = 21 
+  This numeric constant is out of range.
+
+Cray Fortran : Version 8.3.10 (u83060f83215i83183p83328a83009e83011z83328)
+Cray Fortran :                (x8320r83015w83011t8311b83039)
+Cray Fortran : Fri Jan 08, 2016  18:57:24
+Cray Fortran : Compile time:  0.4040 seconds
+Cray Fortran : 613 source lines
+Cray Fortran : 0 errors, 1 warnings, 0 other messages, 0 ansi
+Cray Fortran : "explain ftn-message number" gives more information about each message.
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp06.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp10.f
+
+       DATA  CRMX  /10.E70/
+                    ^       
+ftn-1189 crayftn: WARNING W3FP10, File = w3fp10.f, Line = 118, Column = 21 
+  This numeric constant is out of range.
+
+Cray Fortran : Version 8.3.10 (u83060f83215i83183p83328a83009e83011z83328)
+Cray Fortran :                (x8320r83015w83011t8311b83039)
+Cray Fortran : Fri Jan 08, 2016  18:57:24
+Cray Fortran : Compile time:  0.5640 seconds
+Cray Fortran : 713 source lines
+Cray Fortran : 0 errors, 1 warnings, 0 other messages, 0 ansi
+Cray Fortran : "explain ftn-message number" gives more information about each message.
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fq07.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft00.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft01.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft02.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft03.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft05.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft05v.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft06.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft06v.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft07.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft08.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft09.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft10.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft11.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft12.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft16.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft17.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft201.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft202.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft203.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft204.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft205.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft206.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft207.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft208.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft209.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft210.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft211.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft212.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft213.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft214.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft21.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft26.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft33.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft38.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft39.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft40.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft41.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft43v.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3log.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3miscan.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c xdopen.f
+ftn  -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c  start.F
+ar crvs libw3emc_v2.2.0_4.a args_mod.o gblevents.o getgbens.o isrchne.o iw3mat.o mersenne_twister.o mova2i.o orders.o putgbens.o summary.o w3ai40.o w3ai41.o w3ctzdat.o w3fa01.o w3fa03.o w3fa03v.o w3fa04.o w3fa06.o w3fa09.o w3fa11.o w3fa12.o w3fa13.o w3fb00.o w3fb01.o w3fb02.o w3fb03.o w3fb04.o w3fb05.o w3fb06.o w3fb07.o w3fb08.o w3fb09.o w3fb10.o w3fb11.o w3fb12.o w3fc02.o w3fc05.o w3fc06.o w3fc07.o w3fc08.o w3fi02.o w3fi03.o w3fi18.o w3fi19.o w3fi20.o w3fi32.o w3fi47.o w3fi48.o w3fi52.o w3fi61.o w3fi65.o w3fi66.o w3fi67.o w3fi70.o w3fi78.o w3fi85.o w3fm07.o w3fm08.o w3fp04.o w3fp05.o w3fp06.o w3fp10.o w3fq07.o w3ft00.o w3ft01.o w3ft02.o w3ft03.o w3ft05.o w3ft05v.o w3ft06.o w3ft06v.o w3ft07.o w3ft08.o w3ft09.o w3ft10.o w3ft11.o w3ft12.o w3ft16.o w3ft17.o w3ft201.o w3ft202.o w3ft203.o w3ft204.o w3ft205.o w3ft206.o w3ft207.o w3ft208.o w3ft209.o w3ft210.o w3ft211.o w3ft212.o w3ft213.o w3ft214.o w3ft21.o w3ft26.o w3ft33.o w3ft38.o w3ft39.o w3ft40.o w3ft41.o w3ft43v.o w3log.o w3miscan.o xdopen.o start.o
+a - args_mod.o
+a - gblevents.o
+a - getgbens.o
+a - isrchne.o
+a - iw3mat.o
+a - mersenne_twister.o
+a - mova2i.o
+a - orders.o
+a - putgbens.o
+a - summary.o
+a - w3ai40.o
+a - w3ai41.o
+a - w3ctzdat.o
+a - w3fa01.o
+a - w3fa03.o
+a - w3fa03v.o
+a - w3fa04.o
+a - w3fa06.o
+a - w3fa09.o
+a - w3fa11.o
+a - w3fa12.o
+a - w3fa13.o
+a - w3fb00.o
+a - w3fb01.o
+a - w3fb02.o
+a - w3fb03.o
+a - w3fb04.o
+a - w3fb05.o
+a - w3fb06.o
+a - w3fb07.o
+a - w3fb08.o
+a - w3fb09.o
+a - w3fb10.o
+a - w3fb11.o
+a - w3fb12.o
+a - w3fc02.o
+a - w3fc05.o
+a - w3fc06.o
+a - w3fc07.o
+a - w3fc08.o
+a - w3fi02.o
+a - w3fi03.o
+a - w3fi18.o
+a - w3fi19.o
+a - w3fi20.o
+a - w3fi32.o
+a - w3fi47.o
+a - w3fi48.o
+a - w3fi52.o
+a - w3fi61.o
+a - w3fi65.o
+a - w3fi66.o
+a - w3fi67.o
+a - w3fi70.o
+a - w3fi78.o
+a - w3fi85.o
+a - w3fm07.o
+a - w3fm08.o
+a - w3fp04.o
+a - w3fp05.o
+a - w3fp06.o
+a - w3fp10.o
+a - w3fq07.o
+a - w3ft00.o
+a - w3ft01.o
+a - w3ft02.o
+a - w3ft03.o
+a - w3ft05.o
+a - w3ft05v.o
+a - w3ft06.o
+a - w3ft06v.o
+a - w3ft07.o
+a - w3ft08.o
+a - w3ft09.o
+a - w3ft10.o
+a - w3ft11.o
+a - w3ft12.o
+a - w3ft16.o
+a - w3ft17.o
+a - w3ft201.o
+a - w3ft202.o
+a - w3ft203.o
+a - w3ft204.o
+a - w3ft205.o
+a - w3ft206.o
+a - w3ft207.o
+a - w3ft208.o
+a - w3ft209.o
+a - w3ft210.o
+a - w3ft211.o
+a - w3ft212.o
+a - w3ft213.o
+a - w3ft214.o
+a - w3ft21.o
+a - w3ft26.o
+a - w3ft33.o
+a - w3ft38.o
+a - w3ft39.o
+a - w3ft40.o
+a - w3ft41.o
+a - w3ft43v.o
+a - w3log.o
+a - w3miscan.o
+a - xdopen.o
+a - start.o
+ranlib libw3emc_v2.2.0_4.a
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+
+
+===============================================================
+Performing NCO-type install of precision 4 build
+===============================================================
+
+cd libsrc && make nco_install
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+/usr/bin/install -c -d /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/cray/w3emc_v2.2.0_4
+/usr/bin/install -c -m 644 *.mod /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/cray/w3emc_v2.2.0_4
+/usr/bin/install -c -m 644 libw3emc_v2.2.0_4.a /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/cray/libw3emc_v2.2.0_4.a
+/usr/bin/install -c -m 644 ../config.log /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/config.log.w3emc_v2.2.0_4
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+cd libsrc && make clean
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm *.o *.mod *.a >/dev/null 2>&1
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+cd libsrc && make distclean
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm Makefile >/dev/null 2>&1
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm Makefile config.log* config.status
+
+
+
+
+===============================================================
+===============================================================
+Configuring for precision 8 build
+===============================================================
+===============================================================
+
+./configure --prefix=/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src --enable-promote=8
+configure: nceplibs w3emc v2.2.0
+checking for Fortran compiler default output file name... a.out
+checking whether the Fortran compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables... 
+checking for suffix of object files... o
+checking whether we are using the GNU Fortran compiler... yes
+checking whether ftn accepts -g... yes
+checking for a BSD-compatible install... /usr/bin/install -c
+checking for ranlib... ranlib
+checking for ar... ar
+checking for Fortran flag to compile .f files... none
+configure: Building precision 8 version.
+configure: Using SIGIO_INC4 value: "/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4"
+configure: Using SIGIO_LIB4 value: "/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/libsigio_v2.0.1_4.a"
+checking for library containing sigio_head definition... yes
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating libsrc/Makefile
+
+
+===============================================================
+Starting precision 8 build
+===============================================================
+
+cd libsrc && make clean
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm *.o *.mod *.a >/dev/null 2>&1
+make[1]: [clean] Error 1 (ignored)
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+cd libsrc && make all
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c args_mod.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c gblevents.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c getgbens.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c isrchne.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c iw3mat.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c mersenne_twister.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c mova2i.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c orders.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c putgbens.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c summary.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ai40.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ai41.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ctzdat.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa01.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa03.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa03v.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa04.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa06.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa09.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa11.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa12.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa13.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb00.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb01.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb02.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb03.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb04.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb05.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb06.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb07.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb08.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb09.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb10.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb11.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb12.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc02.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc05.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc06.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc07.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc08.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi02.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi03.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi18.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi19.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi20.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi32.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi47.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi48.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi52.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi61.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi65.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi66.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi67.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi70.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi78.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi85.f
+
+                  CALL FI8501(KARY,ISTEP,KCLASS,KSEG,IDATA,RDATA,
+                                                     ^            
+ftn-1615 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1696, Column = 54 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "IDATA" is an array argument.  This argument is scalar.
+                                                           ^      
+ftn-1615 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1696, Column = 60 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "RDATA" is an array argument.  This argument is scalar.
+
+                  CALL FI8502(*4200,KBUFR,KCLASS,KSEG,
+                                    ^                  
+ftn-1278 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1704, Column = 37 
+  Procedure "FI8502" is defined at line 1164 (w3fi85.f).  Dummy argument "KBUFR" is scalar.  This argument is an array argument.
+
+     *            KARY,KDATA,ISECT3,KRFVSW,NEWRFV,LDESC,IERRTN,INDEXB)
+                                                               ^       
+ftn-1660 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1706, Column = 64 
+  Procedure "FI8502" is defined at line 1164 (w3fi85.f) with dummy argument "indexb_".  This argument is a procedure.
+
+          CALL FI8501(KARY,ISTEP,KCLASS,KSEG,IDATA,RDATA,
+                                                   ^      
+ftn-1615 crayftn: WARNING FI8508, File = w3fi85.f, Line = 1993, Column = 52 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "RDATA" is an array argument.  This argument is scalar.
+
+          CALL FI8501(KARY,ISTEP,KCLASS,KSEG,IDATA,RDATA,
+                                             ^            
+ftn-1615 crayftn: WARNING FI8509, File = w3fi85.f, Line = 2238, Column = 46 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "IDATA" is an array argument.  This argument is scalar.
+
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fm07.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fm08.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp04.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp05.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp06.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp10.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fq07.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft00.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft01.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft02.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft03.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft05.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft05v.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft06.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft06v.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft07.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft08.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft09.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft10.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft11.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft12.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft16.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft17.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft201.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft202.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft203.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft204.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft205.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft206.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft207.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft208.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft209.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft210.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft211.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft212.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft213.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft214.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft21.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft26.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft33.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft38.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft39.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft40.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft41.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft43v.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3log.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3miscan.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c xdopen.f
+ftn  -s real64 -s integer64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c  start.F
+ar crvs libw3emc_v2.2.0_8.a args_mod.o gblevents.o getgbens.o isrchne.o iw3mat.o mersenne_twister.o mova2i.o orders.o putgbens.o summary.o w3ai40.o w3ai41.o w3ctzdat.o w3fa01.o w3fa03.o w3fa03v.o w3fa04.o w3fa06.o w3fa09.o w3fa11.o w3fa12.o w3fa13.o w3fb00.o w3fb01.o w3fb02.o w3fb03.o w3fb04.o w3fb05.o w3fb06.o w3fb07.o w3fb08.o w3fb09.o w3fb10.o w3fb11.o w3fb12.o w3fc02.o w3fc05.o w3fc06.o w3fc07.o w3fc08.o w3fi02.o w3fi03.o w3fi18.o w3fi19.o w3fi20.o w3fi32.o w3fi47.o w3fi48.o w3fi52.o w3fi61.o w3fi65.o w3fi66.o w3fi67.o w3fi70.o w3fi78.o w3fi85.o w3fm07.o w3fm08.o w3fp04.o w3fp05.o w3fp06.o w3fp10.o w3fq07.o w3ft00.o w3ft01.o w3ft02.o w3ft03.o w3ft05.o w3ft05v.o w3ft06.o w3ft06v.o w3ft07.o w3ft08.o w3ft09.o w3ft10.o w3ft11.o w3ft12.o w3ft16.o w3ft17.o w3ft201.o w3ft202.o w3ft203.o w3ft204.o w3ft205.o w3ft206.o w3ft207.o w3ft208.o w3ft209.o w3ft210.o w3ft211.o w3ft212.o w3ft213.o w3ft214.o w3ft21.o w3ft26.o w3ft33.o w3ft38.o w3ft39.o w3ft40.o w3ft41.o w3ft43v.o w3log.o w3miscan.o xdopen.o start.o
+a - args_mod.o
+a - gblevents.o
+a - getgbens.o
+a - isrchne.o
+a - iw3mat.o
+a - mersenne_twister.o
+a - mova2i.o
+a - orders.o
+a - putgbens.o
+a - summary.o
+a - w3ai40.o
+a - w3ai41.o
+a - w3ctzdat.o
+a - w3fa01.o
+a - w3fa03.o
+a - w3fa03v.o
+a - w3fa04.o
+a - w3fa06.o
+a - w3fa09.o
+a - w3fa11.o
+a - w3fa12.o
+a - w3fa13.o
+a - w3fb00.o
+a - w3fb01.o
+a - w3fb02.o
+a - w3fb03.o
+a - w3fb04.o
+a - w3fb05.o
+a - w3fb06.o
+a - w3fb07.o
+a - w3fb08.o
+a - w3fb09.o
+a - w3fb10.o
+a - w3fb11.o
+a - w3fb12.o
+a - w3fc02.o
+a - w3fc05.o
+a - w3fc06.o
+a - w3fc07.o
+a - w3fc08.o
+a - w3fi02.o
+a - w3fi03.o
+a - w3fi18.o
+a - w3fi19.o
+a - w3fi20.o
+a - w3fi32.o
+a - w3fi47.o
+a - w3fi48.o
+a - w3fi52.o
+a - w3fi61.o
+a - w3fi65.o
+a - w3fi66.o
+a - w3fi67.o
+a - w3fi70.o
+a - w3fi78.o
+a - w3fi85.o
+a - w3fm07.o
+a - w3fm08.o
+a - w3fp04.o
+a - w3fp05.o
+a - w3fp06.o
+a - w3fp10.o
+a - w3fq07.o
+a - w3ft00.o
+a - w3ft01.o
+a - w3ft02.o
+a - w3ft03.o
+a - w3ft05.o
+a - w3ft05v.o
+a - w3ft06.o
+a - w3ft06v.o
+a - w3ft07.o
+a - w3ft08.o
+a - w3ft09.o
+a - w3ft10.o
+a - w3ft11.o
+a - w3ft12.o
+a - w3ft16.o
+a - w3ft17.o
+a - w3ft201.o
+a - w3ft202.o
+a - w3ft203.o
+a - w3ft204.o
+a - w3ft205.o
+a - w3ft206.o
+a - w3ft207.o
+a - w3ft208.o
+a - w3ft209.o
+a - w3ft210.o
+a - w3ft211.o
+a - w3ft212.o
+a - w3ft213.o
+a - w3ft214.o
+a - w3ft21.o
+a - w3ft26.o
+a - w3ft33.o
+a - w3ft38.o
+a - w3ft39.o
+a - w3ft40.o
+a - w3ft41.o
+a - w3ft43v.o
+a - w3log.o
+a - w3miscan.o
+a - xdopen.o
+a - start.o
+ranlib libw3emc_v2.2.0_8.a
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+
+
+===============================================================
+Performing NCO-type install of precision 8 build
+===============================================================
+
+cd libsrc && make nco_install
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+/usr/bin/install -c -d /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/cray/w3emc_v2.2.0_8
+/usr/bin/install -c -m 644 *.mod /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/cray/w3emc_v2.2.0_8
+/usr/bin/install -c -m 644 libw3emc_v2.2.0_8.a /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/cray/libw3emc_v2.2.0_8.a
+/usr/bin/install -c -m 644 ../config.log /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/config.log.w3emc_v2.2.0_8
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+cd libsrc && make clean
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm *.o *.mod *.a >/dev/null 2>&1
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+cd libsrc && make distclean
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm Makefile >/dev/null 2>&1
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm Makefile config.log* config.status
+
+
+
+
+===============================================================
+===============================================================
+Configuring for precision d build
+===============================================================
+===============================================================
+
+./configure --prefix=/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src --enable-promote=d
+configure: nceplibs w3emc v2.2.0
+checking for Fortran compiler default output file name... a.out
+checking whether the Fortran compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables... 
+checking for suffix of object files... o
+checking whether we are using the GNU Fortran compiler... yes
+checking whether ftn accepts -g... yes
+checking for a BSD-compatible install... /usr/bin/install -c
+checking for ranlib... ranlib
+checking for ar... ar
+checking for Fortran flag to compile .f files... none
+configure: Building precision d version.
+configure: Using SIGIO_INC4 value: "/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4"
+configure: Using SIGIO_LIB4 value: "/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/libsigio_v2.0.1_4.a"
+checking for library containing sigio_head definition... yes
+configure: creating ./config.status
+config.status: creating Makefile
+config.status: creating libsrc/Makefile
+
+
+===============================================================
+Starting precision d build
+===============================================================
+
+cd libsrc && make clean
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm *.o *.mod *.a >/dev/null 2>&1
+make[1]: [clean] Error 1 (ignored)
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+cd libsrc && make all
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c args_mod.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c gblevents.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c getgbens.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c isrchne.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c iw3mat.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c mersenne_twister.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c mova2i.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c orders.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c putgbens.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c summary.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ai40.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ai41.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ctzdat.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa01.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa03.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa03v.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa04.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa06.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa09.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa11.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa12.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fa13.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb00.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb01.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb02.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb03.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb04.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb05.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb06.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb07.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb08.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb09.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb10.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb11.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fb12.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc02.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc05.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc06.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc07.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fc08.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi02.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi03.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi18.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi19.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi20.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi32.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi47.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi48.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi52.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi61.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi65.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi66.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi67.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi70.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi78.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fi85.f
+
+                  CALL FI8501(KARY,ISTEP,KCLASS,KSEG,IDATA,RDATA,
+                                                     ^            
+ftn-1615 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1696, Column = 54 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "IDATA" is an array argument.  This argument is scalar.
+                                                           ^      
+ftn-1615 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1696, Column = 60 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "RDATA" is an array argument.  This argument is scalar.
+
+                  CALL FI8502(*4200,KBUFR,KCLASS,KSEG,
+                                    ^                  
+ftn-1278 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1704, Column = 37 
+  Procedure "FI8502" is defined at line 1164 (w3fi85.f).  Dummy argument "KBUFR" is scalar.  This argument is an array argument.
+
+     *            KARY,KDATA,ISECT3,KRFVSW,NEWRFV,LDESC,IERRTN,INDEXB)
+                                                               ^       
+ftn-1660 crayftn: WARNING FI8506, File = w3fi85.f, Line = 1706, Column = 64 
+  Procedure "FI8502" is defined at line 1164 (w3fi85.f) with dummy argument "indexb_".  This argument is a procedure.
+
+          CALL FI8501(KARY,ISTEP,KCLASS,KSEG,IDATA,RDATA,
+                                                   ^      
+ftn-1615 crayftn: WARNING FI8508, File = w3fi85.f, Line = 1993, Column = 52 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "RDATA" is an array argument.  This argument is scalar.
+
+          CALL FI8501(KARY,ISTEP,KCLASS,KSEG,IDATA,RDATA,
+                                             ^            
+ftn-1615 crayftn: WARNING FI8509, File = w3fi85.f, Line = 2238, Column = 46 
+  Procedure "FI8501" is defined at line 1007 (w3fi85.f).  Dummy argument "IDATA" is an array argument.  This argument is scalar.
+
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fm07.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fm08.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp04.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp05.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp06.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fp10.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3fq07.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft00.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft01.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft02.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft03.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft05.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft05v.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft06.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft06v.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft07.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft08.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft09.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft10.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft11.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft12.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft16.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft17.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft201.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft202.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft203.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft204.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft205.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft206.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft207.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft208.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft209.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft210.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft211.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft212.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft213.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft214.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft21.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft26.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft33.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft38.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft39.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft40.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft41.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3ft43v.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3log.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c w3miscan.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c xdopen.f
+ftn  -s real64 -O2 -G2 -I/gpfs/hps/nco/ops/nwtest/lib/sigio/v2.0.1/cray/include/sigio_v2.0.1_4 -c  start.F
+ar crvs libw3emc_v2.2.0_d.a args_mod.o gblevents.o getgbens.o isrchne.o iw3mat.o mersenne_twister.o mova2i.o orders.o putgbens.o summary.o w3ai40.o w3ai41.o w3ctzdat.o w3fa01.o w3fa03.o w3fa03v.o w3fa04.o w3fa06.o w3fa09.o w3fa11.o w3fa12.o w3fa13.o w3fb00.o w3fb01.o w3fb02.o w3fb03.o w3fb04.o w3fb05.o w3fb06.o w3fb07.o w3fb08.o w3fb09.o w3fb10.o w3fb11.o w3fb12.o w3fc02.o w3fc05.o w3fc06.o w3fc07.o w3fc08.o w3fi02.o w3fi03.o w3fi18.o w3fi19.o w3fi20.o w3fi32.o w3fi47.o w3fi48.o w3fi52.o w3fi61.o w3fi65.o w3fi66.o w3fi67.o w3fi70.o w3fi78.o w3fi85.o w3fm07.o w3fm08.o w3fp04.o w3fp05.o w3fp06.o w3fp10.o w3fq07.o w3ft00.o w3ft01.o w3ft02.o w3ft03.o w3ft05.o w3ft05v.o w3ft06.o w3ft06v.o w3ft07.o w3ft08.o w3ft09.o w3ft10.o w3ft11.o w3ft12.o w3ft16.o w3ft17.o w3ft201.o w3ft202.o w3ft203.o w3ft204.o w3ft205.o w3ft206.o w3ft207.o w3ft208.o w3ft209.o w3ft210.o w3ft211.o w3ft212.o w3ft213.o w3ft214.o w3ft21.o w3ft26.o w3ft33.o w3ft38.o w3ft39.o w3ft40.o w3ft41.o w3ft43v.o w3log.o w3miscan.o xdopen.o start.o
+a - args_mod.o
+a - gblevents.o
+a - getgbens.o
+a - isrchne.o
+a - iw3mat.o
+a - mersenne_twister.o
+a - mova2i.o
+a - orders.o
+a - putgbens.o
+a - summary.o
+a - w3ai40.o
+a - w3ai41.o
+a - w3ctzdat.o
+a - w3fa01.o
+a - w3fa03.o
+a - w3fa03v.o
+a - w3fa04.o
+a - w3fa06.o
+a - w3fa09.o
+a - w3fa11.o
+a - w3fa12.o
+a - w3fa13.o
+a - w3fb00.o
+a - w3fb01.o
+a - w3fb02.o
+a - w3fb03.o
+a - w3fb04.o
+a - w3fb05.o
+a - w3fb06.o
+a - w3fb07.o
+a - w3fb08.o
+a - w3fb09.o
+a - w3fb10.o
+a - w3fb11.o
+a - w3fb12.o
+a - w3fc02.o
+a - w3fc05.o
+a - w3fc06.o
+a - w3fc07.o
+a - w3fc08.o
+a - w3fi02.o
+a - w3fi03.o
+a - w3fi18.o
+a - w3fi19.o
+a - w3fi20.o
+a - w3fi32.o
+a - w3fi47.o
+a - w3fi48.o
+a - w3fi52.o
+a - w3fi61.o
+a - w3fi65.o
+a - w3fi66.o
+a - w3fi67.o
+a - w3fi70.o
+a - w3fi78.o
+a - w3fi85.o
+a - w3fm07.o
+a - w3fm08.o
+a - w3fp04.o
+a - w3fp05.o
+a - w3fp06.o
+a - w3fp10.o
+a - w3fq07.o
+a - w3ft00.o
+a - w3ft01.o
+a - w3ft02.o
+a - w3ft03.o
+a - w3ft05.o
+a - w3ft05v.o
+a - w3ft06.o
+a - w3ft06v.o
+a - w3ft07.o
+a - w3ft08.o
+a - w3ft09.o
+a - w3ft10.o
+a - w3ft11.o
+a - w3ft12.o
+a - w3ft16.o
+a - w3ft17.o
+a - w3ft201.o
+a - w3ft202.o
+a - w3ft203.o
+a - w3ft204.o
+a - w3ft205.o
+a - w3ft206.o
+a - w3ft207.o
+a - w3ft208.o
+a - w3ft209.o
+a - w3ft210.o
+a - w3ft211.o
+a - w3ft212.o
+a - w3ft213.o
+a - w3ft214.o
+a - w3ft21.o
+a - w3ft26.o
+a - w3ft33.o
+a - w3ft38.o
+a - w3ft39.o
+a - w3ft40.o
+a - w3ft41.o
+a - w3ft43v.o
+a - w3log.o
+a - w3miscan.o
+a - xdopen.o
+a - start.o
+ranlib libw3emc_v2.2.0_d.a
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+
+
+===============================================================
+Performing NCO-type install of precision d build
+===============================================================
+
+cd libsrc && make nco_install
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+/usr/bin/install -c -d /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/cray/w3emc_v2.2.0_d
+/usr/bin/install -c -m 644 *.mod /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/cray/w3emc_v2.2.0_d
+/usr/bin/install -c -m 644 libw3emc_v2.2.0_d.a /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/cray/libw3emc_v2.2.0_d.a
+/usr/bin/install -c -m 644 ../config.log /gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/config.log.w3emc_v2.2.0_d
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+cd libsrc && make clean
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm *.o *.mod *.a >/dev/null 2>&1
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+cd libsrc && make distclean
+make[1]: Entering directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm Makefile >/dev/null 2>&1
+make[1]: Leaving directory `/gpfs/hps/nco/ops/nwtest/lib/w3emc/v2.2.0/src/libsrc'
+rm Makefile config.log* config.status

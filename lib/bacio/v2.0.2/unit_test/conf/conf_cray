@@ -1,0 +1,7 @@
+    export FCMP=${1:-ftn}
+    export CCMP=${2:-cc}
+    flagOpt="-O2"
+    flag64bit="-s real64 -s integer64"
+FCPL=ftn
+FCPLOPTS=-O2
+FCPLOPTS_BE=-O2

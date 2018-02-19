@@ -1,0 +1,797 @@
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.7
+  2) eswrap/1.1.0-1.020200.1231.0
+  3) switch/1.0-1.0502.57058.1.58.ari
+  4) craype-network-aries
+  5) ncep/1.0
+  6) xt-lsfhpc/9.1.3
+  7) craype/2.3.0
+  8) intel/15.0.3.187
+  9) cray-libsci/13.0.3
+ 10) udreg/2.3.2-1.0502.9889.2.20.ari
+ 11) ugni/6.0-1.0502.10245.9.9.ari
+ 12) pmi/5.0.6-1.0000.10439.140.2.ari
+ 13) dmapp/7.0.1-1.0502.10246.8.47.ari
+ 14) gni-headers/4.0-1.0502.10317.9.2.ari
+ 15) xpmem/0.1-2.0502.57015.1.15.ari
+ 16) dvs/2.5_0.9.0-1.0502.1958.2.55.ari
+ 17) alps/5.2.3-2.0502.9295.14.14.ari
+ 18) rca/1.0.0-2.0502.57212.2.56.ari
+ 19) atp/1.8.1
+ 20) PrgEnv-intel/5.2.56
+ 21) sp-intel/2.0.2
+ 22) craype-sandybridge
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spanaly.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spanaly.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a
+a - spanaly.o
+rm -f spanaly.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spdz2uv.f
+spdz2uv.f(2): (col. 18) remark: spdz2uv_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spdz2uv.o
+a - spdz2uv.o
+rm -f spdz2uv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX speps.f
+speps.f(2): (col. 18) remark: speps_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a speps.o
+a - speps.o
+rm -f speps.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spfft.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spfft.o
+a - spfft.o
+rm -f spfft.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spfft1.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spfft1.o
+a - spfft1.o
+rm -f spfft1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spffte.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spffte.o
+a - spffte.o
+rm -f spffte.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spfftpt.f
+spfftpt.f(2): (col. 18) remark: spfftpt_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spfftpt.o
+a - spfftpt.o
+rm -f spfftpt.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spgradq.f
+spgradq.f(2): (col. 18) remark: spgradq_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spgradq.o
+a - spgradq.o
+rm -f spgradq.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spgradx.f
+spgradx.f(2): (col. 18) remark: spgradx_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spgradx.o
+a - spgradx.o
+rm -f spgradx.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spgrady.f
+spgrady.f(2): (col. 18) remark: spgrady_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spgrady.o
+a - spgrady.o
+rm -f spgrady.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX splaplac.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a splaplac.o
+a - splaplac.o
+rm -f splaplac.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX splegend.f
+splegend.f(2): (col. 18) remark: splegend_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a splegend.o
+a - splegend.o
+rm -f splegend.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sppad.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sppad.o
+a - sppad.o
+rm -f sppad.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spsynth.f
+spsynth.f(2): (col. 18) remark: spsynth_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spsynth.o
+a - spsynth.o
+rm -f spsynth.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptez.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptez.o
+a - sptez.o
+rm -f sptez.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptezd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptezd.o
+a - sptezd.o
+rm -f sptezd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptezm.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptezm.o
+a - sptezm.o
+rm -f sptezm.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptezmd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptezmd.o
+a - sptezmd.o
+rm -f sptezmd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptezmv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptezmv.o
+a - sptezmv.o
+rm -f sptezmv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptezv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptezv.o
+a - sptezv.o
+rm -f sptezv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgpm.f
+sptgpm.f(2): (col. 18) remark: sptgpm_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgpm.o
+a - sptgpm.o
+rm -f sptgpm.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgpmd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgpmd.o
+a - sptgpmd.o
+rm -f sptgpmd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgpmv.f
+sptgpmv.f(2): (col. 18) remark: sptgpmv_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgpmv.o
+a - sptgpmv.o
+rm -f sptgpmv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgps.f
+sptgps.f(2): (col. 18) remark: sptgps_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgps.o
+a - sptgps.o
+rm -f sptgps.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgpsd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgpsd.o
+a - sptgpsd.o
+rm -f sptgpsd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgpsv.f
+sptgpsv.f(2): (col. 18) remark: sptgpsv_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgpsv.o
+a - sptgpsv.o
+rm -f sptgpsv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgpt.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgpt.o
+a - sptgpt.o
+rm -f sptgpt.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgptd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgptd.o
+a - sptgptd.o
+rm -f sptgptd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgptsd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgptsd.o
+a - sptgptsd.o
+rm -f sptgptsd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgptv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgptv.o
+a - sptgptv.o
+rm -f sptgptv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptgptvd.f
+sptgptvd.f(2): (col. 18) remark: sptgptvd_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptgptvd.o
+a - sptgptvd.o
+rm -f sptgptvd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptran.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptran.o
+a - sptran.o
+rm -f sptran.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptrand.f
+sptrand.f(2): (col. 18) remark: sptrand_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptrand.o
+a - sptrand.o
+rm -f sptrand.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptranf.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptranf.o
+a - sptranf.o
+rm -f sptranf.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptranf0.f
+sptranf0.f(2): (col. 18) remark: sptranf0_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptranf0.o
+a - sptranf0.o
+rm -f sptranf0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptranf1.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptranf1.o
+a - sptranf1.o
+rm -f sptranf1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptranfv.f
+sptranfv.f(2): (col. 18) remark: sptranfv_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptranfv.o
+a - sptranfv.o
+rm -f sptranfv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptranv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptranv.o
+a - sptranv.o
+rm -f sptranv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptrun.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptrun.o
+a - sptrun.o
+rm -f sptrun.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptrund.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptrund.o
+a - sptrund.o
+rm -f sptrund.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptrung.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptrung.o
+a - sptrung.o
+rm -f sptrung.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptrungv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptrungv.o
+a - sptrungv.o
+rm -f sptrungv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptrunl.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptrunl.o
+a - sptrunl.o
+rm -f sptrunl.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptrunm.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptrunm.o
+a - sptrunm.o
+rm -f sptrunm.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptrunmv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptrunmv.o
+a - sptrunmv.o
+rm -f sptrunmv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptruns.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptruns.o
+a - sptruns.o
+rm -f sptruns.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptrunsv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptrunsv.o
+a - sptrunsv.o
+rm -f sptrunsv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX sptrunv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a sptrunv.o
+a - sptrunv.o
+rm -f sptrunv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spuv2dz.f
+spuv2dz.f(2): (col. 18) remark: spuv2dz_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spuv2dz.o
+a - spuv2dz.o
+rm -f spuv2dz.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spvar.f
+spvar.f(2): (col. 18) remark: spvar_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spvar.o
+a - spvar.o
+rm -f spvar.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX spwget.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a spwget.o
+a - spwget.o
+rm -f spwget.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX fftpack.F
+fftpack.F(2): (col. 18) remark: dcrft_ has been targeted for automatic cpu dispatch
+fftpack.F(448): (col. 18) remark: radb4_ has been targeted for automatic cpu dispatch
+fftpack.F(378): (col. 18) remark: radb2_ has been targeted for automatic cpu dispatch
+fftpack.F(408): (col. 18) remark: radb3_ has been targeted for automatic cpu dispatch
+fftpack.F(508): (col. 18) remark: radb5_ has been targeted for automatic cpu dispatch
+fftpack.F(573): (col. 18) remark: radbg_ has been targeted for automatic cpu dispatch
+fftpack.F(28): (col. 18) remark: scrft_ has been targeted for automatic cpu dispatch
+fftpack.F(56): (col. 18) remark: csfft_ has been targeted for automatic cpu dispatch
+fftpack.F(81): (col. 18) remark: drcft_ has been targeted for automatic cpu dispatch
+fftpack.F(863): (col. 18) remark: radf5_ has been targeted for automatic cpu dispatch
+fftpack.F(772): (col. 18) remark: radf3_ has been targeted for automatic cpu dispatch
+fftpack.F(807): (col. 18) remark: radf4_ has been targeted for automatic cpu dispatch
+fftpack.F(924): (col. 18) remark: radfg_ has been targeted for automatic cpu dispatch
+fftpack.F(177): (col. 18) remark: rfftf_ has been targeted for automatic cpu dispatch
+fftpack.F(111): (col. 18) remark: srcft_ has been targeted for automatic cpu dispatch
+fftpack.F(143): (col. 18) remark: scfft_ has been targeted for automatic cpu dispatch
+fftpack.F(256): (col. 18) remark: rfftf1_ has been targeted for automatic cpu dispatch
+fftpack.F(743): (col. 18) remark: radf2_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a fftpack.o
+a - fftpack.o
+rm -f fftpack.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX lapack_gen.F
+lapack_gen.F(39): (col. 18) remark: ludcmp_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a lapack_gen.o
+a - lapack_gen.o
+rm -f lapack_gen.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX ncpus.F
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a ncpus.o
+a - ncpus.o
+rm -f ncpus.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 32 -DLINUX splat.F
+splat.F(2): (col. 18) remark: splat_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_4.a splat.o
+a - splat.o
+rm -f splat.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spanaly.f
+spanaly.f(2): (col. 18) remark: spanaly_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spanaly.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a
+a - spanaly.o
+rm -f spanaly.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spdz2uv.f
+spdz2uv.f(2): (col. 18) remark: spdz2uv_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spdz2uv.o
+a - spdz2uv.o
+rm -f spdz2uv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX speps.f
+speps.f(2): (col. 18) remark: speps_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a speps.o
+a - speps.o
+rm -f speps.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spfft.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spfft.o
+a - spfft.o
+rm -f spfft.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spfft1.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spfft1.o
+a - spfft1.o
+rm -f spfft1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spffte.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spffte.o
+a - spffte.o
+rm -f spffte.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spfftpt.f
+spfftpt.f(2): (col. 18) remark: spfftpt_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spfftpt.o
+a - spfftpt.o
+rm -f spfftpt.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spgradq.f
+spgradq.f(2): (col. 18) remark: spgradq_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spgradq.o
+a - spgradq.o
+rm -f spgradq.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spgradx.f
+spgradx.f(2): (col. 18) remark: spgradx_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spgradx.o
+a - spgradx.o
+rm -f spgradx.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spgrady.f
+spgrady.f(2): (col. 18) remark: spgrady_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spgrady.o
+a - spgrady.o
+rm -f spgrady.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX splaplac.f
+splaplac.f(2): (col. 18) remark: splaplac_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a splaplac.o
+a - splaplac.o
+rm -f splaplac.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX splegend.f
+splegend.f(2): (col. 18) remark: splegend_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a splegend.o
+a - splegend.o
+rm -f splegend.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sppad.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sppad.o
+a - sppad.o
+rm -f sppad.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spsynth.f
+spsynth.f(2): (col. 18) remark: spsynth_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spsynth.o
+a - spsynth.o
+rm -f spsynth.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptez.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptez.o
+a - sptez.o
+rm -f sptez.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptezd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptezd.o
+a - sptezd.o
+rm -f sptezd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptezm.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptezm.o
+a - sptezm.o
+rm -f sptezm.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptezmd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptezmd.o
+a - sptezmd.o
+rm -f sptezmd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptezmv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptezmv.o
+a - sptezmv.o
+rm -f sptezmv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptezv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptezv.o
+a - sptezv.o
+rm -f sptezv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgpm.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgpm.o
+a - sptgpm.o
+rm -f sptgpm.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgpmd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgpmd.o
+a - sptgpmd.o
+rm -f sptgpmd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgpmv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgpmv.o
+a - sptgpmv.o
+rm -f sptgpmv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgps.f
+sptgps.f(2): (col. 18) remark: sptgps_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgps.o
+a - sptgps.o
+rm -f sptgps.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgpsd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgpsd.o
+a - sptgpsd.o
+rm -f sptgpsd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgpsv.f
+sptgpsv.f(2): (col. 18) remark: sptgpsv_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgpsv.o
+a - sptgpsv.o
+rm -f sptgpsv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgpt.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgpt.o
+a - sptgpt.o
+rm -f sptgpt.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgptd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgptd.o
+a - sptgptd.o
+rm -f sptgptd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgptsd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgptsd.o
+a - sptgptsd.o
+rm -f sptgptsd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgptv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgptv.o
+a - sptgptv.o
+rm -f sptgptv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptgptvd.f
+sptgptvd.f(2): (col. 18) remark: sptgptvd_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptgptvd.o
+a - sptgptvd.o
+rm -f sptgptvd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptran.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptran.o
+a - sptran.o
+rm -f sptran.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptrand.f
+sptrand.f(2): (col. 18) remark: sptrand_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptrand.o
+a - sptrand.o
+rm -f sptrand.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptranf.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptranf.o
+a - sptranf.o
+rm -f sptranf.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptranf0.f
+sptranf0.f(2): (col. 18) remark: sptranf0_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptranf0.o
+a - sptranf0.o
+rm -f sptranf0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptranf1.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptranf1.o
+a - sptranf1.o
+rm -f sptranf1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptranfv.f
+sptranfv.f(2): (col. 18) remark: sptranfv_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptranfv.o
+a - sptranfv.o
+rm -f sptranfv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptranv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptranv.o
+a - sptranv.o
+rm -f sptranv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptrun.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptrun.o
+a - sptrun.o
+rm -f sptrun.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptrund.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptrund.o
+a - sptrund.o
+rm -f sptrund.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptrung.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptrung.o
+a - sptrung.o
+rm -f sptrung.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptrungv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptrungv.o
+a - sptrungv.o
+rm -f sptrungv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptrunl.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptrunl.o
+a - sptrunl.o
+rm -f sptrunl.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptrunm.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptrunm.o
+a - sptrunm.o
+rm -f sptrunm.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptrunmv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptrunmv.o
+a - sptrunmv.o
+rm -f sptrunmv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptruns.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptruns.o
+a - sptruns.o
+rm -f sptruns.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptrunsv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptrunsv.o
+a - sptrunsv.o
+rm -f sptrunsv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX sptrunv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a sptrunv.o
+a - sptrunv.o
+rm -f sptrunv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spuv2dz.f
+spuv2dz.f(2): (col. 18) remark: spuv2dz_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spuv2dz.o
+a - spuv2dz.o
+rm -f spuv2dz.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spvar.f
+spvar.f(2): (col. 18) remark: spvar_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spvar.o
+a - spvar.o
+rm -f spvar.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX spwget.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a spwget.o
+a - spwget.o
+rm -f spwget.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX fftpack.F
+fftpack.F(2): (col. 18) remark: dcrft_ has been targeted for automatic cpu dispatch
+fftpack.F(448): (col. 18) remark: radb4_ has been targeted for automatic cpu dispatch
+fftpack.F(378): (col. 18) remark: radb2_ has been targeted for automatic cpu dispatch
+fftpack.F(408): (col. 18) remark: radb3_ has been targeted for automatic cpu dispatch
+fftpack.F(508): (col. 18) remark: radb5_ has been targeted for automatic cpu dispatch
+fftpack.F(573): (col. 18) remark: radbg_ has been targeted for automatic cpu dispatch
+fftpack.F(28): (col. 18) remark: scrft_ has been targeted for automatic cpu dispatch
+fftpack.F(56): (col. 18) remark: csfft_ has been targeted for automatic cpu dispatch
+fftpack.F(81): (col. 18) remark: drcft_ has been targeted for automatic cpu dispatch
+fftpack.F(863): (col. 18) remark: radf5_ has been targeted for automatic cpu dispatch
+fftpack.F(772): (col. 18) remark: radf3_ has been targeted for automatic cpu dispatch
+fftpack.F(743): (col. 18) remark: radf2_ has been targeted for automatic cpu dispatch
+fftpack.F(807): (col. 18) remark: radf4_ has been targeted for automatic cpu dispatch
+fftpack.F(924): (col. 18) remark: radfg_ has been targeted for automatic cpu dispatch
+fftpack.F(111): (col. 18) remark: srcft_ has been targeted for automatic cpu dispatch
+fftpack.F(143): (col. 18) remark: scfft_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a fftpack.o
+a - fftpack.o
+rm -f fftpack.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX lapack_gen.F
+lapack_gen.F(39): (col. 18) remark: ludcmp_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a lapack_gen.o
+a - lapack_gen.o
+rm -f lapack_gen.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX ncpus.F
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a ncpus.o
+a - ncpus.o
+rm -f ncpus.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 64 -real-size 64 -DLINUX splat.F
+splat.F(2): (col. 18) remark: splat_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_8.a splat.o
+a - splat.o
+rm -f splat.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spanaly.f
+spanaly.f(2): (col. 18) remark: spanaly_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spanaly.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a
+a - spanaly.o
+rm -f spanaly.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spdz2uv.f
+spdz2uv.f(2): (col. 18) remark: spdz2uv_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spdz2uv.o
+a - spdz2uv.o
+rm -f spdz2uv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX speps.f
+speps.f(2): (col. 18) remark: speps_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a speps.o
+a - speps.o
+rm -f speps.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spfft.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spfft.o
+a - spfft.o
+rm -f spfft.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spfft1.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spfft1.o
+a - spfft1.o
+rm -f spfft1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spffte.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spffte.o
+a - spffte.o
+rm -f spffte.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spfftpt.f
+spfftpt.f(2): (col. 18) remark: spfftpt_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spfftpt.o
+a - spfftpt.o
+rm -f spfftpt.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spgradq.f
+spgradq.f(2): (col. 18) remark: spgradq_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spgradq.o
+a - spgradq.o
+rm -f spgradq.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spgradx.f
+spgradx.f(2): (col. 18) remark: spgradx_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spgradx.o
+a - spgradx.o
+rm -f spgradx.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spgrady.f
+spgrady.f(2): (col. 18) remark: spgrady_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spgrady.o
+a - spgrady.o
+rm -f spgrady.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX splaplac.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a splaplac.o
+a - splaplac.o
+rm -f splaplac.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX splegend.f
+splegend.f(2): (col. 18) remark: splegend_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a splegend.o
+a - splegend.o
+rm -f splegend.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sppad.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sppad.o
+a - sppad.o
+rm -f sppad.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spsynth.f
+spsynth.f(2): (col. 18) remark: spsynth_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spsynth.o
+a - spsynth.o
+rm -f spsynth.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptez.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptez.o
+a - sptez.o
+rm -f sptez.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptezd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptezd.o
+a - sptezd.o
+rm -f sptezd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptezm.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptezm.o
+a - sptezm.o
+rm -f sptezm.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptezmd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptezmd.o
+a - sptezmd.o
+rm -f sptezmd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptezmv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptezmv.o
+a - sptezmv.o
+rm -f sptezmv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptezv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptezv.o
+a - sptezv.o
+rm -f sptezv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgpm.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgpm.o
+a - sptgpm.o
+rm -f sptgpm.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgpmd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgpmd.o
+a - sptgpmd.o
+rm -f sptgpmd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgpmv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgpmv.o
+a - sptgpmv.o
+rm -f sptgpmv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgps.f
+sptgps.f(2): (col. 18) remark: sptgps_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgps.o
+a - sptgps.o
+rm -f sptgps.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgpsd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgpsd.o
+a - sptgpsd.o
+rm -f sptgpsd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgpsv.f
+sptgpsv.f(2): (col. 18) remark: sptgpsv_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgpsv.o
+a - sptgpsv.o
+rm -f sptgpsv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgpt.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgpt.o
+a - sptgpt.o
+rm -f sptgpt.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgptd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgptd.o
+a - sptgptd.o
+rm -f sptgptd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgptsd.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgptsd.o
+a - sptgptsd.o
+rm -f sptgptsd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgptv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgptv.o
+a - sptgptv.o
+rm -f sptgptv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptgptvd.f
+sptgptvd.f(2): (col. 18) remark: sptgptvd_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptgptvd.o
+a - sptgptvd.o
+rm -f sptgptvd.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptran.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptran.o
+a - sptran.o
+rm -f sptran.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptrand.f
+sptrand.f(2): (col. 18) remark: sptrand_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptrand.o
+a - sptrand.o
+rm -f sptrand.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptranf.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptranf.o
+a - sptranf.o
+rm -f sptranf.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptranf0.f
+sptranf0.f(2): (col. 18) remark: sptranf0_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptranf0.o
+a - sptranf0.o
+rm -f sptranf0.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptranf1.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptranf1.o
+a - sptranf1.o
+rm -f sptranf1.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptranfv.f
+sptranfv.f(2): (col. 18) remark: sptranfv_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptranfv.o
+a - sptranfv.o
+rm -f sptranfv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptranv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptranv.o
+a - sptranv.o
+rm -f sptranv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptrun.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptrun.o
+a - sptrun.o
+rm -f sptrun.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptrund.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptrund.o
+a - sptrund.o
+rm -f sptrund.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptrung.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptrung.o
+a - sptrung.o
+rm -f sptrung.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptrungv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptrungv.o
+a - sptrungv.o
+rm -f sptrungv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptrunl.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptrunl.o
+a - sptrunl.o
+rm -f sptrunl.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptrunm.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptrunm.o
+a - sptrunm.o
+rm -f sptrunm.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptrunmv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptrunmv.o
+a - sptrunmv.o
+rm -f sptrunmv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptruns.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptruns.o
+a - sptruns.o
+rm -f sptruns.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptrunsv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptrunsv.o
+a - sptrunsv.o
+rm -f sptrunsv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX sptrunv.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a sptrunv.o
+a - sptrunv.o
+rm -f sptrunv.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spuv2dz.f
+spuv2dz.f(2): (col. 18) remark: spuv2dz_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spuv2dz.o
+a - spuv2dz.o
+rm -f spuv2dz.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spvar.f
+spvar.f(2): (col. 18) remark: spvar_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spvar.o
+a - spvar.o
+rm -f spvar.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX spwget.f
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a spwget.o
+a - spwget.o
+rm -f spwget.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX fftpack.F
+fftpack.F(2): (col. 18) remark: dcrft_ has been targeted for automatic cpu dispatch
+fftpack.F(448): (col. 18) remark: radb4_ has been targeted for automatic cpu dispatch
+fftpack.F(378): (col. 18) remark: radb2_ has been targeted for automatic cpu dispatch
+fftpack.F(408): (col. 18) remark: radb3_ has been targeted for automatic cpu dispatch
+fftpack.F(508): (col. 18) remark: radb5_ has been targeted for automatic cpu dispatch
+fftpack.F(573): (col. 18) remark: radbg_ has been targeted for automatic cpu dispatch
+fftpack.F(28): (col. 18) remark: scrft_ has been targeted for automatic cpu dispatch
+fftpack.F(56): (col. 18) remark: csfft_ has been targeted for automatic cpu dispatch
+fftpack.F(81): (col. 18) remark: drcft_ has been targeted for automatic cpu dispatch
+fftpack.F(863): (col. 18) remark: radf5_ has been targeted for automatic cpu dispatch
+fftpack.F(772): (col. 18) remark: radf3_ has been targeted for automatic cpu dispatch
+fftpack.F(807): (col. 18) remark: radf4_ has been targeted for automatic cpu dispatch
+fftpack.F(924): (col. 18) remark: radfg_ has been targeted for automatic cpu dispatch
+fftpack.F(177): (col. 18) remark: rfftf_ has been targeted for automatic cpu dispatch
+fftpack.F(111): (col. 18) remark: srcft_ has been targeted for automatic cpu dispatch
+fftpack.F(143): (col. 18) remark: scfft_ has been targeted for automatic cpu dispatch
+fftpack.F(256): (col. 18) remark: rfftf1_ has been targeted for automatic cpu dispatch
+fftpack.F(743): (col. 18) remark: radf2_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a fftpack.o
+a - fftpack.o
+rm -f fftpack.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX lapack_gen.F
+lapack_gen.F(39): (col. 18) remark: ludcmp_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a lapack_gen.o
+a - lapack_gen.o
+rm -f lapack_gen.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX ncpus.F
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a ncpus.o
+a - ncpus.o
+rm -f ncpus.o
+ftn -c -O3 -axCore-AVX2 -ip -fp-model strict -openmp -assume byterecl -convert big_endian -fpp -integer-size 32 -real-size 64 -DLINUX splat.F
+splat.F(2): (col. 18) remark: splat_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/sp/v2.0.2/intel/libsp_v2.0.2_d.a splat.o
+a - splat.o
+rm -f splat.o

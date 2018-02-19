@@ -1,0 +1,2081 @@
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.7
+  2) eswrap/1.1.0-1.020200.1231.0
+  3) switch/1.0-1.0502.57058.1.58.ari
+  4) craype-network-aries
+  5) ncep/1.0
+  6) craype-haswell
+  7) xt-lsfhpc/9.1.3
+  8) craype/2.3.0
+  9) cce/8.3.10
+ 10) cray-libsci/13.0.3
+ 11) udreg/2.3.2-1.0502.9889.2.20.ari
+ 12) ugni/6.0-1.0502.10245.9.9.ari
+ 13) pmi/5.0.6-1.0000.10439.140.2.ari
+ 14) dmapp/7.0.1-1.0502.10246.8.47.ari
+ 15) gni-headers/4.0-1.0502.10317.9.2.ari
+ 16) xpmem/0.1-2.0502.57015.1.15.ari
+ 17) dvs/2.5_0.9.0-1.0502.1958.2.55.ari
+ 18) alps/5.2.3-2.0502.9295.14.14.ari
+ 19) rca/1.0.0-2.0502.57212.2.56.ari
+ 20) atp/1.8.1
+ 21) PrgEnv-cray/5.2.56
+ 22) w3nco-cray-haswell/2.0.6
+ftn -c  -O2 -g aea.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a aea.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a
+a - aea.o
+rm -f aea.o
+ftn -c  -O2 -g errexit.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a errexit.o
+a - errexit.o
+rm -f errexit.o
+ftn -c  -O2 -g errmsg.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a errmsg.o
+a - errmsg.o
+rm -f errmsg.o
+ftn -c  -O2 -g fparsei.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a fparsei.o
+a - fparsei.o
+rm -f fparsei.o
+ftn -c  -O2 -g fparser.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a fparser.o
+a - fparser.o
+rm -f fparser.o
+ftn -c  -O2 -g gbyte.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a gbyte.o
+a - gbyte.o
+rm -f gbyte.o
+ftn -c  -O2 -g gbytec.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a gbytec.o
+a - gbytec.o
+rm -f gbytec.o
+ftn -c  -O2 -g gbytes.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a gbytes.o
+a - gbytes.o
+rm -f gbytes.o
+ftn -c  -O2 -g gbytesc.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a gbytesc.o
+a - gbytesc.o
+rm -f gbytesc.o
+ftn -c  -O2 -g getbit.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getbit.o
+a - getbit.o
+rm -f getbit.o
+ftn -c  -O2 -g getgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgb.o
+a - getgb.o
+rm -f getgb.o
+ftn -c  -O2 -g getgb1.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgb1.o
+a - getgb1.o
+rm -f getgb1.o
+ftn -c  -O2 -g getgb1r.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgb1r.o
+a - getgb1r.o
+rm -f getgb1r.o
+ftn -c  -O2 -g getgb1re.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgb1re.o
+a - getgb1re.o
+rm -f getgb1re.o
+ftn -c  -O2 -g getgb1s.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgb1s.o
+a - getgb1s.o
+rm -f getgb1s.o
+ftn -c  -O2 -g getgbe.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbe.o
+a - getgbe.o
+rm -f getgbe.o
+ftn -c  -O2 -g getgbeh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbeh.o
+a - getgbeh.o
+rm -f getgbeh.o
+ftn -c  -O2 -g getgbem.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbem.o
+a - getgbem.o
+rm -f getgbem.o
+ftn -c  -O2 -g getgbemh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbemh.o
+a - getgbemh.o
+rm -f getgbemh.o
+ftn -c  -O2 -g getgbemn.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbemn.o
+a - getgbemn.o
+rm -f getgbemn.o
+ftn -c  -O2 -g getgbemp.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbemp.o
+a - getgbemp.o
+rm -f getgbemp.o
+ftn -c  -O2 -g getgbep.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbep.o
+a - getgbep.o
+rm -f getgbep.o
+ftn -c  -O2 -g getgbex.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbex.o
+a - getgbex.o
+rm -f getgbex.o
+ftn -c  -O2 -g getgbexm.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbexm.o
+a - getgbexm.o
+rm -f getgbexm.o
+ftn -c  -O2 -g getgbh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbh.o
+a - getgbh.o
+rm -f getgbh.o
+ftn -c  -O2 -g getgbm.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbm.o
+a - getgbm.o
+rm -f getgbm.o
+ftn -c  -O2 -g getgbmh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbmh.o
+a - getgbmh.o
+rm -f getgbmh.o
+ftn -c  -O2 -g getgbmp.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbmp.o
+a - getgbmp.o
+rm -f getgbmp.o
+ftn -c  -O2 -g getgbp.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgbp.o
+a - getgbp.o
+rm -f getgbp.o
+ftn -c  -O2 -g getgi.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgi.o
+a - getgi.o
+rm -f getgi.o
+ftn -c  -O2 -g getgir.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a getgir.o
+a - getgir.o
+rm -f getgir.o
+ftn -c  -O2 -g gtbits.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a gtbits.o
+a - gtbits.o
+rm -f gtbits.o
+ftn -c  -O2 -g idsdef.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a idsdef.o
+a - idsdef.o
+rm -f idsdef.o
+ftn -c  -O2 -g instrument.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a instrument.o
+a - instrument.o
+rm -f instrument.o
+ftn -c  -O2 -g iw3jdn.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a iw3jdn.o
+a - iw3jdn.o
+rm -f iw3jdn.o
+ftn -c  -O2 -g iw3pds.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a iw3pds.o
+a - iw3pds.o
+rm -f iw3pds.o
+ftn -c  -O2 -g iw3unp29.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a iw3unp29.o
+a - iw3unp29.o
+rm -f iw3unp29.o
+ftn -c  -O2 -g ixgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a ixgb.o
+a - ixgb.o
+rm -f ixgb.o
+ftn -c  -O2 -g lengds.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a lengds.o
+a - lengds.o
+rm -f lengds.o
+ftn -c  -O2 -g makwmo.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a makwmo.o
+a - makwmo.o
+rm -f makwmo.o
+ftn -c  -O2 -g mkfldsep.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a mkfldsep.o
+a - mkfldsep.o
+rm -f mkfldsep.o
+ftn -c  -O2 -g pdsens.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a pdsens.o
+a - pdsens.o
+rm -f pdsens.o
+ftn -c  -O2 -g pdseup.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a pdseup.o
+a - pdseup.o
+rm -f pdseup.o
+ftn -c  -O2 -g putgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a putgb.o
+a - putgb.o
+rm -f putgb.o
+ftn -c  -O2 -g putgbe.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a putgbe.o
+a - putgbe.o
+rm -f putgbe.o
+ftn -c  -O2 -g putgben.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a putgben.o
+a - putgben.o
+rm -f putgben.o
+ftn -c  -O2 -g putgbex.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a putgbex.o
+a - putgbex.o
+rm -f putgbex.o
+ftn -c  -O2 -g putgbn.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a putgbn.o
+a - putgbn.o
+rm -f putgbn.o
+ftn -c  -O2 -g q9ie32.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a q9ie32.o
+a - q9ie32.o
+rm -f q9ie32.o
+ftn -c  -O2 -g r63w72.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a r63w72.o
+a - r63w72.o
+rm -f r63w72.o
+ftn -c  -O2 -g sbyte.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a sbyte.o
+a - sbyte.o
+rm -f sbyte.o
+ftn -c  -O2 -g sbytec.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a sbytec.o
+a - sbytec.o
+rm -f sbytec.o
+ftn -c  -O2 -g sbytes.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a sbytes.o
+a - sbytes.o
+rm -f sbytes.o
+ftn -c  -O2 -g sbytesc.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a sbytesc.o
+a - sbytesc.o
+rm -f sbytesc.o
+ftn -c  -O2 -g skgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a skgb.o
+a - skgb.o
+rm -f skgb.o
+ftn -c  -O2 -g w3ai00.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ai00.o
+a - w3ai00.o
+rm -f w3ai00.o
+ftn -c  -O2 -g w3ai01.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ai01.o
+a - w3ai01.o
+rm -f w3ai01.o
+ftn -c  -O2 -g w3ai08.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ai08.o
+a - w3ai08.o
+rm -f w3ai08.o
+ftn -c  -O2 -g w3ai15.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ai15.o
+a - w3ai15.o
+rm -f w3ai15.o
+ftn -c  -O2 -g w3ai18.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ai18.o
+a - w3ai18.o
+rm -f w3ai18.o
+ftn -c  -O2 -g w3ai19.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ai19.o
+a - w3ai19.o
+rm -f w3ai19.o
+ftn -c  -O2 -g w3ai24.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ai24.o
+a - w3ai24.o
+rm -f w3ai24.o
+ftn -c  -O2 -g w3ai38.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ai38.o
+a - w3ai38.o
+rm -f w3ai38.o
+ftn -c  -O2 -g w3ai39.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ai39.o
+a - w3ai39.o
+rm -f w3ai39.o
+ftn -c  -O2 -g w3aq15.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3aq15.o
+a - w3aq15.o
+rm -f w3aq15.o
+ftn -c  -O2 -g w3as00.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3as00.o
+a - w3as00.o
+rm -f w3as00.o
+ftn -c  -O2 -g w3difdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3difdat.o
+a - w3difdat.o
+rm -f w3difdat.o
+ftn -c  -O2 -g w3doxdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3doxdat.o
+a - w3doxdat.o
+rm -f w3doxdat.o
+ftn -c  -O2 -g w3fi01.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi01.o
+a - w3fi01.o
+rm -f w3fi01.o
+ftn -c  -O2 -g w3fi04.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi04.o
+a - w3fi04.o
+rm -f w3fi04.o
+ftn -c  -O2 -g w3fi58.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi58.o
+a - w3fi58.o
+rm -f w3fi58.o
+ftn -c  -O2 -g w3fi59.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi59.o
+a - w3fi59.o
+rm -f w3fi59.o
+ftn -c  -O2 -g w3fi62.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi62.o
+a - w3fi62.o
+rm -f w3fi62.o
+ftn -c  -O2 -g w3fi63.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi63.o
+a - w3fi63.o
+rm -f w3fi63.o
+ftn -c  -O2 -g w3fi64.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi64.o
+a - w3fi64.o
+rm -f w3fi64.o
+ftn -c  -O2 -g w3fi68.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi68.o
+a - w3fi68.o
+rm -f w3fi68.o
+ftn -c  -O2 -g w3fi69.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi69.o
+a - w3fi69.o
+rm -f w3fi69.o
+ftn -c  -O2 -g w3fi71.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi71.o
+a - w3fi71.o
+rm -f w3fi71.o
+ftn -c  -O2 -g w3fi72.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi72.o
+a - w3fi72.o
+rm -f w3fi72.o
+ftn -c  -O2 -g w3fi73.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi73.o
+a - w3fi73.o
+rm -f w3fi73.o
+ftn -c  -O2 -g w3fi74.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi74.o
+a - w3fi74.o
+rm -f w3fi74.o
+ftn -c  -O2 -g w3fi75.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi75.o
+a - w3fi75.o
+rm -f w3fi75.o
+ftn -c  -O2 -g w3fi76.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi76.o
+a - w3fi76.o
+rm -f w3fi76.o
+ftn -c  -O2 -g w3fi82.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi82.o
+a - w3fi82.o
+rm -f w3fi82.o
+ftn -c  -O2 -g w3fi83.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi83.o
+a - w3fi83.o
+rm -f w3fi83.o
+ftn -c  -O2 -g w3fi88.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+
+                  CALL FI8814(KDATA(K,IZ),3,ISCAL3(IXB+IZ),IERR,IPTR)
+                                   ^                                  
+ftn-1279 crayftn: WARNING FI8815, File = w3fi88.f, Line = 4409, Column = 36 
+  Procedure "FI8814" is defined at line 4161 (w3fi88.f).  The type of this argument does not agree with dummy argument "ASCCHR".
+
+                  CALL FI8814(KDATA(K,IZ),10,IRFVL3(IXB+IZ),IERR,IPTR)
+                                   ^                                   
+ftn-1279 crayftn: WARNING FI8815, File = w3fi88.f, Line = 4430, Column = 36 
+  Procedure "FI8814" is defined at line 4161 (w3fi88.f).  The type of this argument does not agree with dummy argument "ASCCHR".
+
+                  CALL FI8814(KDATA(K,1),3,IWIDE3(IXB+1),IERR,IPTR)
+                                   ^                                
+ftn-1279 crayftn: WARNING FI8815, File = w3fi88.f, Line = 4441, Column = 36 
+  Procedure "FI8814" is defined at line 4161 (w3fi88.f).  The type of this argument does not agree with dummy argument "ASCCHR".
+
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi88.o
+a - w3fi88.o
+rm -f w3fi88.o
+ftn -c  -O2 -g w3fi92.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fi92.o
+a - w3fi92.o
+rm -f w3fi92.o
+ftn -c  -O2 -g w3fp11.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fp11.o
+a - w3fp11.o
+rm -f w3fp11.o
+ftn -c  -O2 -g w3fp12.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fp12.o
+a - w3fp12.o
+rm -f w3fp12.o
+ftn -c  -O2 -g w3fp13.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fp13.o
+a - w3fp13.o
+rm -f w3fp13.o
+ftn -c  -O2 -g w3fs13.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fs13.o
+a - w3fs13.o
+rm -f w3fs13.o
+ftn -c  -O2 -g w3fs15.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fs15.o
+a - w3fs15.o
+rm -f w3fs15.o
+ftn -c  -O2 -g w3fs21.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fs21.o
+a - w3fs21.o
+rm -f w3fs21.o
+ftn -c  -O2 -g w3fs26.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3fs26.o
+a - w3fs26.o
+rm -f w3fs26.o
+ftn -c  -O2 -g w3ft32.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ft32.o
+a - w3ft32.o
+rm -f w3ft32.o
+ftn -c  -O2 -g w3kind.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3kind.o
+a - w3kind.o
+rm -f w3kind.o
+ftn -c  -O2 -g w3locdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3locdat.o
+a - w3locdat.o
+rm -f w3locdat.o
+ftn -c  -O2 -g w3movdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3movdat.o
+a - w3movdat.o
+rm -f w3movdat.o
+ftn -c  -O2 -g w3nogds.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3nogds.o
+a - w3nogds.o
+rm -f w3nogds.o
+ftn -c  -O2 -g w3pradat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3pradat.o
+a - w3pradat.o
+rm -f w3pradat.o
+ftn -c  -O2 -g w3reddat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3reddat.o
+a - w3reddat.o
+rm -f w3reddat.o
+ftn -c  -O2 -g w3tagb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3tagb.o
+a - w3tagb.o
+rm -f w3tagb.o
+ftn -c  -O2 -g w3trnarg.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3trnarg.o
+a - w3trnarg.o
+rm -f w3trnarg.o
+ftn -c  -O2 -g w3unpk77.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3unpk77.o
+a - w3unpk77.o
+rm -f w3unpk77.o
+ftn -c  -O2 -g w3utcdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3utcdat.o
+a - w3utcdat.o
+rm -f w3utcdat.o
+ftn -c  -O2 -g w3valdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3valdat.o
+a - w3valdat.o
+rm -f w3valdat.o
+ftn -c  -O2 -g w3ymdh4.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a w3ymdh4.o
+a - w3ymdh4.o
+rm -f w3ymdh4.o
+ftn -c  -O2 -g xmovex.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a xmovex.o
+a - xmovex.o
+rm -f xmovex.o
+ftn -c  -O2 -g xstore.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a xstore.o
+a - xstore.o
+rm -f xstore.o
+cc -c  -O2 -g -DLINUX mova2i.c
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a mova2i.o
+a - mova2i.o
+rm -f mova2i.o
+cc -c  -O2 -g -DLINUX summary.c
+CC-223 craycc: WARNING File = summary.c, Line = 259
+  The function "times" is declared implicitly.
+
+        ret = times (&Time_buffer);
+              ^
+
+Total warnings detected in summary.c: 1
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_4.a summary.o
+a - summary.o
+rm -f summary.o
+ftn -c  -O2 -g -s integer64 -s real64 aea.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a aea.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a
+a - aea.o
+rm -f aea.o
+ftn -c  -O2 -g -s integer64 -s real64 errexit.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a errexit.o
+a - errexit.o
+rm -f errexit.o
+ftn -c  -O2 -g -s integer64 -s real64 errmsg.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a errmsg.o
+a - errmsg.o
+rm -f errmsg.o
+ftn -c  -O2 -g -s integer64 -s real64 fparsei.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a fparsei.o
+a - fparsei.o
+rm -f fparsei.o
+ftn -c  -O2 -g -s integer64 -s real64 fparser.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a fparser.o
+a - fparser.o
+rm -f fparser.o
+ftn -c  -O2 -g -s integer64 -s real64 gbyte.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a gbyte.o
+a - gbyte.o
+rm -f gbyte.o
+ftn -c  -O2 -g -s integer64 -s real64 gbytec.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a gbytec.o
+a - gbytec.o
+rm -f gbytec.o
+ftn -c  -O2 -g -s integer64 -s real64 gbytes.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a gbytes.o
+a - gbytes.o
+rm -f gbytes.o
+ftn -c  -O2 -g -s integer64 -s real64 gbytesc.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a gbytesc.o
+a - gbytesc.o
+rm -f gbytesc.o
+ftn -c  -O2 -g -s integer64 -s real64 getbit.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getbit.o
+a - getbit.o
+rm -f getbit.o
+ftn -c  -O2 -g -s integer64 -s real64 getgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgb.o
+a - getgb.o
+rm -f getgb.o
+ftn -c  -O2 -g -s integer64 -s real64 getgb1.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgb1.o
+a - getgb1.o
+rm -f getgb1.o
+ftn -c  -O2 -g -s integer64 -s real64 getgb1r.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgb1r.o
+a - getgb1r.o
+rm -f getgb1r.o
+ftn -c  -O2 -g -s integer64 -s real64 getgb1re.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgb1re.o
+a - getgb1re.o
+rm -f getgb1re.o
+ftn -c  -O2 -g -s integer64 -s real64 getgb1s.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgb1s.o
+a - getgb1s.o
+rm -f getgb1s.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbe.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbe.o
+a - getgbe.o
+rm -f getgbe.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbeh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbeh.o
+a - getgbeh.o
+rm -f getgbeh.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbem.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbem.o
+a - getgbem.o
+rm -f getgbem.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbemh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbemh.o
+a - getgbemh.o
+rm -f getgbemh.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbemn.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbemn.o
+a - getgbemn.o
+rm -f getgbemn.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbemp.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbemp.o
+a - getgbemp.o
+rm -f getgbemp.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbep.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbep.o
+a - getgbep.o
+rm -f getgbep.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbex.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbex.o
+a - getgbex.o
+rm -f getgbex.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbexm.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbexm.o
+a - getgbexm.o
+rm -f getgbexm.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbh.o
+a - getgbh.o
+rm -f getgbh.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbm.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbm.o
+a - getgbm.o
+rm -f getgbm.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbmh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbmh.o
+a - getgbmh.o
+rm -f getgbmh.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbmp.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbmp.o
+a - getgbmp.o
+rm -f getgbmp.o
+ftn -c  -O2 -g -s integer64 -s real64 getgbp.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgbp.o
+a - getgbp.o
+rm -f getgbp.o
+ftn -c  -O2 -g -s integer64 -s real64 getgi.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgi.o
+a - getgi.o
+rm -f getgi.o
+ftn -c  -O2 -g -s integer64 -s real64 getgir.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a getgir.o
+a - getgir.o
+rm -f getgir.o
+ftn -c  -O2 -g -s integer64 -s real64 gtbits.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a gtbits.o
+a - gtbits.o
+rm -f gtbits.o
+ftn -c  -O2 -g -s integer64 -s real64 idsdef.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a idsdef.o
+a - idsdef.o
+rm -f idsdef.o
+ftn -c  -O2 -g -s integer64 -s real64 instrument.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a instrument.o
+a - instrument.o
+rm -f instrument.o
+ftn -c  -O2 -g -s integer64 -s real64 iw3jdn.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a iw3jdn.o
+a - iw3jdn.o
+rm -f iw3jdn.o
+ftn -c  -O2 -g -s integer64 -s real64 iw3pds.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a iw3pds.o
+a - iw3pds.o
+rm -f iw3pds.o
+ftn -c  -O2 -g -s integer64 -s real64 iw3unp29.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a iw3unp29.o
+a - iw3unp29.o
+rm -f iw3unp29.o
+ftn -c  -O2 -g -s integer64 -s real64 ixgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a ixgb.o
+a - ixgb.o
+rm -f ixgb.o
+ftn -c  -O2 -g -s integer64 -s real64 lengds.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a lengds.o
+a - lengds.o
+rm -f lengds.o
+ftn -c  -O2 -g -s integer64 -s real64 makwmo.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a makwmo.o
+a - makwmo.o
+rm -f makwmo.o
+ftn -c  -O2 -g -s integer64 -s real64 mkfldsep.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a mkfldsep.o
+a - mkfldsep.o
+rm -f mkfldsep.o
+ftn -c  -O2 -g -s integer64 -s real64 pdsens.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a pdsens.o
+a - pdsens.o
+rm -f pdsens.o
+ftn -c  -O2 -g -s integer64 -s real64 pdseup.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a pdseup.o
+a - pdseup.o
+rm -f pdseup.o
+ftn -c  -O2 -g -s integer64 -s real64 putgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a putgb.o
+a - putgb.o
+rm -f putgb.o
+ftn -c  -O2 -g -s integer64 -s real64 putgbe.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a putgbe.o
+a - putgbe.o
+rm -f putgbe.o
+ftn -c  -O2 -g -s integer64 -s real64 putgben.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a putgben.o
+a - putgben.o
+rm -f putgben.o
+ftn -c  -O2 -g -s integer64 -s real64 putgbex.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a putgbex.o
+a - putgbex.o
+rm -f putgbex.o
+ftn -c  -O2 -g -s integer64 -s real64 putgbn.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a putgbn.o
+a - putgbn.o
+rm -f putgbn.o
+ftn -c  -O2 -g -s integer64 -s real64 q9ie32.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a q9ie32.o
+a - q9ie32.o
+rm -f q9ie32.o
+ftn -c  -O2 -g -s integer64 -s real64 r63w72.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a r63w72.o
+a - r63w72.o
+rm -f r63w72.o
+ftn -c  -O2 -g -s integer64 -s real64 sbyte.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a sbyte.o
+a - sbyte.o
+rm -f sbyte.o
+ftn -c  -O2 -g -s integer64 -s real64 sbytec.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a sbytec.o
+a - sbytec.o
+rm -f sbytec.o
+ftn -c  -O2 -g -s integer64 -s real64 sbytes.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a sbytes.o
+a - sbytes.o
+rm -f sbytes.o
+ftn -c  -O2 -g -s integer64 -s real64 sbytesc.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a sbytesc.o
+a - sbytesc.o
+rm -f sbytesc.o
+ftn -c  -O2 -g -s integer64 -s real64 skgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a skgb.o
+a - skgb.o
+rm -f skgb.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ai00.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ai00.o
+a - w3ai00.o
+rm -f w3ai00.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ai01.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ai01.o
+a - w3ai01.o
+rm -f w3ai01.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ai08.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ai08.o
+a - w3ai08.o
+rm -f w3ai08.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ai15.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ai15.o
+a - w3ai15.o
+rm -f w3ai15.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ai18.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ai18.o
+a - w3ai18.o
+rm -f w3ai18.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ai19.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ai19.o
+a - w3ai19.o
+rm -f w3ai19.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ai24.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ai24.o
+a - w3ai24.o
+rm -f w3ai24.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ai38.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ai38.o
+a - w3ai38.o
+rm -f w3ai38.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ai39.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ai39.o
+a - w3ai39.o
+rm -f w3ai39.o
+ftn -c  -O2 -g -s integer64 -s real64 w3aq15.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3aq15.o
+a - w3aq15.o
+rm -f w3aq15.o
+ftn -c  -O2 -g -s integer64 -s real64 w3as00.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3as00.o
+a - w3as00.o
+rm -f w3as00.o
+ftn -c  -O2 -g -s integer64 -s real64 w3difdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3difdat.o
+a - w3difdat.o
+rm -f w3difdat.o
+ftn -c  -O2 -g -s integer64 -s real64 w3doxdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3doxdat.o
+a - w3doxdat.o
+rm -f w3doxdat.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi01.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi01.o
+a - w3fi01.o
+rm -f w3fi01.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi04.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi04.o
+a - w3fi04.o
+rm -f w3fi04.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi58.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi58.o
+a - w3fi58.o
+rm -f w3fi58.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi59.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi59.o
+a - w3fi59.o
+rm -f w3fi59.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi62.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi62.o
+a - w3fi62.o
+rm -f w3fi62.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi63.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi63.o
+a - w3fi63.o
+rm -f w3fi63.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi64.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi64.o
+a - w3fi64.o
+rm -f w3fi64.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi68.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi68.o
+a - w3fi68.o
+rm -f w3fi68.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi69.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi69.o
+a - w3fi69.o
+rm -f w3fi69.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi71.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi71.o
+a - w3fi71.o
+rm -f w3fi71.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi72.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi72.o
+a - w3fi72.o
+rm -f w3fi72.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi73.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi73.o
+a - w3fi73.o
+rm -f w3fi73.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi74.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi74.o
+a - w3fi74.o
+rm -f w3fi74.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi75.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi75.o
+a - w3fi75.o
+rm -f w3fi75.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi76.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi76.o
+a - w3fi76.o
+rm -f w3fi76.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi82.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi82.o
+a - w3fi82.o
+rm -f w3fi82.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi83.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi83.o
+a - w3fi83.o
+rm -f w3fi83.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi88.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+
+                  CALL FI8814(KDATA(K,IZ),3,ISCAL3(IXB+IZ),IERR,IPTR)
+                                   ^                                  
+ftn-1279 crayftn: WARNING FI8815, File = w3fi88.f, Line = 4409, Column = 36 
+  Procedure "FI8814" is defined at line 4161 (w3fi88.f).  The type of this argument does not agree with dummy argument "ASCCHR".
+
+                  CALL FI8814(KDATA(K,IZ),10,IRFVL3(IXB+IZ),IERR,IPTR)
+                                   ^                                   
+ftn-1279 crayftn: WARNING FI8815, File = w3fi88.f, Line = 4430, Column = 36 
+  Procedure "FI8814" is defined at line 4161 (w3fi88.f).  The type of this argument does not agree with dummy argument "ASCCHR".
+
+                  CALL FI8814(KDATA(K,1),3,IWIDE3(IXB+1),IERR,IPTR)
+                                   ^                                
+ftn-1279 crayftn: WARNING FI8815, File = w3fi88.f, Line = 4441, Column = 36 
+  Procedure "FI8814" is defined at line 4161 (w3fi88.f).  The type of this argument does not agree with dummy argument "ASCCHR".
+
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi88.o
+a - w3fi88.o
+rm -f w3fi88.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fi92.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fi92.o
+a - w3fi92.o
+rm -f w3fi92.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fp11.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fp11.o
+a - w3fp11.o
+rm -f w3fp11.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fp12.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fp12.o
+a - w3fp12.o
+rm -f w3fp12.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fp13.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fp13.o
+a - w3fp13.o
+rm -f w3fp13.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fs13.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fs13.o
+a - w3fs13.o
+rm -f w3fs13.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fs15.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fs15.o
+a - w3fs15.o
+rm -f w3fs15.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fs21.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fs21.o
+a - w3fs21.o
+rm -f w3fs21.o
+ftn -c  -O2 -g -s integer64 -s real64 w3fs26.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3fs26.o
+a - w3fs26.o
+rm -f w3fs26.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ft32.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ft32.o
+a - w3ft32.o
+rm -f w3ft32.o
+ftn -c  -O2 -g -s integer64 -s real64 w3kind.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3kind.o
+a - w3kind.o
+rm -f w3kind.o
+ftn -c  -O2 -g -s integer64 -s real64 w3locdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3locdat.o
+a - w3locdat.o
+rm -f w3locdat.o
+ftn -c  -O2 -g -s integer64 -s real64 w3movdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3movdat.o
+a - w3movdat.o
+rm -f w3movdat.o
+ftn -c  -O2 -g -s integer64 -s real64 w3nogds.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3nogds.o
+a - w3nogds.o
+rm -f w3nogds.o
+ftn -c  -O2 -g -s integer64 -s real64 w3pradat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3pradat.o
+a - w3pradat.o
+rm -f w3pradat.o
+ftn -c  -O2 -g -s integer64 -s real64 w3reddat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3reddat.o
+a - w3reddat.o
+rm -f w3reddat.o
+ftn -c  -O2 -g -s integer64 -s real64 w3tagb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3tagb.o
+a - w3tagb.o
+rm -f w3tagb.o
+ftn -c  -O2 -g -s integer64 -s real64 w3trnarg.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3trnarg.o
+a - w3trnarg.o
+rm -f w3trnarg.o
+ftn -c  -O2 -g -s integer64 -s real64 w3unpk77.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3unpk77.o
+a - w3unpk77.o
+rm -f w3unpk77.o
+ftn -c  -O2 -g -s integer64 -s real64 w3utcdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3utcdat.o
+a - w3utcdat.o
+rm -f w3utcdat.o
+ftn -c  -O2 -g -s integer64 -s real64 w3valdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3valdat.o
+a - w3valdat.o
+rm -f w3valdat.o
+ftn -c  -O2 -g -s integer64 -s real64 w3ymdh4.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a w3ymdh4.o
+a - w3ymdh4.o
+rm -f w3ymdh4.o
+ftn -c  -O2 -g -s integer64 -s real64 xmovex.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a xmovex.o
+a - xmovex.o
+rm -f xmovex.o
+ftn -c  -O2 -g -s integer64 -s real64 xstore.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a xstore.o
+a - xstore.o
+rm -f xstore.o
+cc -c  -O2 -g -DLINUX mova2i.c
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a mova2i.o
+a - mova2i.o
+rm -f mova2i.o
+cc -c  -O2 -g -DLINUX summary.c
+CC-223 craycc: WARNING File = summary.c, Line = 259
+  The function "times" is declared implicitly.
+
+        ret = times (&Time_buffer);
+              ^
+
+Total warnings detected in summary.c: 1
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_8.a summary.o
+a - summary.o
+rm -f summary.o
+ftn -c  -O2 -g -s real64 aea.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a aea.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a
+a - aea.o
+rm -f aea.o
+ftn -c  -O2 -g -s real64 errexit.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a errexit.o
+a - errexit.o
+rm -f errexit.o
+ftn -c  -O2 -g -s real64 errmsg.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a errmsg.o
+a - errmsg.o
+rm -f errmsg.o
+ftn -c  -O2 -g -s real64 fparsei.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a fparsei.o
+a - fparsei.o
+rm -f fparsei.o
+ftn -c  -O2 -g -s real64 fparser.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a fparser.o
+a - fparser.o
+rm -f fparser.o
+ftn -c  -O2 -g -s real64 gbyte.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a gbyte.o
+a - gbyte.o
+rm -f gbyte.o
+ftn -c  -O2 -g -s real64 gbytec.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a gbytec.o
+a - gbytec.o
+rm -f gbytec.o
+ftn -c  -O2 -g -s real64 gbytes.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a gbytes.o
+a - gbytes.o
+rm -f gbytes.o
+ftn -c  -O2 -g -s real64 gbytesc.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a gbytesc.o
+a - gbytesc.o
+rm -f gbytesc.o
+ftn -c  -O2 -g -s real64 getbit.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getbit.o
+a - getbit.o
+rm -f getbit.o
+ftn -c  -O2 -g -s real64 getgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgb.o
+a - getgb.o
+rm -f getgb.o
+ftn -c  -O2 -g -s real64 getgb1.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgb1.o
+a - getgb1.o
+rm -f getgb1.o
+ftn -c  -O2 -g -s real64 getgb1r.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgb1r.o
+a - getgb1r.o
+rm -f getgb1r.o
+ftn -c  -O2 -g -s real64 getgb1re.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgb1re.o
+a - getgb1re.o
+rm -f getgb1re.o
+ftn -c  -O2 -g -s real64 getgb1s.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgb1s.o
+a - getgb1s.o
+rm -f getgb1s.o
+ftn -c  -O2 -g -s real64 getgbe.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbe.o
+a - getgbe.o
+rm -f getgbe.o
+ftn -c  -O2 -g -s real64 getgbeh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbeh.o
+a - getgbeh.o
+rm -f getgbeh.o
+ftn -c  -O2 -g -s real64 getgbem.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbem.o
+a - getgbem.o
+rm -f getgbem.o
+ftn -c  -O2 -g -s real64 getgbemh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbemh.o
+a - getgbemh.o
+rm -f getgbemh.o
+ftn -c  -O2 -g -s real64 getgbemn.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbemn.o
+a - getgbemn.o
+rm -f getgbemn.o
+ftn -c  -O2 -g -s real64 getgbemp.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbemp.o
+a - getgbemp.o
+rm -f getgbemp.o
+ftn -c  -O2 -g -s real64 getgbep.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbep.o
+a - getgbep.o
+rm -f getgbep.o
+ftn -c  -O2 -g -s real64 getgbex.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbex.o
+a - getgbex.o
+rm -f getgbex.o
+ftn -c  -O2 -g -s real64 getgbexm.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbexm.o
+a - getgbexm.o
+rm -f getgbexm.o
+ftn -c  -O2 -g -s real64 getgbh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbh.o
+a - getgbh.o
+rm -f getgbh.o
+ftn -c  -O2 -g -s real64 getgbm.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbm.o
+a - getgbm.o
+rm -f getgbm.o
+ftn -c  -O2 -g -s real64 getgbmh.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbmh.o
+a - getgbmh.o
+rm -f getgbmh.o
+ftn -c  -O2 -g -s real64 getgbmp.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbmp.o
+a - getgbmp.o
+rm -f getgbmp.o
+ftn -c  -O2 -g -s real64 getgbp.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgbp.o
+a - getgbp.o
+rm -f getgbp.o
+ftn -c  -O2 -g -s real64 getgi.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgi.o
+a - getgi.o
+rm -f getgi.o
+ftn -c  -O2 -g -s real64 getgir.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a getgir.o
+a - getgir.o
+rm -f getgir.o
+ftn -c  -O2 -g -s real64 gtbits.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a gtbits.o
+a - gtbits.o
+rm -f gtbits.o
+ftn -c  -O2 -g -s real64 idsdef.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a idsdef.o
+a - idsdef.o
+rm -f idsdef.o
+ftn -c  -O2 -g -s real64 instrument.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a instrument.o
+a - instrument.o
+rm -f instrument.o
+ftn -c  -O2 -g -s real64 iw3jdn.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a iw3jdn.o
+a - iw3jdn.o
+rm -f iw3jdn.o
+ftn -c  -O2 -g -s real64 iw3pds.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a iw3pds.o
+a - iw3pds.o
+rm -f iw3pds.o
+ftn -c  -O2 -g -s real64 iw3unp29.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a iw3unp29.o
+a - iw3unp29.o
+rm -f iw3unp29.o
+ftn -c  -O2 -g -s real64 ixgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a ixgb.o
+a - ixgb.o
+rm -f ixgb.o
+ftn -c  -O2 -g -s real64 lengds.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a lengds.o
+a - lengds.o
+rm -f lengds.o
+ftn -c  -O2 -g -s real64 makwmo.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a makwmo.o
+a - makwmo.o
+rm -f makwmo.o
+ftn -c  -O2 -g -s real64 mkfldsep.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a mkfldsep.o
+a - mkfldsep.o
+rm -f mkfldsep.o
+ftn -c  -O2 -g -s real64 pdsens.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a pdsens.o
+a - pdsens.o
+rm -f pdsens.o
+ftn -c  -O2 -g -s real64 pdseup.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a pdseup.o
+a - pdseup.o
+rm -f pdseup.o
+ftn -c  -O2 -g -s real64 putgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a putgb.o
+a - putgb.o
+rm -f putgb.o
+ftn -c  -O2 -g -s real64 putgbe.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a putgbe.o
+a - putgbe.o
+rm -f putgbe.o
+ftn -c  -O2 -g -s real64 putgben.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a putgben.o
+a - putgben.o
+rm -f putgben.o
+ftn -c  -O2 -g -s real64 putgbex.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a putgbex.o
+a - putgbex.o
+rm -f putgbex.o
+ftn -c  -O2 -g -s real64 putgbn.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a putgbn.o
+a - putgbn.o
+rm -f putgbn.o
+ftn -c  -O2 -g -s real64 q9ie32.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a q9ie32.o
+a - q9ie32.o
+rm -f q9ie32.o
+ftn -c  -O2 -g -s real64 r63w72.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a r63w72.o
+a - r63w72.o
+rm -f r63w72.o
+ftn -c  -O2 -g -s real64 sbyte.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a sbyte.o
+a - sbyte.o
+rm -f sbyte.o
+ftn -c  -O2 -g -s real64 sbytec.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a sbytec.o
+a - sbytec.o
+rm -f sbytec.o
+ftn -c  -O2 -g -s real64 sbytes.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a sbytes.o
+a - sbytes.o
+rm -f sbytes.o
+ftn -c  -O2 -g -s real64 sbytesc.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a sbytesc.o
+a - sbytesc.o
+rm -f sbytesc.o
+ftn -c  -O2 -g -s real64 skgb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a skgb.o
+a - skgb.o
+rm -f skgb.o
+ftn -c  -O2 -g -s real64 w3ai00.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ai00.o
+a - w3ai00.o
+rm -f w3ai00.o
+ftn -c  -O2 -g -s real64 w3ai01.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ai01.o
+a - w3ai01.o
+rm -f w3ai01.o
+ftn -c  -O2 -g -s real64 w3ai08.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ai08.o
+a - w3ai08.o
+rm -f w3ai08.o
+ftn -c  -O2 -g -s real64 w3ai15.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ai15.o
+a - w3ai15.o
+rm -f w3ai15.o
+ftn -c  -O2 -g -s real64 w3ai18.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ai18.o
+a - w3ai18.o
+rm -f w3ai18.o
+ftn -c  -O2 -g -s real64 w3ai19.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ai19.o
+a - w3ai19.o
+rm -f w3ai19.o
+ftn -c  -O2 -g -s real64 w3ai24.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ai24.o
+a - w3ai24.o
+rm -f w3ai24.o
+ftn -c  -O2 -g -s real64 w3ai38.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ai38.o
+a - w3ai38.o
+rm -f w3ai38.o
+ftn -c  -O2 -g -s real64 w3ai39.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ai39.o
+a - w3ai39.o
+rm -f w3ai39.o
+ftn -c  -O2 -g -s real64 w3aq15.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3aq15.o
+a - w3aq15.o
+rm -f w3aq15.o
+ftn -c  -O2 -g -s real64 w3as00.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3as00.o
+a - w3as00.o
+rm -f w3as00.o
+ftn -c  -O2 -g -s real64 w3difdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3difdat.o
+a - w3difdat.o
+rm -f w3difdat.o
+ftn -c  -O2 -g -s real64 w3doxdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3doxdat.o
+a - w3doxdat.o
+rm -f w3doxdat.o
+ftn -c  -O2 -g -s real64 w3fi01.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi01.o
+a - w3fi01.o
+rm -f w3fi01.o
+ftn -c  -O2 -g -s real64 w3fi04.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi04.o
+a - w3fi04.o
+rm -f w3fi04.o
+ftn -c  -O2 -g -s real64 w3fi58.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi58.o
+a - w3fi58.o
+rm -f w3fi58.o
+ftn -c  -O2 -g -s real64 w3fi59.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi59.o
+a - w3fi59.o
+rm -f w3fi59.o
+ftn -c  -O2 -g -s real64 w3fi62.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi62.o
+a - w3fi62.o
+rm -f w3fi62.o
+ftn -c  -O2 -g -s real64 w3fi63.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi63.o
+a - w3fi63.o
+rm -f w3fi63.o
+ftn -c  -O2 -g -s real64 w3fi64.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi64.o
+a - w3fi64.o
+rm -f w3fi64.o
+ftn -c  -O2 -g -s real64 w3fi68.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi68.o
+a - w3fi68.o
+rm -f w3fi68.o
+ftn -c  -O2 -g -s real64 w3fi69.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi69.o
+a - w3fi69.o
+rm -f w3fi69.o
+ftn -c  -O2 -g -s real64 w3fi71.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi71.o
+a - w3fi71.o
+rm -f w3fi71.o
+ftn -c  -O2 -g -s real64 w3fi72.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi72.o
+a - w3fi72.o
+rm -f w3fi72.o
+ftn -c  -O2 -g -s real64 w3fi73.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi73.o
+a - w3fi73.o
+rm -f w3fi73.o
+ftn -c  -O2 -g -s real64 w3fi74.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi74.o
+a - w3fi74.o
+rm -f w3fi74.o
+ftn -c  -O2 -g -s real64 w3fi75.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi75.o
+a - w3fi75.o
+rm -f w3fi75.o
+ftn -c  -O2 -g -s real64 w3fi76.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi76.o
+a - w3fi76.o
+rm -f w3fi76.o
+ftn -c  -O2 -g -s real64 w3fi82.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi82.o
+a - w3fi82.o
+rm -f w3fi82.o
+ftn -c  -O2 -g -s real64 w3fi83.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi83.o
+a - w3fi83.o
+rm -f w3fi83.o
+ftn -c  -O2 -g -s real64 w3fi88.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+
+                  CALL FI8814(KDATA(K,IZ),3,ISCAL3(IXB+IZ),IERR,IPTR)
+                                   ^                                  
+ftn-1279 crayftn: WARNING FI8815, File = w3fi88.f, Line = 4409, Column = 36 
+  Procedure "FI8814" is defined at line 4161 (w3fi88.f).  The type of this argument does not agree with dummy argument "ASCCHR".
+
+                  CALL FI8814(KDATA(K,IZ),10,IRFVL3(IXB+IZ),IERR,IPTR)
+                                   ^                                   
+ftn-1279 crayftn: WARNING FI8815, File = w3fi88.f, Line = 4430, Column = 36 
+  Procedure "FI8814" is defined at line 4161 (w3fi88.f).  The type of this argument does not agree with dummy argument "ASCCHR".
+
+                  CALL FI8814(KDATA(K,1),3,IWIDE3(IXB+1),IERR,IPTR)
+                                   ^                                
+ftn-1279 crayftn: WARNING FI8815, File = w3fi88.f, Line = 4441, Column = 36 
+  Procedure "FI8814" is defined at line 4161 (w3fi88.f).  The type of this argument does not agree with dummy argument "ASCCHR".
+
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi88.o
+a - w3fi88.o
+rm -f w3fi88.o
+ftn -c  -O2 -g -s real64 w3fi92.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fi92.o
+a - w3fi92.o
+rm -f w3fi92.o
+ftn -c  -O2 -g -s real64 w3fp11.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fp11.o
+a - w3fp11.o
+rm -f w3fp11.o
+ftn -c  -O2 -g -s real64 w3fp12.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fp12.o
+a - w3fp12.o
+rm -f w3fp12.o
+ftn -c  -O2 -g -s real64 w3fp13.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fp13.o
+a - w3fp13.o
+rm -f w3fp13.o
+ftn -c  -O2 -g -s real64 w3fs13.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fs13.o
+a - w3fs13.o
+rm -f w3fs13.o
+ftn -c  -O2 -g -s real64 w3fs15.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fs15.o
+a - w3fs15.o
+rm -f w3fs15.o
+ftn -c  -O2 -g -s real64 w3fs21.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fs21.o
+a - w3fs21.o
+rm -f w3fs21.o
+ftn -c  -O2 -g -s real64 w3fs26.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3fs26.o
+a - w3fs26.o
+rm -f w3fs26.o
+ftn -c  -O2 -g -s real64 w3ft32.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ft32.o
+a - w3ft32.o
+rm -f w3ft32.o
+ftn -c  -O2 -g -s real64 w3kind.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3kind.o
+a - w3kind.o
+rm -f w3kind.o
+ftn -c  -O2 -g -s real64 w3locdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3locdat.o
+a - w3locdat.o
+rm -f w3locdat.o
+ftn -c  -O2 -g -s real64 w3movdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3movdat.o
+a - w3movdat.o
+rm -f w3movdat.o
+ftn -c  -O2 -g -s real64 w3nogds.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3nogds.o
+a - w3nogds.o
+rm -f w3nogds.o
+ftn -c  -O2 -g -s real64 w3pradat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3pradat.o
+a - w3pradat.o
+rm -f w3pradat.o
+ftn -c  -O2 -g -s real64 w3reddat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3reddat.o
+a - w3reddat.o
+rm -f w3reddat.o
+ftn -c  -O2 -g -s real64 w3tagb.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3tagb.o
+a - w3tagb.o
+rm -f w3tagb.o
+ftn -c  -O2 -g -s real64 w3trnarg.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3trnarg.o
+a - w3trnarg.o
+rm -f w3trnarg.o
+ftn -c  -O2 -g -s real64 w3unpk77.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3unpk77.o
+a - w3unpk77.o
+rm -f w3unpk77.o
+ftn -c  -O2 -g -s real64 w3utcdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3utcdat.o
+a - w3utcdat.o
+rm -f w3utcdat.o
+ftn -c  -O2 -g -s real64 w3valdat.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3valdat.o
+a - w3valdat.o
+rm -f w3valdat.o
+ftn -c  -O2 -g -s real64 w3ymdh4.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a w3ymdh4.o
+a - w3ymdh4.o
+rm -f w3ymdh4.o
+ftn -c  -O2 -g -s real64 xmovex.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a xmovex.o
+a - xmovex.o
+rm -f xmovex.o
+ftn -c  -O2 -g -s real64 xstore.f
+ftn-1535 crayftn: WARNING in command line
+  Most optimizations will be turned off because debugging option -g or -G0 is specified.
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a xstore.o
+a - xstore.o
+rm -f xstore.o
+cc -c  -O2 -g -DLINUX mova2i.c
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a mova2i.o
+a - mova2i.o
+rm -f mova2i.o
+cc -c  -O2 -g -DLINUX summary.c
+CC-223 craycc: WARNING File = summary.c, Line = 259
+  The function "times" is declared implicitly.
+
+        ret = times (&Time_buffer);
+              ^
+
+Total warnings detected in summary.c: 1
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/cray/libw3nco_v2.0.6_d.a summary.o
+a - summary.o
+rm -f summary.o

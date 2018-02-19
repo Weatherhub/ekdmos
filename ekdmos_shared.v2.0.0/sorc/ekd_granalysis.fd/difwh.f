@@ -1,0 +1,151 @@
+      SUBROUTINE DIFWH(KFILDO,CCALL,XP,YP,WHOLD,LOCWH,ERRWH,
+     1                 LNDSEA,NWITH,IEXTRA,NSTA,
+     2                 P,NX,NY,MESH,SEALND,NXE,NYE,MESHE,N4P,
+     3                 ISTOP,IER)
+C
+C        NOVEMBER  2007   GLAHN   MDL
+C
+C        PURPOSE
+C            TO COMUTE THE ABSOLUTE DIFFERENCE BETWEEN THE VALUE
+C            ANALYZED AND THE INTERPOLATED GRIDDED VALUE.  THIS
+C            IS CONSIDERED THE ERROR IN THE ANAYSIS.  NOTE THAT
+C            THIS CONTAINS THE ERROR OF INTERPOLATION INTO THE
+C            ANALYSIS.
+C
+C        DATA SET USE
+C            KFILDO   - UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (INPUT)
+C                       (INPUT)
+C            CCALL(J) = THE STATION CALL LETTERS THAT WERE PROCESSED
+C                       (J=1,NSTA).  (CHARACTER*8)  (INPUT)
+C               XP(J) = X-POSITION OF STATION J ON GRID (J=1,NSTA).
+C                       (INPUT)
+C               YP(J) = Y-POSITION OF STATION J ON GRID (J=1,NSTA).
+C                       (INPUT)
+C            WHOLD(J) = THE DATA FROM XDATA( ) BEING PROCESSED
+C                       WERE PUT INTO WHOLD(J) (J=1,ND1).  (INPUT)
+C            LOCWH(K) = THE LOCATIONS OF THE WITHHELD STATIONS IN
+C                       THE LIST IN THE ORDER OF WITHHOLDING.
+C                       (K=1,NWITH+IEXTRA).  (INPUT)
+C            ERRWH(K) = THE DIFFERENCE BETWEEN THE DATA AND THE
+C                       INTERPOLATED VALUE (K=1,NWITH+IEXTRA).
+C                       (OUTPUT)
+C           LNDSEA(J) = LAND/SEA INFLUENCE FLAG FOR EACH STATION
+C                       (J=1,ND1).
+C                       0 = WILL BE USED FOR ONLY OCEAN WATER (=0)
+C                           GRIDPOINTS.
+C                       3 = WILL BE USED FOR ONLY INLAND WATER (=3)
+C                           GRIDPOINTS.
+C                       6 = WILL BE USED FOR BOTH INLAND WATER (=3)
+C                           AND LAND (=9) GRIDPOINTS.
+C                       9 = WILL BE USED FOR ONLY LAND (=9) GRIDPOINTS.
+C                       (INPUT)
+C               NWITH = THE NUMBER OF WITHHELD STATIONS.  (INPUT)
+C              IEXTRA = THE NUMBER OF STATIONS PROCESSED FOR THE
+C                       ERROR ANALYSIS BUT NOT WITHHELD.  (INPUT)
+C                NSTA = NUMBER OF STATIONS IN LIST.  (INPUT) 
+C            P(IX,JY) = THE ANALYSIS (IX=1,NX) (JY=1,NY).  (INPUT)
+C                  NX = THE SIZE OF THE  GRID IN THE X DIRECTION.
+C                       (INPUT)
+C                  NY = THE SIZE OF THE  GRID IN THE Y DIRECTION.
+C                       (INPUT)
+C                MESH = THE MESH LENGTH OF THE GRID TO WHICH THE
+C                       POSITIONS XP( ) AND YP( ) REFER.  (INPUT)
+C       SEALND(IX,JY) = THE LAND/SEA MASK (IX=1,NXE) (JY=1,NYE).
+C                       0 = OCEAN WATER GRIDPOINTS;
+C                       3 = INLAND WATER GRIDPOINTS.
+C                       9 = LAND GRIDPOINTS.
+C                       (INPUT)
+C                 NXE = X-EXTENT OF TELEV( ), SEALND( ), AND CPNDFD( )
+C                       AT MESH LENGTH MESHE.  (INPUT)
+C                 NYE = Y-EXTENT OF TELEV( ), SEALND( ), AND CPNDFD( )
+C                       AT MESH LENGTH MESHE.  (INPUT)
+C               MESHE = THE NOMINAL MESH LENGTH OF THE TERRAIN GRID.
+C                       IT IS MANDATORY THE GRID AVAILABLE IS OF THIS
+C                       MESH SIZE AND COVER THE SAME AREA SPECIFIED
+C                       BY NXL BY NYL, EVEN IF MESHE IS NOT EQUAL
+C                       TO MESHB.  (INPUT)
+C                 N4P = 4 INDICATES THE SURROUNDING 4 POINTS WILL BE
+C                         CHECKED WHEN TRYING TO FIND A GRIDPOINT OF
+C                         THE SAME TYPE AS THE DATUM AND INTERPOLATION
+C                         CAN'T BE DONE.  CURRENTLY, THIS IS ALWAYS
+C                         DONE (DOES NOT REQUIRE N4P=4).
+C                       12 SAME AS ABOVE, EXCEPT 12 ADDITIONAL POINTS
+C                         WILL BE CHECKED WHEN NONE OF THE 4 POINTS
+C                         ARE OF THE CORRECT TYPE.
+C                       N4P IS OPERATIVE ONLY WHEN THE DATUM AND
+C                       THE SURROUNDING 4 POINTS ARE OF MIXED TYPE.
+C                       (INPUT)
+C               ISTOP = INCREMENTED BY 1 WHEN AN ERROR OCCURS.
+C                       (INPUT/OUTPUT)
+C                 IER = STATUS RETURN
+C                       0 = GOOD.
+C
+C          INTERNAL
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES CALLED
+C            NONE.
+C
+      CHARACTER*8 CCALL(NSTA)
+C
+      DIMENSION XP(NSTA),YP(NSTA),WHOLD(NSTA),LNDSEA(NSTA)
+      DIMENSION ERRWH(NWITH+IEXTRA),LOCWH(NWITH+IEXTRA)
+      DIMENSION P(NX,NY)
+      DIMENSION SEALND(NXE,NYE)
+C
+CD     CALL TIMPR(KFILDO,KFILDO,'START DIFWH         ')
+      IER=0
+C
+CCC      WRITE(KFILDO,102)NWITH,IEXTRA,NSTA,N4P,MESH,MESHE,NX,NY
+CCC 102  FORMAT(/,' AT 102 IN DIFWH--NWITH,IEXTRA,NSTA,N4P,',
+CCC     1         'MESH,MESHE,NX,NY',8I8)
+C
+      DO 200 K=1,NWITH+IEXTRA
+C
+C        FIND INTERPOLATED VALUE FOR THE STATIONS WHOSE ORDER
+C        IN THE LIST IS IN LOCWH(J), J=1,NWITH+IERXTA.
+C        ITRPSL ACCORDING TO THE LAND/WATER TYPE LNDSEA(K).
+C
+      CALL ITRPSL(KFILDO,KFILDO,P,NX,NY,CCALL(LOCWH(K)),
+     1            XP(LOCWH(K)),YP(LOCWH(K)),LNDSEA(LOCWH(K)),
+     1            SEALND,NXE,NYE,
+     2            MESH,MESHE,N4P,BB,ISTOP,IER)
+C        VALUE INTERPOLATED FROM CURRENT ANALYSIS TO LOCATION OF
+C        STATION IN CCALL(LOCWH(K)) IS NOW IN BB.  THIS CAN BE
+C        MISSING BECAUSE AN INTERPOLATED VALUE FOR A LAND (WATER)
+C        STATION IS ONLY TAKEN FROM LAND (WATER) STATIONS, AND IT IS
+C        POSSIBLE NONE EXIST.
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,120)
+ 120     FORMAT(/,' ****PROBLEM IN ITRPSL.  PROBABLY INTERPOLATED',
+     1            ' SET = 9999.  PROCEEDING.')
+         ISTOP=ISTOP+1
+         ERRWH(LOCWH(K))=9999.
+      ELSE
+C
+         IF(WHOLD(LOCWH(K)).EQ.9999..OR.BB.EQ.9999.)THEN
+            ERRWH(K)=9999.
+         ELSE
+            ERRWH(K)=ABS(BB-WHOLD(LOCWH(K)))
+         ENDIF
+C
+      ENDIF
+C
+CD     WRITE(KFILDO,190)LOCWH(K),CCALL(LOCWH(K)),
+CD    1                 XP(LOCWH(K)),YP(LOCWH(K)),
+CD    2                 WHOLD(LOCWH(K)),BB,ERRWH(K)
+CD190  FORMAT(/,' AT 190 IN DIFWH--LOCWH(K),CCALL(LOCWH(K)),',
+CD    1         'XP(LOCWH(K)),YP(LOCWH(K)),',
+CD    2         'WHOLD(LOCWH(K)),BB,ERRWH(K)',/,
+CD    3         I6,2X,A8,5F10.2)
+ 200  CONTINUE
+      IER=0
+C        THIS MAY HAVE BEEN RETURNED NON-ZERO FROM ITRPSL.
+CD     CALL TIMPR(KFILDO,KFILDO,'END   DIFWH         ')
+
+      RETURN
+      END

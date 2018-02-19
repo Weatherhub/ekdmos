@@ -1,0 +1,203 @@
+      SUBROUTINE RDSSK9(KFILDO,KFILAI,NDATE,ID,CCALLSP,XB0,
+     1                  XB1,XMIN,XMAX,ND5,NCALL,IER)
+C
+C        VEENHUIS   FEB   2011  MDL CREATED
+C        VEENHUIS   FEB   2011  THIS IS A NEW VERSION. I CHANGED THE FORMAT
+C                               OF THE U714 OUTPUT FILE TO JUST GIVE THE
+C                               SLOPE INTERCEPT PARAMETERS AND SUPPORT.
+C        VEENHUIS   FEB   2011  FEBRUARY 28, 2011  ADDED ND5 TO INPUT CALL LIST. FIXED ARRAY
+C                               DIMENSIONS TO BE ND5. 
+C        VEENHUIS   MARCH 2011  ADDED CHECK TO MAKE SURE ND5 IS NOT EXCEEDED
+C                               WHEN FILLING ARRAYS. ADDED NDATE TO INPUT CALL.
+C        VEENHUIS   APRIL 2011  ADDED CHECK TO MAKE SURE KFILAI IS GREATER THAN
+C                               0. IT COULD BE 0 IF WE ARE RUNNING WITHOUT THE 
+C                               SPREAD-SKILL FILE.
+C
+C        PURPOSE
+C            READS SPREAD SKILL FILE. READS AND RETRIEVES
+C            INFORMATION FOR THE ASCII INPUT
+C
+C            THE SPREAD-SKILL RELATIONSHIP FILE IS PRODUCED
+C            BY U714. THE ASCII INPUT FILE,KFILAI, 
+C            HAS ALREADY BEEN OPENED BY INT715.
+C
+C        DATA SET USE
+C         KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C         KFILAI    - UNIT NUMBER OF THE ASCII INPUT SREAD-SKILL
+C                     FILE PRODUCED BY U714 (INPUT) 
+C
+C        VARIABLES
+C
+C                    ID(J) = THE VARIABLE ID(J=1,4)TO RETRIEVE THE RELATIONSHIP
+C                            FOR. (INPUT)
+C                      ND5 = MAXMIM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+C                            (INPUT) 
+C               CCALLSP(K) = CALL LETERS READ FROM SPREAD-SKILL RELATIONSHIP
+C                            FILE ON KFILAI (K=1,ND5). (OUTPUT)
+C                   XB0(K) = THE INTERCEPT COMPONENT OF THE LINEAR
+C                            SPREAD SKILL RELATIONSHIP (K=1,ND5). (OUTPUT)    
+C                   XB1(K) = THE SLOPE COMPONENT OF THE LINEAR
+C                            SPREAD SKILL RELATIONSHIP (K=1,ND5). (OUTPUT)
+C                  XMIN(K) = THE MINIMUM VALUE OF ENSEMBLE SPREAD
+C                            THAT WILL BE USED WHEN EVAULATING THE
+C                            LINEAR SPREAD-SKILL RELATIONSHIP. THIS 
+C                            THIS IS USED TO RESTRICT THE RANGE OF 
+C                            VALUES TO BE WITHIN THOSE USED TO 
+C                            DEVELOP THE RELATIONSHIP, I.E. TO PREVENT
+C                            EXTRAPOLATION (K=1,ND5). (OUTPUT)
+C                  XMAX(K) = THE MAXIMUM VALUE OF ENSEMBLE SPREAD
+C                            THAT WILL BE USED WHEN EVAULATING THE
+C                            LINEAR SPREAD-SKILL RELATIONSHIP. THIS
+C                            THIS IS USED TO RESTRICT THE RANGE OF
+C                            VALUES TO BE WITHIN THOSE USED TO
+C                            DEVELOP THE RELATIONSHIP, I.E. TO PREVENT
+C                            EXTRAPOLATION (K=1,ND5). (OUTPUT)
+C                    NCALL = NUMBER OF CALL LETTERS READ FROM KFILAI.
+C                            (OUTPUT) 
+C                      IER = THE ERROR STATUS. (OUTPUT)
+C                   CID(J) = THE ID TO RETRIEVE IN CHARACTER FORM
+C                            WHERE J=1,4 (INTERNAL)
+C                 CTEST(J) = A BUFFER USED TO READ EACH LINE OF THE
+C                            SPREAD SKILL FILE WHERE J=1,4 (INTERNAL)
+C                XTEMP1(J) = AN ARRAY USED TO HOLD DATA READ FROM
+C                            THE SPREAD-SKILL FILE WHERE J=1,5 (INTERNAL)
+C
+C
+      CHARACTER*8 CCALLSP(ND5),CTEMP1,CTEMP2
+      CHARACTER*9 CID(4),CTEST(4)
+C
+      DIMENSION ID(4) 
+      DIMENSION XB0(ND5),XB1(ND5),XMIN(ND5),XMAX(ND5)
+      DIMENSION XTEMP1(5)
+C
+C        SET IER TO 99. IF THE ID IS SUCCESSFULLY FOUND
+C        AND LOADED THEN SET IER TO 0.
+C
+      IER=99
+C
+C        VERIFY THAT THE SPREAD SKILL FILE EXISTS AND HAS BEEN 
+C        OPENED CORRECTLY
+C 
+      IF(KFILAI.LE.0) THEN
+        IER=99
+        RETURN
+      ENDIF
+C
+C        SET FILE TO BEGINING OF RECORD
+C
+      REWIND(KFILAI)
+C
+      IDFOUND=0
+C
+C        PROCESS IDS UNTIL WE FIND THE ID WE ARE LOOKING FOR
+C
+      WRITE(CID,100) ID
+ 100  FORMAT(I9)
+
+      DO WHILE (IDFOUND.EQ.0)
+        READ(KFILAI,150,IOSTAT=INFO) CTEST(1:4)
+ 150    FORMAT(4(X,A9))
+      IF(INFO.NE.0) THEN
+        IF(INFO.EQ.-1)THEN
+          WRITE(KFILDO,160) ID(1:4),ID(1:4) 
+ 160      FORMAT(/," ****IN SUBROUTINE RDSPSK: REACHED END OF",
+     1             " SPREAD SKILL FILE LOOKING FOR",
+     2             " ID: ",4(X,I9),/,
+     3             " ****SPREAD SKILL RELATION NOT FOUND FOR ID:",
+     4             4(X,I9))
+          IER=99
+          RETURN      
+        ELSE
+          WRITE(KFILDO,170) INFO
+ 170      FORMAT(/," ****ERROR READING SPREAD SKILL INPUT FILE.",
+     1             " IOSTAT = ",I9)
+        ENDIF
+      ENDIF  
+C
+C          CHECK IF THIS LINE MATCHES THE ID WE ARE
+C          LOOKING FOR.
+C
+        IF((CID(1).EQ.CTEST(1)).AND.
+     1     (CID(2).EQ.CTEST(2)).AND.
+     2     (CID(3).EQ.CTEST(3)).AND.
+     3     (CID(4).EQ.CTEST(4)))THEN
+C          PRINT *,"FOUND MATCH"
+          IDFOUND=1 
+        ENDIF
+      ENDDO
+C
+C        THE ID HAS BEEN FOUND NOW CONTINUE READING THE FILE.
+C        PROCESS EACH GROUP OF CALL LETTERS AND SPREAD
+C        SKILL BINS UNTIL THE END OF THE RECORD FOR THIS CURRENT
+C        ID.
+C
+      NIDEND=0
+      NCALL=0
+      DO WHILE (NIDEND.EQ.0)
+C
+C          READ CALL LETTERS AND SPREAD-SKILL DATA
+C
+        XTEMP1(:)=99999999.
+        READ(KFILAI,180,IOSTAT=INFO) CTEMP1,XTEMP1
+ 180    FORMAT(X,A8,5(X,F10.5))
+        
+        IF(INFO.NE.0) THEN
+          WRITE(KFILDO,190) ID,INFO 
+ 190      FORMAT(/," ****IN SUBROUTINE RDSPSK:",
+     1             "ERROR READING SPREAD SKILL ",
+     2             "FOR ID",4(X,I9),/," ****",
+     3             "IOSTAT = ",I8,/," ****",
+     4             "ABORTING ATTEMPT TO READ") 
+         IER=99
+         RETURN 
+        ENDIF
+C
+C
+C        CHECK FOR TERMINATOR
+C
+      
+        IF(CTEMP1.EQ."99999999") THEN
+C          WRITE(KFILDO,200)
+ 200       FORMAT(/,"REACHED END OF CALL LETTERS")
+          NIDEND=1 
+        ELSE
+C
+          NCALL=NCALL+1
+C
+C            COPY THE INFOMATION FROM THE SPREAD SKILL FILES
+C            TO THE APPROPRIATE ARRAYS SO IT CAN BE RETURNED.  
+C
+          IF(NCALL.LT.ND5) THEN
+            CCALLSP(NCALL)=CTEMP1
+            XB0(NCALL)=XTEMP1(1)
+            XB1(NCALL)=XTEMP1(2)  
+            XMIN(NCALL)=XTEMP1(4)
+            XMAX(NCALL)=XTEMP1(5)
+          ELSE
+C
+            WRITE(KFILDO,*) "**** IN SUBROUTINE RDSPSK:",
+     1                      " ND5 SET TOO SMALL"
+            WRITE(KFILDO,250) ND5,NCALL
+ 250        FORMAT(/,"**** ND5 = ",I8," BUT MUST BE AT LEAST",
+     1             X,I8," TO HOLD SPREAD-SKILL INFO.")
+            WRITE(KFILDO,251) ID(1:4) 
+ 251        FORMAT(/,"**** THE SPREAD FACTOR FROM THE",
+     1               "VARIABLE LIST WILL BE USED FOR",
+     2               "ID ",4(X,I9))
+C
+C             SET IER=99 AND USE RETURN STATMENT TO EXIT
+C             SUBROUTINE.
+C
+            IER=99     
+            RETURN
+C
+          ENDIF 
+C
+        ENDIF
+      ENDDO
+C
+      IF(NCALL.GT.0) THEN
+        IER=0
+      ENDIF
+C
+      END SUBROUTINE

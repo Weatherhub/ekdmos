@@ -1,0 +1,29 @@
+@startuml
+ekdmos -> stnfcst
+stnfcst -> ekd_gribtomdl
+stnfcst -> ekd_mospred
+stnfcst -> mdl_racreate
+stnfcst -> mdl_rainit
+stnfcst -> ekd_eqneval
+
+ekdmos -> stnpst
+stnpst -> mdl_racreate
+stnpst -> ekd_ra2ra
+stnpst -> ekd_makecdf
+stnpst -> ekd_fcstpost
+
+ekdmos -> gridprep
+gridprep -> mdl_racreate
+gridprep -> mdl_rainit
+gridprep -> ekd_gridpost
+gridprep -> ekd_ra2ra
+gridprep -> ekd_grd2grd
+
+ekdmos -> prgridded
+prgridded -> ekd_granalysis
+prgridded -> ekd_gridpost
+prgridded -> mdl_grd2grd
+prgridded -> ekd_ra2grib2
+
+ekdmos -> catprgb2
+@enduml

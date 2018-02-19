@@ -1,0 +1,120 @@
+      SUBROUTINE PRINTV(KFILDO,ID,PLAIN,PARMS,JP,ISCALD,NDATE,
+     1                  CCALL,PDATA,SDATA,NSTA,
+     2                  IPX,ISTOP,IER)
+C
+C        DECEMBER  2000   GLAHN   TDL   LAMP-2000
+C        JANUARY   2001   GLAHN   CORRECTED ERROR IN DO 360 LOOP
+C        AUGUST    2003   WEIDENFELD  MODIFIED CODE TO CONFORM TO
+C                                     MDL CODE SPECIFICATIONS;
+C                                     EXACT CHANGES ARE SPECIFIED
+C                                     IN OCTOBER 2003 COMMENT BELOW
+C        OCTOBER   2003   GLAHN   CHANGED 1XA8 TO 1X,A8 IN FMT, AND
+C                                 11:11 TO 12:12 AT 357
+C
+C        PURPOSE
+C           TO PRINT (WRITE) DATA FOR PRED25 AND PRED26 IN U203.
+C           PRINT IS UNDER CONTROL OF IPX AND JP(3).  ADAPTED FROM
+C           PACKV.
+C   
+C        DATA SET USE
+C            KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C               ID(J) = THE INTEGER VARIABLE ID (J=1,4)  (INPUT)
+C               PLAIN = THE PLAIN LANGUAGE DESCRIPTION OF THE VARIABLE.
+c                       (CHARACTER*32)
+C                       (INPUT)
+C               PARMS = THE GEMPAK VARIABLE ID.  (CHARACTER*4)
+C                       (INPUT)
+C               JP(J) = JP( ) INDICATES WHETHER (>0) OR NOT (=0) THE 
+C                       VARIABLE WILL BE OUTPUT FOR VIEWING.
+C                       J=1--NOT USED,
+C                       J=2--NOT USED, AND
+C                       J=3--INTERPOLATED (VECTOR) VALUES.
+C                       THIS ALLOWS INDIVIDUAL VARIABLE CONTROL ON
+C                       THE PRINT PARAMETER IPX.  (INPUT)
+C              ISCALD = THE DECIMAL SCALING CONSTANT TO USE WHEN
+C                       PACKING THE DATA.  (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH VARIABLES ARE BEING
+C                       DEALT WITH.  (INPUT)
+C            CCALL(K) = 8 STATION CALL LETTERS (K=1,NSTA).
+c                       (CHARACTER*8)  (INPUT)
+C            PDATA(K) = WORK ARRAY (K=1,NSTA).  (INTERNAL)
+C            SDATA(K) = DATA FOR WRITING (K=1,NSTA).  (INPUT)
+C                NSTA = THE NUMBER OF STATIONS IN CCALL( ).  (INPUT)
+C                 IPX = INDICATES WHETHER (>1) OR NOT (=0) DATA
+C                       VALUES WILL BE WRITTEN TO UNIT IPX FOR VIEWING.
+C                       (INPUT)
+C               ISTOP = INCREMENTED BY ONE EACH TIME AN ERROR IS 
+C                       ENCOUNTERED.  (INPUT-OUTPUT)
+C                 IER = STATUS RETURN.
+C                        0 = GOOD RETURN.
+C                       16 = ND7 NOT LARGE ENOUGH.  SET ND7 GE 54.
+C                       SEE ROUTINES PACK1D, UNPKBG, AND WRITEP 
+C                       FOR OTHER VALUES.  (INTERNAL-OUTPUT)
+C                 FMT = FORMAT FOR WRITING DATA.  MODIFIED TO WRITE
+C                       AT ACCURACY PACKED.  (CHARACTER*12)  (INTERNAL)
+C 
+C        NONSYSTEM SUBROUTINES USED 
+C            TIMPR
+C
+      CHARACTER*4 PARMS
+      CHARACTER*8 CCALL(NSTA)
+      CHARACTER*13 FMT
+      CHARACTER*32 PLAIN
+C
+      DIMENSION ID(4)
+      DIMENSION PDATA(NSTA),SDATA(NSTA)
+      DIMENSION JP(3)
+C
+      DATA FMT/'(1X,A8,F11.2)'/
+C
+      IER=0
+D     WRITE(KFILDO,100)PARMS
+D100  FORMAT(/' #### ENTERING PRINTV, PARMS ='A4)
+C
+C        WRITE THE DATA FOR VIEWING.
+C
+      IF(IPX.EQ.0)GO TO 400
+      IF(JP(3).EQ.0)GO TO 400
+C
+C     WRITE THE DATA VALUES TO UNIT IPX TO THE ACCURACY
+C     THEY WILL BE PACKED.
+C
+      WRITE(IPX,355)(ID(I),I=1,4),PLAIN,PARMS,NDATE
+ 355  FORMAT(/,' DATA VALUES TO THE ACCURACY PACKED',
+     1         ' FOR VARIABLE ',1X,I9.9,1X,I9.9,1X,I9.9,1X,
+     2         I10.3,2X,A32,1X,A4/,' NDATE =',I12)
+      FACTOR=10.**ISCALD
+      IF(ISCALD.LE.5)GO TO 357
+      WRITE(KFILDO,356)ISCALD
+ 356  FORMAT(/,' ****ISCALD =',I5,' IN PRINTV GT 5.',
+     1         '  MUST BE AN ERROR.  PROCEEDING.')
+      ISTOP=ISTOP+1
+C
+ 357  FMT(12:12)='6'
+      IF(FACTOR.LE.100000.)FMT(12:12)='5'
+      IF(FACTOR.LE. 10000.)FMT(12:12)='4'
+      IF(FACTOR.LE.  1000.)FMT(12:12)='3'
+      IF(FACTOR.LE.   100.)FMT(12:12)='2'
+      IF(FACTOR.LE.    10.)FMT(12:12)='1'
+      IF(FACTOR.LE.     1.)FMT(12:12)='0'
+C
+      DO 360 K=1,NSTA
+C     
+      IF(SDATA(K).EQ.9999.)THEN
+         PDATA(K)=9999.
+      ELSEIF(SDATA(K).EQ.9997.)THEN
+         PDATA(K)=9997.
+      ELSE
+         PDATA(K)=NINT(SDATA(K)*FACTOR)/FACTOR
+      ENDIF
+C
+ 360  CONTINUE
+C
+      WRITE(IPX,FMT)(CCALL(K),PDATA(K),K=1,NSTA)
+C
+ 400  CONTINUE
+      RETURN
+      END

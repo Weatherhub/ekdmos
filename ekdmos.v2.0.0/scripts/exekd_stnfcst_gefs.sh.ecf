@@ -1,0 +1,264 @@
+#!/bin/sh -xv
+#######################################################################
+#  Job Name:  exekd_stnfcst.sh.ecf          
+#
+#  Purpose:   To run all steps neccessary to create input GEFS predictors
+#             for EKDMOS and generate statistical guidance for each member
+#
+#  Remarks:   This is the first script run for EKDMOS and is triggered
+#             by the completion of all the GEFS ensemble members. This 
+#             script will be run 22 times.  Once for each ensemble member
+#             and once for qpf mean fields. 
+#
+#
+#  HISTORY:   June   01, 2010  JLW - New Job for EKDMOS
+#             November   2012  JLW - Updated to run on the WCOSS 
+#
+#######################################################################
+echo EKDLOG: `date` - begin job exekd_stnfcst_gefs.sh.ecf
+
+export PS4='$SECONDS + '
+export PERT=$1
+
+msg="$job has begun on `hostname` at `date`"
+postmsg "$jlogfile" "$msg"
+
+export MODELCOMIN=${MCOMIN}/gefs.${PDY}/$cyc/pgrb2a
+echo $MCOMIN
+echo $MODELCOMIN
+if [[ ! -d $MODELCOMIN ]]; then
+   set +x
+   echo "**************************************************************"
+   echo "* $MODELCOMIN DOES NOT EXIST!!!!! *"
+   echo "********** EKDMOS WILL RUN WITHOUT GEFS DATA *****************"
+   echo "**************************************************************"
+   echo "$job will set itself to complete and proceed using only cmce data"
+   exit 0
+fi
+
+########################################
+# Establish Subdirectories to make thread safe
+########################################
+export DATAsub=$DATA/gefs/$(printf %02d $PERT)
+mkdir -p $DATAsub
+cd $DATAsub
+
+#######################################################################
+# SETTING DATE AND CYCLE TIMES
+#######################################################################
+echo $PDY $cyc : Date and Cycle - echo PDY and cyc
+
+cp $DATA/NMCDATE $DATAsub
+cp $DATA/PDY $DATAsub
+cp $DATA/ncepdate $DATAsub
+
+export COMIN COMOUT
+#######################################################################
+# DEFINE THE GRID TO WHICH THE DATA IS TO BE INTERPOLATED ONTO.
+#######################################################################
+
+grid=`cat $FIXekd/ekd_finegds`
+
+######################################################################
+# LOOP THROUGH ALL PROJECTIONS OF CURRENT ENSEMBLE MEMBER
+# TO EXTRACT THE NECESSARY GRIB1 DATA AND PUT ON CORRECT GRID.
+######################################################################
+echo EKDLOG: `date` - start looping through all projections for ensemble member $PERT
+
+PROJECTION="00 06 12 18 24 30 36 42 48 54 60 66 72 78 84 90 96 102 \
+            108 114 120 126 132 138 144 150 156 162 168 174 180 186 \
+            192 198 204 210 216 222 228 234 240 246 252 258 264 270 \
+            276 282 288 294 300 306 312 318 324 330 336 342 348 354 \
+            360 366 372 378 384"
+
+for PROJ in $PROJECTION;do
+    if (( $PROJ <= 180 )); then
+       if (( $PERT == 0 )); then
+          g1=gegfs.$cycle.pgrb2af${PROJ}
+       else
+          g1=gep$(printf %02d $PERT).$cycle.pgrb2af${PROJ}
+       fi
+    elif (( $PERT == 0 )); then
+       if (( $cyc == 00 )); then
+          g1=gec00.$cycle.pgrb2af${PROJ}
+       else
+#
+#          GRAB THE LO-RES CONTROL MEMBER AT CERTAIN EXTENDED PROJECTIONS 
+#
+          case $PROJ in
+             186 | 198 | 210 | 222 | 234 | 246 | 258 | 270 | 282 | 294 |\
+             306 | 318 | 330 | 342 | 354 | 366 | 378 ) \
+                g1=gec$(printf %02d $PERT).$cycle.pgrb2af${PROJ};;
+             * ) \
+                g1=gegfs.$cycle.pgrb2af${PROJ};;
+          esac
+       fi
+    else
+          g1=gep$(printf %02d $PERT).$cycle.pgrb2af${PROJ}
+    fi
+ 
+    cp  $MODELCOMIN/$g1 $g1
+
+#######################################################################
+# RUN WGRIB2 
+# CONVERTS TO MDL GRID
+#######################################################################
+    GRID="nps:255.0000:60.0000 212.9360:137:95250.0000 6.9870:81:95250.0000 gefs.pgrb2a.$(printf %02d $PERT).grb2.${PROJ}.$cycle"
+
+    $WGRIB2 $g1 -new_grid_winds grid \
+                -new_grid_interpolation bilinear \
+                -if ":(APCP):" -new_grid_interpolation budget -fi \
+                -new_grid ${GRID}
+    export err=$?; err_chk							      
+    cat gefs.pgrb2a.$(printf %02d $PERT).grb2.${PROJ}.$cycle >> gefs.pgrb2a.$(printf %02d $PERT).grb2.$cycle
+done
+
+echo 'DONE CLIPPING GRID'
+
+echo EKDLOG: `date` - end looping and converting grib1 data to correct grid.
+
+########################################################################################
+# CREATE A GRIB2 INDEX FILE. EACH FILE CONTAINS ALL ARCHIVED ELEMENTS FOR
+# ALL PROJECTIONS FOR A PARTICULAR PERTURBATION.  GEFS USING PERTS 00-20, EKDMOS
+# SOFTWARE ID'S USE MODEL NUMBERS 40-60.
+########################################################################################
+
+echo EKDLOG: `date` - start convert grib2 to mdlp
+
+let DD=$PERT+40
+if [[ ${DD} = '40' ]]; then
+   if [[ $cyc = '00' ]]; then
+      vrbllist="ekd_gefs_grb2tomdlp.${DD}.t00z.lst"
+      cp $FIXekd/$vrbllist $DATAsub
+   else
+      vrbllist="ekd_gefs_grb2tomdlp.${DD}.nont00z.lst"
+      cp $FIXekd/$vrbllist $DATAsub
+   fi
+else
+   vrbllist="ekd_gefs_grb2tomdlp.${DD}.lst"
+   sed -e "s/YY/$(printf %02d $PERT)/g" -e "s/DD/$DD/g" $FIXekd/ekd_gefs_grb2tomdlp.DD > $DATAsub/$vrbllist
+fi
+
+$GRB2INDEX gefs.pgrb2a.$(printf %02d $PERT).grb2.$cycle gefs.pgrb2a.$(printf %02d $PERT).grb2.$cycle.index
+
+########################################################################################
+# USING GRIB2TOMDLPK TO CONVERT GRIB2 FILE INTO TDLPACK.
+########################################################################################
+set -x
+export pgm=ekd_gribtomdlpk
+. prep_step
+export FORT10="ncepdate"
+export FORT20="gefs.pgrb2a.$(printf %02d $PERT).grb2.$cycle"
+export FORT21="gefs.pgrb2a.$(printf %02d $PERT).grb2.$cycle.index"
+export FORT27="gefs.mdlp.grid.$DD.$cycle"
+export FORT28="${vrbllist}"
+export FORT29="$FIXekd/ekd_grdlst"
+export FORT30="$FIXekd/ekd_mos2000id.tbl"
+startmsg
+$EXECekd/ekd_gribtomdlpk < $PARMekd/ekd_gribtomdlpk.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+echo EKDLOG: `date` - end convert grib2 to mdlp
+
+echo 'DONE RUNNING u130'
+######################################################################
+# FIRST EXECUTION OF PROGRAM MOSPRED
+# MOSPRED - USED TO COMPUTE AND INTERPOLATE GEFS VECTOR BASED FORECASTS
+#           THIS WILL BE USED AS INPUT INTO ENS_EQNEVAL
+######################################################################
+
+sed -e "s/DD/$DD/g" $PARMekd/ekd_gefspredsids.DD.tbl > ekd_gefspredsids.tbl
+sed -e "s/DD/$DD/g" $PARMekd/ekd_gefspreds.cn > ekd_gefspreds.cn      
+
+echo EKDLOG: `date` - begin job MOSPRED - INTERPOLATE GEFS MODEL DATA
+
+export pgm=ekd_mospred
+. prep_step
+export FORT10="ncepdate"
+export FORT20="gefs.mdlp.grid.${DD}.$cycle"
+export FORT60="gefs.preds.$DD.$cycle"
+export FORT33="$PARMekd/ekd_stnsfcst.lst"
+export FORT34="$PARMekd/ekd_stnsfcst.tbl"
+export FORT39="$FIXekd/ekd_mos2000id.tbl"
+export FORT35="ekd_gefspredsids.tbl"
+startmsg
+$EXECekd/ekd_mospred < ekd_gefspreds.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+echo 'DONE RUNNING U201'
+#######################################################################
+# PROGRAM RACREATE - MOS-2000 PROGRAM WHICH
+#                   CREATES RANDOM ACCESS FILES; IN THIS CASE, THE
+#                   CODE IS USED TO CREATE THE OPERATIONAL EKDMOS
+#                   FORECAST FILE.
+#######################################################################
+echo EKDLOG: `date` - begin job RACREATE - CREATE EKDMOS FORECAST FILE
+
+export pgm=mdl_racreate
+. prep_step
+export FORT50="gefs_stnekdfcsts${DD}_ra.$cycle"
+startmsg
+$EXECmdl/mdl_racreate < $PARMekd/ekd_u350.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+echo EKDLOG: `date` -  RACREATE ended
+#######################################################################
+#  PROGRAM RAINIT - INITIALIZES RANDOM ACCESS EKDMOS FORECAST
+#                   FILE WITH STATION CALL LETTERS,
+#                   ELEVATION, LATITUDE, AND LONGITUDE
+#######################################################################
+
+echo EKDLOG: `date` - begin job RAINIT - INITIALIZE MOS FORECAST FILE
+export pgm=mdl_rainit
+. prep_step
+export FORT10="ncepdate"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT49="gefs_stnekdfcsts${DD}_ra.$cycle"
+startmsg
+$EXECmdl/mdl_rainit < $PARMekd/ekd_u351.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+echo EKDLOG: `date` -  RAINIT ended
+
+echo 'done creating an initializing ra file'
+
+#######################################################################
+#    PROGRAM EQNEVAL - CALCULATES SINGLE VALUE EKDMOS FORECASTS FOR
+#                      EACH ENSEMBLE MEMBER
+#######################################################################
+echo EKDLOG: `date` - begin job EQNEVAL - MAKE GEFS MOS FORECASTS FOR MEMBER $DD
+
+sed -e "s/DD/$DD/g" $PARMekd/ekd_eqneval_DD_gefs.cn > ekd_eqneval.cn
+
+export pgm=ekd_eqneval
+. prep_step
+export FORT10="ncepdate"
+export FORT24="gefs.preds.$DD.$cycle"
+export FORT26="$PARMekd/ekd_stnsfcst.lst"
+export FORT27="$PARMekd/ekd_stnsfcst.tbl"
+export FORT28="$PARMekd/ekd_predtofcst"
+export FORT29="$FIXekd/ekd_mos2000id.tbl"
+export FORT33="$FIXekd/ekd_gefs_tdp.EQ.10010331.$cycle"
+export FORT34="$FIXekd/ekd_gefs_tdp.EQ.04010930.$cycle"
+export FORT35="$FIXekd/ekd_gefs_mxmn.EQ.10010331.$cycle"
+export FORT36="$FIXekd/ekd_gefs_mxmn.EQ.04010930.$cycle"
+export FORT45="$FIXekd/ekd_conststa"
+export FORT49="gefs_stnekdfcsts${DD}_ra.$cycle"
+startmsg
+$EXECekd/ekd_eqneval < ekd_eqneval.cn >> $pgmout 2>errfile
+export err=$?;err_chk
+
+######################################################################
+#    COPING FILES TO COMOUT DIRECTORY FOR DEBUGGING AND LATER USE
+######################################################################
+
+if test "$SENDCOM" = 'YES'
+then
+   cp gefs.mdlp.grid.${DD}.$cycle $COMOUT
+   cp gefs_stnekdfcsts${DD}_ra.$cycle $COMOUT
+fi
+
+echo EKDLOG: `date -u` - job exekd_stnfcst.sh.ecf ended 
+
+exit 0

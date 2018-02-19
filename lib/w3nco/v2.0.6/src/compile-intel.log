@@ -1,0 +1,1617 @@
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.7
+  2) eswrap/1.1.0-1.020200.1231.0
+  3) switch/1.0-1.0502.57058.1.58.ari
+  4) craype-network-aries
+  5) ncep/1.0
+  6) xt-lsfhpc/9.1.3
+  7) craype/2.3.0
+  8) intel/15.0.3.187
+  9) cray-libsci/13.0.3
+ 10) udreg/2.3.2-1.0502.9889.2.20.ari
+ 11) ugni/6.0-1.0502.10245.9.9.ari
+ 12) pmi/5.0.6-1.0000.10439.140.2.ari
+ 13) dmapp/7.0.1-1.0502.10246.8.47.ari
+ 14) gni-headers/4.0-1.0502.10317.9.2.ari
+ 15) xpmem/0.1-2.0502.57015.1.15.ari
+ 16) dvs/2.5_0.9.0-1.0502.1958.2.55.ari
+ 17) alps/5.2.3-2.0502.9295.14.14.ari
+ 18) rca/1.0.0-2.0502.57212.2.56.ari
+ 19) atp/1.8.1
+ 20) PrgEnv-intel/5.2.56
+ 21) w3nco-intel/2.0.6
+ 22) craype-sandybridge
+ftn -c  -O3 -axCore-AVX2 -g aea.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a aea.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+a - aea.o
+rm -f aea.o
+ftn -c  -O3 -axCore-AVX2 -g errexit.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a errexit.o
+a - errexit.o
+rm -f errexit.o
+ftn -c  -O3 -axCore-AVX2 -g errmsg.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a errmsg.o
+a - errmsg.o
+rm -f errmsg.o
+ftn -c  -O3 -axCore-AVX2 -g fparsei.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a fparsei.o
+a - fparsei.o
+rm -f fparsei.o
+ftn -c  -O3 -axCore-AVX2 -g fparser.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a fparser.o
+a - fparser.o
+rm -f fparser.o
+ftn -c  -O3 -axCore-AVX2 -g gbyte.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a gbyte.o
+a - gbyte.o
+rm -f gbyte.o
+ftn -c  -O3 -axCore-AVX2 -g gbytec.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a gbytec.o
+a - gbytec.o
+rm -f gbytec.o
+ftn -c  -O3 -axCore-AVX2 -g gbytes.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a gbytes.o
+a - gbytes.o
+rm -f gbytes.o
+ftn -c  -O3 -axCore-AVX2 -g gbytesc.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a gbytesc.o
+a - gbytesc.o
+rm -f gbytesc.o
+ftn -c  -O3 -axCore-AVX2 -g getbit.f
+getbit.f(1): (col. 18) remark: getbit_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getbit.o
+a - getbit.o
+rm -f getbit.o
+ftn -c  -O3 -axCore-AVX2 -g getgb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgb.o
+a - getgb.o
+rm -f getgb.o
+ftn -c  -O3 -axCore-AVX2 -g getgb1.f
+getgb1.f(1): (col. 18) remark: getgb1_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgb1.o
+a - getgb1.o
+rm -f getgb1.o
+ftn -c  -O3 -axCore-AVX2 -g getgb1r.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgb1r.o
+a - getgb1r.o
+rm -f getgb1r.o
+ftn -c  -O3 -axCore-AVX2 -g getgb1re.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgb1re.o
+a - getgb1re.o
+rm -f getgb1re.o
+ftn -c  -O3 -axCore-AVX2 -g getgb1s.f
+getgb1s.f(2): (col. 18) remark: getgb1s_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgb1s.o
+a - getgb1s.o
+rm -f getgb1s.o
+ftn -c  -O3 -axCore-AVX2 -g getgbe.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbe.o
+a - getgbe.o
+rm -f getgbe.o
+ftn -c  -O3 -axCore-AVX2 -g getgbeh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbeh.o
+a - getgbeh.o
+rm -f getgbeh.o
+ftn -c  -O3 -axCore-AVX2 -g getgbem.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbem.o
+a - getgbem.o
+rm -f getgbem.o
+ftn -c  -O3 -axCore-AVX2 -g getgbemh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbemh.o
+a - getgbemh.o
+rm -f getgbemh.o
+ftn -c  -O3 -axCore-AVX2 -g getgbemn.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbemn.o
+a - getgbemn.o
+rm -f getgbemn.o
+ftn -c  -O3 -axCore-AVX2 -g getgbemp.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbemp.o
+a - getgbemp.o
+rm -f getgbemp.o
+ftn -c  -O3 -axCore-AVX2 -g getgbep.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbep.o
+a - getgbep.o
+rm -f getgbep.o
+ftn -c  -O3 -axCore-AVX2 -g getgbex.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbex.o
+a - getgbex.o
+rm -f getgbex.o
+ftn -c  -O3 -axCore-AVX2 -g getgbexm.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbexm.o
+a - getgbexm.o
+rm -f getgbexm.o
+ftn -c  -O3 -axCore-AVX2 -g getgbh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbh.o
+a - getgbh.o
+rm -f getgbh.o
+ftn -c  -O3 -axCore-AVX2 -g getgbm.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbm.o
+a - getgbm.o
+rm -f getgbm.o
+ftn -c  -O3 -axCore-AVX2 -g getgbmh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbmh.o
+a - getgbmh.o
+rm -f getgbmh.o
+ftn -c  -O3 -axCore-AVX2 -g getgbmp.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbmp.o
+a - getgbmp.o
+rm -f getgbmp.o
+ftn -c  -O3 -axCore-AVX2 -g getgbp.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgbp.o
+a - getgbp.o
+rm -f getgbp.o
+ftn -c  -O3 -axCore-AVX2 -g getgi.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgi.o
+a - getgi.o
+rm -f getgi.o
+ftn -c  -O3 -axCore-AVX2 -g getgir.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a getgir.o
+a - getgir.o
+rm -f getgir.o
+ftn -c  -O3 -axCore-AVX2 -g gtbits.f
+gtbits.f(1): (col. 18) remark: gtbits_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a gtbits.o
+a - gtbits.o
+rm -f gtbits.o
+ftn -c  -O3 -axCore-AVX2 -g idsdef.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a idsdef.o
+a - idsdef.o
+rm -f idsdef.o
+ftn -c  -O3 -axCore-AVX2 -g instrument.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a instrument.o
+a - instrument.o
+rm -f instrument.o
+ftn -c  -O3 -axCore-AVX2 -g iw3jdn.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a iw3jdn.o
+a - iw3jdn.o
+rm -f iw3jdn.o
+ftn -c  -O3 -axCore-AVX2 -g iw3pds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a iw3pds.o
+a - iw3pds.o
+rm -f iw3pds.o
+ftn -c  -O3 -axCore-AVX2 -g iw3unp29.f
+iw3unp29.f(2915): (col. 16) remark: r04o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1026): (col. 18) remark: s01o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(3387): (col. 16) remark: r05o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(4174): (col. 16) remark: r07o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(3889): (col. 16) remark: r06o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(2110): (col. 16) remark: r03o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1669): (col. 16) remark: r02o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1697): (col. 13) remark: e01o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1702): (col. 13) remark: e37o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1724): (col. 13) remark: e03o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1729): (col. 13) remark: e04o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1733): (col. 13) remark: e05o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1742): (col. 13) remark: e06o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1749): (col. 13) remark: e07o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1754): (col. 13) remark: e08o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1759): (col. 13) remark: e09o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1773): (col. 13) remark: e10o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1778): (col. 13) remark: e11o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1783): (col. 13) remark: e12o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1807): (col. 13) remark: e13o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1820): (col. 13) remark: e14o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1833): (col. 13) remark: e15o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1837): (col. 13) remark: e18o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1870): (col. 13) remark: e19o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1875): (col. 13) remark: e20o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1884): (col. 13) remark: e21o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1893): (col. 13) remark: e22o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1898): (col. 13) remark: e23o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1902): (col. 13) remark: e24o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1907): (col. 13) remark: e25o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1918): (col. 13) remark: e28o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1922): (col. 13) remark: e29o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1926): (col. 13) remark: e30o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1931): (col. 13) remark: e31o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1936): (col. 13) remark: e32o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1940): (col. 13) remark: e33o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1998): (col. 13) remark: e34o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(2022): (col. 13) remark: e38o29_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a iw3unp29.o
+a - iw3unp29.o
+rm -f iw3unp29.o
+ftn -c  -O3 -axCore-AVX2 -g ixgb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a ixgb.o
+a - ixgb.o
+rm -f ixgb.o
+ftn -c  -O3 -axCore-AVX2 -g lengds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a lengds.o
+a - lengds.o
+rm -f lengds.o
+ftn -c  -O3 -axCore-AVX2 -g makwmo.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a makwmo.o
+a - makwmo.o
+rm -f makwmo.o
+ftn -c  -O3 -axCore-AVX2 -g mkfldsep.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a mkfldsep.o
+a - mkfldsep.o
+rm -f mkfldsep.o
+ftn -c  -O3 -axCore-AVX2 -g pdsens.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a pdsens.o
+a - pdsens.o
+rm -f pdsens.o
+ftn -c  -O3 -axCore-AVX2 -g pdseup.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a pdseup.o
+a - pdseup.o
+rm -f pdseup.o
+ftn -c  -O3 -axCore-AVX2 -g putgb.f
+putgb.f(2): (col. 18) remark: putgb_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a putgb.o
+a - putgb.o
+rm -f putgb.o
+ftn -c  -O3 -axCore-AVX2 -g putgbe.f
+putgbe.f(2): (col. 18) remark: putgbe_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a putgbe.o
+a - putgbe.o
+rm -f putgbe.o
+ftn -c  -O3 -axCore-AVX2 -g putgben.f
+putgben.f(2): (col. 18) remark: putgben_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a putgben.o
+a - putgben.o
+rm -f putgben.o
+ftn -c  -O3 -axCore-AVX2 -g putgbex.f
+putgbex.f(2): (col. 18) remark: putgbex_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a putgbex.o
+a - putgbex.o
+rm -f putgbex.o
+ftn -c  -O3 -axCore-AVX2 -g putgbn.f
+putgbn.f(2): (col. 18) remark: putgbn_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a putgbn.o
+a - putgbn.o
+rm -f putgbn.o
+ftn -c  -O3 -axCore-AVX2 -g q9ie32.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a q9ie32.o
+a - q9ie32.o
+rm -f q9ie32.o
+ftn -c  -O3 -axCore-AVX2 -g r63w72.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a r63w72.o
+a - r63w72.o
+rm -f r63w72.o
+ftn -c  -O3 -axCore-AVX2 -g sbyte.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a sbyte.o
+a - sbyte.o
+rm -f sbyte.o
+ftn -c  -O3 -axCore-AVX2 -g sbytec.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a sbytec.o
+a - sbytec.o
+rm -f sbytec.o
+ftn -c  -O3 -axCore-AVX2 -g sbytes.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a sbytes.o
+a - sbytes.o
+rm -f sbytes.o
+ftn -c  -O3 -axCore-AVX2 -g sbytesc.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a sbytesc.o
+a - sbytesc.o
+rm -f sbytesc.o
+ftn -c  -O3 -axCore-AVX2 -g skgb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a skgb.o
+a - skgb.o
+rm -f skgb.o
+ftn -c  -O3 -axCore-AVX2 -g w3ai00.f
+w3ai00.f(1): (col. 18) remark: w3ai00_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ai00.o
+a - w3ai00.o
+rm -f w3ai00.o
+ftn -c  -O3 -axCore-AVX2 -g w3ai01.f
+w3ai01.f(1): (col. 18) remark: w3ai01_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ai01.o
+a - w3ai01.o
+rm -f w3ai01.o
+ftn -c  -O3 -axCore-AVX2 -g w3ai08.f
+w3ai08.f(1): (col. 18) remark: w3ai08_ has been targeted for automatic cpu dispatch
+w3ai08.f(1577): (col. 18) remark: ai084_ has been targeted for automatic cpu dispatch
+w3ai08.f(2352): (col. 18) remark: ai085a_ has been targeted for automatic cpu dispatch
+w3ai08.f(2052): (col. 18) remark: ai085_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ai08.o
+a - w3ai08.o
+rm -f w3ai08.o
+ftn -c  -O3 -axCore-AVX2 -g w3ai15.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ai15.o
+a - w3ai15.o
+rm -f w3ai15.o
+ftn -c  -O3 -axCore-AVX2 -g w3ai18.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ai18.o
+a - w3ai18.o
+rm -f w3ai18.o
+ftn -c  -O3 -axCore-AVX2 -g w3ai19.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ai19.o
+a - w3ai19.o
+rm -f w3ai19.o
+ftn -c  -O3 -axCore-AVX2 -g w3ai24.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ai24.o
+a - w3ai24.o
+rm -f w3ai24.o
+ftn -c  -O3 -axCore-AVX2 -g w3ai38.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ai38.o
+a - w3ai38.o
+rm -f w3ai38.o
+ftn -c  -O3 -axCore-AVX2 -g w3ai39.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ai39.o
+a - w3ai39.o
+rm -f w3ai39.o
+ftn -c  -O3 -axCore-AVX2 -g w3aq15.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3aq15.o
+a - w3aq15.o
+rm -f w3aq15.o
+ftn -c  -O3 -axCore-AVX2 -g w3as00.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3as00.o
+a - w3as00.o
+rm -f w3as00.o
+ftn -c  -O3 -axCore-AVX2 -g w3difdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3difdat.o
+a - w3difdat.o
+rm -f w3difdat.o
+ftn -c  -O3 -axCore-AVX2 -g w3doxdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3doxdat.o
+a - w3doxdat.o
+rm -f w3doxdat.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi01.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi01.o
+a - w3fi01.o
+rm -f w3fi01.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi04.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi04.o
+a - w3fi04.o
+rm -f w3fi04.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi58.f
+w3fi58.f(1): (col. 18) remark: w3fi58_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi58.o
+a - w3fi58.o
+rm -f w3fi58.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi59.f
+w3fi59.f(1): (col. 18) remark: w3fi59_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi59.o
+a - w3fi59.o
+rm -f w3fi59.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi62.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi62.o
+a - w3fi62.o
+rm -f w3fi62.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi63.f
+w3fi63.f(1258): (col. 18) remark: fi633_ has been targeted for automatic cpu dispatch
+w3fi63.f(2837): (col. 18) remark: fi634x_ has been targeted for automatic cpu dispatch
+w3fi63.f(2873): (col. 18) remark: fi635_ has been targeted for automatic cpu dispatch
+w3fi63.f(3474): (col. 18) remark: fi636_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi63.o
+a - w3fi63.o
+rm -f w3fi63.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi64.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi64.o
+a - w3fi64.o
+rm -f w3fi64.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi68.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi68.o
+a - w3fi68.o
+rm -f w3fi68.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi69.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi69.o
+a - w3fi69.o
+rm -f w3fi69.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi71.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi71.o
+a - w3fi71.o
+rm -f w3fi71.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi72.f
+w3fi72.f(1): (col. 18) remark: w3fi72_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi72.o
+a - w3fi72.o
+rm -f w3fi72.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi73.f
+w3fi73.f(1): (col. 18) remark: w3fi73_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi73.o
+a - w3fi73.o
+rm -f w3fi73.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi74.f
+w3fi74.f(1): (col. 18) remark: w3fi74_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi74.o
+a - w3fi74.o
+rm -f w3fi74.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi75.f
+w3fi75.f(1): (col. 18) remark: w3fi75_ has been targeted for automatic cpu dispatch
+w3fi75.f(508): (col. 18) remark: fi7501_ has been targeted for automatic cpu dispatch
+w3fi75.f(889): (col. 18) remark: fi7503_ has been targeted for automatic cpu dispatch
+w3fi75.f(1255): (col. 18) remark: fi7513_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi75.o
+a - w3fi75.o
+rm -f w3fi75.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi76.f
+w3fi76.f(1): (col. 18) remark: w3fi76_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi76.o
+a - w3fi76.o
+rm -f w3fi76.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi82.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi82.o
+a - w3fi82.o
+rm -f w3fi82.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi83.f
+w3fi83.f(1): (col. 18) remark: w3fi83_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi83.o
+a - w3fi83.o
+rm -f w3fi83.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi88.f
+w3fi88.f(1419): (col. 18) remark: fi8803_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi88.o
+a - w3fi88.o
+rm -f w3fi88.o
+ftn -c  -O3 -axCore-AVX2 -g w3fi92.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fi92.o
+a - w3fi92.o
+rm -f w3fi92.o
+ftn -c  -O3 -axCore-AVX2 -g w3fp11.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fp11.o
+a - w3fp11.o
+rm -f w3fp11.o
+ftn -c  -O3 -axCore-AVX2 -g w3fp12.f
+w3fp12.f(1): (col. 18) remark: w3fp12_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fp12.o
+a - w3fp12.o
+rm -f w3fp12.o
+ftn -c  -O3 -axCore-AVX2 -g w3fp13.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fp13.o
+a - w3fp13.o
+rm -f w3fp13.o
+ftn -c  -O3 -axCore-AVX2 -g w3fs13.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fs13.o
+a - w3fs13.o
+rm -f w3fs13.o
+ftn -c  -O3 -axCore-AVX2 -g w3fs15.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fs15.o
+a - w3fs15.o
+rm -f w3fs15.o
+ftn -c  -O3 -axCore-AVX2 -g w3fs21.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fs21.o
+a - w3fs21.o
+rm -f w3fs21.o
+ftn -c  -O3 -axCore-AVX2 -g w3fs26.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3fs26.o
+a - w3fs26.o
+rm -f w3fs26.o
+ftn -c  -O3 -axCore-AVX2 -g w3ft32.f
+w3ft32.f(1): (col. 18) remark: w3ft32_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ft32.o
+a - w3ft32.o
+rm -f w3ft32.o
+ftn -c  -O3 -axCore-AVX2 -g w3kind.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3kind.o
+a - w3kind.o
+rm -f w3kind.o
+ftn -c  -O3 -axCore-AVX2 -g w3locdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3locdat.o
+a - w3locdat.o
+rm -f w3locdat.o
+ftn -c  -O3 -axCore-AVX2 -g w3movdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3movdat.o
+a - w3movdat.o
+rm -f w3movdat.o
+ftn -c  -O3 -axCore-AVX2 -g w3nogds.f
+w3nogds.f(1): (col. 18) remark: w3nogds_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3nogds.o
+a - w3nogds.o
+rm -f w3nogds.o
+ftn -c  -O3 -axCore-AVX2 -g w3pradat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3pradat.o
+a - w3pradat.o
+rm -f w3pradat.o
+ftn -c  -O3 -axCore-AVX2 -g w3reddat.f
+w3reddat.f(1): (col. 18) remark: w3reddat_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3reddat.o
+a - w3reddat.o
+rm -f w3reddat.o
+ftn -c  -O3 -axCore-AVX2 -g w3tagb.f
+w3tagb.f(1): (col. 19) remark: w3tagb_ has been targeted for automatic cpu dispatch
+w3tagb.f(103): (col. 16) remark: w3tage_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3tagb.o
+a - w3tagb.o
+rm -f w3tagb.o
+ftn -c  -O3 -axCore-AVX2 -g w3trnarg.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3trnarg.o
+a - w3trnarg.o
+rm -f w3trnarg.o
+ftn -c  -O3 -axCore-AVX2 -g w3unpk77.f
+w3unpk77.f(386): (col. 18) remark: w3unpk77_ has been targeted for automatic cpu dispatch
+w3unpk77.f(1607): (col. 18) remark: unpk7706_ has been targeted for automatic cpu dispatch
+w3unpk77.f(1988): (col. 18) remark: unpk7708_ has been targeted for automatic cpu dispatch
+w3unpk77.f(987): (col. 18) remark: unpk7703_ has been targeted for automatic cpu dispatch
+w3unpk77.f(1361): (col. 18) remark: unpk7705_ has been targeted for automatic cpu dispatch
+w3unpk77.f(1230): (col. 18) remark: unpk7704_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3unpk77.o
+a - w3unpk77.o
+rm -f w3unpk77.o
+ftn -c  -O3 -axCore-AVX2 -g w3utcdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3utcdat.o
+a - w3utcdat.o
+rm -f w3utcdat.o
+ftn -c  -O3 -axCore-AVX2 -g w3valdat.f
+w3valdat.f(2): (col. 24) remark: w3valdat_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3valdat.o
+a - w3valdat.o
+rm -f w3valdat.o
+ftn -c  -O3 -axCore-AVX2 -g w3ymdh4.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a w3ymdh4.o
+a - w3ymdh4.o
+rm -f w3ymdh4.o
+ftn -c  -O3 -axCore-AVX2 -g xmovex.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a xmovex.o
+a - xmovex.o
+rm -f xmovex.o
+ftn -c  -O3 -axCore-AVX2 -g xstore.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a xstore.o
+a - xstore.o
+rm -f xstore.o
+cc -c  -O3 -axCore-AVX2 -g -DLINUX mova2i.c
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a mova2i.o
+a - mova2i.o
+rm -f mova2i.o
+cc -c  -O3 -axCore-AVX2 -g -DLINUX summary.c
+summary.c(205): (col. 1) remark: elapse has been targeted for automatic cpu dispatch
+summary.c(273): (col. 1) remark: start_timer has been targeted for automatic cpu dispatch
+summary.c(288): (col. 1) remark: end_timer has been targeted for automatic cpu dispatch
+summary.c(307): (col. 1) remark: resource has been targeted for automatic cpu dispatch
+summary.c(395): (col. 1) remark: print_timing has been targeted for automatic cpu dispatch
+summary.c(455): (col. 1) remark: summary_ has been targeted for automatic cpu dispatch
+summary.c(481): (col. 1) remark: start_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a summary.o
+a - summary.o
+rm -f summary.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 aea.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a aea.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a
+a - aea.o
+rm -f aea.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 errexit.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a errexit.o
+a - errexit.o
+rm -f errexit.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 errmsg.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a errmsg.o
+a - errmsg.o
+rm -f errmsg.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 fparsei.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a fparsei.o
+a - fparsei.o
+rm -f fparsei.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 fparser.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a fparser.o
+a - fparser.o
+rm -f fparser.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 gbyte.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a gbyte.o
+a - gbyte.o
+rm -f gbyte.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 gbytec.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a gbytec.o
+a - gbytec.o
+rm -f gbytec.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 gbytes.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a gbytes.o
+a - gbytes.o
+rm -f gbytes.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 gbytesc.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a gbytesc.o
+a - gbytesc.o
+rm -f gbytesc.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getbit.f
+getbit.f(1): (col. 18) remark: getbit_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getbit.o
+a - getbit.o
+rm -f getbit.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgb.o
+a - getgb.o
+rm -f getgb.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgb1.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgb1.o
+a - getgb1.o
+rm -f getgb1.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgb1r.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgb1r.o
+a - getgb1r.o
+rm -f getgb1r.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgb1re.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgb1re.o
+a - getgb1re.o
+rm -f getgb1re.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgb1s.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgb1s.o
+a - getgb1s.o
+rm -f getgb1s.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbe.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbe.o
+a - getgbe.o
+rm -f getgbe.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbeh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbeh.o
+a - getgbeh.o
+rm -f getgbeh.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbem.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbem.o
+a - getgbem.o
+rm -f getgbem.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbemh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbemh.o
+a - getgbemh.o
+rm -f getgbemh.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbemn.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbemn.o
+a - getgbemn.o
+rm -f getgbemn.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbemp.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbemp.o
+a - getgbemp.o
+rm -f getgbemp.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbep.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbep.o
+a - getgbep.o
+rm -f getgbep.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbex.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbex.o
+a - getgbex.o
+rm -f getgbex.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbexm.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbexm.o
+a - getgbexm.o
+rm -f getgbexm.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbh.o
+a - getgbh.o
+rm -f getgbh.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbm.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbm.o
+a - getgbm.o
+rm -f getgbm.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbmh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbmh.o
+a - getgbmh.o
+rm -f getgbmh.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbmp.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbmp.o
+a - getgbmp.o
+rm -f getgbmp.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgbp.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgbp.o
+a - getgbp.o
+rm -f getgbp.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgi.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgi.o
+a - getgi.o
+rm -f getgi.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 getgir.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a getgir.o
+a - getgir.o
+rm -f getgir.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 gtbits.f
+gtbits.f(1): (col. 18) remark: gtbits_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a gtbits.o
+a - gtbits.o
+rm -f gtbits.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 idsdef.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a idsdef.o
+a - idsdef.o
+rm -f idsdef.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 instrument.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a instrument.o
+a - instrument.o
+rm -f instrument.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 iw3jdn.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a iw3jdn.o
+a - iw3jdn.o
+rm -f iw3jdn.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 iw3pds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a iw3pds.o
+a - iw3pds.o
+rm -f iw3pds.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 iw3unp29.f
+iw3unp29.f(1026): (col. 18) remark: s01o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(3387): (col. 16) remark: r05o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(4174): (col. 16) remark: r07o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(2110): (col. 16) remark: r03o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1669): (col. 16) remark: r02o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1697): (col. 13) remark: e01o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1702): (col. 13) remark: e37o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1724): (col. 13) remark: e03o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1729): (col. 13) remark: e04o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1733): (col. 13) remark: e05o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1742): (col. 13) remark: e06o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1749): (col. 13) remark: e07o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1754): (col. 13) remark: e08o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1759): (col. 13) remark: e09o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1773): (col. 13) remark: e10o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1778): (col. 13) remark: e11o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1783): (col. 13) remark: e12o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1807): (col. 13) remark: e13o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1820): (col. 13) remark: e14o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1833): (col. 13) remark: e15o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1837): (col. 13) remark: e18o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1870): (col. 13) remark: e19o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1875): (col. 13) remark: e20o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1884): (col. 13) remark: e21o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1893): (col. 13) remark: e22o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1898): (col. 13) remark: e23o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1902): (col. 13) remark: e24o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1907): (col. 13) remark: e25o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1918): (col. 13) remark: e28o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1922): (col. 13) remark: e29o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1926): (col. 13) remark: e30o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1931): (col. 13) remark: e31o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1936): (col. 13) remark: e32o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1940): (col. 13) remark: e33o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1998): (col. 13) remark: e34o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(2022): (col. 13) remark: e38o29_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a iw3unp29.o
+a - iw3unp29.o
+rm -f iw3unp29.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 ixgb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a ixgb.o
+a - ixgb.o
+rm -f ixgb.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 lengds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a lengds.o
+a - lengds.o
+rm -f lengds.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 makwmo.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a makwmo.o
+a - makwmo.o
+rm -f makwmo.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 mkfldsep.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a mkfldsep.o
+a - mkfldsep.o
+rm -f mkfldsep.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 pdsens.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a pdsens.o
+a - pdsens.o
+rm -f pdsens.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 pdseup.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a pdseup.o
+a - pdseup.o
+rm -f pdseup.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 putgb.f
+putgb.f(2): (col. 18) remark: putgb_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a putgb.o
+a - putgb.o
+rm -f putgb.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 putgbe.f
+putgbe.f(2): (col. 18) remark: putgbe_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a putgbe.o
+a - putgbe.o
+rm -f putgbe.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 putgben.f
+putgben.f(2): (col. 18) remark: putgben_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a putgben.o
+a - putgben.o
+rm -f putgben.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 putgbex.f
+putgbex.f(2): (col. 18) remark: putgbex_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a putgbex.o
+a - putgbex.o
+rm -f putgbex.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 putgbn.f
+putgbn.f(2): (col. 18) remark: putgbn_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a putgbn.o
+a - putgbn.o
+rm -f putgbn.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 q9ie32.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a q9ie32.o
+a - q9ie32.o
+rm -f q9ie32.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 r63w72.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a r63w72.o
+a - r63w72.o
+rm -f r63w72.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 sbyte.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a sbyte.o
+a - sbyte.o
+rm -f sbyte.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 sbytec.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a sbytec.o
+a - sbytec.o
+rm -f sbytec.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 sbytes.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a sbytes.o
+a - sbytes.o
+rm -f sbytes.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 sbytesc.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a sbytesc.o
+a - sbytesc.o
+rm -f sbytesc.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 skgb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a skgb.o
+a - skgb.o
+rm -f skgb.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ai00.f
+w3ai00.f(1): (col. 18) remark: w3ai00_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ai00.o
+a - w3ai00.o
+rm -f w3ai00.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ai01.f
+w3ai01.f(1): (col. 18) remark: w3ai01_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ai01.o
+a - w3ai01.o
+rm -f w3ai01.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ai08.f
+w3ai08.f(1): (col. 18) remark: w3ai08_ has been targeted for automatic cpu dispatch
+w3ai08.f(1577): (col. 18) remark: ai084_ has been targeted for automatic cpu dispatch
+w3ai08.f(2352): (col. 18) remark: ai085a_ has been targeted for automatic cpu dispatch
+w3ai08.f(2052): (col. 18) remark: ai085_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ai08.o
+a - w3ai08.o
+rm -f w3ai08.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ai15.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ai15.o
+a - w3ai15.o
+rm -f w3ai15.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ai18.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ai18.o
+a - w3ai18.o
+rm -f w3ai18.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ai19.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ai19.o
+a - w3ai19.o
+rm -f w3ai19.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ai24.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ai24.o
+a - w3ai24.o
+rm -f w3ai24.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ai38.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ai38.o
+a - w3ai38.o
+rm -f w3ai38.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ai39.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ai39.o
+a - w3ai39.o
+rm -f w3ai39.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3aq15.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3aq15.o
+a - w3aq15.o
+rm -f w3aq15.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3as00.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3as00.o
+a - w3as00.o
+rm -f w3as00.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3difdat.f
+w3difdat.f(2): (col. 18) remark: w3difdat_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3difdat.o
+a - w3difdat.o
+rm -f w3difdat.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3doxdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3doxdat.o
+a - w3doxdat.o
+rm -f w3doxdat.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi01.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi01.o
+a - w3fi01.o
+rm -f w3fi01.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi04.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi04.o
+a - w3fi04.o
+rm -f w3fi04.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi58.f
+w3fi58.f(1): (col. 18) remark: w3fi58_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi58.o
+a - w3fi58.o
+rm -f w3fi58.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi59.f
+w3fi59.f(1): (col. 18) remark: w3fi59_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi59.o
+a - w3fi59.o
+rm -f w3fi59.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi62.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi62.o
+a - w3fi62.o
+rm -f w3fi62.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi63.f
+w3fi63.f(1258): (col. 18) remark: fi633_ has been targeted for automatic cpu dispatch
+w3fi63.f(2837): (col. 18) remark: fi634x_ has been targeted for automatic cpu dispatch
+w3fi63.f(2873): (col. 18) remark: fi635_ has been targeted for automatic cpu dispatch
+w3fi63.f(3474): (col. 18) remark: fi636_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi63.o
+a - w3fi63.o
+rm -f w3fi63.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi64.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi64.o
+a - w3fi64.o
+rm -f w3fi64.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi68.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi68.o
+a - w3fi68.o
+rm -f w3fi68.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi69.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi69.o
+a - w3fi69.o
+rm -f w3fi69.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi71.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi71.o
+a - w3fi71.o
+rm -f w3fi71.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi72.f
+w3fi72.f(1): (col. 18) remark: w3fi72_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi72.o
+a - w3fi72.o
+rm -f w3fi72.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi73.f
+w3fi73.f(1): (col. 18) remark: w3fi73_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi73.o
+a - w3fi73.o
+rm -f w3fi73.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi74.f
+w3fi74.f(1): (col. 18) remark: w3fi74_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi74.o
+a - w3fi74.o
+rm -f w3fi74.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi75.f
+w3fi75.f(1): (col. 18) remark: w3fi75_ has been targeted for automatic cpu dispatch
+w3fi75.f(508): (col. 18) remark: fi7501_ has been targeted for automatic cpu dispatch
+w3fi75.f(889): (col. 18) remark: fi7503_ has been targeted for automatic cpu dispatch
+w3fi75.f(1255): (col. 18) remark: fi7513_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi75.o
+a - w3fi75.o
+rm -f w3fi75.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi76.f
+w3fi76.f(1): (col. 18) remark: w3fi76_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi76.o
+a - w3fi76.o
+rm -f w3fi76.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi82.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi82.o
+a - w3fi82.o
+rm -f w3fi82.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi83.f
+w3fi83.f(1): (col. 18) remark: w3fi83_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi83.o
+a - w3fi83.o
+rm -f w3fi83.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi88.f
+w3fi88.f(1419): (col. 18) remark: fi8803_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi88.o
+a - w3fi88.o
+rm -f w3fi88.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fi92.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fi92.o
+a - w3fi92.o
+rm -f w3fi92.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fp11.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fp11.o
+a - w3fp11.o
+rm -f w3fp11.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fp12.f
+w3fp12.f(1): (col. 18) remark: w3fp12_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fp12.o
+a - w3fp12.o
+rm -f w3fp12.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fp13.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fp13.o
+a - w3fp13.o
+rm -f w3fp13.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fs13.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fs13.o
+a - w3fs13.o
+rm -f w3fs13.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fs15.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fs15.o
+a - w3fs15.o
+rm -f w3fs15.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fs21.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fs21.o
+a - w3fs21.o
+rm -f w3fs21.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3fs26.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3fs26.o
+a - w3fs26.o
+rm -f w3fs26.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ft32.f
+w3ft32.f(1): (col. 18) remark: w3ft32_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ft32.o
+a - w3ft32.o
+rm -f w3ft32.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3kind.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3kind.o
+a - w3kind.o
+rm -f w3kind.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3locdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3locdat.o
+a - w3locdat.o
+rm -f w3locdat.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3movdat.f
+w3movdat.f(2): (col. 18) remark: w3movdat_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3movdat.o
+a - w3movdat.o
+rm -f w3movdat.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3nogds.f
+w3nogds.f(1): (col. 18) remark: w3nogds_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3nogds.o
+a - w3nogds.o
+rm -f w3nogds.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3pradat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3pradat.o
+a - w3pradat.o
+rm -f w3pradat.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3reddat.f
+w3reddat.f(1): (col. 18) remark: w3reddat_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3reddat.o
+a - w3reddat.o
+rm -f w3reddat.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3tagb.f
+w3tagb.f(1): (col. 19) remark: w3tagb_ has been targeted for automatic cpu dispatch
+w3tagb.f(103): (col. 16) remark: w3tage_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3tagb.o
+a - w3tagb.o
+rm -f w3tagb.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3trnarg.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3trnarg.o
+a - w3trnarg.o
+rm -f w3trnarg.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3unpk77.f
+w3unpk77.f(1607): (col. 18) remark: unpk7706_ has been targeted for automatic cpu dispatch
+w3unpk77.f(1988): (col. 18) remark: unpk7708_ has been targeted for automatic cpu dispatch
+w3unpk77.f(987): (col. 18) remark: unpk7703_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3unpk77.o
+a - w3unpk77.o
+rm -f w3unpk77.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3utcdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3utcdat.o
+a - w3utcdat.o
+rm -f w3utcdat.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3valdat.f
+w3valdat.f(2): (col. 24) remark: w3valdat_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3valdat.o
+a - w3valdat.o
+rm -f w3valdat.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 w3ymdh4.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a w3ymdh4.o
+a - w3ymdh4.o
+rm -f w3ymdh4.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 xmovex.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a xmovex.o
+a - xmovex.o
+rm -f xmovex.o
+ftn -c  -O3 -axCore-AVX2 -g -i8 -r8 xstore.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a xstore.o
+a - xstore.o
+rm -f xstore.o
+cc -c  -O3 -axCore-AVX2 -g -DLINUX mova2i.c
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a mova2i.o
+a - mova2i.o
+rm -f mova2i.o
+cc -c  -O3 -axCore-AVX2 -g -DLINUX summary.c
+summary.c(205): (col. 1) remark: elapse has been targeted for automatic cpu dispatch
+summary.c(273): (col. 1) remark: start_timer has been targeted for automatic cpu dispatch
+summary.c(288): (col. 1) remark: end_timer has been targeted for automatic cpu dispatch
+summary.c(307): (col. 1) remark: resource has been targeted for automatic cpu dispatch
+summary.c(395): (col. 1) remark: print_timing has been targeted for automatic cpu dispatch
+summary.c(455): (col. 1) remark: summary_ has been targeted for automatic cpu dispatch
+summary.c(481): (col. 1) remark: start_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a summary.o
+a - summary.o
+rm -f summary.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 aea.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a aea.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a
+a - aea.o
+rm -f aea.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 errexit.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a errexit.o
+a - errexit.o
+rm -f errexit.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 errmsg.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a errmsg.o
+a - errmsg.o
+rm -f errmsg.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 fparsei.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a fparsei.o
+a - fparsei.o
+rm -f fparsei.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 fparser.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a fparser.o
+a - fparser.o
+rm -f fparser.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 gbyte.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a gbyte.o
+a - gbyte.o
+rm -f gbyte.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 gbytec.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a gbytec.o
+a - gbytec.o
+rm -f gbytec.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 gbytes.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a gbytes.o
+a - gbytes.o
+rm -f gbytes.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 gbytesc.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a gbytesc.o
+a - gbytesc.o
+rm -f gbytesc.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getbit.f
+getbit.f(1): (col. 18) remark: getbit_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getbit.o
+a - getbit.o
+rm -f getbit.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgb.o
+a - getgb.o
+rm -f getgb.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgb1.f
+getgb1.f(1): (col. 18) remark: getgb1_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgb1.o
+a - getgb1.o
+rm -f getgb1.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgb1r.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgb1r.o
+a - getgb1r.o
+rm -f getgb1r.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgb1re.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgb1re.o
+a - getgb1re.o
+rm -f getgb1re.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgb1s.f
+getgb1s.f(2): (col. 18) remark: getgb1s_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgb1s.o
+a - getgb1s.o
+rm -f getgb1s.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbe.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbe.o
+a - getgbe.o
+rm -f getgbe.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbeh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbeh.o
+a - getgbeh.o
+rm -f getgbeh.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbem.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbem.o
+a - getgbem.o
+rm -f getgbem.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbemh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbemh.o
+a - getgbemh.o
+rm -f getgbemh.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbemn.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbemn.o
+a - getgbemn.o
+rm -f getgbemn.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbemp.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbemp.o
+a - getgbemp.o
+rm -f getgbemp.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbep.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbep.o
+a - getgbep.o
+rm -f getgbep.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbex.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbex.o
+a - getgbex.o
+rm -f getgbex.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbexm.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbexm.o
+a - getgbexm.o
+rm -f getgbexm.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbh.o
+a - getgbh.o
+rm -f getgbh.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbm.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbm.o
+a - getgbm.o
+rm -f getgbm.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbmh.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbmh.o
+a - getgbmh.o
+rm -f getgbmh.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbmp.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbmp.o
+a - getgbmp.o
+rm -f getgbmp.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgbp.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgbp.o
+a - getgbp.o
+rm -f getgbp.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgi.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgi.o
+a - getgi.o
+rm -f getgi.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 getgir.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a getgir.o
+a - getgir.o
+rm -f getgir.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 gtbits.f
+gtbits.f(1): (col. 18) remark: gtbits_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a gtbits.o
+a - gtbits.o
+rm -f gtbits.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 idsdef.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a idsdef.o
+a - idsdef.o
+rm -f idsdef.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 instrument.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a instrument.o
+a - instrument.o
+rm -f instrument.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 iw3jdn.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a iw3jdn.o
+a - iw3jdn.o
+rm -f iw3jdn.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 iw3pds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a iw3pds.o
+a - iw3pds.o
+rm -f iw3pds.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 iw3unp29.f
+iw3unp29.f(1026): (col. 18) remark: s01o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(3387): (col. 16) remark: r05o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(4174): (col. 16) remark: r07o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(2110): (col. 16) remark: r03o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1669): (col. 16) remark: r02o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1697): (col. 13) remark: e01o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1702): (col. 13) remark: e37o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1724): (col. 13) remark: e03o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1729): (col. 13) remark: e04o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1733): (col. 13) remark: e05o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1742): (col. 13) remark: e06o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1749): (col. 13) remark: e07o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1754): (col. 13) remark: e08o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1759): (col. 13) remark: e09o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1773): (col. 13) remark: e10o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1778): (col. 13) remark: e11o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1783): (col. 13) remark: e12o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1807): (col. 13) remark: e13o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1820): (col. 13) remark: e14o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1833): (col. 13) remark: e15o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1837): (col. 13) remark: e18o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1870): (col. 13) remark: e19o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1875): (col. 13) remark: e20o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1884): (col. 13) remark: e21o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1893): (col. 13) remark: e22o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1898): (col. 13) remark: e23o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1902): (col. 13) remark: e24o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1907): (col. 13) remark: e25o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1918): (col. 13) remark: e28o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1922): (col. 13) remark: e29o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1926): (col. 13) remark: e30o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1931): (col. 13) remark: e31o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1936): (col. 13) remark: e32o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1940): (col. 13) remark: e33o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(1998): (col. 13) remark: e34o29_ has been targeted for automatic cpu dispatch
+iw3unp29.f(2022): (col. 13) remark: e38o29_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a iw3unp29.o
+a - iw3unp29.o
+rm -f iw3unp29.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 ixgb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a ixgb.o
+a - ixgb.o
+rm -f ixgb.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 lengds.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a lengds.o
+a - lengds.o
+rm -f lengds.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 makwmo.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a makwmo.o
+a - makwmo.o
+rm -f makwmo.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 mkfldsep.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a mkfldsep.o
+a - mkfldsep.o
+rm -f mkfldsep.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 pdsens.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a pdsens.o
+a - pdsens.o
+rm -f pdsens.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 pdseup.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a pdseup.o
+a - pdseup.o
+rm -f pdseup.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 putgb.f
+putgb.f(2): (col. 18) remark: putgb_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a putgb.o
+a - putgb.o
+rm -f putgb.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 putgbe.f
+putgbe.f(2): (col. 18) remark: putgbe_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a putgbe.o
+a - putgbe.o
+rm -f putgbe.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 putgben.f
+putgben.f(2): (col. 18) remark: putgben_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a putgben.o
+a - putgben.o
+rm -f putgben.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 putgbex.f
+putgbex.f(2): (col. 18) remark: putgbex_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a putgbex.o
+a - putgbex.o
+rm -f putgbex.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 putgbn.f
+putgbn.f(2): (col. 18) remark: putgbn_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a putgbn.o
+a - putgbn.o
+rm -f putgbn.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 q9ie32.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a q9ie32.o
+a - q9ie32.o
+rm -f q9ie32.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 r63w72.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a r63w72.o
+a - r63w72.o
+rm -f r63w72.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 sbyte.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a sbyte.o
+a - sbyte.o
+rm -f sbyte.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 sbytec.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a sbytec.o
+a - sbytec.o
+rm -f sbytec.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 sbytes.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a sbytes.o
+a - sbytes.o
+rm -f sbytes.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 sbytesc.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a sbytesc.o
+a - sbytesc.o
+rm -f sbytesc.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 skgb.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a skgb.o
+a - skgb.o
+rm -f skgb.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ai00.f
+w3ai00.f(1): (col. 18) remark: w3ai00_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ai00.o
+a - w3ai00.o
+rm -f w3ai00.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ai01.f
+w3ai01.f(1): (col. 18) remark: w3ai01_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ai01.o
+a - w3ai01.o
+rm -f w3ai01.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ai08.f
+w3ai08.f(1): (col. 18) remark: w3ai08_ has been targeted for automatic cpu dispatch
+w3ai08.f(1577): (col. 18) remark: ai084_ has been targeted for automatic cpu dispatch
+w3ai08.f(2352): (col. 18) remark: ai085a_ has been targeted for automatic cpu dispatch
+w3ai08.f(2052): (col. 18) remark: ai085_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ai08.o
+a - w3ai08.o
+rm -f w3ai08.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ai15.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ai15.o
+a - w3ai15.o
+rm -f w3ai15.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ai18.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ai18.o
+a - w3ai18.o
+rm -f w3ai18.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ai19.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ai19.o
+a - w3ai19.o
+rm -f w3ai19.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ai24.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ai24.o
+a - w3ai24.o
+rm -f w3ai24.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ai38.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ai38.o
+a - w3ai38.o
+rm -f w3ai38.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ai39.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ai39.o
+a - w3ai39.o
+rm -f w3ai39.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3aq15.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3aq15.o
+a - w3aq15.o
+rm -f w3aq15.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3as00.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3as00.o
+a - w3as00.o
+rm -f w3as00.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3difdat.f
+w3difdat.f(2): (col. 18) remark: w3difdat_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3difdat.o
+a - w3difdat.o
+rm -f w3difdat.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3doxdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3doxdat.o
+a - w3doxdat.o
+rm -f w3doxdat.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi01.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi01.o
+a - w3fi01.o
+rm -f w3fi01.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi04.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi04.o
+a - w3fi04.o
+rm -f w3fi04.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi58.f
+w3fi58.f(1): (col. 18) remark: w3fi58_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi58.o
+a - w3fi58.o
+rm -f w3fi58.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi59.f
+w3fi59.f(1): (col. 18) remark: w3fi59_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi59.o
+a - w3fi59.o
+rm -f w3fi59.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi62.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi62.o
+a - w3fi62.o
+rm -f w3fi62.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi63.f
+w3fi63.f(1258): (col. 18) remark: fi633_ has been targeted for automatic cpu dispatch
+w3fi63.f(2837): (col. 18) remark: fi634x_ has been targeted for automatic cpu dispatch
+w3fi63.f(2873): (col. 18) remark: fi635_ has been targeted for automatic cpu dispatch
+w3fi63.f(3474): (col. 18) remark: fi636_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi63.o
+a - w3fi63.o
+rm -f w3fi63.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi64.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi64.o
+a - w3fi64.o
+rm -f w3fi64.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi68.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi68.o
+a - w3fi68.o
+rm -f w3fi68.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi69.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi69.o
+a - w3fi69.o
+rm -f w3fi69.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi71.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi71.o
+a - w3fi71.o
+rm -f w3fi71.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi72.f
+w3fi72.f(1): (col. 18) remark: w3fi72_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi72.o
+a - w3fi72.o
+rm -f w3fi72.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi73.f
+w3fi73.f(1): (col. 18) remark: w3fi73_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi73.o
+a - w3fi73.o
+rm -f w3fi73.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi74.f
+w3fi74.f(1): (col. 18) remark: w3fi74_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi74.o
+a - w3fi74.o
+rm -f w3fi74.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi75.f
+w3fi75.f(1): (col. 18) remark: w3fi75_ has been targeted for automatic cpu dispatch
+w3fi75.f(508): (col. 18) remark: fi7501_ has been targeted for automatic cpu dispatch
+w3fi75.f(889): (col. 18) remark: fi7503_ has been targeted for automatic cpu dispatch
+w3fi75.f(1255): (col. 18) remark: fi7513_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi75.o
+a - w3fi75.o
+rm -f w3fi75.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi76.f
+w3fi76.f(1): (col. 18) remark: w3fi76_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi76.o
+a - w3fi76.o
+rm -f w3fi76.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi82.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi82.o
+a - w3fi82.o
+rm -f w3fi82.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi83.f
+w3fi83.f(1): (col. 18) remark: w3fi83_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi83.o
+a - w3fi83.o
+rm -f w3fi83.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi88.f
+w3fi88.f(1419): (col. 18) remark: fi8803_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi88.o
+a - w3fi88.o
+rm -f w3fi88.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fi92.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fi92.o
+a - w3fi92.o
+rm -f w3fi92.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fp11.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fp11.o
+a - w3fp11.o
+rm -f w3fp11.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fp12.f
+w3fp12.f(1): (col. 18) remark: w3fp12_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fp12.o
+a - w3fp12.o
+rm -f w3fp12.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fp13.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fp13.o
+a - w3fp13.o
+rm -f w3fp13.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fs13.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fs13.o
+a - w3fs13.o
+rm -f w3fs13.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fs15.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fs15.o
+a - w3fs15.o
+rm -f w3fs15.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fs21.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fs21.o
+a - w3fs21.o
+rm -f w3fs21.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3fs26.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3fs26.o
+a - w3fs26.o
+rm -f w3fs26.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ft32.f
+w3ft32.f(1): (col. 18) remark: w3ft32_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ft32.o
+a - w3ft32.o
+rm -f w3ft32.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3kind.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3kind.o
+a - w3kind.o
+rm -f w3kind.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3locdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3locdat.o
+a - w3locdat.o
+rm -f w3locdat.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3movdat.f
+w3movdat.f(2): (col. 18) remark: w3movdat_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3movdat.o
+a - w3movdat.o
+rm -f w3movdat.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3nogds.f
+w3nogds.f(1): (col. 18) remark: w3nogds_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3nogds.o
+a - w3nogds.o
+rm -f w3nogds.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3pradat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3pradat.o
+a - w3pradat.o
+rm -f w3pradat.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3reddat.f
+w3reddat.f(1): (col. 18) remark: w3reddat_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3reddat.o
+a - w3reddat.o
+rm -f w3reddat.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3tagb.f
+w3tagb.f(1): (col. 19) remark: w3tagb_ has been targeted for automatic cpu dispatch
+w3tagb.f(103): (col. 16) remark: w3tage_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3tagb.o
+a - w3tagb.o
+rm -f w3tagb.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3trnarg.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3trnarg.o
+a - w3trnarg.o
+rm -f w3trnarg.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3unpk77.f
+w3unpk77.f(1607): (col. 18) remark: unpk7706_ has been targeted for automatic cpu dispatch
+w3unpk77.f(1988): (col. 18) remark: unpk7708_ has been targeted for automatic cpu dispatch
+w3unpk77.f(987): (col. 18) remark: unpk7703_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3unpk77.o
+a - w3unpk77.o
+rm -f w3unpk77.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3utcdat.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3utcdat.o
+a - w3utcdat.o
+rm -f w3utcdat.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3valdat.f
+w3valdat.f(2): (col. 24) remark: w3valdat_ has been targeted for automatic cpu dispatch
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3valdat.o
+a - w3valdat.o
+rm -f w3valdat.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 w3ymdh4.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a w3ymdh4.o
+a - w3ymdh4.o
+rm -f w3ymdh4.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 xmovex.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a xmovex.o
+a - xmovex.o
+rm -f xmovex.o
+ftn -c  -O3 -axCore-AVX2 -g -r8 xstore.f
+ar -ruv   /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a xstore.o
+a - xstore.o
+rm -f xstore.o
+cc -c  -O3 -axCore-AVX2 -g -DLINUX mova2i.c
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a mova2i.o
+a - mova2i.o
+rm -f mova2i.o
+cc -c  -O3 -axCore-AVX2 -g -DLINUX summary.c
+summary.c(205): (col. 1) remark: elapse has been targeted for automatic cpu dispatch
+summary.c(273): (col. 1) remark: start_timer has been targeted for automatic cpu dispatch
+summary.c(288): (col. 1) remark: end_timer has been targeted for automatic cpu dispatch
+summary.c(307): (col. 1) remark: resource has been targeted for automatic cpu dispatch
+summary.c(395): (col. 1) remark: print_timing has been targeted for automatic cpu dispatch
+summary.c(455): (col. 1) remark: summary_ has been targeted for automatic cpu dispatch
+summary.c(481): (col. 1) remark: start_ has been targeted for automatic cpu dispatch
+ar -ruv    /gpfs/hps/nco/ops/nwtest/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_d.a summary.o
+a - summary.o
+rm -f summary.o

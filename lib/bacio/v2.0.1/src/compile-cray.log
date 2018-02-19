@@ -1,0 +1,57 @@
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.7
+  2) eswrap/1.1.0-1.020200.1231.0
+  3) switch/1.0-1.0502.57058.1.58.ari
+  4) craype-network-aries
+  5) ncep/1.0
+  6) xt-lsfhpc/9.1.3
+  7) craype/2.3.0
+  8) craype-haswell
+  9) bacio-cray-haswell/2.0.1
+ 10) cce/8.3.10
+ 11) cray-libsci/13.0.3
+ 12) udreg/2.3.2-1.0502.9889.2.20.ari
+ 13) ugni/6.0-1.0502.10245.9.9.ari
+ 14) pmi/5.0.6-1.0000.10439.140.2.ari
+ 15) dmapp/7.0.1-1.0502.10246.8.47.ari
+ 16) gni-headers/4.0-1.0502.10317.9.2.ari
+ 17) xpmem/0.1-2.0502.57015.1.15.ari
+ 18) dvs/2.5_0.9.0-1.0502.1958.2.55.ari
+ 19) alps/5.2.3-2.0502.9295.14.14.ari
+ 20) rca/1.0.0-2.0502.57212.2.56.ari
+ 21) atp/1.8.1
+ 22) PrgEnv-cray/5.2.56
+cc -c  -O2 -DUNDERSCORE -DLINUX bacio.c
+ar -rv   /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_4.a bacio.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_4.a
+a - bacio.o
+ftn -c  -O2 baciof.f
+ar -rv   /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_4.a baciof.o 
+a - baciof.o
+ftn -c  -O2 bafrio.f
+ar -rv   /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_4.a bafrio.o 
+a - bafrio.o
+cc -c  -O2 -DUNDERSCORE -DLINUX byteswap.c
+ar -rv   /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_4.a byteswap.o
+a - byteswap.o
+ftn -c  -O2 chk_endianc.f
+ar -rv   /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_4.a chk_endianc.o
+a - chk_endianc.o
+rm -f baciof.o bafrio.o bacio.o *.mod byteswap.o chk_endianc.o
+cc -c  -O2 -DUNDERSCORE -DLINUX bacio.c
+ar -rv   /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_8.a bacio.o
+ar: creating /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_8.a
+a - bacio.o
+ftn -c  -O2 -s real64 -s integer64 baciof.f
+ar -rv   /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_8.a baciof.o 
+a - baciof.o
+ftn -c  -O2 -s real64 -s integer64 bafrio.f
+ar -rv   /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_8.a bafrio.o 
+a - bafrio.o
+cc -c  -O2 -DUNDERSCORE -DLINUX byteswap.c
+ar -rv   /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_8.a byteswap.o
+a - byteswap.o
+ftn -c  -O2 -s real64 -s integer64 chk_endianc.f
+ar -rv   /gpfs/hps/nco/ops/nwtest/lib/bacio/v2.0.1/cray/libbacio_v2.0.1_8.a chk_endianc.o
+a - chk_endianc.o
+rm -f baciof.o bafrio.o bacio.o *.mod byteswap.o chk_endianc.o
