@@ -9,8 +9,12 @@ SPECIES EKDMOS
     echo "Welcome, this is Singularity container for Intel"
 
 %environments
-    DISPLAY=:0.0 \
+    DISPLAY=:0.0
     export DISPLAY
+    PATH=/usr/local/bin:${PATH}
+    export PATH
+    LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
+    export LD_LIBRARY_PATH
 
 %post
     echo "Hello from inside the container"
