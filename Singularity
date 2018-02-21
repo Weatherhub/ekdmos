@@ -14,4 +14,20 @@ SPECIES EKDMOS
 
 %post
     echo "Hello from inside the container"
-    echo "Install additional software here"
+    source /opt/intel/bin/compilervars.sh intel64
+    yum update
+    curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.rpm.sh | bash
+    yum -y install wget tar git-lfs
+    cd /usr/local/src
+    wget --no-check-certificate https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.0.tar.gz
+    tar xf openmpi-2.1.0.tar.gz
+    rm -f openmpi-2.1.0.tar.gz
+    cd openmpi-2.1.0
+    export FC=ifort
+    export CC=icc
+    export CXX=icpc
+    opal_check_cma_happy=0 ./configure --enable-mpi-cxx
+    make -j2 all && make install
+    cd /usr/local/src
+    rm -rf openmpi-2.1.0
+
