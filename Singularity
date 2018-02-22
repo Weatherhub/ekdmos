@@ -13,7 +13,7 @@ SPECIES EKDMOS
     export DISPLAY
     PATH=/usr/local/bin:${PATH}
     export PATH
-    LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
+    LD_LIBRARY_PATH=/opt/intel/composer_xe_2013.2.146/compiler/lib/intel64:/usr/local/lib:${LD_LIBRARY_PATH}
     export LD_LIBRARY_PATH
 
 %post
@@ -34,4 +34,5 @@ SPECIES EKDMOS
     make -j2 all && make install
     cd /usr/local/src
     rm -rf openmpi-2.1.0
+    source /opt/intel/bin/compilervars.sh intel64
 
