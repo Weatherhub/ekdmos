@@ -1,0 +1,122 @@
+      SUBROUTINE WXVCAT(PTHRESH_HR,IER_PTHRESH_HR)
+C
+C        FEBRUARY  2010   HUNTEMANN   MDL   MOS-2000
+C        MARCH     2013   HUNTEMANN   MDL   UPDATED DOCUMENTATION,
+C                                           ADDED IMPLICIT NONE
+C
+C        PURPOSE
+C           SUBROUTINE WXVCAT VERIFIES THAT USER-DEFINED
+C           PRECIPITATION THRESHOLDS IN VECTOR PTHRESH_HR ARE MONOTONICALLY
+C           INCREASING AND WITHIN THE RANGE 0 TO 1.0, INCLUSIVE.
+C
+C        DATA SET USE
+C           NONE
+C
+C        VARIABLES
+C          PTHRESH_HR = REAL VECTOR OF LENGTH (4) CONTAINING THE POP06 THRES-
+C                       HOLDS, EXPRESSED IN PERCENT, OF THE FOUR PERMITTED
+C                       CATEGORICAL PROBABILITY FORECASTS (INPUT).  ELEMENTS
+C                       WITHIN PTHRESH_HR MUST BE BETWEEN 0 AND 1.0, 
+C                       INCLUSIVE, AND BE MONOTONICALLY INCREASING.
+C
+C      IER_PTHRESH_HR = INTEGER ERROR FLAG (OUTPUT).  IFTHE ELEMENTS IN INPUT
+C                       VECTOR PTHRESH_HR ARE OUTSIDE THE RANGE 0 TO 1.0,
+C                       INCLUSIVE, OR IFTHE ORDER OF PTHRESH_HR IS NOT MONOTONICALLY
+C                       INCREASING, IER_PTHRESH_HR, NOMINALLY 0, IS SET TO 1, AND
+C                       DEFAULT THRESHOLDS ARE USED INSTEAD.
+C
+C             DTHRESH = REAL VECTOR OF LENGTH (4) CONTAINING THE DEFAULT POP06
+C                       THRESHOLDS FOR CATEGORICAL PRECIPITATION FORECASTS
+C                       SHOULD IER_PTHRESH_HR BE 1 (INTERNAL).  THE DEFAULT VALUES
+C                       ARE:
+C
+C                       POP THRESHOLD                    CATEGORY
+C                       -------------           --------------------------
+C                            15%                       SLIGHT CHANCE
+C                            25%                          CHANCE
+C                            55%                          LIKELY
+C                            75%                         DEFINITE
+C
+C                WARN = BOOLEAN VARIABLE USED FOR DETERMINATION OF IER_PTHRESH_HR
+C                       (INTERNAL).
+C
+C        NONSYSTEM ROUTINES CALLED 
+C           NONE
+C
+C**********************************************************************
+C
+      IMPLICIT NONE
+C
+C        DECLARE THRESHOLD VECTORS PTHRESH_HR AND DTHRESH:
+C
+      REAL    PTHRESH_HR(4),DTHRESH(4)
+C
+C        DECLARE BOOLEAN VARIABLE WARN:
+C
+      LOGICAL WARN
+C
+C        POPULATE THE DTHRESH VECTOR:
+C
+C**D  DATA DTHRESH / 0.15, 0.25, 0.55, 0.75 /
+      DATA DTHRESH / 15, 25, 55, 75 /
+C
+C        FINISH DECLARATIONS:
+C
+      INTEGER IER_PTHRESH_HR,I
+C
+C**********************************************************************
+C
+C        SUBROUTINE WXVCAT BEGINS HERE.
+C
+C***D WRITE(KFILDO,100)(ID(J),J=1,4)
+ 100  FORMAT(' *********** IN WXVCAT *************'/' ',4I10)
+C
+C        FIRST, INITIALIZE BOOLEAN WARN TO FALSE AND IER_PTHRESH_HR TO 0:
+C
+      WARN = .FALSE.
+      IER_PTHRESH_HR = 0
+C
+C        TEST TO SEE WHETHER THE ELEMENTS IN PTHRESH_HR ARE MONOTONICALLY
+C        INCREASING:
+C
+      DO I = 2,4
+         IF(PTHRESH_HR(I) .LT. PTHRESH_HR(I-1)) THEN
+            WARN = .TRUE.
+         ENDIF
+      ENDDO
+C
+C        NOW TEST TO SEE WHETHER THE ELEMENTS IN PTHRESH_HR ARE WITHIN THE
+C        RANGE 0 TO 100.0, INCLUSIVE:
+C
+      IF(.NOT. WARN) THEN
+         DO I = 1,4
+            IF((PTHRESH_HR(I).LT.0.).OR.(PTHRESH_HR(I).GT.100.0)) THEN
+               WARN = .TRUE.
+            ENDIF
+         ENDDO
+      ENDIF
+C
+C        TEST IF ALL THRESHOLDS ARE EQUAL.
+C
+         IF(PTHRESH_HR(1).EQ.PTHRESH_HR(2).AND.
+     1      PTHRESH_HR(1).EQ.PTHRESH_HR(3).AND.
+     2      PTHRESH_HR(1).EQ.PTHRESH_HR(4))THEN
+               WARN = .TRUE.
+         ENDIF
+C
+C        FINALLY, IF WARN IS TRUE, THEN MAP THE DEFAULT THRESHOLDS INTO
+C        THE PTHRESH_HR ARRAY AND SET IER_PTHRESH_HR TO 1:
+C
+      IF(WARN) THEN
+         DO I = 1,4
+            PTHRESH_HR(I) = DTHRESH(I)
+         ENDDO
+C
+         IER_PTHRESH_HR = 1
+C
+      ENDIF
+C
+C        ALL DONE!  RETURN TO CALLING ROUTINE:
+C
+      RETURN
+      END      

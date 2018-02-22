@@ -1,0 +1,123 @@
+      SUBROUTINE DISCIG(KFILDO,XDATA,NVAL,TLO,SETLO,THI,SETHI,
+     1                  CONST,NSCAL,EX1,EX2,IER)
+C
+C        MARCH     2008   GLAHN   TDL   MOS-2000
+C
+C        PURPOSE
+C            TO POSTPROCESS A CEILING HEIGHT CATEGORY.  THE VARIABLE
+C            IN XDATA( ) IS SET TO XDATA( )*CONST*10**NSCAL AFTER
+C            SETTING ALL VALUES LT TLO TO SETLO AND ALL VALUES GT THI
+C            TO SETHI.  EX1 AND EX2 ARE FOR POSSIBLE FUTURE USE.
+C
+C            THIS ROUTINE IS DEISIGNED TO CHANGE RANGE OF CEILING
+C            HEIGHT CATEGORIES Y = 90 - Y FOR PLOTTING.
+C
+C            ADAPTED FROM SUBROUTINE POST.
+C   
+C        DATA SET USE
+C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C            XDATA(K) = THE DATA TO SCALE (K=1,NVAL).  (INPUT-OUTPUT)
+C                NVAL = THE NUMBER OF VALUES IN XDATA( ) BEING DEALT
+C                       WITH.  (INPUT)
+C                 TLO = LOW THRESHOLD.  WHEN A LAST PASS GRIDPOINT IS
+C                       LT TLOD, IT IS SET TO SETLOD, THEN CONST
+C                       AND NSCAL APPLIED.  (INPUT)
+C               SETLO = SEE TLOD.  (INPUT)
+C                 THI = HIGH THRESHOLD.  WHEN A LAST PASS  GRIDPOINT IS
+C                       GT THID, IT IS SET TO SETHID, THEN CONST
+C                       AND NSCAL APPLIED.  (INPUT)
+C               SETHI = SEE THID.  (INPUT)
+C               CONST = ADDITIVE CONSTANT TO FURNISH TO THRESHOLDING
+C                       AND SCALING SUBROUTINE.  (INPUT)
+C               NSCAL = SCALING CONSTANT TO FURNISH TO THRESHOLDING
+C                       AND SCALING SUBROUTINE.  (INPUT)
+C                 EX1 = EXTRA PARAMETER NOT YET USED FOR THRESHOLDING.
+C                       (INPUT)
+C                 EX2 = EXTRA PARAMETER NOT YET USED FOR THRESHOLDING.
+C                       (INPUT)
+C                 IER = ERROR RETURN.
+C                       0 = GOOD RETURN.
+C                       (OUTPUT)
+C        1         2         3         4         5         6         7 X
+C 
+C        NONSYSTEM SUBROUTINES USED 
+C            NONE
+C
+      DIMENSION XDATA(NVAL)
+C
+CD     CALL TIMPR(KFILDO,KFILDO,'START DISCIG        ')
+      IER=0
+C
+      WRITE(KFILDO,102)TLO,SETLO,THI,SETHI,CONST,NSCAL,EX1,EX2
+ 102  FORMAT(/' AT 102 IN DISCIG--TLO,SETLO,THI,SETHI,CONST,NSCAL,',
+     1        'EX1,EX2',5F10.4,I4,2F10.4)
+C
+CD     WRITE(KFILDO,105)(XDATA(K),K=1,NVAL)
+CD105  FORMAT(/,' IN DISCIG AT 105--XDATA(K)',/,(15F8.2))
+C
+      FACTOR=CONST*10.**NSCAL
+      SETLOF=SETLO*FACTOR
+      SETHIF=SETHI*FACTOR
+C
+      IF(TLO.LE.-99999.5.AND.
+     1   THI.GE.+99998.5)THEN
+C
+         IF(CONST.EQ.1..AND.
+     1      NSCAL.EQ.0)THEN
+C              THERE IS NO CHANGE TO BE MADE TO XDATA( ).
+            GO TO 125
+C
+         ELSE
+C     
+C              ONLY SCALING IS NECESSARY.
+C 
+            DO 110 K=1,NVAL
+C
+            IF(NINT(XDATA(K)).NE.9999)THEN
+               XDATA(K)=XDATA(K)*FACTOR
+            ENDIF
+C
+ 110        CONTINUE
+C
+         ENDIF
+C
+      ELSE
+C
+C           FULL TREATMENT NECESSARY.
+C
+         DO 120 K=1,NVAL
+C
+         IF(NINT(XDATA(K)).NE.9999)THEN
+C
+            IF(XDATA(K).LT.TLO)THEN
+               XDATA(K)=SETLOF
+            ELSEIF(XDATA(K).GT.THI)THEN
+               XDATA(K)=SETHIF
+            ELSE
+               XDATA(K)=XDATA(K)*FACTOR
+            ENDIF
+C
+         ENDIF
+C
+ 120     CONTINUE
+C
+      ENDIF
+C
+C        CHANGE SCALE.
+C
+ 125  DO 130 K=1,NVAL
+C
+         IF(NINT(XDATA(K)).NE.9999)THEN
+            XDATA(K)=EX1-XDATA(K)
+         ENDIF
+C
+ 130  CONTINUE
+C
+CD     WRITE(KFILDO,135)(XDATA(K),K=1,NVAL)
+CD135  FORMAT(/,' IN DISCIG AT 135--XDATA(K)',/,(15F8.2))
+C
+      RETURN
+      END

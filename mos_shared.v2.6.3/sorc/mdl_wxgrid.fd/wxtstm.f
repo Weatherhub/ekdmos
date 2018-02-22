@@ -1,0 +1,898 @@
+      SUBROUTINE WXTSTM(KFILDO,KFIL10,IP12,KFILRA,RACESS,
+     1                  NUMRA,ID,IDPARS,JD,NDATE,
+     2                  CCALL,NAME,STALAT,STALON,
+     3                  ISDATA,SDATA,DIR,ND1,NSTA,
+     4                  ND2X3,ICALLD,CCALLD,IPACK,IWORK,
+     5                  ND5,NGRIDC,NGRID,ND11,
+     6                  NSLAB,LSTORE,ND9,LITEMS,CORE,ND10,
+     7                  NBLOCK,NFETCH,LASTL,LASTD,NSTORE,
+     8                  IS0,IS1,IS2,IS4,ND7,
+     9                  L3264B,L3264W,ISTAV,
+     A                  THRTRW,NX,NY,JSTA,
+     B                  NPCAT,NXPCH,NXTSW,GPPI,GTPI,
+     C                  RRMIS,RRMIS2,MISSEL,IER)
+C
+C        APRIL     2011   HUNTEMANN   MDL   MOS-2000
+C        NOVEMBER  2012   HUNTEMANN   MDL   ADDED CHECKS ON GRID SPECS
+C                                           AFTER CALLING GTVEGR
+C        MARCH     2013   HUNTEMANN   MDL   UPDATED DOCUMENTATION,
+C                                           ADDED IMPLICIT NONE, 
+C                                           ADDED JSTA TO CALL AND
+C                                           REMOVED CALCULATION OF JSTA
+C                                           FROM THIS ROUTINE.
+C
+C        PURPOSE
+C           SUBROUTINE WXTSTM EVALUATES 3-, 6- AND 12-HR 
+C           THUNDERSTORM PROBABILITES TO DETERMINE THUNDER POTENTIAL
+C           INDEX (TPI), THEN COMPARES TPI AGAINST USER-DEFINED
+C           CATEGORICAL THRESHOLDS AND DETERMINES THUNDERSTORM 
+C           CATEGORIES. CONSISTENCY CHECKS ARE PERFORMED TO
+C           ENSURE THE TPI DOES NOT EXCEED ITS 12-HR THUNDERSTORM
+C           COUNTERPART NOR PRECIPITATION POTENTIAL INDEX (PPI).
+C    
+C           THE CATEGORICAL THUNDER AND SEVERE PROBABILITIES ARE
+C           THEN WRITTEN USING THE FOLLOWING CONVENTION:
+C    
+C              PT PS 0 0 0
+C    
+C           WHERE PT IS THE CATEGORICAL PROBABILITY OF THUNDERSTORMS 
+C           (ASSIGNED IN THIS ROUTINE), PS IS THE CATEGORICAL 
+C           PROBABILITY OF SEVERE (ASSIGNED IN SUBROUTINE WXTSVR), 
+C           AND THE LAST THREE DIGITS ARE NOT USED.
+C
+C           THIS ROUTINE IS FOR GRIDPOINT DATA.  GRIDPOINT DATA ARE 
+C           RETURNED IN GTPI( ) AND NXTSW( ). CALLED BY GENWX.
+C
+C        DATA SET USE
+C           KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C           KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                    (INPUT-OUTPUT) 
+C           IP12   - INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                    STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                    THE FILE WHOSE UNIT NUMBER IS IP12.  (OUTPUT)
+C         
+C        VARIABLES
+C           MOS2K SYSTEM VARIABLES
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) 
+C                       FILE. (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT-OUTPUT) 
+C                IP12 = INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                       STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                       THE FILE WHOSE UNIT NUMBER IS IP12.
+C           KFILRA(J) = THE UNIT NUMBERS FOR WHICH RANDOM ACCESS FILES
+C                       ARE AVAILABLE (J=1,NUMRA).  (INPUT)
+C           RACESS(J) = THE FILE NAMES ASSOCIATED WITH KFILRA(J)
+C                       (J=1,NUMRA).(CHARACTER*60)  (INPUT)
+C               NUMRA = THE NUMBER OF VALUES IN KFILRA( ) AND RACESS( ).
+C                       (INPUT)
+C               ID(J) = THE PREDICTOR ID (J=1,4).  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTORID CORRESPONDING TO ID( ) 
+C                       (J=1,15).  (INPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C             JD(J,N) = THE BASIC INTEGER VARIABLE ID (J=1,4) (N=1,NPRED).
+C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE PORTIONS
+C                       PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3, ),
+C                       T = IDPARS(8, ),
+C                       I = IDPARS(13, ),
+C                       S = IDPARS(14, ),
+C                       G = IDPARS(15, ), AND
+C                       THRESH( ).
+C                       JD( , ) IS USED TO FOR INPUT TO CONSTG, BECAUSE
+C                       INTERPOLATION INTO THE GRID MAY BE REQUIRED,
+C                       BUT IS NOT PART OF THE BASIC ID.  (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED.  (INPUT)
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+C                       DATA ARE KEYED TO THIS LIST, EXCEPT POSSIBLY 
+C                       CCALLD( ).  EQUIVALENCED TO ICALL( , , ). 
+C                       (CHARACTER*8)  (INPUT)
+C             NAME(K) = NAMES OF STATIONS (K=1,NSTA).  USED FOR PRINTOUT
+C                       ONLY.  (CHARACTER*20)  (INPUT)
+C           STALAT(K) = LATITUDE OF STATIONS (K=1,NSTA).  (INPUT/OUTPUT)
+C           STALON(K) = LONGITUDE OF STATIONS (K=1,NSTA).  (INPUT/OUTPUT)
+C           ISDATA(K) = WORK ARRAY (K=1,ND1).  (INTERNAL)
+C            SDATA(K) = DATA RETURNED WHEN DATA ARE VECTOR (K=1,NSTA).
+C                       (OUTPUT)
+C          DIR(K,J,M) = THE IX (J=1) AND JY (J=2) POSITIONS ON THE GRID
+C                       FOR THE COMBINATION OF GRID CHARACTERISTICS M
+C                       (M=1,NGRID) AND STATION K (K=1,NSTA) IN NGRIDC( ,M).
+C                       (INPUT/OUTPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+C                       DIMENSION OF SEVERAL VARIABLES.  (INPUT)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT WITH.
+C                       (INPUT)
+C               ND2X3 = DIMENSION OF GRIDDED VARIABLES. (INPUT)
+C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN INTEGER
+C                       VARIABLE (L=1,L3264W) (K=1,ND5).  THIS ARRAY IS USED 
+C                       TO READ THE STATION DIRECTORY FROM A MOS-2000
+C                       EXTERNAL FILE.  EQUIVALENCED TO CCALLD( ). 
+C                       (CHARACTER*8)  (INTERNAL)
+C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,ND5).  THIS ARRAY IS USED 
+C                       IN CONST TO READ THE STATION DIRECTORY.  EQUIVALENCED 
+C                       TO ICALLD( , ).  (CHARACTER*8)  (INTERNAL)
+C            IPACK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), DATA( ) AND
+C                       CCALLD( ); SECOND DIMENSION OF ICALLD( , ).
+C                       THESE ARE GENERAL PURPOSE ARRAYS, SOMETIMES USED
+C                       FOR GRIDS.  (INPUT)
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR EACH GRID
+C                       COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                            STEREOGRAPHIC). 
+C                       L=2--GRID LENGTH IN MILLIMETERS,
+C                       L=3--LATITUDE AT WHICH GRID LENGTH IS CORRECT *10000,
+C                       L=4--GRID ORIENTATION IN DEGREES *10000,
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *10000,
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES *10000.
+C                       (INPUT/OUTPUT)
+C               NGRID = THE NUMBER OF GRID COMBINATIONS IN DIR( , , ),
+C                       MAXIMUM OF ND11.  (INPUT/OUTPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH ON THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ) AND DIR( , , ).  (INPUT)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR( , , ) AND
+C                       IN GRIDC( , ) DEFINING THE CHARACTERISTICS
+C                       OF THIS GRID.  SEE LSTORE(10, ).  FOR THE
+C                       COMPUTATION ROUTINES RETURNING A GRID, THIS
+C                       VALUE MUST BE OUTPUT BY GFETCH.
+C                       NSLAB = 0 FOR VECTOR DATA (AND FOR NO DATA
+C                       RETURNED AND NWORDS = 0), AS STORED BY GSTORE;
+C                       OTHERWISE, GRIDDED DATA ARE INDICATED.  (OUTPUT) 
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT-OUTPUT)
+C                       L=1,4--THE 4 IDS FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE CHARACTERISTICS
+C                              OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE SORTED
+C                              LIST IN ID( ,N) (N=1,NPRED) FOR WHICH THIS
+C                              VARIABLE IS NEEDED, WHEN IT IS NEEDED ONLY
+C                              ONCE FROM LSTORE( , ).  WHEN IT IS NEEDED
+C                              MORE THAN ONCE, THE VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING MSTORE( , ).
+C                              LATER USED AS A WAY OF DETERMINING WHETHER
+C                              TO KEEP THIS VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , ) THAT 
+C                       HAVE BEEN USED IN THIS RUN.
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA IDENTIFIED IN
+C                       LSTORE( , ) (J=1,ND10).  WHEN CORE( ) IS FULL
+C                       DATA ARE STORED ON DISK.  (OUTPUT)
+C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE.  (INPUT)
+C              NFETCH = THE NUMBER OF TIMES GFETCH HAS BEEN ENTERED.  GFETCH
+C                       KEEPS TRACK OF THIS AND RETURNS THE VALUE.  (OUTPUT)
+C               LASTL = THE LAST LOCATION IN CORE( ) USED FOR MOS-2000 INTERNAL
+C                       STORAGE.  INITIALIZED TO 0 ON FIRST ENTRY TO GSTORE.
+C                       ALSO INITIALIZED IN U720 IN CASE GSTORE IS NOT ENTERED.
+C                       MUST BE CARRIED WHENEVER GSTORE IS TO BE CALLED.
+C                       (INPUT/OUTPUT)
+C               LASTD = TOTAL NUMBER OF PHYSICAL RECORDS ON DISK FOR MOS-2000
+C                       INTERNAL STORAGE.  MUST BE CARRIED WHENEVER GSTORE
+C                       IS TO BE CALLED.  (INPUT)
+C              NSTORE = THE NUMBER OF TIMES GSTORE HAS BEEN ENTERED.  GSTORE
+C                       KEEPS TRACK OF THIS AND RETURNS THE VALUE.  (OUTPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).  (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).  (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).  (INTERNAL)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).  (INTERNAL)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED.  (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C              L3264W = NUMBER OF WORDS IN 64 BITS, EITHER 1 OR 2.
+C                       (INPUT)
+C               ISTAV = 1 WHEN THE DATA RETURNED ARE VECTOR (STATION)
+C                         DATA.  
+C                       0 WHEN THE DATA RETURNED ARE GRID DATA.
+C                         THIS ESSENTIALLY TELLS U720 (PRED25/PRED26)
+C                         HOW TO TREAT THE DATA, EVEN IF MISSING (9999)
+C                        (OUTPUT)
+C
+C           WEATHER GRID INPUT/OUTPUT VARIABLES
+C           THRTRW(I) = THUNDER POTENTIAL THRESHOLDS, EXPRESSED 
+C                       IN PERCENT, OF THE CATEGORICAL THUNDERSTORM
+C                       PROBABILITY FORECASTS. ELEMENTS WITHIN THRTRW 
+C                       MUST BE BETWEEN 0 AND 100 PERCENT, INCLUSIVE, 
+C                       AND BE MONOTONICALLY INCREASING. 
+C                       (I=1,4) (INPUT)
+C                  NX = NUMBER OF GRIDPOINTS IN X DIRECTION. (INPUT)
+C                  NY = NUMBER OF GRIDPOINTS IN Y DIRECTION. (INPUT)
+C             JSTA(K) = ARRAY CONTAINING THE GRIDPOINT LOCATIONS OF
+C                       THE STATIONS IN THE STATION LIST. 
+C                       (K=1,NSTA) (INPUT)
+C          NPCAT(I,J) = PRECIPITATION CATEGORY GRIDPOINT FORECASTS FOR
+C                       EACH SUBKEY.  IF NPCAT IS NON-MISSING AND
+C                       NON-ZERO AT A GRIDPOINT, THEN THAT GRIDPOINT IS
+C                       "WET" AND CAN HAVE A THUNDERSTORM ASSIGNED TO
+C                       IT. NOTE: THIS DEVELOPMENT DOES NOT PERMIT "DRY"
+C                       THUNDERSTORMS. (I=3) (J=1,ND2X3) (INPUT)
+C            NXPCH(J) = PRECIPITATION CHARACTER CATEGORY GRIDPOINT
+C                       FORECASTS. BECAUSE NO GRIDDED MOS PRECIPITATION
+C                       CHARACTER GUIDANCE IS AVAILABLE, THUNDERSTORMS
+C                       ARE USED AS A PROXY. IF THUNDER IS TRIGGERED A
+C                       GRIDPOINT, NXPCH(J) IS SET TO 2 (CONVECTIVE).
+C                       (J=1,ND2X3) (INPUT)
+C            NXTSW(J) = EXPLICIT THUNDER CODE REPRESENTATION
+C                       AT GRIDPOINTS FOR THUNDERSTORMS AND SEVERE
+C                       THUNDERSTORMS. THE FIRST DIGIT HAS THE FOLLWING
+C                       VALUES FOR THUNDERSTORMS:
+C                       MISSEL - MISSING
+C                            5 - DEFINITE
+C                            3 - NUMEROUS
+C                            2 - SCATTERED
+C                            1 - ISOLATED
+C                            0 - NO THUNDER
+C                       (J=1,ND2X3) (INPUT/OUTPUT)
+C             GPPI(J) = PRECIPITATION POTENTIAL INDEX GRIDPOINT 
+C                       FORECASTS. (J=1,ND2X3) (INPUT)
+C             GTPI(J) = THUNDER POTENTIAL INDEX GRIDPOINT FORECASTS.
+C                       (J=1,ND2X3) (OUTPUT)
+C               RRMIS = MISSING DATA FLAG. (INPUT)
+C              RRMIS2 = MISSING DATA FLAG. (INPUT)
+C              MISSEL = INTEGER VALUE DENOTING AN ELEMENT NOT FETCHED.
+C                       (INPUT)
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                        47 = DATA NOT RETURNED FROM GTVEGR.
+C                       103 = IDPARS(1) AND IDPARS(2) NOT ACCOMMODATED IN
+C                             THIS ROUTINE.
+C                       187 = PROJECTION NOT ACCOMMODATED IN THIS ROUTINE.
+C                       SEE CALLED ROUTINES FOR OTHER VALUES.
+C                       (INTERNAL-OUTPUT)
+C
+C           INTERNAL VARIABLES
+C           ITABLE(I) = CCCFFF OF WEATHER (I=1) AND THE 3-H TSTM (I=2),
+C                       6-H SHORT RANGE TSTM (I=3), 6-H LONG RANGE 
+C                       TSTM (I=4), 12-H TSTM (I=5), AND 
+C                       TEMPERATURE (I=6) FORECASTS. (INTERNAL)
+C            IDO(K,M) = 4-WORD MOS ID USED TO OBTAIN GTSTM3. 
+C                       (K=1,4) (M=1,4) (INTERNAL)
+C            IDP(K,M) = 4-WORD MOS ID USED TO OBTAIN GTSTM6. 
+C                       (K=1,2) (M=1,4) (INTERNAL)
+C               LD(M) = 4-WORD MOS ID USED TO OBTAIN GTSTM12. 
+C                       (M=1,4)(INTERNAL)
+C           IER_WORD3 = ERROR FLAG.  IF TAU IS NOT
+C                       DIVISIBLE BY 3, WORD 3 OF THE ID CANNOT
+C                       BE DETERMINED AND IER_WORD3 IS SET TO 1.
+C                       RETURNED FROM WXWRD3. (INTERNAL)
+C             ITSTM12 = 1 SIGNIFIES GTSTM12 DATA ARE CORRECT.  
+C                       IF NOT, IT WILL BE SET TO MISSEL. (INTERNAL)
+C           ITSTM6(K) = 1 SIGNIFIES GTSTM6 DATA ARE CORRECT.  
+C                       IF NOT, IT WILL BE SET TO MISSEL. 
+C                       (K=1,2) (INTERNAL)
+C           ITSTM3(K) = 1 SIGNIFIES GTSTM3 DATA ARE CORRECT.  
+C                       IF NOT, IT WILL BE SET TO MISSEL. 
+C                       (K=1,4) (INTERNAL)
+C         GTSTM3(K,J) = GRIDDED MOS TSTM3 GRIDPOINT FORECASTS. 
+C                       (K=1,4) (J=1,ND2X3) (INTERNAL)
+C         GTSTM6(K,J) = GRIDDED MOS TSTM6 GRIDPOINT FORECASTS. 
+C                       (K=1,2) (J=1,ND2X3) (INTERNAL)
+C          GTSTM12(J) = GRIDDED MOS TSTM12 GRIDPOINT FORECASTS. 
+C                       (J=1,ND2X3) (INTERNAL)
+C              FACTOR = FACTOR USED TO INFLATE TSTM3 FORECASTS TO 
+C                       APPROPRIATE SCALE FOR TPI. (INTERNAL)
+C               FD(K) = WORK VARIABLE CONTAINING EITHER TSTM3, TSTM6,
+C                       OR TSTM12 FORECASTS.  (K=1,4) (INTERNAL)
+C              TSTM12 = WORK VARIABLE. (INTERNAL)
+C             FCSTMAX = MAXIMUM FORECAST IN THIS FORECAST PERIOD. 
+C                       (INTERNAL)
+C              TPI(J) = WORK VARIABLE CONTAINING THE FOUR TPI FORECASTS
+C                       FOR THIS 12-HOUR PERIOD. (J=1,4) (INTERNAL)
+C             IER_TRW = INTEGER ERROR FLAG.  IF THE ELEMENTS IN 
+C                       INPUT VECTOR THRTRW ARE OUTSIDE THE RANGE 
+C                       0 TO 100 PERCENT, INCLUSIVE, OR IF THE ORDER OF 
+C                       THRTRW IS NOT MONOTONICALLY INCREASING, 
+C                       IER_TRW, NOMINALLY 0, IS SET TO 1, AND 
+C                       DEFAULT THRESHOLDS ARE USED INSTEAD. (OUTPUT)
+C                ITPI = FLAG FOR METHOD TO DETERMINE TPI. 
+C                       1 - USE ONLY TSTM3
+C                       2 - USE TSTM3 AND TSTM12
+C                       3 - USE TSTM6 AND TSTM12
+C                       (INTERNAL)
+C
+C        NONSYSTEM SUBROUTINES USED
+C           WXWRD3, PRSID1, GTVEGR, WXVCAT, SCALX, HSMTH
+C
+C***********************************************************************
+C
+      IMPLICIT NONE
+C
+C        DECLARE MOS2K SYSTEM VARIABLES:
+C
+      CHARACTER*8 CCALL(ND1,6)
+      CHARACTER*8 CCALLD(ND5)
+      CHARACTER*20 NAME(ND1)
+      CHARACTER*60 RACESS(5)
+C
+      INTEGER KFILDO,KFIL10,IP12,KFILRA(5),
+     1        NUMRA,ID(4),IDPARS(15),JD(4),NDATE,
+     2        ISDATA(ND1),ND1,NSTA,
+     3        ND2X3,ICALLD(L3264W,ND5),IPACK(ND5),IWORK(ND5),
+     4        ND5,NGRIDC(6,ND11),NGRID,ND11,
+     5        NSLAB,LSTORE(12,ND9),ND9,LITEMS,ND10,
+     6        NBLOCK,NFETCH,LASTL,LASTD,NSTORE,
+     7        IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7),ND7,
+     8        L3264B,L3264W,ISTAV,IER
+C
+      REAL    STALAT(ND1),STALON(ND1),SDATA(ND1),CORE(ND10),
+     1        DIR(ND1,2,ND11)
+C
+C        DECLARE WEATHER GRID VARIABLES (INPUT/OUTPUT):
+C
+      INTEGER NX,NY,NPCAT(3,ND2X3),NXPCH(ND2X3),NXTSW(ND2X3),
+     1        JSTA(NSTA),MISSEL
+C
+      REAL    GPPI(ND2X3),GTPI(ND2X3),THRTRW(4),RRMIS,RRMIS2
+C
+C        DECLARE WEATHER GRID VARIABLES (INTERNAL):
+C
+      INTEGER LDPARS(15),IDO(4,4),IDP(2,4),LD(4),
+     1        ITPI,ITSTM3(4),ITSTM6(2),ITSTM12,
+     2        IER_WORD3,IER_TRW,I,J,K,L,M,
+     3        NSIZE,ISTOP
+C
+      REAL    GTSTM12(ND2X3),GTSTM6(2,ND2X3),
+     1        GTSTM3(4,ND2X3),FD(4),TPI(4),
+     2        TSTM12,FACTOR,FCSTMAX
+C
+      INTEGER ITABLE(6) / 228500,227120,227230,227220,227330,222030/
+C                         WX     3H     6H     6H     12H    TEMP
+C
+C        INITIALIZE VARIABLES.
+C
+      IER=0
+      ITPI=0
+C
+C***********************************************************************
+C
+C***D WRITE(KFILDO,100)(ID(J),J=1,4)
+ 100  FORMAT(' *********** IN WXTSTM *************'/' ',4I10)
+C
+C        VERIFY THE PROCESSING INDICATOR, IDPARS(1) AND IDPARS(2).
+C
+      IF(ITABLE(1).EQ.IDPARS(1)*1000+IDPARS(2).AND.
+     1               (IDPARS(7).EQ.0.OR.
+     2                IDPARS(7).EQ.5.OR.
+     3                IDPARS(7).EQ.6))GO TO 108
+C
+      WRITE(KFILDO,102)(ID(L),L=1,4)
+  102 FORMAT(/,' ****WXTSTM ENTERED FOR VARIABLE',
+     1        2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+     2        ' NOT ACCOMMODATED.')
+      IER=103
+      GO TO 340
+C  
+C        THE THUNDER POTENTIAL INDEX ALGORITHM IS DESIGNED TO 
+C        CALCULATE TPI WITHIN A FORECAST PERIOD.  A FORECAST PERIOD IS 
+C        DEFINED AS THE 12-HOUR PERIOD ENDING 00Z OR 12Z.  THUNDER 
+C        POTENTIAL INDEX (TPI) USES THE TSTM12 FORECAST THAT SPANS THE  
+C        FORECAST PERIOD, THE TWO TSTM6 FORECASTS THAT SPAN THE FORECAST 
+C        PERIOD, AND THE FOUR TSTM3 FORECASTS MADE FOR PROJECTIONS  
+C        WITHIN THAT FORECAST PERIOD.
+C
+  108 CONTINUE
+C
+C        SET UP THE FIRST WORD OF THE IDS TO BE FETCHED.
+      IDO(1:4,1)=ITABLE(2)*1000+100+IDPARS(3)*100+IDPARS(4)
+      IF(IDPARS(12).LE.84)THEN
+         IDP(1:2,1)=ITABLE(3)*1000+100+IDPARS(3)*100+IDPARS(4)
+      ELSE
+         IDP(1:2,1)=ITABLE(4)*1000+100+IDPARS(3)*100+IDPARS(4)
+      ENDIF
+      LD(1)=ITABLE(5)*1000+100+IDPARS(3)*100+IDPARS(4)
+C
+C        SET UP THE SECOND WORD OF THE IDS TO BE FETCHED.
+      IDO(1:4,2)=0
+      IDP(1:2,2)=0
+      LD(2)=0
+C
+C        SET UP THE THIRD WORD OF THE IDS TO BE FETCHED.
+      CALL WXWRD3(IDPARS(12),IDO(1:4,3),IDP(1:2,3),LD(3),IER_WORD3)
+C
+C        IF TAU IS THE 6-HOUR PROJECTION, WE HAVE NO THUNDERSTORM
+C        GUIDANCE.  WE WILL USE THE THUNDERSTORM FORECASTS VALID AT THE
+C        9-H PROJECTION TO FILL THE TSTM3 ID FOR THE 6-HOUR PROJECTION.
+C        THE FOLLOWING LINES CHANGE WHAT WAS RETURNED FROM WXWRD3 ONLY
+C        FOR THE 6-H PROJECTION.
+C
+      IF(IDPARS(12).EQ.6)THEN
+         IDO(1,3)=IDPARS(12)-3  ! 3 IS MISSING
+         IDO(2,3)=IDPARS(12)+3  ! 6 IS MISSING, BUT USE 9
+         IDO(3,3)=IDPARS(12)+3  ! 9 IS 9
+         IDO(4,3)=IDPARS(12)+6  ! 12 IS 12
+C
+C        THERE ARE NO TSTM6 TO USE, BUT IT WOULD BE USED IF IT EXISTED.
+         IDP(1,3)=IDPARS(12)    
+         IDP(2,3)=IDPARS(12)+6  
+C
+C        THERE IS NO TSTM12 TO USE, BUT IT WOULD BE USED IF IT EXISTED.
+         LD(3)=IDPARS(12)+6  
+      ENDIF
+C
+C        IF TAU IS NOT 3-HOURLY...
+      IF(IER_WORD3.NE.0)THEN
+         WRITE(KFILDO,105)IDPARS(12)
+  105    FORMAT(/,' ****BAD PROJECTION IN IDPARS(12) =',I5,
+     1            '.  PROJECTION MUST BE A MULTIPLE OF 3 ',
+     2            'IN WXTSTM.')
+         IER=187
+         GO TO 340
+      ENDIF
+C
+C        SET UP THE FINAL WORD OF THE IDS TO BE FETCHED.
+      IDO(1:4,4)=950000000
+      IDP(1:2,4)=950000000
+      LD(4)=950000000
+C
+C***********************************************************************
+C
+C        NOW THAT THE IDS ARE SET UP FOR TSTM3, TSTM6, AND TSTM12,
+C        GET THE TSTM3 FORECASTS.
+C 
+      DO K=1,4
+         CALL PRSID1(KFILDO,IDO(K,1:4),LDPARS)
+         JD=IDO(K,1:4)
+         ITSTM3(K)=1
+C           ITSTM3(K) = 1 SIGNIFIES DATA ARE CORRECT.  IF NOT, IT
+C           WILL BE SET TO MISSEL.
+         CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1               IDO(K,1:4),LDPARS,JD,NDATE,
+     2               KFILRA,RACESS,NUMRA,
+     3               CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4               ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5               NGRIDC,NGRID,ND11,NSLAB,
+     6               IPACK,IWORK,GTSTM3(K,1:ND2X3),ND2X3,
+     7               LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8               NBLOCK,LASTD,NSTORE,NFETCH,
+     9               IS0,IS1,IS2,IS4,ND7,
+     A               ISTAV,L3264B,L3264W,IER)
+C
+         IF(IER.NE.0)THEN
+            WRITE(KFILDO,127)(IDO(K,M),M=1,4)
+  127       FORMAT(/' ####VARIABLE = ',3I10.9,I11.3,
+     1              ' NOT RETRIEVED BY GTVEGR IN WXTSTM.')
+            ITSTM3(K)=MISSEL
+            GTSTM3(K,1:ND2X3)=RRMIS
+         ELSEIF(ISTAV.NE.0)THEN
+            WRITE(KFILDO,129)(IDO(K,M),M=1,4)
+  129       FORMAT(/' ****RECORD RETURNED FROM GTVEGR FOR VARIABLE',
+     1                I9.9,1X,I9.9,1X,I9.9,1X,I10.3,/,
+     2              '     SHOULD BE GRIDPOINT, BUT IS INDICATED AS',
+     3              ' VECTOR.  NOT USED.')
+            ITSTM3(K)=MISSEL
+            GTSTM3(K,1:ND2X3)=RRMIS
+         ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+            WRITE(KFILDO,130)(IDO(K,M),M=1,4),IS2(3),NX,IS2(4),NY
+  130       FORMAT(/,' ****GRID CHARACTERISTICS FOR VARIABLE ',4I11,
+     1               ' DO NOT MATCH IN WXTSTM.',/,
+     2               ' IS2(3) =',I8,'    NX   = ',I10,/,
+     3               ' IS2(4) =',I8,'    NY   = ',I10,/,
+     4               ' THIS VARIABLE NOT USED.')
+            ITSTM3(K)=MISSEL
+            GTSTM3(K,1:ND2X3)=RRMIS
+         ENDIF 
+      ENDDO
+C
+C        GET THE TSTM12 FORECAST
+C 
+      CALL PRSID1(KFILDO,LD,LDPARS)
+      ITSTM12=1
+      JD=LD
+C        ITSTM12 = 1 SIGNIFIES DATA ARE CORRECT.  IF NOT, IT
+C        WILL BE SET TO MISSEL.
+      CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1            LD,LDPARS,JD,NDATE,
+     2            KFILRA,RACESS,NUMRA,
+     3            CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4            ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5            NGRIDC,NGRID,ND11,NSLAB,
+     6            IPACK,IWORK,GTSTM12,ND2X3,
+     7            LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8            NBLOCK,LASTD,NSTORE,NFETCH,
+     9            IS0,IS1,IS2,IS4,ND7,
+     A            ISTAV,L3264B,L3264W,IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,127)(LD(M),M=1,4)
+         ITSTM12=MISSEL
+         GTSTM12=RRMIS
+      ELSEIF(ISTAV.NE.0)THEN
+         WRITE(KFILDO,129)(LD(M),M=1,4)
+         ITSTM12=MISSEL
+         GTSTM12=RRMIS
+      ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+         WRITE(KFILDO,130)(LD(M),M=1,4),IS2(3),NX,IS2(4),NY
+         ITSTM12=MISSEL
+         GTSTM12=RRMIS
+      ENDIF 
+C
+C        GET THE TSTM6 FORECASTS
+C 
+      DO K=1,2
+         CALL PRSID1(KFILDO,IDP(K,1:4),LDPARS)
+         JD=IDP(K,1:4)
+         ITSTM6(K)=1
+C        ITSTM6(K) = 1 SIGNIFIES DATA ARE CORRECT.  IF NOT, IT
+C        WILL BE SET TO MISSEL.
+         CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1               IDP(K,1:4),LDPARS,JD,NDATE,
+     2               KFILRA,RACESS,NUMRA,
+     3               CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4               ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5               NGRIDC,NGRID,ND11,NSLAB,
+     6               IPACK,IWORK,GTSTM6(K,1:ND2X3),ND2X3,
+     7               LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8               NBLOCK,LASTD,NSTORE,NFETCH,
+     9               IS0,IS1,IS2,IS4,ND7,
+     A               ISTAV,L3264B,L3264W,IER)
+C
+         IF(IER.NE.0)THEN
+            WRITE(KFILDO,127)(IDP(K,M),M=1,4)
+            ITSTM6(K)=MISSEL
+            GTSTM6(K,1:ND2X3)=RRMIS
+         ELSEIF(ISTAV.NE.0)THEN
+            WRITE(KFILDO,129)(IDP(K,M),M=1,4)
+            ITSTM6(K)=MISSEL
+            GTSTM6(K,1:ND2X3)=RRMIS
+         ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+            WRITE(KFILDO,130)(IDP(K,M),M=1,4),IS2(3),NX,IS2(4),NY
+            ITSTM6(K)=MISSEL
+            GTSTM6(K,1:ND2X3)=RRMIS
+         ENDIF 
+      ENDDO 
+C
+C        RESET VARIABLES NEEDED LATER FOR PACKING.
+C
+      IER=0
+      ISTAV=0
+      NSLAB=1
+C
+C***********************************************************************
+C
+C        IF NO ELEMENTS WERE SUCCESSFULLY FETCHED, RETURN.
+C
+      IF((ITSTM3(1).EQ.MISSEL).AND.(ITSTM3(2).EQ.MISSEL).AND.
+     1   (ITSTM3(3).EQ.MISSEL).AND.(ITSTM3(4).EQ.MISSEL).AND.
+     2   (ITSTM6(1).EQ.MISSEL).AND.(ITSTM6(2).EQ.MISSEL).AND.
+     3   (ITSTM12.EQ.MISSEL))THEN
+         WRITE(KFILDO,110)IDPARS(12)
+  110    FORMAT(/,' ****NO TSTM12, TSTM6, OR TSTM3 FORECASTS ARE ',
+     1            'AVAILABLE. CANNOT MAKE THUNDERSTORM POTENTIAL ',
+     2            'FOR IDPARS(12)=',I5,'.')
+         GO TO 340
+      ENDIF
+C
+C        VERIFY THAT THE USER-DEFINED THUNDER THRESHOLDS
+C        ARE MONOTONICALLY INCREASING AND WITHIN THE RANGE 0 TO 100,
+C        INCLUSIVE:
+C
+      CALL WXVCAT(THRTRW,IER_TRW)
+C
+      IF(IER_TRW.NE.0)THEN
+         WRITE(KFILDO,115) 
+  115    FORMAT(/,' ****DEFAULT VALUES USED FOR THUNDER ',
+     1            'THRESHOLDS. CHECK VALUES OF THRTRW.')
+      ENDIF
+C
+C        NOW THAT FETCHING IS DONE, GET THUNDER POTENTIAL INDEX (TPI).
+C        THE ALGORITHM FOR TPI CONSISTS OF THREE STEPS:
+C           1) GET INFLACTION FACTOR FOR EACH GRIDPOINT AND FORECAST 
+C              PERIOD.  FACTOR IS THE TSTM12 FORECAST DIVIDED BY THE 
+C              MAXIMUM TSTM3 OR TSTM6 FORECAST
+C           2) INFLATE TSTM3 OR TSTM6 FORECASTS BY INFLATION FACTOR TO 
+C              GET FIRST-GUESS TPI
+C           3) CONSISTENCY CHECKS AND SMOOTHING.
+C
+C        DETERMINE WHAT ELEMENTS ARE AVAILABLE, MAKING THE ASSUMPTION
+C        THAT THERE IS NO TIME WHEN ONLY TSTM6 OR ONLY TSTM12 IS 
+C        AVAILABLE.
+C
+      IF(((ITSTM3(1).NE.MISSEL).OR.(ITSTM3(2).NE.MISSEL).OR.
+     1   (ITSTM3(3).NE.MISSEL).OR.(ITSTM3(4).NE.MISSEL)).AND.
+     2   (ITSTM12.EQ.MISSEL))THEN
+         ITPI=1
+      ELSEIF((ITSTM3(1).NE.MISSEL).OR.(ITSTM3(2).NE.MISSEL).OR.
+     1   (ITSTM3(3).NE.MISSEL).OR.(ITSTM3(4).NE.MISSEL).AND.
+     2   (ITSTM12.NE.MISSEL))THEN
+         ITPI=2
+      ELSEIF((ITSTM6(1).NE.MISSEL).OR.(ITSTM6(2).NE.MISSEL).AND.
+     1   (ITSTM12.NE.MISSEL))THEN
+         ITPI=3
+      ENDIF
+C
+C        FIRST INFLATE EVERYTHING SO THE INDICES WILL RANGE
+C        FROM 0 TO 100.
+C
+      CALL SCALX(KFILDO,GTSTM12,ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GTSTM6(1,1:ND2X3),ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GTSTM6(2,1:ND2X3),ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GTSTM3(1,1:ND2X3),ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GTSTM3(2,1:ND2X3),ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GTSTM3(3,1:ND2X3),ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GTSTM3(4,1:ND2X3),ND2X3,1.,2,IER)
+C
+C        LOOP THROUGH ALL GRIDPOINTS IN PARALLEL
+C
+!$OMP PARALLEL DO 
+!$OMP& SHARED(GTSTM3,GTSTM6,GTSTM12,GTPI)
+!$OMP& PRIVATE(I,J,FD,TSTM12,FACTOR,FCSTMAX,TPI)
+      DO 200 J=1,ND2X3
+         FD(1:4)=RRMIS
+         TPI(1:4)=RRMIS
+         FACTOR=1.
+         FCSTMAX=0.
+         TSTM12=RRMIS
+C
+         SELECT CASE (ITPI)
+C
+C        ONLY TSTM3 IS AVAILABLE.
+C
+            CASE(1)
+               FD(1)=GTSTM3(1,J)
+               FD(2)=GTSTM3(2,J)
+               FD(3)=GTSTM3(3,J)
+               FD(4)=GTSTM3(4,J)
+C
+C        SINCE TSTM12 IS MISSING, USE A DERIVED INFLATION FACTOR.
+               FACTOR=1.367
+C
+               DO I=1,4
+                  IF(FD(I).NE.RRMIS)THEN
+                     TPI(I)=FD(I)*FACTOR
+                  ELSE
+                     TPI(I)=RRMIS2
+                  ENDIF
+               ENDDO
+C
+C        TSTM3 AND TSTM12 ARE AVAILABLE.
+C
+            CASE(2)
+               DO I=1,4
+                  IF(GTSTM3(I,J).EQ.RRMIS)THEN
+                     FD(I)=RRMIS2
+                  ELSE
+                     FD(I)=GTSTM3(I,J)
+                  ENDIF
+               ENDDO
+C
+               TSTM12=GTSTM12(J)
+C
+C        GET FCSTMAX FOR THIS GRIDPOINT IN THIS FORECAST PERIOD.
+C        GET THE MAXIMUM OF THE AVAILABLE FORECASTS AND SET IT 
+C        EQUAL TO FCSTMAX.  IF THE MAXIMUM IS ZERO,
+C        SET FCSTMAX TO 1 FOR SAFETY.
+C   
+               IF(MAX(FD(1),FD(2),FD(3),FD(4)).NE.RRMIS2)THEN
+                  FCSTMAX=MAX(FD(1),FD(2),FD(3),FD(4))
+               ELSE 
+                  FCSTMAX=100.
+               ENDIF
+C
+C        WHEN FCSTMAX IS 0, WE CANNOT OBTAIN A FACTOR.
+C
+               IF(FCSTMAX.GE.0.1)THEN
+                  FACTOR=TSTM12/FCSTMAX
+               ELSE
+                  FACTOR=-1.
+               ENDIF
+C
+C        WHEN TSTM12 IS MISSING, TPI WILL BE MISSING.
+C
+               DO I=1,4
+                  IF(TSTM12.EQ.RRMIS)THEN
+                     TPI(I)=RRMIS2
+                  ELSEIF(FD(I).EQ.FCSTMAX)THEN
+                     TPI(I)=TSTM12
+                  ELSEIF(FACTOR.EQ.-1.)THEN
+                     TPI(I)=TSTM12
+                  ELSEIF(FD(I).NE.RRMIS2)THEN
+                     TPI(I)=FD(I)*FACTOR
+                  ELSE
+                     TPI(I)=RRMIS2
+                  ENDIF
+               ENDDO
+C
+C        TSTM6 AND TSTM12 ARE AVAILABLE.
+C
+            CASE(3)
+               FD(1:4)=RRMIS
+               IF(GTSTM6(1,J).NE.RRMIS)THEN
+                  FD(1)=GTSTM6(1,J)
+                  FD(2)=GTSTM6(1,J)
+               ELSE
+                  FD(1)=RRMIS2
+                  FD(2)=RRMIS2
+               ENDIF
+C
+               IF(GTSTM6(2,J).NE.RRMIS)THEN
+                  FD(3)=GTSTM6(2,J)
+                  FD(4)=GTSTM6(2,J)
+               ELSE
+                  FD(3)=RRMIS2
+                  FD(4)=RRMIS2
+               ENDIF
+C
+               TSTM12=GTSTM12(J)
+C
+C        GET FCSTMAX FOR THIS GRIDPOINT IN THIS FORECAST PERIOD.
+C        GET THE MAXIMUM OF THE AVAILABLE FORECASTS AND SET IT 
+C        EQUAL TO FCSTMAX.  IF THE MAXIMUM IS ZERO,
+C        SET FCSTMAX TO 1 FOR SAFETY.
+C
+               IF(MAX(FD(1),FD(2),FD(3),FD(4)).NE.RRMIS2)THEN
+                  FCSTMAX=MAX(FD(1),FD(2),FD(3),FD(4))
+               ELSE 
+                  FCSTMAX=100.
+               ENDIF
+C
+C        WHEN FCSTMAX IS 0, WE CANNOT OBTAIN A FACTOR.
+C
+               IF(FCSTMAX.GE.0.1)THEN
+                  FACTOR=TSTM12/FCSTMAX
+               ELSE
+                  FACTOR=-1.
+               ENDIF
+C
+C        WHEN TSTM12 IS MISSING, TPI WILL BE MISSING.
+C
+               DO I=1,4
+                  IF(TSTM12.EQ.RRMIS)THEN
+                     TPI(I)=RRMIS2
+                  ELSEIF(FD(I).EQ.FCSTMAX)THEN
+                     TPI(I)=TSTM12
+                  ELSEIF(FACTOR.EQ.-1.)THEN
+                     TPI(I)=TSTM12
+                  ELSEIF(FD(I).NE.RRMIS2)THEN
+                     TPI(I)=FD(I)*FACTOR
+                  ELSE
+                     TPI(I)=RRMIS2
+                  ENDIF
+               ENDDO
+C
+C        IF NO TSTM3, TSTM6, TSTM12, SET TPI TO MISSING.
+C
+            CASE DEFAULT
+               TPI(1:4)=RRMIS2
+C
+         END SELECT
+C
+         DO I=1,4
+C
+C        ENFORCE UPPER LIMIT OF INDEX.
+            IF(TPI(I).GT.100.)TPI(I)=100.
+C
+C        SET MISSING DATA BACK TO RRMIS
+            IF(TPI(I).EQ.RRMIS2)TPI(I)=RRMIS
+         ENDDO
+C
+C        GET THE TPI FOR THE RELEVANT TAU.
+         IF(IDPARS(12).EQ.6)THEN
+            GTPI(J)=TPI(2)
+         ELSE
+            DO I=1,4
+               IF(IDO(I,3).EQ.IDPARS(12))GTPI(J)=TPI(I)
+            ENDDO
+         ENDIF
+C
+C        ENFORCE PPI LIMIT ON INDEX.
+         IF(GTPI(J).NE.RRMIS.AND.GTPI(J).GT.GPPI(J))GTPI(J)=GPPI(J)
+C
+ 200  CONTINUE
+!$OMP END PARALLEL DO
+C
+C        SMOOTH TPI
+         CALL HSMTH(KFILDO,GTPI,NX,NY,4,1,ISTOP,IER)
+
+      DO 300 J=1,ND2X3
+C
+C        NOW THAT WE'VE SMOOTHED, DO ANOTHER CONSISTENCY CHECK.
+C
+         IF(GTPI(J).GT.GTSTM12(J))GTPI(J)=GTSTM12(J)
+         IF(GTPI(J).NE.RRMIS.AND.GTPI(J).GT.GPPI(J))GTPI(J)=GPPI(J)
+C
+C        WHERE TPI FORECASTS ARE NOT MISSING, ASSIGN CATEGORICAL 
+C        THUNDER FORECASTS BASED ON THE USER-DEFINED THRESHOLDS 
+C        IN THRTRW INTO THE NXTSW COUNTERPART.
+C
+C        MISSING DATA
+         IF(NPCAT(1,J).EQ.RRMIS)THEN
+            GTPI(J)=RRMIS
+            NXTSW(J)=RRMIS
+         ELSEIF(GTPI(J).EQ.RRMIS)THEN
+            NXTSW(J)=RRMIS
+C        DEFINITE THUNDER
+         ELSEIF(GTPI(J).GE.THRTRW(4))THEN
+            NXTSW(J)=50000
+C        NUMEROUS
+         ELSEIF(GTPI(J).GE.THRTRW(3))THEN
+            NXTSW(J)=30000
+C        SCATTERED
+         ELSEIF(GTPI(J).GE.THRTRW(2))THEN
+            NXTSW(J)=20000
+C        ISOLATED
+         ELSEIF(GTPI(J).GE.THRTRW(1))THEN
+            NXTSW(J)=10000
+C        NO THUNDER
+         ELSE
+            NXTSW(J)=0
+         ENDIF
+C
+C        IF THUNDER WAS ASSIGNED, SET PRECIPITATION CHARACTER
+C        TO CONVECTIVE.
+C
+         IF(NXTSW(J).NE.RRMIS.AND.NXTSW(J).NE.0)THEN
+            IF(NPCAT(1,J).NE.0.AND.NPCAT(1,J).NE.RRMIS)THEN
+               NXPCH(J)=2
+            ENDIF
+         ENDIF
+C
+ 300  CONTINUE
+C
+C        THIS DIAGNOSTIC OUTPUT WILL PRINT TO KFILDO THE GRIDPOINT
+C        OF EACH STATION PROVIDED IN THE STATION LIST AND THE VALUES
+C        USED TO CALCULATE THAT STATION'S TPI.
+C
+D     WRITE(KFILDO,554)
+D 554 FORMAT(/,'CCALL',7X,'J',4X,'   GPPI(J)',1X,'TSTM3(1,J)',1X,
+D    1         'TSTM3(2,J)',1X,'TSTM3(3,J)',1X,'TSTM3(4,J)',1X,
+D    2         'TSTM6(1,J)',1X,'TSTM6(2,J)',1X,' TSTM12(J)',1X,
+D    3         '   GTPI(J)',1X,'NXTSW(J)')
+D     DO K=1,NSTA
+D 555    FORMAT(A5,3X,I8,3X,F8.3,3X,F8.3,3X,F8.3,3X,F8.3,3X,F8.3,3X,
+D    1            F8.3,3X,F8.3,3X,F8.3,3X,F8.3,3X,I5)
+D        IF(JSTA(K).GT.0.AND.JSTA(K).LE.ND2X3)THEN
+D           WRITE(KFILDO,555) CCALL(K,1),JSTA(K),GPPI(JSTA(K)),
+D    1      GTSTM3(1:4,JSTA(K)),GTSTM6(1:2,JSTA(K)),GTSTM12(JSTA(K)),
+D    2      GTPI(JSTA(K)),NXTSW(JSTA(K))
+D        ELSE
+D 556       FORMAT(A5,3X,I8,3X,A13)
+D           WRITE(KFILDO,556)CCALL(K,1),JSTA(K),"OUT OF BOUNDS"
+D        ENDIF
+D     ENDDO
+C
+      GO TO 350
+C
+C        MUST SET RETURNABLE ARRAY TO MISSING FOR SAFETY
+C        WHEN DATA CANNOT BE RETURNED.
+C
+ 340  DO 341 J=1,ND2X3
+         GTPI(J)=RRMIS
+         NXTSW(J)=RRMIS
+ 341  CONTINUE
+C
+ 350  RETURN
+      END

@@ -1,0 +1,201 @@
+IBM XL Fortran for AIX, V12.1 (5724-U82) Version 12.01.0000.0001 --- /gpfs/c/nco/ops/nwpara/sorc/ekd_makecdf.fd/makecdf.f 03/06/12 15:10:27
+ 
+>>>>> OPTIONS SECTION <<<<<
+***   Options In Effect   ***
+  
+         ==  On / Off Options  ==
+         CCLINES         CR              DBG             ESCAPE
+         FULLPATH        I4              INLGLUE         INTLOG
+         NOLIBESSL       NOLIBPOSIX      OBJECT          SOURCE
+         STRICT          SWAPOMP         THREADED        UNWIND
+         NOZEROSIZE
+  
+         ==  Options Of Integer Type ==
+         ALIAS_SIZE(65536)     FIXED(72)             MAXMEM(-1)
+         OPTIMIZE(3)           SPILLSIZE(512)        STACKTEMP(0)
+  
+  
+         ==  Options of Integer and Character Type ==
+         SMP(OMP,SCHEDULE(RUNTIME))
+  
+         ==  Options Of Character Type  ==
+         64(LARGETYPE)         ALIAS(STD,INTPTR)     ALIGN(BINDC(POWER),STRUCT(NATURAL))
+         ARCH(PWR6)            AUTODBL(NONE)         DESCRIPTOR(V1)
+         DIRECTIVE($OMP)       ENUM()                FLAG(I,I)
+         FLOAT(RNDSNGL,MAF,FOLD,RNGCHK,SINGLE)
+         HALT(S)               IEEE(NEAR)            INITAUTO( 0      )
+         INTSIZE(4)            LANGLVL(EXTENDED)     POSITION(APPENDOLD)
+         REALSIZE(4)           SAVE(ALL)             TUNE(PWR6)
+         UNROLL(AUTO)          XFLAG()               XLF2003(NOPOLYMORPHIC,NOBOZLITARGS,NOSTOPEXCEPT,NOVOLATILE,NOAUTOREALLOC,OLDNANINF)
+         XLF77(NOLEADZERO,GEDIT77,NOBLANKPAD,OLDBOZ,INTARG,INTXOR,PERSISTENT,SOFTEOF)
+         XLF90(NOSIGNEDZERO,NOAUTODEALLOC,OLDPAD)
+  
+>>>>> SOURCE SECTION <<<<<
+          1 |      PROGRAM MAKECDF
+          2 |C     $$$  MAIN PROGRAM DOCUMENTATION BLOCK  ***
+          3 |C
+          4 |C MAIN PROGRAM: ENS_MAKECDF
+          5 |C   PRGMMR: GLAHN/WIEDENFELD          ORG: OSD211      DATE: 2007-11-02
+          6 |C
+          7 |C ABSTRACT: DRIVER FOR PROGRAM U915.  SEE U915 COMMENTS OR PROGRAM
+          8 |C   WRITEUP FOR VARIABLE DEFINITIONS.  AN ATTEMPT HAS BEEN
+          9 |C   MADE TO INCLUDE ALL INFORMATION IN THIS DRIVER THAT
+         10 |C   THE USER OF U915 MIGHT HAVE TO CHANGE.
+         11 |C
+         12 |C PROGRAM HISTORY LOG:
+         13 |C   07-11-02  WIEDENFELD ADAPTED FROM MAKECDF AND DRU715
+         14 |C
+         15 |C USAGE:
+         16 |C
+         17 |C        DATA SET USE
+         18 |C        INPUT FILES:
+         19 |C             FORT.xx - INDICATE NAME AND PURPOSE
+         20 |C             PARM    - STANDARD IN
+         21 |C
+         22 |C        OUTPUT FILES:  (INCLUDING WORK FILES)
+         23 |C             FORT.xx - INDICATE NAME AND PURPOSE
+         24 |C             FORT.06 - STANDARD OUT
+         25 |C
+         26 |C        VARIABLES
+         27 |C        LET ND1  = THE MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT
+         28 |C                   WITH.  THIS DOES NOT HAVE TO BE LARGE ENOUGH TO
+         29 |C                   HOLD ALL THE STATIONS ON THE INPUT FILES.
+         30 |C            ND2  = MAXIMUM NUMBER OF ENSEMBLE MEMBERS
+         31 |C            ND4  = MAXIMUM NUMBER OF VARIABLES THAT CAN BE DEALT WITH
+         32 |C                   IN ONE RUN.  SECOND DIMENSION OF ID( , ), IDFORC( , )
+         33 |C                   AND IDPARS( , ) AND DIMENSION OF TRESHL( ), TRESHU( ),
+         34 |C                   ITAU( ), AND LIMIT( ).
+         35 |C            ND5  = THE MAXIMUM NUMBER OF STATION CALL LETTERS ON
+         36 |C                   THE INPUT FILES.  DIMENSION OF IWORK( ),
+         37 |C                   DATA( ), IPACK( ), AND CCALLD( ).
+         38 |C                   MUST BE GE THE LARGEST RECORD ON THE INPUT
+         39 |C                   INTERPOLATED FILE(S).  IT IS POSSIBLE THAT IT MUST
+         40 |C                   BE AS LARGE AS THE PHYSICAL RECORD SIZE OF RECORDS
+         41 |C                   ON THE INTERNAL STORAGE SYSTEM (NBLOCK) OR THE
+         42 |C                   EXTERNAL FILE SYSTEM.  MUST ALSO BE GE ND1.
+         43 |C            ND7  = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+         44 |C                   NOT ALL LOCATIONS ARE USED.  MAXIMUM SIZE IS FOR
+         45 |C                   IS1( ) = 22 PLUS 32 CHARACTERS (ONE CHARACTER PER
+         46 |C                   WORD) OF PLAIN TEXT = 54.  SET BY PARAMETER.
+         47 |C            ND8  = MAXIMUM NUMBER OF DATES THAT CAN BE DEALT WITH.
+         48 |C            ND9  = MAXIMUM NUMBER OF FIELDS STORED IN LSTORE( , )
+         49 |C                   AND MSTORE( , ).  SECOND DIMENSION OF LSTORE( , )
+         50 |C                   AND MSTORE( , ).
+         51 |C            ND10 = THE MEMORY IN WORDS ALLOCATED TO THE SAVING OF
+         52 |C                   PACKED DATA IN CORE( ).  WHEN THIS
+         53 |C                   SPACE IS EXHAUSTED, SCRATCH DISK WILL BE USED.
+         54 |C            ND11 = THE NUMBER OF INTERVALS IN COMPUTING THE PDF( ),
+         55 |C                   AND CDF( ).
+         56 |C            ND12 = MAXIMUM NUMBER OF CDF THRESHOLDS ACCOMMODATED.
+         57 |C        THEN IT IS SUFFICIENT THAT THE DIMENSIONS OF VARIABLES BE
+         58 |C        AS INDICATED BELOW IN THIS EXAMPLE DIRVER.  NOTE THAT THE
+         59 |C        VARIABLE L3264B IS SET TO 32 FOR A 32-BIT MACHINE AND TO
+         60 |C        64 FOR A 64-BIT MACHINE.  L3264W AND NBLOCK WILL
+         61 |C        AUTOMATICALLY ADJUST ACCORDINGLY.  ND5 SHOULD BE GE ND1.
+         62 |C
+         63 |C        SUBPROGRAMS CALLED:
+         64 |C             UNIQUE: - U915
+         65 |C          LIBRARY:
+         66 |C           MDLLIB90: - TIMPR, U915
+         67 |C              W3LIB: - W3TAGB, W3TAGE
+         68 |C
+         69 |C        EXIT STATES:
+         70 |C          COND =    0 - SUCCESSFUL RUN
+         71 |C
+         72 |C REMARKS: NONE
+         73 |C
+         74 |C ATTRIBUTES:
+         75 |C   LANGUAGE: FORTRAN 90 (xlf compiler)
+         76 |C   MACHINE:  IBM SP
+         77 |C
+         78 |C   $$$
+         79 |      PARAMETER (L3264B=32)
+         80 |      PARAMETER (L3264W=64/L3264B)
+         81 |      PARAMETER (NBLOCK=6400/L3264B)
+         82 |      PARAMETER (ND1=MAX(NBLOCK,5000))
+         83 |C        WHEN DATA ARE IN MOS-2000 STORAGE AND ON DISK, A
+         84 |C        DIAGNOSTIC WILL BE PRODUCED WHEN ND1.LT.NBLOCK.
+         85 |      PARAMETER (ND2=50)
+         86 |      PARAMETER (ND4=10000)
+         87 |      PARAMETER (ND5=MAX(ND1,3000))
+         88 |C        ND5 MUST BE GE ND1.
+         89 |      PARAMETER (ND7=54)
+         90 |      PARAMETER (ND8=10)
+         91 |      PARAMETER (ND9=4000)
+         92 |      PARAMETER (ND10=8000)
+         93 |      PARAMETER (ND11=3000)
+         94 |      PARAMETER (ND12=50)
+         95 |C
+         96 |      CHARACTER*8 CCALL(ND1,6)
+         97 |      CHARACTER*8 CCALLD(ND5)
+         98 |      CHARACTER*20 NAME(ND1)
+         99 |      CHARACTER*32 PLAIN(ND4)
+        100 |      CHARACTER*32 PLAINT
+        101 |C
+        102 |      DIMENSION ISDATA(ND1),SDATA(ND1),NGP(ND1),MWORK(ND1)
+        103 |      DIMENSION ICALL(L3264W,ND1,6)
+        104 |      DIMENSION XDATA(ND1,ND2),SDDATA(ND1,ND2)
+        105 |      DIMENSION ID(4,ND4),IDPARS(15,ND4),TRESHL(ND4),TRESHU(ND4),
+        106 |     1          JD(4,ND4),JP(3,ND4),ITAU(ND4),NCAT(ND4),
+        107 |     2          KER(ND4),ISD(ND4),SD(ND4),DS(ND4),ISCALD(ND4)
+        108 |      DIMENSION IPLAIN(L3264W,4,ND4),IPLAINT(L3264W,4,1)
+        109 |      DIMENSION IPACK(ND5),ICALLD(L3264W,ND5),
+        110 |     1          IWORK(ND5),DATA(ND5)
+        111 |      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+        112 |      DIMENSION IDATE(ND8),NWORK(ND8)
+        113 |      DIMENSION LSTORE(12,ND9)
+        114 |      DIMENSION CORE(ND10)
+        115 |      DIMENSION CDFTH(ND12),XCDF(ND1,ND12)
+        116 |      DIMENSION XAXIS(ND11),PDF(ND11),CDF(ND11)
+        117 |C
+        118 |      EQUIVALENCE (PLAIN,IPLAIN)
+        119 |      EQUIVALENCE (PLAINT,IPLAINT)
+        120 |      EQUIVALENCE (ICALLD,CCALLD),(ICALL,CCALL)
+        121 |C
+        122 |      DATA KFILDI/5/,
+        123 |     1     KFILDO/06/
+        124 |      DATA NGP/ND1*0/
+        125 |      DATA PLAIN/ND4*' '/
+        126 |C
+        127 |      CALL W3TAGB('ENS_MAKECDF',2007,0080,0080,'OSD211')
+        128 |      CALL TIMPR(KFILDO,KFILDO,'START U915          ')
+        129 |C
+        130 |      CALL U915(KFILDI,KFILDO,
+        131 |     1          ICALL,CCALL,ISDATA,SDATA,NGP,MWORK,NAME,
+        132 |     2          ND1,ID,IDPARS,TRESHL,TRESHU,JD,JP,
+        133 |     3          ITAU,KER,ISD,SD,DS,NCAT,
+        134 |     4          ISCALD,IPLAIN,PLAIN,L3264B,L3264W,ND4,
+        135 |     5          XDATA,SDDATA,ND2,PLAINT,IPLAINT,
+        136 |     6          ICALLD,CCALLD,IPACK,DATA,IWORK,ND5,
+        137 |     7          IS0,IS1,IS2,IS4,ND7,
+        138 |     8          IDATE,NWORK,ND8,
+        139 |     9          LSTORE,ND9,CORE,ND10,NBLOCK,
+        140 |     A          XAXIS,PDF,CDF,ND11,CDFTH,XCDF,ND12)
+        141 |C
+        142 |      CALL TIMPR(KFILDO,KFILDO,'END U915            ')
+        143 |      CALL W3TAGE('ENS_MAKECDF')
+        144 |      STOP
+        145 |      END
+** makecdf   === End of Compilation 1 ===
+ 
+>>>>> FILE TABLE SECTION <<<<<
+ 
+ 
+                                       FILE CREATION        FROM
+FILE NO   FILENAME                    DATE       TIME       FILE    LINE
+     0    makecdf.f                   12/21/11   15:09:28
+ 
+ 
+>>>>> COMPILATION EPILOGUE SECTION <<<<<
+ 
+ 
+FORTRAN Summary of Diagnosed Conditions
+ 
+TOTAL   UNRECOVERABLE  SEVERE       ERROR     WARNING    INFORMATIONAL
+               (U)       (S)         (E)        (W)          (I)
+    0           0         0           0          0            0
+ 
+ 
+    Source records read.......................................     145
+1501-510  Compilation successful for file makecdf.f.
+1501-543  Object file created.

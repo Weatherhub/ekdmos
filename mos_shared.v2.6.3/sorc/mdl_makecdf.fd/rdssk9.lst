@@ -1,0 +1,247 @@
+IBM XL Fortran for AIX, V12.1 (5724-U82) Version 12.01.0000.0001 --- /gpfs/c/nco/ops/nwpara/sorc/ekd_makecdf.fd/rdssk9.f 03/06/12 15:10:35
+ 
+>>>>> OPTIONS SECTION <<<<<
+***   Options In Effect   ***
+  
+         ==  On / Off Options  ==
+         CCLINES         CR              DBG             ESCAPE
+         FULLPATH        I4              INLGLUE         INTLOG
+         NOLIBESSL       NOLIBPOSIX      OBJECT          SOURCE
+         STRICT          SWAPOMP         THREADED        UNWIND
+         NOZEROSIZE
+  
+         ==  Options Of Integer Type ==
+         ALIAS_SIZE(65536)     FIXED(72)             MAXMEM(-1)
+         OPTIMIZE(3)           SPILLSIZE(512)        STACKTEMP(0)
+  
+  
+         ==  Options of Integer and Character Type ==
+         SMP(OMP,SCHEDULE(RUNTIME))
+  
+         ==  Options Of Character Type  ==
+         64(LARGETYPE)         ALIAS(STD,INTPTR)     ALIGN(BINDC(POWER),STRUCT(NATURAL))
+         ARCH(PWR6)            AUTODBL(NONE)         DESCRIPTOR(V1)
+         DIRECTIVE($OMP)       ENUM()                FLAG(I,I)
+         FLOAT(RNDSNGL,MAF,FOLD,RNGCHK,SINGLE)
+         HALT(S)               IEEE(NEAR)            INITAUTO( 0      )
+         INTSIZE(4)            LANGLVL(EXTENDED)     POSITION(APPENDOLD)
+         REALSIZE(4)           SAVE(ALL)             TUNE(PWR6)
+         UNROLL(AUTO)          XFLAG()               XLF2003(NOPOLYMORPHIC,NOBOZLITARGS,NOSTOPEXCEPT,NOVOLATILE,NOAUTOREALLOC,OLDNANINF)
+         XLF77(NOLEADZERO,GEDIT77,NOBLANKPAD,OLDBOZ,INTARG,INTXOR,PERSISTENT,SOFTEOF)
+         XLF90(NOSIGNEDZERO,NOAUTODEALLOC,OLDPAD)
+  
+>>>>> SOURCE SECTION <<<<<
+          1 |      SUBROUTINE RDSSK9(KFILDO,KFILAI,NDATE,ID,CCALLSP,XB0,
+          2 |     1                  XB1,XMIN,XMAX,ND5,NCALL,IER)
+          3 |C
+          4 |C     VEENHUIS  FEBRUARY  8, 2011  THIS IS A NEW VERSION. I CHANGED THE FORMAT
+          5 |C                                  OF THE U714 OUTPUT FILE TO JUST GIVE THE
+          6 |C                                  SLOPE INTERCEPT PARAMETERS AND SUPPORT.
+          7 |C     VEENHUIS  FEBRUARY 28, 2011  ADDED ND5 TO INPUT CALL LIST. FIXED ARRAY
+          8 |C                                  DIMENSIONS TO BE ND5.
+          9 |C     VEENHUIS  MARCH    8,  2011  ADDED CHECK TO MAKE SURE DATE FALLS WITHIN
+         10 |C                                  THE RANGE SPECIFIED BY THE HEADER OF THE
+         11 |C                                  SPREAD SKILL FILE.
+         12 |C     VEENHUIS  APRIL     5, 2011  ADDED A CHECK TO MAKE SURE KFILAI IS GREATER
+         13 |C                                  THAN ZERO. IT COULD BE ZERO IF THE SPREAD-SKILL
+         14 |C                                  FILE IS MISSING.
+         15 |C
+         16 |C     PURPOSE
+         17 |C        RDSSK9 - THIS IS THE OPERATIONAL VERSION OF RDSSK7.
+         18 |C                 THE DIFFERENCE IS THAT RDSSK9 CHECKS TO MAKE
+         19 |C                 SURE THE DATE IS WITHIN THE RANGE SPECIFIED BY
+         20 |C                 SPREAD-SKILL FILE HEADER.
+         21 |C                 READ SPREAD SKILL - READS AND RETRIEVES
+         22 |C                 INFORMATION FOR THE ASCII INPUT
+         23 |C                 SPREAD-SKILL RELATIONSHIP FILE PRODUCED
+         24 |C                 BY U714. THE ASCII INPUT FILE,KFILAI,
+         25 |C                 HAS ALREADY BEEN OPENED BY INT715.
+         26 |C
+         27 |C     DATA SET USE
+         28 |C         KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+         29 |C         KFILAI    - UNIT NUMBER OF THE ASCII INPUT SREAD-SKILL
+         30 |C                     FILE PRODUCED BY U714 (INPUT)
+         31 |C          ID(J)    - THE VARIABLE ID(J=1,4)TO RETRIEVE THE RELATIONSHIP
+         32 |C                     FOR. (INPUT)
+         33 |C            ND5    - MAXMIM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+         34 |C                     (INPUT)
+         35 |C     CCALLSP(K)    - CALL LETERS READ FROM SPREAD-SKILL RELATIONSHIP
+         36 |C                     FILE ON KFILAI (K=1,ND5). (OUTPUT)
+         37 |C         XB0(K)    - THE INTERCEPT COMPONENT OF THE LINEAR
+         38 |C                     SPREAD SKILL RELATIONSHIP (K=1,ND5). (OUTPUT)
+         39 |C         XB1(K)    - THE SLOPE COMPONENT OF THE LINEAR
+         40 |C                     SPREAD SKILL RELATIONSHIP (K=1,ND5). (OUTPUT)
+         41 |C        XMIN(K)    - THE MINIMUM VALUE OF ENSEMBLE SPREAD
+         42 |C                     THAT WILL BE USED WHEN EVAULATING THE
+         43 |C                     LINEAR SPREAD-SKILL RELATIONSHIP. THIS
+         44 |C                     THIS IS USED TO RESTRICT THE RANGE OF
+         45 |C                     VALUES TO BE WITHIN THOSE USED TO
+         46 |C                     DEVELOP THE RELATIONSHIP, I.E. TO PREVENT
+         47 |C                     EXTRAPOLATION (K=1,ND5). (OUTPUT)
+         48 |C        XMAX(K)    - THE MAXIMUM VALUE OF ENSEMBLE SPREAD
+         49 |C                     THAT WILL BE USED WHEN EVAULATING THE
+         50 |C                     LINEAR SPREAD-SKILL RELATIONSHIP. THIS
+         51 |C                     THIS IS USED TO RESTRICT THE RANGE OF
+         52 |C                     VALUES TO BE WITHIN THOSE USED TO
+         53 |C                     DEVELOP THE RELATIONSHIP, I.E. TO PREVENT
+         54 |C                     EXTRAPOLATION (K=1,ND5). (OUTPUT)
+         55 |C          NCALL    - NUMBER OF CALL LETTERS READ FROM KFILAI.
+         56 |C                     (OUTPUT)
+         57 |C            IER    - THE ERROR STATUS. (OUTPUT)
+         58 |C
+         59 |C
+         60 |      CHARACTER*8 CCALLSP(ND5),CTEMP1,CTEMP2
+         61 |      CHARACTER*9 CID(4),CTEST(4),CBUF
+         62 |C
+         63 |      DIMENSION ID(4)
+         64 |      DIMENSION XB0(ND5),XB1(ND5),XMIN(ND5),XMAX(ND5)
+         65 |      DIMENSION XTEMP1(5)
+         66 |C
+         67 |C         SET IER TO 99. IF THE ID IS SUCCESSFULLY FOUND
+         68 |C         AND LOADED THEN SET IER TO 0.
+         69 |C
+         70 |      IER=99
+         71 |C
+         72 |C
+         73 |      IF(KFILAI.LE.0) THEN
+         74 |        IER=99
+         75 |        RETURN
+         76 |      ENDIF
+         77 |C
+         78 |C         SET FILE TO BEGINING OF RECORD
+         79 |      REWIND(KFILAI)
+         80 |C
+         81 |      IDFOUND=0
+         82 |C
+         83 |C         PROCESS IDS UNTIL WE FIND THE ID WE ARE LOOKING FOR
+         84 |C
+         85 |      WRITE(CID,100) ID
+         86 | 100  FORMAT(I9)
+         87 |C
+         88 |      DO WHILE (IDFOUND.EQ.0)
+         89 |        READ(KFILAI,150,IOSTAT=INFO) CTEST(1:4)
+         90 | 150    FORMAT(4(X,A9))
+         91 |       IF(INFO.NE.0) THEN
+         92 |        IF(INFO.EQ.-1)THEN
+         93 |          WRITE(KFILDO,160) ID(1:4),ID(1:4)
+         94 | 160      FORMAT(/," ****IN SUBROUTINE RDSPSK: REACHED END OF",
+         95 |     1             " SPREAD SKILL FILE LOOKING FOR",
+         96 |     2             " ID: ",4(X,I9),/,
+         97 |     3             " ****SPREAD SKILL RELATION NOT FOUND FOR ID:",
+         98 |     4             4(X,I9))
+         99 |          IER=99
+        100 |          RETURN
+        101 |        ELSE
+        102 |          WRITE(KFILDO,170) INFO
+        103 | 170      FORMAT(/," ****ERROR READING SPREAD SKILL INPUT FILE.",
+        104 |     1             " IOSTAT = ",I9)
+        105 |        ENDIF
+        106 |       ENDIF
+        107 |C
+        108 |        IF((CID(1).EQ.CTEST(1)).AND.
+        109 |     1     (CID(2).EQ.CTEST(2)).AND.
+        110 |     2     (CID(3).EQ.CTEST(3)).AND.
+        111 |     3     (CID(4).EQ.CTEST(4)))THEN
+        112 |C
+        113 |C            THE ID HAS BEEN FOUND. BACKSPACE TO CHECK THAT
+        114 |C            IDATE IS IN THE RANGE SPECIFIED BY THE HEADER
+        115 |C
+        116 |          BACKSPACE KFILAI
+        117 |          BACKSPACE KFILAI
+        118 |          READ(KFILAI,175,IOSTAT=IOS) IHOUR,MONDAS,MONDAE
+        119 | 175      FORMAT(1X,I4,5X,I4,1X,I4)
+        120 |C
+        121 |C           CHECK THE HEADER TO MAKE SURE THE DATA BEING
+        122 |C           PROCESSED IS IN THE RANGE.
+        123 |C
+        124 |          CALL DOY(NDATE,JY,JM,JDD,JH,MDAY)
+        125 |          IF(IHOUR.EQ.JH*100)THEN
+        126 |C
+        127 |            IF(MONDAS.LE.MONDAE)THEN
+        128 |               IF(JM*100+JDD.GE.MONDAS.AND.
+        129 |     1            JM*100+JDD.LE.MONDAE) IDFOUND=1
+        130 |            ELSE
+        131 |               IF(JM*100+JDD.LE.MONDAE.OR.
+        132 |     1            JM*100+JDD.GE.MONDAS) IDFOUND=1
+        133 |            ENDIF
+        134 |         ENDIF
+        135 |C
+        136 |C          READS ONE LINE TO CORRECTLY POSITION ITSELF
+        137 |C
+        138 |         READ(KFILAI,*) CBUF
+        139 |        ENDIF
+        140 |      ENDDO
+        141 |C
+        142 |C         THE ID HAS BEEN FOUND NOW CONTINUE READING THE FILE.
+        143 |C         PROCESS EACH GROUP OF CALL LETTERS AND SPREAD
+        144 |C         SKILL BINS UNTIL THE END OF THE RECORD FOR THIS CURRENT
+        145 |C         ID.
+        146 |C
+        147 |      NIDEND=0
+        148 |      NCALL=0
+        149 |      DO WHILE (NIDEND.EQ.0)
+        150 |C
+        151 |C         READ CALL LETTERS AND SPD-SKILL DATA
+        152 |C
+        153 |        XTEMP1(:)=99999999.
+        154 |        READ(KFILAI,180,IOSTAT=INFO) CTEMP1,XTEMP1
+        155 | 180    FORMAT(X,A8,5(X,F10.5))
+        156 |C
+        157 |        IF(INFO.NE.0) THEN
+        158 |          WRITE(KFILDO,190) ID,INFO
+        159 | 190      FORMAT(/," ****IN SUBROUTINE RDSPSK:",
+        160 |     1             "ERROR READING SPREAD SKILL ",
+        161 |     2             "FOR ID",4(X,I9),/," ****",
+        162 |     3             "IOSTAT = ",I8,/," ****",
+        163 |     4             "ABORTING ATTEMPT TO READ")
+        164 |         IER=99
+        165 |         RETURN
+        166 |        ENDIF
+        167 |C
+        168 |C
+        169 |C         CHECK FOR TERMINATOR
+        170 |C
+        171 |        IF(CTEMP1.EQ."99999999") THEN
+        172 |          WRITE(KFILDO,*) "REACHED END OF CALL LETTERS"
+        173 |          NIDEND=1
+        174 |        ELSE
+        175 |C
+        176 |          NCALL=NCALL+1
+        177 |          CCALLSP(NCALL)=CTEMP1
+        178 |          XB0(NCALL)=XTEMP1(1)
+        179 |          XB1(NCALL)=XTEMP1(2)
+        180 |          XMIN(NCALL)=XTEMP1(4)
+        181 |          XMAX(NCALL)=XTEMP1(5)
+        182 |          IF(NCALL.EQ.1) PRINT *,CTEMP1
+        183 |C
+        184 |        ENDIF
+        185 |      ENDDO
+        186 |C
+        187 |      IF(NCALL.GT.0) THEN
+        188 |        IER=0
+        189 |      ENDIF
+        190 |C
+        191 |      END SUBROUTINE
+** rdssk9   === End of Compilation 1 ===
+ 
+>>>>> FILE TABLE SECTION <<<<<
+ 
+ 
+                                       FILE CREATION        FROM
+FILE NO   FILENAME                    DATE       TIME       FILE    LINE
+     0    rdssk9.f                    12/21/11   15:09:28
+ 
+ 
+>>>>> COMPILATION EPILOGUE SECTION <<<<<
+ 
+ 
+FORTRAN Summary of Diagnosed Conditions
+ 
+TOTAL   UNRECOVERABLE  SEVERE       ERROR     WARNING    INFORMATIONAL
+               (U)       (S)         (E)        (W)          (I)
+    0           0         0           0          0            0
+ 
+ 
+    Source records read.......................................     191
+1501-510  Compilation successful for file rdssk9.f.
+1501-543  Object file created.

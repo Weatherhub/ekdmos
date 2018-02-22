@@ -1,0 +1,242 @@
+      SUBROUTINE ELVARG(KFILDO,ID,CCALL,XP,YP,LTAG,LNDSEA,ELEV,NSTA,
+     1                  NEARSV,ERROR,NX,NY,CPNDFD,SEALND,TELEV,NXE,NYE,
+     2                  R,ITABLE,RTABLE,IDIM,JDIM,M,
+     3                  JTERML,JTERMW,ISTOP,IER)
+C
+C        JANUARY   2007   GLAHN   MDL
+C        FEBRUARY  2008   GLAHN   ADDED ITERML,ITERMW,JTERML,JTERMW
+C
+c*********************NO LONGER USED
+C        PURPOSE
+C            TO ACCUMULATE THE ANALYSIS ERROR IN ERROR( , ) FOR
+C            THE TERMS IN THE ERROR ESTIMATION EQUATIONS INVOLVING
+C            THE GRIDPOINT DIFFERENCE IN ELEVATION BETWEEN THE
+C            GRIDPOINT AND THE CLOSEST STATION.  IT DEALS WITH ONLY
+C            LAND EQUATIONS AND GRIDPOINTS, AS THERE IS IS NO 
+C            ELEVATION DIFFERENCE OVER WATER. THE ERROR( , ) IS
+C            ACCUMULATED FOR ALL TERMS INVOLVING 1797.
+C
+C            THE ABSOLUTE DIFFERENCE IN ELEVATION BETWEEN EACH
+C            GRIDPOINT AND THE CLOSEST STATION WITH USABLE DATA
+C            WITHIN A RADIUS OF SEARCH R IS CALCULATED.  THE STATION
+C            AND GRIDPOINT MUST BE OF THE SAME TYPE, EITHER 9 FOR LAND
+C            OR NOT.  INLAND AND OCEAN ARE NOT EXPECTED TO BE
+C            INVOLVED BECAUSE THE GRIDPOINTS AND STATIONS ARE
+C            AT THE SAME ELEVATION (ZERO).
+C
+C            NOTE:  FOR EFFICIENCY, THE EQUATION BEING EVALUATED MUST
+C                   HAVE A TERM INVOLVING THE CLOSEST OR NEXT CLOSEST
+C                   NEIGHBOR (0197 OR 0297) SO THAT NEARSV( , ) IS
+C                   CALCULATED.  THE ORDER OF THE TERMS DOES NOT
+C                   MATTER.  IF NECESSARY, A DUMMY TERM 0197 OR 0297
+C                   CAN BE INSERTED WITH ZERO COEFFICIENT.
+C
+C        DATA SET USE
+C            KFILDO   - UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (INPUT)
+C               ID(J) = THE VARIABLE ID'S OF THE ANALYSIS (J=1,4).
+C                       (INPUT)
+C            CCALL(K) = CALL LETTERS OF STATIONS (K=1,NSTA). USED
+C                       ONLY FOR DIAGNOSTICS.  (CHARACTER*8)  (INPUT)
+C               XP(K) = X-POSITION OF STATION K ON GRID (J=1,NSTA).
+C                       (INPUT)
+C               YP(K) = Y-POSITION OF STATION K ON GRID (J=1,NSTA). 
+C                       (INPUT)
+C             LTAG(K) = DON'T USE THIS STATION IF LTAG( ) GT 0
+C                       (K=1,NSTA).  (INPUT)
+C           LNDSEA(K) = LAND/SEA INFLUENCE FLAG FOR EACH STATION
+C                       (K=1,NSTA).
+C                       0 = WILL BE USED FOR ONLY OCEAN WATER (=0)
+C                           GRIDPOINTS.
+C                       3 = WILL BE USED FOR ONLY INLAND WATER (=3)
+C                           GRIDPOINTS.
+C                       6 = WILL BE USED FOR BOTH INLAND WATER (=3)
+C                           AND LAND (=9) GRIDPOINTS.  THESE ARE 
+C                           VERY RARE AND ARE LUMPED WITH WATER.
+C                       9 = WILL BE USED FOR ONLY LAND (=9) GRIDPOINTS.
+C                       NOTE:  ALL WATER STATIONS, INCLUDING 
+C                              LNDSEA( ) = 6, ARE GROUPED INTO ONE WATER
+C                              CATEGORY.
+C                       (INPUT)
+C             ELEV(K) = THE ELEVATION FOR EACH STATION (K=1,NSTA).
+C                       (INPUT)
+C                NSTA = NUMBER OF STATIONS IN LIST.  (INPUT) 
+C       NEARSV(IX,JY) = THE LOCATION IN THE STATION LIST OF THE 
+C                       CLOSEST STATION (IX=1,NY) (JY=1,NY).  (INPUT)
+C        ERROR(IX,JY) = HOLDS THE ACCUMULATED ERROR (IX=1,NX) (JY=1,NY).
+C                       (INPUT/OUTPUT)
+C                  NX = THE SIZE OF THE ERROR( , ) GRID IN THE X
+C                       DIRECTION.  (INPUT)
+C                  NY = THE SIZE OF THE ERROR( , ) GRID IN THE Y
+C                       DIRECTION.  (INPUT)
+C       CPNDFD(IX,JY) = THE NDFD MASK FROM THE MOS-2000 EXTERNAL
+C                       RANDOM ACCESS FILE (IX=1,NXE) (JY=1,NXY) AT
+C                       NOMINAL MESHLENGTH MESHE.
+C                       1 = WITHIN THE AREA; 0 = OUTSIDE.  (INPUT)
+C       SEALND(IX,JY) = THE SEA/LAND (IX=1,NXE) (JY=1,NXY) AT
+C                       NOMINAL MESHLENGTH MESHE.
+C                       9 = LAND; VALUES BELOW WATER.  (INPUT)
+C        TELEV(IX,JY) = THE TERRAIN (IX=1,NXE) (JY=1,NXY) AT
+C                       NOMINAL MESHLENGTH MESHE.
+C                 NXE = X-EXTENT OF SEALND( , ), CPNDFD( , ), AND
+C                       TELEV( , ) AT MESH LENGTH MESHE.  MUST = NX.
+C                       (INPUT)
+C                 NYE = Y-EXTENT OF SEALND( , ), CPNDFD( , ), AND
+C                       TELEV( , ) AT MESH LENGTH MESHE.  MUST = NY.
+C                       (INPUT)
+C                   R = THE RADIUS OVER WHICH TO SEARCH FOR THE 
+C                       CLOSEST STATION.  THIS IS INPUT AS THE
+C                       LARGEST SEARCH RADIUS IN DOING THE ANALYSIS
+C                       SO IT SHOULD ALWAYS BE POSSIBLE TO
+C                       FIND A STATION.  IF NOT, IT WOULD PROBABLY
+C                       MEAN THE FIRST GUESS WAS NOT CORRECTED AT
+C                       THAT GRIDPOINT.  NOTE THT THE ID IN
+C                       ITABLE( , , ) WILL PROBABLY HAVE AN R
+C                       SPECIFIED INDICATING HOW THE PREDICTOR WAS
+C                       DERIVED, BUT THE R IS NOT TAKEN FROM THERE.
+C                       (INPUT)
+C       ITABLE(J,L,M) = HOLDS THE 2ND WORD IDS FOR UP TO JDIM
+C                       PREDICTORS (J=1,JDIM) FOR UP TO IDIM
+C                       EQUATIONS (M=1,IDIM) FOR LAND (L=1) AND
+C                       WATER (L=2)..   (INPUT)
+C       RTABLE(J,L,M) = HOLDS THE JDIM COEFFICIENTS (J=1,JDIM) AND
+C                       THE CONSTANT (J=JDIM+1) FOR THE LAND (L=1)
+C                       AND WATER (L=2) EQUATION FOR IDIM EQUATIONS
+C                       (M=1,IDIM), EACH EQUATION PERTAINING TO A
+C                       DIFFERENT VARIABLE IDENTIFIED IN ITABLE(J,L,M).
+C                       (INPUT)
+C                IDIM = THE MAXIMUM NUMBER OF PAIRS (LAND AND WATER)
+C                       EQUATIONS.  (INPUT)
+C                JDIM = THE MAXIMUM NUMBER OF TERMS IN THE EQUATIONS.
+C                       (INPUT)
+C                   M = THE NUMBER OF THE EQUATION.  M WOULD VARY
+C                       WITH WEATHER ELEMENT.  (INPUT)
+C              JTERML = THE NUMBER OF TERMS IN THE LAND EQUATION
+C                       EVALUATED.  (INPUT/OUTPUT)
+C              JTERMW = THE NUMBER OF TERMS IN THE WATER EQUATION
+C                       EVALUATED.  (INPUT/OUTPUT)
+C               ISTOP = INCREMENTED BY 1 WHEN AN ERROR OCCURS.
+C                       (INPUT/OUTPUT)
+C                 IER = STATUS RETURN
+C                         0 = GOOD.
+C                       777 = CAN'T FIND A STATION WITHIN DISTANCE R.
+C                             ALSO, NX AND/OR NY NOT CONSISTENT WITH
+C                             NXE AND/OR NYE.
+C                       (OUTPUT)
+C              DISTSQ = DISTANCE (IN GRID UNITS) SQUARED BETWEEN
+C                       A GRIDPOINT AND A STATION.  (INTERNAL)
+C                VAR1 = THE VARIABILITY VARIABLE (SEE PURPOSE).
+C                       (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES CALLED
+C            NONE.
+C
+      CHARACTER*8 CCALL(NSTA)
+C
+      DIMENSION ID(4)
+      DIMENSION XP(NSTA),YP(NSTA),LTAG(NSTA),LNDSEA(NSTA),ELEV(NSTA)
+      DIMENSION NEARSV(NX,NY),ERROR(NX,NY)
+      DIMENSION SEALND(NXE,NYE),TELEV(NXE,NYE),CPNDFD(NXE,NYE)
+      DIMENSION ITABLE(JDIM,2,IDIM),RTABLE(JDIM+1,2,IDIM)
+C
+CD     CALL TIMPR(KFILDO,KFILDO,'START ELVARG        ')
+C
+      IER=0
+C
+C        THIS CHECKS BOTH WATER AND LAND EQUATIONS AND ALL TERMS
+C        IN EACH EQUATION.  ERROR( , ) IS ACCUMULATED FOR A TERM
+C        INVOLVING 1797 IN THE 2ND WORD.  THIS TERM SHOULD NOT
+C        OCCUR FOR WATER EQUATIONS.
+C
+      DO 400 J=1,JDIM
+C        THERE ARE A MAXIMUM OF JDIM TERMS IN THE EQUATION.
+      DO 399 L=1,2
+C        L=1 FOR LAND, 2 = WATER.  2 SHOULD NEVER OCCUR UNLESS
+C        DEFINITIONS ARE CHANGED.
+C
+CD     WRITE(KFILDO,100)J,L,M,ITABLE(J,L,M)
+CD100  FORMAT(/' AT 100 IN ELVARG--J,L,M,ITABLE(J,L,M)',4I10)
+
+      IF(ITABLE(J,L,M)/100.NE.1797)GO TO 399
+C        TRANSFER OUT IF THIS TERM IS NOT THE ELEVATION DIFFERENCE
+C        PREDICTOR.
+C
+C           CHECK FOR LEGITIMACY OF PREDICTOR ID.  THIS ROUTINE
+C           SHOULD NOT BE NECESSARY FOR WATER GRIDPOINTS.
+C
+      IF(L.EQ.2)THEN
+         WRITE(KFILDO,102)(ID(MM),MM=1,4)
+ 102     FORMAT(/,' INCORRECT ID IN WATER EQUATION IN ELVARG',
+     1            ' FOR VARIABLE',3(1X,I9.9),1X,I10.3,
+     2            '.  FATAL ERROR.')
+         IER=777
+         ISTOP=ISTOP+1
+         GO TO 500
+      ENDIF
+C
+C        THIS IS A TERM TO EVALUATE.
+C
+      IF(L.EQ.1)THEN
+         JTERML=JTERML+1
+      ELSE
+         JTERMW=JTERMW+1
+      ENDIF
+C
+C        RETRIEVE R FROM THE ID.
+C
+      DO 200 JY=1,NY
+      DO 199 IX=1,NX
+C
+      IF(CPNDFD(IX,JY).LT..5)GO TO 199
+C           THIS GRIDPOINT IS OUTSIDE THE CLIPPING AREA.
+C
+      IF(L.EQ.1.AND.SEALND(IX,JY).GT.8.5)THEN
+C
+C           THIS SECTION EVALUATES LAND POINTS.
+C
+         IF(NEARSV(IX,JY).EQ.999999)THEN
+            ERROR(IX,JY)=9999.
+C              THIS MAY BE MODIFIED LATER.
+            WRITE(KFILDO,150)IX,JY
+ 150        FORMAT(/' ****SETTING ERROR( , ) AT IX,JY TO 9999',
+     1              ' IN ELVARG BECAUSE OF MISSING CLOSEST STATION.')
+         ELSE 
+C
+            IF(ERROR(IX,JY).LT.9998)THEN  
+C                 MUST GUARD AGAINST ERROR( , ) BEING PREVIOUSLY
+C                 SET TO MISSING.   
+               ABERR=ABS(TELEV(IX,JY)-ELEV(NEARSV(IX,JY)))
+               ERROR(IX,JY)=ERROR(IX,JY)+ABERR*RTABLE(J,L,M)
+            ENDIF
+C
+         ENDIF
+C
+         IF(IX.EQ.300.AND.JY.EQ.400)THEN
+            WRITE(KFILDO,165)J,L,M,IX,JY,
+     1                       CCALL(L),R,ABERR,
+     2                       RTABLE(J,L,M),ERROR(IX,JY)
+ 165        FORMAT(/,' AT 165 IN ELVARG--J,L,M,IX,JY,',
+     1               'CCALL(L),R,ABERR,',
+     2               'RTABLE(J,L,M),ERROR(IX,JY)',/,
+     3               5I6,2X,A8,4F10.4)
+          ENDIF
+      
+      ENDIF
+C
+ 199  CONTINUE
+ 200  CONTINUE
+C
+      WRITE(KFILDO,239)(ERROR(100,JY),JY=1,NY)
+ 239  FORMAT(/' AT 239 IN ELVARG--(ERROR(100,JY),JY=1,NY)',/,
+     1        (10F10.2))
+C
+ 399  CONTINUE
+ 400  CONTINUE
+C
+CD     CALL TIMPR(KFILDO,KFILDO,'END   ELVARG        ')
+C
+ 500  RETURN
+      END

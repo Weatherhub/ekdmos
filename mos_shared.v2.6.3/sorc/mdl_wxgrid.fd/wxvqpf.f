@@ -1,0 +1,94 @@
+      SUBROUTINE WXVQPF(QPF_CAT,IER_QPF_CAT)
+C
+C        FEBRUARY  2010   HUNTEMANN   MDL   MOS-2000
+C        MARCH     2013   HUNTEMANN   MDL   UPDATED DOCUMENTATION,
+C                                           ADDED IMPLICIT NONE.
+C
+C        PURPOSE 
+C           SUBROUTINE WXVQPF ASSURES THAT THE USER-DEFINED
+C           CATEGORICAL THRESHOLDS CONTAINED IN VECTOR QPF_CAT ARE
+C           WITHIN SPECIFIED RANGES AND THAT THESE ELEMENTS ARE
+C           ORDERED MONOTONICALLY.  IF EITHER OF THESE EVENTS OCCUR,
+C           DEFAULT CATEGORICAL VALUES FOR MODERATE AND HEAVY PRECIP-
+C           ITATION ARE INSERTED INTO QPF_CAT.  FURTHERMORE, ERROR
+C           FLAG IER_QPF_CAT, NOMINALLY 0, IS SET TO 1.
+C   
+C           DEFAULT VALUES FOR QPF06 INTENSITY ARE 0.5" (MODERATE) AND
+C           1" (HEAVY).
+C
+C        DATA SET USE
+C           NONE
+C
+C        VARIABLES
+C             QPF_CAT = REAL VECTOR OF LENGTH (2) CONTAINING USER-DEFINED
+C                       QPF06 CATEGORICAL THRESHOLDS FOR HEAVY AND MODERATE
+C                       INTENSITY (INPUT).  THE DEFAULT VALUES ARE:
+C
+C                       QPF THRESHOLD             CATEGORY
+C                       -------------          --------------
+C                            1.0                   HEAVY
+C                            0.5                  MODERATE
+C
+C         IER_QPF_CAT = ERROR FLAG (OUTPUT).  IF THE ELEMENTS WITHIN VECTOR
+C                       QPF_CAT ARE OUTSIDE OF NGM MOS QPF06 CATEGORICAL
+C                       GUIDELINES OR IF THE ELEMENTS ARE NOT MONOTONICALLY
+C                       DECREASING, IER_QPF_CAT, NOMINALLY SET TO 0, IS
+C                       SET TO 1.  IF IER_QPF_CAT IS NOT ZERO, DEFAULT
+C                       QPF06 INTENSITY THRESHOLDS ARE USED.
+C
+C        NONSYSTEM ROUTINES CALLED
+C           NONE
+C
+C**********************************************************************
+C
+C
+      IMPLICIT NONE
+C
+C        DECLARE QPF_CAT VECTOR:
+C
+      REAL QPF_CAT(2)
+C
+C        DECLARE ERROR FLAG AND LOOP INDEX:
+C
+      INTEGER IER_QPF_CAT,I
+C
+C**********************************************************************
+C
+C        SUBROUTINE WXVQPF BEGINS HERE.
+C
+C***D WRITE(KFILDO,100)(ID(J),J=1,4)
+ 100  FORMAT(' *********** IN WXVQPF *************'/' ',4I10)
+C
+C        FIRST, INITIALIZE IER_QPF_CAT TO ZERO:
+C
+      IER_QPF_CAT = 0
+C
+C        NOW, TEST TO SEE THAT BOTH ELEMENTS IN QPF_CAT ARE VAILD
+C        FOR QPF6 GUIDLINES.  IF NOT, HOIST THE ERROR
+C        FLAG TO 1:
+C
+      DO I = 1,2
+         IF ((QPF_CAT(I) .LT. 0.) .OR. (QPF_CAT(I) .GT. 5)) THEN
+            IER_QPF_CAT = 1
+         END IF
+C
+      END DO
+C
+C        TEST FOR MONOTONICITY OF THE QPF_CAT ELEMENTS:
+C
+      IF (QPF_CAT(2) .GE. QPF_CAT(1)) THEN
+         IER_QPF_CAT = 1
+      END IF
+C
+C        ASSIGN DEFAULT VALUES TO QPF_CAT IF IER_QPF_CAT IS 1:
+C
+      IF (IER_QPF_CAT .EQ. 1) THEN
+         QPF_CAT(1) = 1.0
+         QPF_CAT(2) = 0.5
+      END IF
+C
+C        ALL DONE!  RETURN TO CALLING ROUTINE:
+C
+      RETURN
+C
+      END      ! SUBROUTINE WXVQPF

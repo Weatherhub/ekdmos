@@ -1,0 +1,352 @@
+
+Thu Nov  9 16:10:10 UTC 2017
+
+[H[2JThe following makefile actions will be performed:
+
+     make in all mdl_*.fd/ directiories and executables moved to /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/exec
+
+[?1034hSet the mos_shared module path [default: /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/modulefiles:/usrrx/local/prod/modulefiles:/gpfs/hps/nco/ops/nwprod/lib/modulefiles:/gpfs/hps/nco/ops/nwprod/modulefiiles:/opt/cray/alt-modulefiles:/opt/cray/craype/default/alt-modulefiles:/opt/cray/ari/modulefiles:/oopt/modulefiles]: /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/modulefiles/gpfs/hps/nco/ops/nwpara/mo s_shared.v2.6.3/modulefiles^C[H[2JThe following makefile actions will be performed:
+
+     make in all mdl_*.fd/ directiories and executables moved to /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/exec
+
+
+----- itdlp -----
+
+ftn -Bstatic -o itdlp itdlp_mod.o itdlp.o rdclargs.o wrgis.o prgrid.o tdlp_open.o wrbin.o wrtdlp.o unpkplain.o tdlp_read_sq.o tdlp_read_ra.o prisx.o probe.o file_info.o prinv.o itdlp_stop.o wrtext.o rdstdin.o createra.o wrtdlpra.o csignal.o usage.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a
+
+Program itdlp successfully created
+
+----- mdl_ecemostx -----
+
+ftn  -o mdl_ecemostx xecmos_stats_txt.o rdwmo.o rdlnk.o wrmsga_intel.o putq.o	 /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_ecemostx successfully created
+
+----- mdl_ecmmostx -----
+
+ftn  -o mdl_ecmmostx ecmtx.o rdwmo.o wrmsga_intel.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a \
+                            -Wl,--start-group /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a -Wl,--end-group
+
+Program mdl_ecmmostx successfully created
+
+----- mdl_eqneval -----
+
+ftn  -o mdl_eqneval eqneval.o fcst90.o rdstr9.o setjdt.o u900.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_eqneval successfully created
+
+----- mdl_fcstpost -----
+
+ftn  -o mdl_fcstpost fcstpost.o int910.o u910.o  /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_fcstpost successfully created
+
+----- mdl_fecn21tx -----
+
+ftn  -o mdl_fecn21tx fecn21tx.o rdwmo.o rdlnk.o wrmsg.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_fecn21tx successfully created
+
+----- mdl_focn20tx -----
+
+ftn  -o mdl_focn20tx focn20tx.o rdwmo.o rdlnk.o putq.o wrmsg.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a 
+
+Program mdl_focn20tx successfully created
+
+----- mdl_gefsmextx -----
+
+ftn  -o mdl_gefsmextx gefsmextx.o rdwmo.o rdlnk.o wrmsga.o putq.o	 /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gefsmextx successfully created
+
+----- mdl_gfsmavtx -----
+
+ftn  -o mdl_gfsmavtx gfsmavtx.o rdwmo.o wrmsga.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gfsmavtx successfully created
+
+----- mdl_gfsmcgtx -----
+
+ftn  -o mdl_gfsmcgtx gfsmcgtx.o rdwmo.o wrmsgntc.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gfsmcgtx successfully created
+
+----- mdl_gfsmcxtx -----
+
+ftn  -o mdl_gfsmcxtx gfsmcxtx.o rdwmo.o wrmsgntc.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gfsmcxtx successfully created
+
+----- mdl_gfsmextx -----
+
+ftn  -o mdl_gfsmextx gfsmextx.o rdwmo.o rdlnk.o wrmsga.o putq.o	 /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gfsmextx successfully created
+
+----- mdl_gfsmmgtx -----
+
+ftn  -o mdl_gfsmmgtx gfsmmgtx.o rdwmo.o wrmsga.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gfsmmgtx successfully created
+
+----- mdl_granalysis_ak -----
+
+ftn  -o mdl_granalysis_ak augmt1.o  avglap.o  bcd5.o  blend.o  bogus.o  caksno.o  cigft.o  ckmaxt.o  ckmint.o  ckpop.o  ckqpf.o  cktdp.o  ckwndg.o  clip.o  clos.o  clos2.o  clos2g.o  concpr.o  conekd.o  convpr.o  corbc5.o  cutit.o  dens.o  denser.o  densrm.o  densrq.o  difwh.o  dirspd.o  discig.o  elvar.o  elvarg.o  erest.o  eslp5.o  esp5.o  fgskya.o  fitwth.o  fltag.o  fltagm.o  fstgs5.o  gfetch.o  gradck.o  granalysis.o  gthres.o  hsmth.o  int155.o  intrpl.o  intrpx.o  itrp.o  itrpsl.o  itrpsx.o  keylst.o  lapse.o  lapsua.o  list.o  ltagrd.o  mshxms.o  newxy.o  orsmth.o  osmth.o  osmth1.o  points.o  post.o  qpf6p6.o  rdnei.o  rdprs.o  rdstr1.o  rdstr7.o  rdv155.o  rdvrhl.o  restrw.o  restwh.o  rough.o  roughg.o  sample.o  sclq06.o  sclq12.o  sclsky.o  sclsno.o  setcft.o  setlnd.o  setpnt.o  setvmi.o  skyamt.o  smoth.o  smothc.o  smothg.o  smothn.o  stsnoz.o  szgrdm.o  szgrid.o  terdif.o  trnwnd.o  u155.o  u155ck.o  u405a.o  vari.o  varig.o  varil.o  varilg.o  variw.o  variwg.o  vismi.o  wndcor.o  wthol1.o  wthol2.o  xycom1.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_granalysis_ak successfully created
+
+----- mdl_granalysis_co -----
+
+ftn -openmp -o mdl_granalysis_co augmt1.o  avglap.o  bcd5.o  blend.o  bogus.o  caksno.o  cconsn.o  cigft.o  ckmaxt.o  ckmint.o  ckpop.o  ckqpf.o  cktdp.o  ckwndg.o  clip.o  clos.o  clos2.o  clos2g.o  concpr.o  conekd.o  convpr.o  corbc5.o  cutit.o  dens.o  denser.o  densrm.o  densrq.o  difwh.o  dirspd.o  discig.o  elvar.o  elvarg.o  erest.o  eslp5.o  esp5.o  fgskya.o  fitwth.o  fltag.o  fltagm.o  fstgs5.o  gfetch.o  gradck.o  granalysis.o  gthres.o  hsmth.o  int155.o  intrpl.o  intrpx.o  itrp.o  itrpsl.o  itrpsx.o  keylst.o  lapse.o  lapsua.o  list.o  ltagrd.o  mshxms.o  newxy.o  orsmth.o  osmth.o  osmth1.o  points.o  post.o  qpf6p6.o  rdnei.o  rdprs.o  rdstr1.o  rdstr7.o  rdv155.o  rdvrhl.o  restrw.o  restwh.o  rough.o  roughg.o  sample.o  sclq06.o  sclq12.o  sclsky.o  sclsno.o  setcft.o  setlnd.o  setpnt.o  setvmi.o  skyamt.o  smoth.o  smothc.o  smothg.o  smothn.o  stsnoz.o  szgrdm.o  szgrid.o  terdif.o  trnwnd.o  u155.o  u155ck.o  u405a.o  vari.o  varig.o  varil.o  varilg.o  variw.o  variwg.o  vismi.o  wndcor.o  wthol1.o  wthol2.o  xycom1.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a -liomp5
+[H[2JThe following makefile actions will be performed:
+
+     make in all mdl_*.fd/ directiories and executables moved to /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/exec
+
+
+----- itdlp -----
+
+ftn -Bstatic -o itdlp itdlp_mod.o itdlp.o rdclargs.o wrgis.o prgrid.o tdlp_open.o wrbin.o wrtdlp.o unpkplain.o tdlp_read_sq.o tdlp_read_ra.o prisx.o probe.o file_info.o prinv.o itdlp_stop.o wrtext.o rdstdin.o createra.o wrtdlpra.o csignal.o usage.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a
+
+Program itdlp successfully created
+
+----- mdl_ecemostx -----
+
+ftn  -o mdl_ecemostx xecmos_stats_txt.o rdwmo.o rdlnk.o wrmsga_intel.o putq.o	 /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_ecemostx successfully created
+
+----- mdl_ecmmostx -----
+
+ftn  -o mdl_ecmmostx ecmtx.o rdwmo.o wrmsga_intel.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a \
+                            -Wl,--start-group /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a -Wl,--end-group
+
+Program mdl_ecmmostx successfully created
+
+----- mdl_eqneval -----
+
+ftn  -o mdl_eqneval eqneval.o fcst90.o rdstr9.o setjdt.o u900.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_eqneval successfully created
+
+----- mdl_fcstpost -----
+
+ftn  -o mdl_fcstpost fcstpost.o int910.o u910.o  /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_fcstpost successfully created
+
+----- mdl_fecn21tx -----
+
+ftn  -o mdl_fecn21tx fecn21tx.o rdwmo.o rdlnk.o wrmsg.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_fecn21tx successfully created
+
+----- mdl_focn20tx -----
+
+ftn  -o mdl_focn20tx focn20tx.o rdwmo.o rdlnk.o putq.o wrmsg.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a 
+
+Program mdl_focn20tx successfully created
+
+----- mdl_gefsmextx -----
+
+ftn  -o mdl_gefsmextx gefsmextx.o rdwmo.o rdlnk.o wrmsga.o putq.o	 /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gefsmextx successfully created
+
+----- mdl_gfsmavtx -----
+
+ftn  -o mdl_gfsmavtx gfsmavtx.o rdwmo.o wrmsga.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gfsmavtx successfully created
+
+----- mdl_gfsmcgtx -----
+
+ftn  -o mdl_gfsmcgtx gfsmcgtx.o rdwmo.o wrmsgntc.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gfsmcgtx successfully created
+
+----- mdl_gfsmcxtx -----
+
+ftn  -o mdl_gfsmcxtx gfsmcxtx.o rdwmo.o wrmsgntc.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gfsmcxtx successfully created
+
+----- mdl_gfsmextx -----
+
+ftn  -o mdl_gfsmextx gfsmextx.o rdwmo.o rdlnk.o wrmsga.o putq.o	 /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gfsmextx successfully created
+
+----- mdl_gfsmmgtx -----
+
+ftn  -o mdl_gfsmmgtx gfsmmgtx.o rdwmo.o wrmsga.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_gfsmmgtx successfully created
+
+----- mdl_granalysis_ak -----
+
+ftn  -o mdl_granalysis_ak augmt1.o  avglap.o  bcd5.o  blend.o  bogus.o  caksno.o  cigft.o  ckmaxt.o  ckmint.o  ckpop.o  ckqpf.o  cktdp.o  ckwndg.o  clip.o  clos.o  clos2.o  clos2g.o  concpr.o  conekd.o  convpr.o  corbc5.o  cutit.o  dens.o  denser.o  densrm.o  densrq.o  difwh.o  dirspd.o  discig.o  elvar.o  elvarg.o  erest.o  eslp5.o  esp5.o  fgskya.o  fitwth.o  fltag.o  fltagm.o  fstgs5.o  gfetch.o  gradck.o  granalysis.o  gthres.o  hsmth.o  int155.o  intrpl.o  intrpx.o  itrp.o  itrpsl.o  itrpsx.o  keylst.o  lapse.o  lapsua.o  list.o  ltagrd.o  mshxms.o  newxy.o  orsmth.o  osmth.o  osmth1.o  points.o  post.o  qpf6p6.o  rdnei.o  rdprs.o  rdstr1.o  rdstr7.o  rdv155.o  rdvrhl.o  restrw.o  restwh.o  rough.o  roughg.o  sample.o  sclq06.o  sclq12.o  sclsky.o  sclsno.o  setcft.o  setlnd.o  setpnt.o  setvmi.o  skyamt.o  smoth.o  smothc.o  smothg.o  smothn.o  stsnoz.o  szgrdm.o  szgrid.o  terdif.o  trnwnd.o  u155.o  u155ck.o  u405a.o  vari.o  varig.o  varil.o  varilg.o  variw.o  variwg.o  vismi.o  wndcor.o  wthol1.o  wthol2.o  xycom1.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_granalysis_ak successfully created
+
+----- mdl_granalysis_co -----
+
+ftn -openmp -o mdl_granalysis_co augmt1.o  avglap.o  bcd5.o  blend.o  bogus.o  caksno.o  cconsn.o  cigft.o  ckmaxt.o  ckmint.o  ckpop.o  ckqpf.o  cktdp.o  ckwndg.o  clip.o  clos.o  clos2.o  clos2g.o  concpr.o  conekd.o  convpr.o  corbc5.o  cutit.o  dens.o  denser.o  densrm.o  densrq.o  difwh.o  dirspd.o  discig.o  elvar.o  elvarg.o  erest.o  eslp5.o  esp5.o  fgskya.o  fitwth.o  fltag.o  fltagm.o  fstgs5.o  gfetch.o  gradck.o  granalysis.o  gthres.o  hsmth.o  int155.o  intrpl.o  intrpx.o  itrp.o  itrpsl.o  itrpsx.o  keylst.o  lapse.o  lapsua.o  list.o  ltagrd.o  mshxms.o  newxy.o  orsmth.o  osmth.o  osmth1.o  points.o  post.o  qpf6p6.o  rdnei.o  rdprs.o  rdstr1.o  rdstr7.o  rdv155.o  rdvrhl.o  restrw.o  restwh.o  rough.o  roughg.o  sample.o  sclq06.o  sclq12.o  sclsky.o  sclsno.o  setcft.o  setlnd.o  setpnt.o  setvmi.o  skyamt.o  smoth.o  smothc.o  smothg.o  smothn.o  stsnoz.o  szgrdm.o  szgrid.o  terdif.o  trnwnd.o  u155.o  u155ck.o  u405a.o  vari.o  varig.o  varil.o  varilg.o  variw.o  variwg.o  vismi.o  wndcor.o  wthol1.o  wthol2.o  xycom1.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a -liomp5
+
+Program mdl_granalysis_co successfully created
+
+----- mdl_granalysis_hi -----
+
+ftn  -o mdl_granalysis_hi augmt1.o  avglap.o  bcd5.o  blend.o  bogus.o  caksno.o  cconsn.o  cigft.o  ckmaxt.o  ckmint.o  ckpop.o  ckqpf.o  cktdp.o  ckwndg.o  clip.o  clos.o  clos2.o  clos2g.o  concpr.o  conekd.o  convpr.o  corbc5.o  cutit.o  dens.o  denser.o  densrm.o  densrq.o  difwh.o  dirspd.o  discig.o  elvar.o  elvarg.o  erest.o  eslp5.o  esp5.o  fgskya.o  fitwth.o  fltag.o  fltagm.o  fstgs5.o  gfetch.o  gradck.o  granalysis.o  gthres.o  hsmth.o  int155.o  intrpl.o  intrpx.o  itrp.o  itrpsl.o  itrpsx.o  keylst.o  lapse.o  lapsua.o  list.o  ltagrd.o  mshxms.o  newxy.o  orsmth.o  orvwsm.o  osmth.o  osmth1.o  points.o  post.o  qpf6p6.o  rdnei.o  rdprs.o  rdstr1.o  rdstr7.o  rdv155.o  rdvrhl.o  restrw.o  restwh.o  rough.o  roughg.o  sample.o  sclq06.o  sclq12.o  sclsky.o  sclsno.o  setcft.o  setlnd.o  setpnt.o  setvmi.o  skyamt.o  smoth.o  smothc.o  smothg.o  smothn.o  stsnoz.o  szgrdm.o  szgrid.o  terdif.o  trnwnd.o  u155.o  u155ck.o  u405a.o  vari.o  varig.o  varil.o  varilg.o  variw.o  variwg.o  vismi.o  wndcor.o  wthol1.o  wthol2.o  xycom1.o  actual.o  nominl.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_granalysis_hi successfully created
+
+----- mdl_grb2mdlp -----
+
+ftn  -o mdl_grb2mdlp grb2mdlp.o pdchng.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_grb2mdlp successfully created
+
+----- mdl_grb2tomdlp -----
+
+ftn -Bstatic	 -o mdl_grb2tomdlp gribmod.o gridasn.o gribtomdlpk.o u130.o rdgrib2.o subgrid.o overdate.o overdate2.o chkgrid2.o chkgrid3.o rdelmlst.o rdgrib1.o pdchng.o eqvlat.o stlmbr.o stcm1p.o cgszll.o cnllxy.o cll2xy.o cspanf.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/g2/v3.1.0/intel/libg2_v3.1.0_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a /usrx/local/prod//jasper/1.900.1/gnu/sandybridge/lib/libjasper.a /usrx/local/prod//png/1.2.44/intel/sandybridge/lib/libpng.a /usrx/local/prod/zlib/1.2.7/intel/sandybridge/lib/libz.a
+
+Program mdl_grb2tomdlp successfully created
+
+----- mdl_grd2grd -----
+
+ftn  -o mdl_grd2grd grd2grd.o data_intrp.o grid_intrp.o gridcomb.o intrp_out.o rdintrp.o u365.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_grd2grd successfully created
+
+----- mdl_gribtomdlpk -----
+
+ftn      -o mdl_gribtomdlpk gribmod.o gridasn.o gribtomdlpk.o u130.o rdgrib2.o subgrid.o overdate.o overdate2.o chkgrid2.o chkgrid3.o rdelmlst.o rdgrib1.o pdchng.o eqvlat.o stlmbr.o stcm1p.o cgszll.o cll2xy.o cnllxy.o cspanf.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/g2/v3.1.0/intel/libg2_v3.1.0_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a /usrx/local/prod//jasper/1.900.1/gnu/sandybridge/lib/libjasper.a /usrx/local/prod//png/1.2.44/intel/sandybridge/lib/libpng.a /usrx/local/prod/zlib/1.2.7/intel/sandybridge/lib/libz.a
+
+Program mdl_gribtomdlpk successfully created
+
+----- mdl_gridarch -----
+
+ftn  -o mdl_gridarch gridarch.o u202.o pred23.o pred24.o option_gridarch.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_gridarch successfully created
+
+----- mdl_gridpost -----
+
+ftn  -o mdl_gridpost gridpost.o u202.o pred23.o pred24.o rdpred.o option.o ckbounds.o grduntcvt.o cmpdpgr.o cmpwdrgr.o ckwspdgr.o ckwndgst.o ckgpop.o cmpqpfgr.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_gridpost successfully created
+
+----- mdl_hrlytbl -----
+
+ftn  -o mdl_hrlytbl CLOUD.o GEOGRAPHY.o HRLYTBL.o Kelvin_F.o MAXIMUM_TEMP.o MINIMUM_TEMP.o Meter_ft.o PRECIPITATION.o PRESSURE.o REPORT_TIME.o SNOW.o SUNSHINE.o TEMPERATURE.o TEMPQC.o VISIBILITY.o WEATHER.o WINDS.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_8_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_8.a /gpfs/hps/nco/ops/nwprod/lib/bufr/v11.0.1/intel/libbufr_v11.0.1_8_64.a
+
+Program mdl_hrlytbl successfully created
+
+----- mdl_makecdf -----
+
+ftn -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCORE-AVX2 -c makecdf.f int915.f u915.f opty.f rankdist.f distf.f rdvr75.f avgprb.f distap.f rdssk9.f  
+ftn  -o mdl_makecdf makecdf.o int915.o u915.o opty.o rankdist.o distf.o rdvr75.o avgprb.o distap.o rdssk9.o /gpfs/hps/nco/ops/nwprod/ekdmos_shared.v2.0.0/lib/libensmdl_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a
+
+Program mdl_makecdf successfully created
+
+----- mdl_mos2bufr -----
+
+ifort  -o mdl_mos2bufr bcmap.o bcmaper.o bdate.o bdrivr.o bgener.o bpack.o bprob.o bproj.o bspec.o bspecs.o bufopt.o bufrgn.o mos2bufr.o latlon.o rdwmo.o seachk.o rdlnk.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_mos2bufr successfully created
+
+----- mdl_mospred -----
+
+ftn  -o mdl_mospred mospred.o u201.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_mospred successfully created
+
+----- mdl_nammettx -----
+
+ftn  -o mdl_nammettx nammettx.o rdwmo.o wrmsga.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_nammettx successfully created
+
+----- mdl_nammmetx -----
+
+ftn  -o mdl_nammmetx nammmetx.o rdwmo.o wrmsga.o rdlnk.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_nammmetx successfully created
+
+----- mdl_obsprep -----
+
+ftn  -o mdl_obsprep druobsprep.o obsprep.o getobs.o cnvtwx.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a 
+
+Program mdl_obsprep successfully created
+
+----- mdl_ra2grib2 -----
+
+ftn  -o mdl_ra2grib2 ra2grib2.o u135.o chkgrid.o rdsect1.o rdsect2.o rdsect3.o rdsect4.o rdsect5.o rdtdlpk.o packgrib2.o chkdup.o chkgrid4.o gribclose.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/g2/v3.1.0/intel/libg2_v3.1.0_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a /usrx/local/prod//jasper/1.900.1/gnu/sandybridge/lib/libjasper.a /usrx/local/prod//png/1.2.44/intel/sandybridge/lib/libpng.a /usrx/local/prod/zlib/1.2.7/intel/sandybridge/lib/libz.a
+
+Program mdl_ra2grib2 successfully created
+
+----- mdl_ra2grib -----
+
+ftn  -o mdl_ra2grib maingrib.o intgrib.o bitmap.o cress.o lat2xy.o ra2grib.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3emc/v2.2.0/intel/libw3emc_v2.2.0_4.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_ra2grib successfully created
+
+----- mdl_ra2mdlp -----
+
+ftn  -o mdl_ra2mdlp ra2mdlp.o u660.o int660.o optx_archive.o chngid.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_ra2mdlp successfully created
+
+----- mdl_racreate -----
+
+ftn  -o mdl_racreate racreate.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_racreate successfully created
+
+----- mdl_rainit -----
+
+ftn  -o mdl_rainit rainit.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_rainit successfully created
+
+----- mdl_ramerge -----
+
+ftn  -o mdl_ramerge ramerge.o u660.o int660.o vrbl66.o packra_oper.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_ramerge successfully created
+
+----- mdl_repackmeso -----
+
+ftn -Bstatic -o mdl_repackmeso  repackmeso.o  /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_repackmeso successfully created
+
+----- mdl_rfcftptx -----
+
+ftn  -o mdl_rfcftptx prmsga.o rdlnk.o rdwmo.o rfcftptx.o wrmsg_rfc.o putq.o /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_rfcftptx successfully created
+
+----- mdl_seq2ra -----
+
+ftn  -o mdl_seq2ra seq2ra.o  /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_seq2ra successfully created
+
+----- mdl_vect2grid -----
+
+ftn  -o mdl_vect2grid vect2grid.o u140.o int140.o pwotgm.o rdvr140.o rdstgrid.o  /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_vect2grid successfully created
+
+----- mdl_wxgrid -----
+
+ftn -openmp -o mdl_wxgrid wxgrid.o u720.o int720.o pred25.o option.o pred26.o scalx2.o gtvegr.o rdwxcn.o genwx.o wxpcat.o wxwrd3.o ckmiss.o wxvcat.o hsmth.o wxpchr.o wxpphs.o wxpint.o wxvqpf.o wxexpl.o wxtstm.o wxtsvr.o wxkeys.o  /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a
+
+Program mdl_wxgrid successfully created
+
+----- mdl_xecmmostx -----
+
+ftn  -o mdl_xecmmostx xecmtx.o rdwmo.o rdlnk.o wrmsga_intel.o putq.o	 /gpfs/hps/nco/ops/nwprod/lib/w3nco/v2.0.6/intel/libw3nco_v2.0.6_4.a /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/libmdl_4_intel.a /gpfs/hps/nco/ops/nwprod/lib/bacio/v2.0.1/intel/libbacio_v2.0.1_4.a
+
+Program mdl_xecmmostx successfully created

@@ -54,10 +54,10 @@ EOF
 
 case ${COMP:?} in
   intel)
-    #export FCMP=${1:-ifort}
-    #export CCMP=${2:-icc}
-    export FCMP=${1:-ftn}
-    export CCMP=${2:-cc}
+    export FCMP=${1:-ifort}
+    export CCMP=${2:-icc}
+    #export FCMP=${1:-ftn}
+    #export CCMP=${2:-cc}
     flagOpt="-O3 -axCore-AVX2"
     flag64bit="-i8 -r8"
   ;;

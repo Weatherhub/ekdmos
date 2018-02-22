@@ -1,0 +1,113 @@
+      SUBROUTINE WRGIS(KFILDO,KFILVO,ID,PLAIN,ISCALD,NDATE,
+     1                 P,NX,NY,BMESH,ALATL,ALONL,
+     2                 NPROJ,ORIENT,XLAT,IER)
+C
+C        NOVEMBER  2004   GLAHN   TDL   MOS-2000
+C
+C        PURPOSE
+C            TO WRITE FOR U155 THE ANALYSIS GRID IN ASCII FORMAT
+C            FOR GIS INPUT.
+C
+C        DATA SET USE
+C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C            KFILVO    - UNIT NUMBER OF VECTOR OUTPUT ASCII FILE.
+C                        ZERO MEANS OUTPUT WILL NOT BE WRITTEN.
+C                        (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C              KFILVO = UNIT NUMBER OF VECTOR OUTPUT ASCII FILE.
+C                       ZERO MEANS OUTPUT WILL NOT BE WRITTEN.  (INPUT)
+C               ID(J) = THE VARIABLE ID'S BEING DEALT WITH (J=1,4).
+C                       (INPUT)
+C               PLAIN = THE PLAIN LANGUAGE DESCRIPTION OF THE VARIABLE
+C                       IN ID( ).  (CHARACTER*32)  (INPUT)
+C              ISCALD = DECIMAL SCALING FOR THE VARIABLE DEFINED IN
+C                       ID( ).  (INPUT)
+C               NDATE = THE DATE/TIME OF THE RUN.  (INPUT)
+C            P(IX,JY) = THE GRID TO WRITE OUT (IX=1,NX) (JY=1,NY).
+C                       (INPUT)
+C                  NX = THE SIZE OF THE GRID P( , ) IN THE X DIRECTION.
+C                       (INPUT)
+C                  NY = THE SIZE OF THE GRID P( , ) IN THE Y DIRECTION.
+C                       (INPUT)
+C               BMESH = THE ACTUAL MESH LENGTH OF THE GRID IN P( , )
+C                       IN KM.  IT WILL BE WRITTEN IN MM.  (INPUT)
+C               ALATL = NORTH LATITUDE OF LOWER LEFT CORNER POINT
+C                       OF THE GRID P( , ) TRUNCATED TO TEN THOUSANDTHS
+C                       OF DEGREES.  NOTE THAT THE MOS-2000 ARCHIVE
+C                       IS ONLY TO THOUSANDTHS OF DEGREES.  (INPUT)
+C               ALONL = WEST LONGITUDE OF LOWER LEFT CORNER POINT
+C                       OF THE GRID P( . ) (SEE ABOVE).  (INPUT)
+C               NPROJ = NUMBER OF MAP PROJECTION TO WHICH THIS GRID
+C                       APPLIES.
+C                       3 = LAMBERT.
+C                       5 = POLAR STEREOGRAPHIC.
+C                       7 = MERCATOR.
+C                       (INPUT)
+C              ORIENT = ORIENTATION OF GRID IN DEGREES WEST LONGITUDE.
+C                       (INPUT)
+C                XLAT = NORTH LATITUDE IN DEGREES AT WHICH GRIDLENGTH
+C                       IS SPECIFIED.  (INPUT)
+C                 IER = STATUS RETURN.
+C                       0 = GOOD RETURN.
+C                       (OUTPUT)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES USED 
+C            NONE
+C
+      CHARACTER*32 PLAIN
+C
+      DIMENSION ID(4)
+      DIMENSION P(NX,NY)
+      DIMENSION INTP(NX)
+C        INTP( ) IS AN AUTOMATIC ARRAY.
+C
+      IER=0
+      IF(KFILVO.LE.0)GO TO 300
+C
+      WRITE(KFILVO,110)NX
+ 110  FORMAT('ncols',I11)
+      WRITE(KFILVO,120)NY
+ 120  FORMAT('nrows',I11)
+      WRITE(KFILVO,130)ALATL
+ 130  FORMAT('ll lat',F10.5)
+      WRITE(KFILVO,140)ALONL
+ 140  FORMAT('ll lon',F10.5)
+      WRITE(KFILVO,150)NPROJ
+ 150  FORMAT('proj',I12)
+      AMESH=BMESH*1000.
+      WRITE(KFILVO,160)AMESH
+C        THIS WRITES THE MESH LENGTH TO NEAREST MILLIMETER, THE UNITS
+C        USED IN TDLPACK.
+ 160  FORMAT('mesh',F12.3)
+      WRITE(KFILVO,163)ORIENT
+ 163  FORMAT('orient',F10.5)
+      WRITE(KFILVO,167)XLAT
+ 167  FORMAT('xlat',F12.5)
+      WRITE(KFILVO,170)NDATE
+ 170  FORMAT('ndate',i11)
+      WRITE(KFILVO,180)ID
+ 180  FORMAT('id',I14,3I12)
+C
+C        SCALE DATA AND INTERIZE.
+C
+      DO 200 JY=NY,1,-1
+C
+      DO 190 IX=1,NX
+      INTP(IX)=NINT(P(IX,JY)*(10**ISCALD))
+ 190  CONTINUE
+C
+      WRITE(KFILVO,195)(INTP(IX),IX=1,NX)
+ 195  FORMAT(10I10)
+ 200  CONTINUE
+C
+      WRITE(KFILDO,210)(ID(J),J=1,4),PLAIN,NDATE
+ 210  FORMAT(/' WRITING VARIABLE ',I10.9,2I10,I10.3,3X,A32,
+     1        ' TO KFILVO FOR DATE',I12)
+ 300  RETURN
+      END
+
+
+

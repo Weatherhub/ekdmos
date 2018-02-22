@@ -1,0 +1,79 @@
+      SUBROUTINE NEWXY1(KFILDO,MESHIN,XPIN,YPIN,MESHOUT,XP,YP,NPROJ,
+     1                  NSTA)
+C
+C        SEPTEMBER 2007   GLAHN   MDL   LAMP-2000
+C                                 MODIFIED FROM NEWXY TO INCLUDE NRPOJ
+C
+C        PURPOSE
+C           TO CALCULATE X AND Y POSITIONS OF THE STATIONS IN
+C           XP( ) AND YP( ) IN TERMS OF THE GRID TO BE USED.
+C   
+C        DATA SET USE
+C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES 
+C
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C              MESHIN = THE MESH LENGTH FOR THE INPUT LOCATIONS XPIN( )
+C                       AND YPIN( ).  (INPUT)
+C             XPIN(K) = X POSITIONS OF THE STATIONS AT MESH LENGTH
+C                       MESHIN (K=1,NSTA).  (INPUT)
+C             YPIN(K) = Y POSITIONS OF THE STATIONS AT MESH LENGTH
+C                        MESHIN (K=1,NSTA).  (INPUT)
+C             MESHOUT = THE MESH LENGTH FOR THE OUTPUT XP( ) AND YP( ).
+C                       (INPUT)
+C               XP(K) = X POSITIONS OF THE STATIONS AT MESH LENGTH
+C                       MESHOUT (K=1,NSTA).  (OUTPUT)
+C               YP(K) = Y POSITIONS OF THE STATIONS AT MESH LENGTH
+C                       MESHOUT (K=1,NSTA).  (OUTPUT)
+C               NPROJ = MAP PROJECTION.  (INPUT)
+C                NSTA = NUMBER OF VALUES IN XPIN( ), YPIN( ), XP( ),
+C                       AND YP( ).  (INPUT)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES USED 
+C            NONE
+C
+      DIMENSION XPIN(NSTA),YPIN(NSTA),XP(NSTA),YP(NSTA)
+C
+D     WRITE(KFILDO,100)MESHIN,MESHOUT,NSTA
+D100  FORMAT(/' IN NEWXY1 AT 100--MESHIN,MESHOUT,NSTA',
+D    1        3I8)
+C
+      IF(MESHIN.EQ.MESHOUT)THEN
+C
+         DO 110 K=1,NSTA
+            XP(K)=XPIN(K)
+            YP(K)=YPIN(K)
+ 110     CONTINUE
+C
+      ELSE
+C
+C           AT HIGH RESOLUTIONS (MESHLENGTHS < 5 KM), MESHIN AND MESHOUT
+C           MAY NOT DIFFER BY AN EXACT POWER OF 2.  CALL ACTUAL TO 
+C           CALCULATE RATIO CORRECTLY.  
+C
+         CALL ACTUAL(KFILDO,MESHIN,XMESHA,XMESHIN,NPROJ,IER)
+         CALL ACTUAL(KFILDO,MESHOUT,XMESHB,XMESHOUT,NPROJ,IER)
+         RATIO=XMESHIN/XMESHOUT
+C
+D        WRITE(KFILDO,112)XMESHIN,XMESHOUT,XMESHA,XMESHB,RATIO
+D112     FORMAT(/,' AT 112 IN NEWXY1--XMESHIN,XMESHOUT,',
+D    1            'XMESHNA,XMESHNB,RATIO',5F10.5)
+C
+         DO 120 K=1,NSTA
+C
+            IF(NINT(XPIN(K)).NE.9999)THEN
+               XP(K)=(XPIN(K)-1.)*RATIO+1.
+               YP(K)=(YPIN(K)-1.)*RATIO+1.
+            ELSE
+               XP(K)=9999.
+               YP(K)=9999.
+            ENDIF
+C
+ 120     CONTINUE
+C
+      ENDIF
+C
+      RETURN
+      END

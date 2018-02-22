@@ -1,0 +1,539 @@
+IBM XL Fortran for AIX, V12.1 (5724-U82) Version 12.01.0000.0001 --- /gpfs/c/nco/ops/nwpara/sorc/ekd_makecdf.fd/rdvr75.f 03/06/12 15:10:32
+ 
+>>>>> OPTIONS SECTION <<<<<
+***   Options In Effect   ***
+  
+         ==  On / Off Options  ==
+         CCLINES         CR              DBG             ESCAPE
+         FULLPATH        I4              INLGLUE         INTLOG
+         NOLIBESSL       NOLIBPOSIX      OBJECT          SOURCE
+         STRICT          SWAPOMP         THREADED        UNWIND
+         NOZEROSIZE
+  
+         ==  Options Of Integer Type ==
+         ALIAS_SIZE(65536)     FIXED(72)             MAXMEM(-1)
+         OPTIMIZE(3)           SPILLSIZE(512)        STACKTEMP(0)
+  
+  
+         ==  Options of Integer and Character Type ==
+         SMP(OMP,SCHEDULE(RUNTIME))
+  
+         ==  Options Of Character Type  ==
+         64(LARGETYPE)         ALIAS(STD,INTPTR)     ALIGN(BINDC(POWER),STRUCT(NATURAL))
+         ARCH(PWR6)            AUTODBL(NONE)         DESCRIPTOR(V1)
+         DIRECTIVE($OMP)       ENUM()                FLAG(I,I)
+         FLOAT(RNDSNGL,MAF,FOLD,RNGCHK,SINGLE)
+         HALT(S)               IEEE(NEAR)            INITAUTO( 0      )
+         INTSIZE(4)            LANGLVL(EXTENDED)     POSITION(APPENDOLD)
+         REALSIZE(4)           SAVE(ALL)             TUNE(PWR6)
+         UNROLL(AUTO)          XFLAG()               XLF2003(NOPOLYMORPHIC,NOBOZLITARGS,NOSTOPEXCEPT,NOVOLATILE,NOAUTOREALLOC,OLDNANINF)
+         XLF77(NOLEADZERO,GEDIT77,NOBLANKPAD,OLDBOZ,INTARG,INTXOR,PERSISTENT,SOFTEOF)
+         XLF90(NOSIGNEDZERO,NOAUTODEALLOC,OLDPAD)
+  
+>>>>> SOURCE SECTION <<<<<
+          1 |      SUBROUTINE RDVR75(KFILDO,IP6,IP7,IP8,IP9,KFILP,KFILCP,
+          2 |     1                  ID,IDPARS,TRESHL,TRESHU,JD,JP,PLAIN,ITAU,KER,
+          3 |     2                  ISD,SD,DS,ISCALD,NCAT,ND4,
+          4 |     3                  NVRBL,ISTOP,IER)
+          5 |C
+          6 |C        FEBRUARY  2007   GLAHN   TDL   MOS-2000
+          7 |C                                 DERIVED FROM RDVR79; USED FOR U715
+          8 |C        MAY       2007   GLAHN   COMMENTS ABOUT ISD( )
+          9 |C        SEPTEMBER 2007   GLAHN   CHANGED DEFINTION OF SD( )
+         10 |C        APRIL     2010   GLAHN   LEFT "G" IN ID(4) AND JD(4) FOR
+         11 |C                                 MULTIPLE MODELS
+         12 |C
+         13 |C        PURPOSE
+         14 |C            TO READ FOR U715 THROUGH INT715 A VARIABLE LIST AND
+         15 |C            ASSOCIATED INFORMATION FROM A FILE ON UNIT KFILP.
+         16 |C            KFILP CAN BE THE DEFAULT INPUT FILE, OR CAN BE A
+         17 |C            SEPARATE FILE.  ALSO, VARIABLE NAMES AND OTHER
+         18 |C            INFORMATION FROM THE VARIABLE CONSTANT FILE ON UNIT
+         19 |C            KFILCP CAN BE MATCHED WITH THE VARIABLES.  SOME INSERTIONS
+         20 |C            ARE MADE FOR COMPUTED VARIABLES.  EACH VARIABLE ID IN
+         21 |C            ID( , ) IS DUPLICATED IN JD( , ) BUT WITH SOME PORTIONS
+         22 |C            OMITTED; THE RESULT IS CALLED THE "BASIC" ID.  (THIS BASIC
+         23 |C            ID IS NOT DEFINED THE SAME WAY IN U201.)   THIS ROUTINE IS
+         24 |C            USED FOR U715 (AND ALSO U915 ?); A SIMILIAR ONE RDPRED IS
+         25 |C            USED FOR U201, RDVRBL FOR U600 AND RDVR79 FOR U710.
+         26 |C
+         27 |C        DATA SET USE
+         28 |C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+         29 |C                     (OUTPUT)
+         30 |C            IP6    - UNIT NUMBER FOR OUTPUT (PRINT) FILE FOR VARIABLE
+         31 |C                     LIST AS READ IN.  (OUTPUT)
+         32 |C            IP7    - UNIT NUMBER FOR OUTPUT (PRINT) FILE FOR VARIABLE
+         33 |C                     LIST PARSED INTO ITS 15 COMPONENTS.  (OUTPUT)
+         34 |C            IP8    - UNIT NUMBER FOR OUTPUT (PRINT) FILE FOR VARIABLE
+         35 |C                     LIST PARSED INTO ITS COMPONENTS.  (OUTPUT)
+         36 |C            IP9    - UNIT NUMBER FOR OUTPUT (PRINT) FILE FOR VARIABLE
+         37 |C                     LIST INCLUDING INFORMATION FROM THE VARIABLE
+         38 |C                     CONSTANT FILE.  (OUPUT)
+         39 |C            KFILP  - UNIT NUMBER FROM WHICH TO READ VARIABLE LIST.
+         40 |C                     IT IS ASSUMED FILE HAS BEEN OPENED.  (INPUT)
+         41 |C           KFILCP  - UNIT NUMBER FROM WHICH TO READ VARIABLE NAMES AND
+         42 |C                     OTHER ASSOCIATED INFORMATION.  IT IS ASSUMED FILE
+         43 |C                     HAS BEEN OPENED.  (INPUT)
+         44 |C
+         45 |C        VARIABLES
+         46 |C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+         47 |C                       (INPUT)
+         48 |C                 IP6 = INDICATES WHETHER (>0) OR NOT (=0) THE VARIABLE
+         49 |C                       ID WILL BE WRITTEN TO UNIT IP6 AS THE VARIABLES
+         50 |C                       ARE READ IN.  THIS SHOULD BE USEFUL FOR CHECKOUT
+         51 |C                       OTHERWISE, IP7, IP8, AND/OR IP9 MAY BE PREFERRED.
+         52 |C                       (INPUT)
+         53 |C                 IP7 = INDICATES WHETHER (>0) OR NOT (=0) THE VARIABLE
+         54 |C                       LIST WILL BE WRITTEN TO UNIT IP7 PARSED INTO ITS
+         55 |C                       15 INTEGER AND ONE REAL*4 COMPONENT.  IF THERE ARE
+         56 |C                       INPUT ERRORS, THE VARIABLE LIST WILL BE WRITTEN
+         57 |C                       TO THE DEFAULT OUTPUT FILE UNIT KFILDO AS WELL AS
+         58 |C                       TO UNIT IP7 IF THEY ARE DIFFERENT.  (INPUT)
+         59 |C                 IP8 = SAME AS IP7, EXCEPT TRESHL( ) AND TRESHU( )HAVE
+         60 |C                       BEEN SET AND PRINTED.  (INPUT)
+         61 |C                 IP9 = INDICATES WHETHER (>0) OR NOT (=0) THE VARIABLE
+         62 |C                       LIST WILL BE WRITTEN TO UNIT IP9.  THE DIFFERENCE
+         63 |C                       BETWEEN IP8 AND IP9 IS THAT IP9 DOES NOT INCLUDE
+         64 |C                       THE PARSED ID'S IN IDPARS( , ), BUT RATHER DOES
+         65 |C                       INCLUDE INFORMATION TAKEN FROM THE VARIABLE
+         66 |C                       CONSTANT FILE READ ON UNIT KFILCP.  (INPUT)
+         67 |C               KFILP = UNIT NUMBER FROM WHICH TO READ VARIABLE LIST.
+         68 |C                       IT IS ASSUMED FILE HAS BEEN OPENED.  (INPUT)
+         69 |C              KFILCP = UNIT NUMBER FROM WHICH TO READ VARIOUS VARIABLE
+         70 |C                       CONSTANTS AND NAMES.  IT IS ASSUMED FILE HAS BEEN
+         71 |C                       OPENED.  (INPUT)
+         72 |C             ID(J,N) = THE INTEGER VARIABLE ID'S (J=1,4) (N=1,NVRBL).
+         73 |C                       (OUTPUT)
+         74 |C         IDPARS(J,N) = THE PARSED, INDIVIDUAL COMPONENTS OF THE VARIABLE
+         75 |C                       ID'S CORRESPONDING TO ID( ,N) (J=1,15), (N=1,NVRBL).
+         76 |C                       (OUTPUT)
+         77 |C                       J=1--CCC (CLASS OF VARIABLE),
+         78 |C                       J=2--FFF (SUBCLASS OF VARIABLE),
+         79 |C                       J=3--B (BINARY INDICATOR),
+         80 |C                          0 = NOT BINARY,
+         81 |C                          1 = CUMULATIVE FROM ABOVE, VALUES GE LOWER THRESHOLD
+         82 |C                              TRESHL = 1,
+         83 |C                          2 = CUMULATIVE FROM BELOW, VALUES LT UPPER THRESHOLD
+         84 |C                              TRESHU = 1.
+         85 |C                          3 = DISCRETE BINARY.  VALUES GE LOWER THRESHOLD AND
+         86 |C                              LT UPPER THRESHOLD = 1.
+         87 |C                          5 = GRID BINARY.  VALUES GE LOWER THRESHOLD
+         88 |C                          ONLY THE VALUE OF 0, 1, OR 5 SHOULD BE USED FOR
+         89 |C                          PREDICTORS;
+         90 |C                          0, 1, 2, OR 3 CAN BE USED FOR PREDICTANDS.
+         91 |C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+         92 |C                       J=5--V (VERTICAL APPLICATION),
+         93 |C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 LAYER),
+         94 |C                       J=7--LTLTLTLT (TOP OF LAYER),
+         95 |C                       J=8--T (TRANSFORMATION),
+         96 |C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN TIME),
+         97 |C                       J=10--OT (TIME APPLICATION),
+         98 |C                       J=11--OH (TIME PERIOD IN HOURS),
+         99 |C                       J=12--TAU (PROJECTION IN HOURS),
+        100 |C                       J=13--I (INTERPOLATION TYPE),
+        101 |C                       J=14--S (SMOOTHING INDICATOR), AND
+        102 |C                       J=15--G (GRID INDICATOR).  THIS NORMALLY HAS NO
+        103 |C                             MEANING, BUT IS USED IN U715.
+        104 |C           TRESHL(N) = AS READ, THE BINARY THRESHOLD CORRESPONDING TO
+        105 |C                       IDPARS( ,N) (N=1,ND4).  THIS IS USED IN SUBROUTINE
+        106 |C                       THSET TO SET THE LOWER AND UPPER THRESHOLDS AS
+        107 |C                       TRESHL( ) AND TRESHU( ), RESPECTIVELY.  NOTE
+        108 |C                       THAT, SINCE THE VARIABLES ARE NOT SORTED BY U715
+        109 |C                       (AS THEY ARE IN U600), THE SETTING OF THRESHOLDS
+        110 |C                       FOR A DISCRETE BINARY WILL BE DONE CORRECTLY
+        111 |C                       ONLY IF THE VARIABLES INVOLVED ARE SEQUENTIAL
+        112 |C                       IN THE INPUT LIST .  (OUTPUT)
+        113 |C           TRESHU(N) = THE UPPER THRESHOLD (SEE TRESHL( )).  (OUTPUT)
+        114 |C             JD(J,N) = THE BASIC INTEGER VARIABLE ID'S (J=1,4) (N=1,ND4).
+        115 |C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE FOLLOWING
+        116 |C                       PORTIONS ARE OMITTED:
+        117 |C                       B = IDPARS(3, ),
+        118 |C                       TRESHL( ) AND
+        119 |C                       TRESHU( ).
+        120 |C                       JD( , ) IS USED TO IDENTIFY WHICH CALCULATIONS
+        121 |C                       CAN BE MADE DIRECTLY IN U715, WHICH IS ONLY FORMING
+        122 |C                       BINARIES.  THE "G" VARIABLE HAS NO MEANING IN U715,
+        123 |C                       IT BEING ONLY FOR POSSIBLE USE IN U201.  (OUTPUT)
+        124 |C             JP(J,N) = CONTROLS THE OUTPUT BY VARIABLE (N=1,ND4).
+        125 |C                       J=1--NOT USED.
+        126 |C                       J=2--NOT USED.
+        127 |C                       J=3--INDICATES WHETHER (>0) OR NOT (=0) VARIABLE N
+        128 |C                            WILL BE WRITTEN TO UNIT IP(15) NOT UNDER
+        129 |C                            CONTROL OF THE FORMAT PROVIDED BUT TO THE
+        130 |C                            RESOLUTION PACKED.
+        131 |C                       (OUTPUT)
+        132 |C            PLAIN(N) = THE PLAIN LANGUAGE DESCRIPTION OF THE VARIABLES
+        133 |C                       (N=1,ND4).  (CHARACTER*32)  (OUTPUT)
+        134 |C             ITAU(N) = THE NUMBER OF HOURS TO ADD TO NDATE TO GET
+        135 |C                       THE VARIABLE N (N=1,ND4).  NO CURRENT REASON
+        136 |C                       FOR THIS TO BE OTHER THAN ZERO.
+        137 |C              KER(N) = DESIGNATES THE KERNAL TO BE USED FOR VARIABLE N
+        138 |C                       (N=1,ND4).
+        139 |C                       1 = NORMAL (GAUSIAN).
+        140 |C                       (OUTPUT)
+        141 |C              ISD(N) = DESIGNATES WHETHER THE KERNAL WIDTH FOR VARIABLE N
+        142 |C                       (N=1,ND4) IS TO BE TAKEN FROM SD( ) IN THE VARIABLE
+        143 |C                       RECORD OR FROM A PACKED INPUT RECORD.
+        144 |C                       0 = COMES FROM PACKED RECORD;
+        145 |C                       2 = WHEN THERE ARE MULTIPLE ENSEMBLES OR
+        146 |C                           ONLY ONE ENSEMBLE AND SD( ) > 10,
+        147 |C                           CALL KERNELW; OTHERWISE, CALL KERNEL.
+        148 |C                       (OUTPUT)
+        149 |C               SD(N) = A FACTOR TO USE IN THE SPREAD ADJUSTMENT FOR
+        150 |C                       MULTIPLE ENSEMBLES FOR THIS VARIABLE N
+        151 |C                       (N=1,ND4).  (OUTPUT)
+        152 |C               DS(N) = SCALING FACTOR FOR THE STANDARD DEVIATION FOR
+        153 |C                       THIS VARIABLE (N=1,ND4).  (OUTPUT)
+        154 |C           ISCALD(N) = THE DECIMAL SCALING CONSTANT TO USE WHEN PACKING THE
+        155 |C                       COLLATED DATA (N=1,ND4).  NO BINARY SCALING IS
+        156 |C                       PROVIDED FOR.  ISCALD COMES FROM THE VARIABLE
+        157 |C                       CONSTANT FILE, MODIFIED TO BE 2 FOR GRID BINARIES,
+        158 |C                       AND 0 FOR BINARIES.  ZERO WHEN NOT FOUND IN THE
+        159 |C                       FILE.  (OUTPUT)
+        160 |C             NCAT(N) = A CATEGORY NUMBER FOR EACH VARIABLE (N=1,ND4).
+        161 |C                       0 = THIS VARIABLE IS IN A SERIES, NOT THE FIRST.
+        162 |C                       M = THIS VARIABLE IS THE FIRST OF A SERIES OF
+        163 |C                           M VARIABLES.
+        164 |C                       THIS IS NOT CURRENTLY USED IN U715.  (OUTPUT)
+        165 |C                 ND4 = MAXIMUM NUMBER OF VARIABLES THAT CAN BE DEALT WITH
+        166 |C                       IN ONE RUN.  SECOND DIMENSION OF ID( , ) AND
+        167 |C                       IDPARS( , ) AND DIMENSION OF TRESHL( ), TRESHU( ),
+        168 |C                       AND ITAU( ).  (INPUT)
+        169 |C               NVRBL = THE NUMBER OF VARIABLES.  (OUTPUT)
+        170 |C               ISTOP = INCREASED BY 1 WHENEVER AN ERROR IS ENCOUNTERED.
+        171 |C                       (INPUT-OUTPUT)
+        172 |C                 IER = STATUS RETURN.  (OUTPUT)
+        173 |C                        0 = GOOD RETURN.
+        174 |C                       40 = ERROR READING VARIABLE LIST.
+        175 |C                       41 = DIMENSION ND4 ABOUT TO BE EXCEEDED.
+        176 |C                       42 = NO VARIABLES.
+        177 |C            ITEMP(J) = WORK ARRAY (J=1,6).  (INTERNAL)
+        178 |C                       J=1--FIRST ID = ID(1, ),
+        179 |C                       J=2--SECOND ID = ID(2, ),
+        180 |C                       J=3--THIRD ID = ID(3, ),
+        181 |C                       J=4--LAST PORTION OF ID = ID(4, ),
+        182 |C                       J=5--FRACTIONAL PART OF TRESHL, AND
+        183 |C                       J=6--TEN'S EXPONENT OF ITEMP(5).
+        184 |C                TEMP = SIGN OF THRESHOLD.  (CHARACTER*1)  (INTERNAL)
+        185 |C            JTEMP(J) = TEMPORARY ARRAY FOR READING INFORMATION BEFORE
+        186 |C                       STORING (J=1,4).  (INTERNAL)
+        187 |C                NERR = COUNTS ERRORS FOR PURPOSES OF KNOWING WHEN TO
+        188 |C                       PRINT DIAGNOSTICS.  IF NERR EXCEEDS 100,
+        189 |C                       RDVRBL WILL STOP.  (INTERNAL)
+        190 |C        1         2         3         4         5         6         7 X
+        191 |C
+        192 |C        NONSYSTEM SUBROUTINES CALLED
+        193 |C            PRSID, THSET, SETPLN
+        194 |C
+        195 |      CHARACTER*1 TEMP
+        196 |      CHARACTER*12 UNITS(ND4)
+        197 |C        UNITS( ) IS AN AUTOMATIC ARRAY FOR CALL TO SETPLN.
+        198 |      CHARACTER*32 PLAIN(ND4)
+        199 |C
+        200 |      DIMENSION ID(4,ND4),IDPARS(15,ND4),TRESHL(ND4),TRESHU(ND4),
+        201 |     1          JD(4,ND4),JP(3,ND4),ITAU(ND4),NCAT(ND4),
+        202 |     2          KER(ND4),ISD(ND4),SD(ND4),DS(ND4),
+        203 |     3          ISCALD(ND4)
+        204 |      DIMENSION SMULT(ND4),SADD(ND4),ORIGIN(ND4),CINT(ND4)
+        205 |C        SMULT( ), SADD( ), ORIGIN( ), AND CINT( ) ARE AUTOMATIC
+        206 |C        ARRAYS FOR CALL TO SETPLN.
+        207 |      DIMENSION ITEMP(6),JTEMP(4)
+        208 |C
+        209 |      DATA TEMP/' '/
+        210 |C
+        211 |      IER=0
+        212 |      NERR=0
+        213 |C
+        214 |      N=1
+        215 |C
+        216 |C        READ VARIABLE ID.
+        217 |C
+        218 | 102  READ(KFILP,103,IOSTAT=IOS,ERR=104,END=150)(ITEMP(J),J=1,4),
+        219 |     1            TEMP,ITEMP(5),ITEMP(6),(JTEMP(J),J=1,4),
+        220 |     2            JKER,JISD,FSD,FDS
+        221 | 103  FORMAT(I9,1X,I9,1X,I9,1X,I3,1X,A1,1X,I4,1X,I3,4X,3I2,I3,2I2,2F5.0)
+        222 |      IF(IP6.NE.0.AND.N.EQ.1)WRITE(IP6,1030)
+        223 | 1030 FORMAT(/,' VARIABLES AS READ BY RDVR75')
+        224 |      IF(IP6.NE.0)WRITE(IP6,1031)(ITEMP(J),J=1,4),
+        225 |     1            TEMP,ITEMP(5),ITEMP(6),(JTEMP(J),J=1,4),
+        226 |     2            JKER,JISD,FSD,FDS
+        227 | 1031 FORMAT(' ',I9.9,1X,I9.9,1X,I9.9,1X,I3.3,1X,A1,'.',I4.4,'E',I3.2,
+        228 |     1          4X,3I2,1X,I3,2I2,2F6.2)
+        229 |      GO TO 120
+        230 |C
+        231 | 104  NERR=NERR+1
+        232 |      ISTOP=ISTOP+1
+        233 |      IER=40
+        234 |
+        235 |      WRITE(KFILDO,107)N,IOS
+        236 | 107  FORMAT(/' ****ERROR READING VARIABLE ID NO.',I4,
+        237 |     1        '.  IOSTAT =',I5,'.  VARIABLE SKIPPED.')
+        238 |      IF(IP6.NE.KFILDO)WRITE(IP6,107)N,IOS
+        239 |C        ATTEMPT TO READ ANOTHER RECORD.  HOWEVER, SOME ERRORS WILL
+        240 |C        KEEP REPEATING AND FILL UP THE PRINT FILE.  GO BACK ONLY IF
+        241 |C        IT SEEMS THERE WAS AN ERROR ON AN INDIVIDUAL RECORD.  A
+        242 |C        LIMIT OF NERR = 100 HAS BEEN SET.
+        243 |C
+        244 |      IF(NERR.GE.100)THEN
+        245 |         WRITE(KFILDO,110)
+        246 | 110     FORMAT(/,' ****READING ERRORS IN RDVR75 HALTED PROGRAM',
+        247 |     1            ' AT 110.')
+        248 |         STOP 110
+        249 |      ENDIF
+        250 |C
+        251 |      IF(IOS.EQ.900.OR.
+        252 |     1   IOS.EQ.915.OR.
+        253 |     2   IOS.EQ.922.OR.
+        254 |     3   IOS.EQ.933.OR.
+        255 |     4   IOS.EQ.945.OR.
+        256 |     5   IOS.EQ.958)GO TO 102
+        257 |      GO TO 150
+        258 |C
+        259 | 120  IF(ITEMP(1).EQ.999999)GO TO 150
+        260 |C
+        261 |C        STORE THIS VARIABLE ID, UNLESS ND4 WILL BE EXCEEDED.
+        262 |C
+        263 |      IF(N.LE.ND4)GO TO 125
+        264 |      IER=41
+        265 |      NERR=NERR+1
+        266 |      ISTOP=ISTOP+1
+        267 |      WRITE(KFILDO,122)ND4
+        268 | 122  FORMAT(/,' ****ND4 = ',I4,' TOO SMALL IN RDVR75.')
+        269 |      GO TO 180
+        270 |C
+        271 |C        PARSE ID'S INTO 15 COMPONENT PARTS ID(J, ) (J=1,15) AND
+        272 |C        TRESHL( ).
+        273 |C
+        274 | 125  CALL PRSID(KFILDO,ITEMP,TEMP,ID(1,N),IDPARS(1,N),TRESHL(N),ISTOP)
+        275 |C
+        276 |C        PREPARE "BASIC" VARIABLE ID'S.  FOR PROGRAMS READING U201
+        277 |C        OUTPUT (E.G., U715), JD( , ) = ID( , ) EXCEPT IN ID(1, )
+        278 |C        THE BINARY INDICATOR IS OMITTED AND IN JD(4, ) THE
+        279 |C        THRESHOLDS AND IDPARS(15, ) ARE OMITTED.
+        280 |C
+        281 |      JD(1,N)=IDPARS(1,N)*1000000+IDPARS(2,N)*1000+IDPARS(4,N)
+        282 |      JD(2,N)=ID(2,N)
+        283 |      JD(3,N)=ID(3,N)
+        284 |      JD(4,N)=IDPARS(13,N)*100+
+        285 |     1        IDPARS(14,N)*10+IDPARS(15,N)
+        286 |C
+        287 |C        STORE PRINT AND OTHER PARAMETERS.
+        288 |C
+        289 |      JP(1,N)=JTEMP(1)
+        290 |      JP(2,N)=JTEMP(2)
+        291 |      JP(3,N)=JTEMP(3)
+        292 |      ITAU(N)=JTEMP(4)
+        293 |      KER(N)=JKER
+        294 |      ISD(N)=JISD
+        295 |      SD(N)=FSD
+        296 |      DS(N)=FDS
+        297 |C
+        298 |C        OMIT VARIABLE IF IT IS A DUPLICATE.
+        299 |C
+        300 |      IF(N.EQ.1)GO TO 130
+        301 |C
+        302 |      DO 129 J=1,N-1
+        303 |      IF(ID(1,J).NE.ID(1,N).OR.
+        304 |     1   ID(2,J).NE.ID(2,N).OR.
+        305 |     2   ID(3,J).NE.ID(3,N).OR.
+        306 |     3   ID(4,J).NE.ID(4,N))GO TO 129
+        307 |      IF(ITAU(J).NE.ITAU(N))GO TO 129
+        308 |C        A VARIABLE WITH THE SAME ID'S BUT WITH A DIFFERENT
+        309 |C        ITAU IS ALLOWED.
+        310 |      WRITE(KFILDO,128)(ID(L,N),L=1,4)
+        311 |      IF(IP6.NE.KFILDO.AND.IP6.NE.0)WRITE(IP6,128)(ID(L,N),L=1,4)
+        312 | 128  FORMAT(/,' ****DUPLICATE VARIABLE DELETED',
+        313 |     1        1X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+        314 |      ISTOP=ISTOP+1
+        315 |      GO TO 102
+        316 |C
+        317 | 129  CONTINUE
+        318 |C
+        319 |C        INSIST ON SEQUENTIAL DISCRETE BINARIES HAVING LOWER
+        320 |C        TO HIGHER THRESHOLDS.
+        321 |C
+        322 |      IF(IDPARS(3,N).NE.3.OR.
+        323 |     1   IDPARS(3,N-1).NE.3.OR.
+        324 |     2   TRESHL(N).GT.TRESHL(N-1))GO TO 130
+        325 |      IF(ID(1,N).NE.ID(1,N-1).OR.
+        326 |     1   ID(2,N).NE.ID(2,N-1).OR.
+        327 |     2   ID(3,N).NE.ID(3,N-1).OR.
+        328 |     3   IDPARS(13,N).NE.IDPARS(13,N-1).OR.
+        329 |     4   IDPARS(14,N).NE.IDPARS(14,N-1).OR.
+        330 |     5   IDPARS(15,N).NE.IDPARS(15,N-1))GO TO 130
+        331 |      WRITE(KFILDO,1295)(ID(L,N),L=1,4)
+        332 |      IF(IP6.NE.KFILDO.AND.IP6.NE.0)WRITE(IP6,1295)(ID(L,N),L=1,4)
+        333 | 1295 FORMAT(/,' ****THRESHOLDS NOT IN ORDER LOW TO HIGH.',
+        334 |     1         '   VARIABLE DELETED',
+        335 |     2         1X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+        336 |      ISTOP=ISTOP+1
+        337 |      GO TO 102
+        338 |C
+        339 | 130  N=N+1
+        340 |      GO TO 102
+        341 |C
+        342 | 150  NVRBL=N-1
+        343 |      IF(NVRBL.EQ.0)GO TO 228
+        344 |C
+        345 |C        NOW SET NCAT( ) SUCH THAT THE FIRST VARIABLE IN A SERIES
+        346 |C        HAS THE NUMBER OF VALUES IN THE SERIES, AND ALL OTHER VALUES
+        347 |C        IN THE SERIES HAS A VALUE OF ZERO.  NOTE THAT A "SINGLE"
+        348 |C        VARIABLE (A VARIABLE NOT IN A SERIES) ALSO HAS A VALUE OF 1.
+        349 |
+        350 |D     WRITE(KFILDO,151)(NCAT(N),N=1,NVRBL)
+        351 |D151  FORMAT(/,' AT 151 IN RDVR75--NCAT',40I4)
+        352 |C
+        353 |      NCAT(1)=1
+        354 |      M=0
+        355 |C
+        356 |      DO 160 N=2,NVRBL
+        357 |C
+        358 |D     WRITE(KFILDO,155)(ID(J,N),J=1,4),
+        359 |D    1                 (ID(J,N-1),J=1,4),
+        360 |D    2                 (IDPARS(J,N),J=1,15),
+        361 |D    3                 (IDPARS(J,N-1),J=1,15)
+        362 |D155  FORMAT(' AT 155 IN RDVR75--ID( ,N),ID( ,N-1)',4I12,/,
+        363 |D    1       '                                    ',4I12,/,
+        364 |D    2       '                                    ',15I4,/,
+        365 |D    3       '                                    ',15I4)
+        366 |      IF(IDPARS(3,N).EQ.1.OR.
+        367 |     1   IDPARS(3,N).EQ.2.OR.
+        368 |     2   IDPARS(3,N).EQ.3.OR.
+        369 |     3   (IDPARS(1,N).EQ.203.AND.(IDPARS(2,N).EQ.250.OR.
+        370 |     4                            IDPARS(2,N).EQ.260.OR.
+        371 |     5                            IDPARS(2,N).EQ.350.OR.
+        372 |     6                            IDPARS(2,N).EQ.360.OR.
+        373 |     7                            IDPARS(2,N).EQ.450.OR.
+        374 |     8                            IDPARS(2,N).EQ.460)))THEN
+        375 |C              THE CCCFFF = 203250, FOR INSTANCE, ARE PROBABILITY
+        376 |C              FRACTICLES AND NEED TO BE PART OF A SEQUENCE
+        377 |C**********THIS IS LEFT IN BUT MAY NOT BE NEEDED FOR U715**********
+        378 |D           WRITE(KFILDO,156)N,M
+        379 |D156        FORMAT(/,' AT 156 IN RDVR75--N,M',2I4)
+        380 |C
+        381 |            IF(ID(1,N).EQ.ID(1,N-1).AND.
+        382 |     1         ID(2,N).EQ.ID(2,N-1).AND.
+        383 |     2         ID(3,N).EQ.ID(3,N-1).AND.
+        384 |     3         IDPARS(13,N).EQ.IDPARS(13,N-1).AND.
+        385 |     4         IDPARS(14,N).EQ.IDPARS(14,N-1).AND.
+        386 |     5         IDPARS(15,N).EQ.IDPARS(15,N-1))THEN
+        387 |C
+        388 |D                 WRITE(KFILDO,157)N,M
+        389 |D157              FORMAT(/,' AT 157 IN RDVR75--N,M',2I4)
+        390 |C
+        391 |                  IF(M.EQ.0)THEN
+        392 |                     M=N-1
+        393 |                  ENDIF
+        394 |C
+        395 |                  NCAT(M)=NCAT(M)+1
+        396 |                  NCAT(N)=0
+        397 |            ELSE
+        398 |D                 WRITE(KFILDO,158)N,M
+        399 |D158              FORMAT(/,' AT 158 IN RDVR75--N,M',2I4)
+        400 |                  M=0
+        401 |                  NCAT(N)=1
+        402 |            ENDIF
+        403 |C
+        404 |      ELSE
+        405 |         NCAT(N)=1
+        406 |      ENDIF
+        407 |C
+        408 | 160  CONTINUE
+        409 |C
+        410 |D     WRITE(KFILDO,161)(NCAT(N),N=1,NVRBL)
+        411 |D161  FORMAT(/,' AT 161 IN RDVR75--NCAT',10I4)
+        412 |C
+        413 |C        WRITE VARIABLE LIST WHEN REQUIRED.  LIST IS ALWAYS WRITTEN
+        414 |C        TO DEFAULT OUTPUT WHEN THERE HAS BEEN AN ERROR.
+        415 |C
+        416 | 180  IF(NERR.NE.0)WRITE(KFILDO,181)NVRBL
+        417 | 181  FORMAT(/,' ',I4,' VARIABLES AND PARSED IDS IN ORDER READ IN')
+        418 |      IF(NERR.NE.0)WRITE(KFILDO,182)(N,(ID(J,N),J=1,4),
+        419 |     1                  (IDPARS(J,N),J=1,15),TRESHL(N),
+        420 |     2                  (JP(J,N),J=1,3),ITAU(N),NCAT(N),N=1,NVRBL)
+        421 | 182  FORMAT('  NO.     ID(1)     ID(2)     ID(3)      ID(4)',
+        422 |     2       '   CCC FFF B DD    V LLLL UUUU    T RR  O HH',
+        423 |     3       ' TAU    I S G     THRESHOLD JP( )  ITAU NC',/,
+        424 |     4      (' ',I4,1X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+        425 |     5       2X,I4.3,I4.3,I2,I3,3X,I2,I5,I5,3X,
+        426 |     6       I2,I3,I3,I3,I4,3X,I2,I2,I2,F14.6,3I2,I5,I4))
+        427 |C
+        428 |      IF(NERR.NE.0.AND.KFILDO.NE.IP7.OR.NERR.EQ.0.AND.IP7.NE.0)THEN
+        429 |         WRITE(IP7,181)NVRBL
+        430 |         WRITE(IP7,182)(N,(ID(J,N),J=1,4),
+        431 |     1                 (IDPARS(J,N),J=1,15),TRESHL(N),
+        432 |     2                 (JP(J,N),J=1,3),ITAU(N),NCAT(N),N=1,NVRBL)
+        433 |      ENDIF
+        434 |C
+        435 |C        SET UPPER AND LOWER THRESHOLDS FOR ALL VARIABLES.
+        436 |C
+        437 |      CALL THSET(KFILDO,ID,IDPARS,NVRBL,TRESHL,TRESHU,IER)
+        438 |      IF(IER.NE.0)ISTOP=ISTOP+1
+        439 |C
+        440 |C        WRITE VARIABLE LIST AS DESIRED.
+        441 |C
+        442 |      IF(IP8.NE.0)WRITE(IP8,191)NVRBL
+        443 | 191  FORMAT(/,' ',I4,' VARIABLES AND PARSED IDS')
+        444 |      IF(IP8.NE.0)WRITE(IP8,192)(N,(ID(J,N),J=1,4),
+        445 |     1                 (IDPARS(J,N),J=1,15),TRESHL(N),TRESHU(N),
+        446 |     3                 (JP(J,N),J=1,3),ITAU(N),N=1,NVRBL)
+        447 | 192  FORMAT('  NO.     ID(1)     ID(2)     ID(3)      ID(4)',
+        448 |     2       '   CCC FFF B DD    V LLLL UUUU    T RR  O HH',
+        449 |     3       ' TAU    I S G   L--THRESHOLDS--U  JP( ) IT',/,
+        450 |     4      (' ',I4,1X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+        451 |     5       2X,I4.3,I4.3,I2,I3,3X,I2,I5,I5,3X,
+        452 |     6       I2,I3,I3,I3,I4,3X,I2,I2,I2,F10.2,F10.2,3I2,I3))
+        453 |C
+        454 |C        READ THE PLAIN LANGUAGE AND OTHER INFORMATION
+        455 |C        FROM THE VARIABLE CONSTANT FILE, AND INITIALIZE
+        456 |C        PLAIN( ) AND OTHER VARIABLES.
+        457 |C
+        458 |      CALL SETPLN(KFILDO,KFILCP,
+        459 |     1            ID,IDPARS,JD,ISCALD,SMULT,SADD,
+        460 |     2            ORIGIN,CINT,PLAIN,UNITS,ND4,NVRBL,ISTOP,IER)
+        461 |C
+        462 | 228  IF(NVRBL.EQ.0)THEN
+        463 |         WRITE(KFILDO,229)
+        464 | 229     FORMAT(/,' ****NO VARIABLES FOUND TO PROCESS.')
+        465 |         ISTOP=ISTOP+1
+        466 |         IER=42
+        467 |         GO TO 250
+        468 |      ENDIF
+        469 |C
+        470 |      IF(IP9.NE.0)WRITE(IP9,231)NVRBL
+        471 | 231  FORMAT(/,' ',I4,' VARIABLES AND INFORMATION FROM VARIABLE',
+        472 |     1              ' CONSTANT FILE')
+        473 |      IF(IP9.NE.0)WRITE(IP9,235)(N,(ID(J,N),J=1,4),
+        474 |     1            PLAIN(N),ISCALD(N),
+        475 |     2            TRESHL(N),TRESHU(N),ITAU(N),NCAT(N),
+        476 |     3            KER(N),ISD(N),SD(N),DS(N),N=1,NVRBL)
+        477 | 235  FORMAT('  NO.     ID(1)     ID(2)     ID(3)      ID(4)',
+        478 |     1       '       PLAIN LANGUAGE ID        ISCALD',
+        479 |     2       '    L--THRESHOLDS--U ITAU NCAT KER ISD   SD   DS',/,
+        480 |     3      (' ',I4,1X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,2X,
+        481 |     4       A32,I2,2X,F9.3,F11.3,I4,I5,2I4,F6.2,F5.2))
+        482 | 250  RETURN
+        483 |      END
+** rdvr75   === End of Compilation 1 ===
+ 
+>>>>> FILE TABLE SECTION <<<<<
+ 
+ 
+                                       FILE CREATION        FROM
+FILE NO   FILENAME                    DATE       TIME       FILE    LINE
+     0    rdvr75.f                    12/21/11   15:09:28
+ 
+ 
+>>>>> COMPILATION EPILOGUE SECTION <<<<<
+ 
+ 
+FORTRAN Summary of Diagnosed Conditions
+ 
+TOTAL   UNRECOVERABLE  SEVERE       ERROR     WARNING    INFORMATIONAL
+               (U)       (S)         (E)        (W)          (I)
+    0           0         0           0          0            0
+ 
+ 
+    Source records read.......................................     483
+1501-510  Compilation successful for file rdvr75.f.
+1501-543  Object file created.

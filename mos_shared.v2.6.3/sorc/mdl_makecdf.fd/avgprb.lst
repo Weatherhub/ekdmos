@@ -1,0 +1,466 @@
+IBM XL Fortran for AIX, V12.1 (5724-U82) Version 12.01.0000.0001 --- /gpfs/c/nco/ops/nwpara/sorc/ekd_makecdf.fd/avgprb.f 03/06/12 15:10:33
+ 
+>>>>> OPTIONS SECTION <<<<<
+***   Options In Effect   ***
+  
+         ==  On / Off Options  ==
+         CCLINES         CR              DBG             ESCAPE
+         FULLPATH        I4              INLGLUE         INTLOG
+         NOLIBESSL       NOLIBPOSIX      OBJECT          SOURCE
+         STRICT          SWAPOMP         THREADED        UNWIND
+         NOZEROSIZE
+  
+         ==  Options Of Integer Type ==
+         ALIAS_SIZE(65536)     FIXED(72)             MAXMEM(-1)
+         OPTIMIZE(3)           SPILLSIZE(512)        STACKTEMP(0)
+  
+  
+         ==  Options of Integer and Character Type ==
+         SMP(OMP,SCHEDULE(RUNTIME))
+  
+         ==  Options Of Character Type  ==
+         64(LARGETYPE)         ALIAS(STD,INTPTR)     ALIGN(BINDC(POWER),STRUCT(NATURAL))
+         ARCH(PWR6)            AUTODBL(NONE)         DESCRIPTOR(V1)
+         DIRECTIVE($OMP)       ENUM()                FLAG(I,I)
+         FLOAT(RNDSNGL,MAF,FOLD,RNGCHK,SINGLE)
+         HALT(S)               IEEE(NEAR)            INITAUTO( 0      )
+         INTSIZE(4)            LANGLVL(EXTENDED)     POSITION(APPENDOLD)
+         REALSIZE(4)           SAVE(ALL)             TUNE(PWR6)
+         UNROLL(AUTO)          XFLAG()               XLF2003(NOPOLYMORPHIC,NOBOZLITARGS,NOSTOPEXCEPT,NOVOLATILE,NOAUTOREALLOC,OLDNANINF)
+         XLF77(NOLEADZERO,GEDIT77,NOBLANKPAD,OLDBOZ,INTARG,INTXOR,PERSISTENT,SOFTEOF)
+         XLF90(NOSIGNEDZERO,NOAUTODEALLOC,OLDPAD)
+  
+>>>>> SOURCE SECTION <<<<<
+          1 |      SUBROUTINE AVGPRB(KFILDO,KFIL10,KFILAO,IP12,IP15,
+          2 |     1                  KFILRA,RACESS,NUMRA,
+          3 |     2                  ID,IDPARS,JD,TRESHL,TRESHU,ITAU,NVRBL,
+          4 |     3                  NDATE,CCALL,ISDATA,SDATA,ND1,NSTA,
+          5 |     4                  XDATA,SDDATA,ND2,KER,NN,M,
+          6 |     5                  ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+          7 |     6                  LSTORE,ND9,LITEMS,CORE,ND10,
+          8 |     7                  NBLOCK,NFETCH,
+          9 |     8                  IS0,IS1,IS2,IS4,ND7,
+         10 |     9                  L3264B,L3264W,ISTOP,IER)
+         11 |C
+         12 |C        AUGUST    2010   VEENHUIS    MDL   MOS-2000
+         13 |C                                     NEW SUBROUTINE BASED ON A COMBINATION OF
+         14 |C                                     DISTF AND WIENDEFIELD'S ORIGINAL AVGPRB
+         15 |C                                     CODE. THE ORIGINAL AVGPRB CODE WAS A
+         16 |C                                     U710 SUBROUTINE.  THIS CODE HAS BEEN
+         17 |C                                     ADAPTED TO WORK WITH U715 AND HANDLE
+         18 |C                                     DATA FROM MULTIPLE MODELS.
+         19 |C        NOVEMBER  2010   VEENHUIS    ADDED A CHECK TO MAKE SURE PQPF IS
+         20 |C                                     BEING PROCESSED. ADDED ITABLE TO HOLD
+         21 |C                                     LIST OF ALLOWED IDS.
+         22 |C        PURPOSE
+         23 |C            AVGPRB IS CALLED FROM OPTY AND RETURNS THE PROBABILITY FORECAST
+         24 |C            FROM EACH ENSEMBLE MEMBER IN THE ARRAY XDATA(1:NSTA,1:M). WHERE
+         25 |C            NSTA IS THE NUMBER OF STATIONS AND M IS THE NUMBER OF ENSEMBLE
+         26 |C            MEMBERS.
+         27 |C
+         28 |C        DATA SET USE
+         29 |C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+         30 |C            KFIL10    - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM
+         31 |C                        ACCESS.  (INPUT-OUTPUT)
+         32 |C            KFILAO    - UNIT NUMBER OF ASCII OUTPUT FILE.  ZERO MEANS
+         33 |C                        OUTPUT WILL NOT BE WRITTEN.  (OUTPUT)
+         34 |C            IP12      - LIST OF STATIONS ON THE INPUT FILES.  (OUTPUT)
+         35 |C            IP15      - LIST OF DATA IN DIST.  (OUTPUT)
+         36 |C            KFILRA(J) - UNIT NUMBERS FOR EXTERNAL RANDOM ACCESS FILES
+         37 |C                        (J=1,5).  (INPUT)
+         38 |C
+         39 |C        VARIABLES
+         40 |C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+         41 |C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+         42 |C                       (INPUT)
+         43 |C              KFILAO = UNIT NUMBER OF ASCII OUTPUT FILE.
+         44 |C                       ZERO MEANS OUTPUT WILL NOT BE WRITTEN.  (INPUT)
+         45 |C                IP12 = INDICATES WHETHER (>0) OR NOT (=0) THE LIST OF
+         46 |C                       STATIONS ON THE EXTERNAL RANDOM ACCESS FILES
+         47 |C                       WILL BE LISTED TO UNIT IP12.  (INPUT)
+         48 |C                IP15 = LIST OF DATA IN DIST.  (INPUT)
+         49 |C           KFILRA(J) = THE UNIT NUMBERS FOR THE MOS-2000 EXTERNAL
+         50 |C                       RANDOM ACCESS FILES (J=1,NUMRA)
+         51 |C           RACESS(J) = THE FILE NAME FOR THE MOS-2000 EXTERNAL RANDOM
+         52 |C                       ACCESS FILE (J=1,NUMRA).  (CHARACTER*60)
+         53 |C               NUMRA = THE NUMBER OF VALUES IN KFILRA( ) AND RACESS( ).
+         54 |C                       (INPUT)
+         55 |C             ID(J,N) = THE VARIABLE ID (J=1,4) (N=1,NVRBL).  (INPUT)
+         56 |C         IDPARS(J,N) = THE PARSED, INDIVIDUAL COMPONENTS OF THE
+         57 |C                       VARIABLE ID CORRESPONDING TO ID( ) (J=1,15)
+         58 |C                       (N=1,NVRBL).
+         59 |C                       J=1--CCC (CLASS OF VARIABLE),
+         60 |C                       J=2--FFF (SUBCLASS OF VARIABLE),
+         61 |C                       J=3--B (BINARY INDICATOR),
+         62 |C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+         63 |C                       J=5--V (VERTICAL APPLICATION),
+         64 |C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY
+         65 |C                            1 LAYER),
+         66 |C                       J=7--LTLTLTLT (TOP OF LAYER),
+         67 |C                       J=8--T (TRANSFORMATION),
+         68 |C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK
+         69 |C                            IN TIME),
+         70 |C                       J=10--OT (TIME APPLICATION),
+         71 |C                       J=11--OH (TIME PERIOD IN HOURS),
+         72 |C                       J=12--TAU (PROJECTION IN HOURS),
+         73 |C                       J=13--I (INTERPOLATION TYPE),
+         74 |C                       J=14--S (SMOOTHING INDICATOR), AND
+         75 |C                       J=15--G (GRID INDICATOR).
+         76 |C                       (INPUT)
+         77 |C             JD(J,N) = THE BASIC INTEGER VARIABLE ID (J=1,4)
+         78 |C                       (N=1,NVRBL).  THIS IS THE SAME AS ID(J), EXCEPT
+         79 |C                       THAT THE FOLLOWING PORTIONS ARE OMITTED:
+         80 |C                       B = IDPARS(3),
+         81 |C                       G = IDPARS(15), AND
+         82 |C                       THRESH.
+         83 |C                       (INPUT)
+         84 |C           TRESHL(N) = THE LOWER BINARY THRESHOLD ASSOCIATED WITH
+         85 |C                       IDPARS( ,N) (N=1,NVRBL).  (INPUT)
+         86 |C           TRESHU(N) = THE UPPER BINARY THRESHOLD ASSOCIATED WITH
+         87 |C                       IDPARS( ,N) (N=1,NVRBL).  (INPUT)
+         88 |C             ITAU(N) = THE NUMBER OF HOURS AHEAD TO FIND A VARIABLE
+         89 |C                       (N=1,NVRBL).  THIS DOES NOT APPLY TO ALL
+         90 |C                       SUBROUTINES.  NO PRESENT USE; SHOULD BE ZERO.
+         91 |C                       (INPUT)
+         92 |C               NVRBL = THE NUMBER OF VARIABLES IN ID( , ), ETC.
+         93 |C                       (INPUT)
+         94 |C               NDATE = THE DATE/TIME FOR WHICH VARIABLE IS NEEDED.
+         95 |C                       (INPUT)
+         96 |C            CCALL(K) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+         97 |C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+         98 |C                       OUTPUT FOR (K=1,NSTA).  ALL STATION DATA ARE
+         99 |C                       KEYED TO THIS LIST.  (CHARACTER*8)  (INPUT)
+        100 |C           ISDATA(K) = WORK ARRAY (K=1,ND1). (INTERNAL)
+        101 |C            SDATA(K) = WORK ARRAY (K=1,ND1).  (INTERNAL)
+        102 |C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT
+        103 |C                       WITH.  (INPUT)
+        104 |C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT
+        105 |C                       WITH.  (INPUT)
+        106 |C          XDATA(K,L) = THE ARRAY USED FOR VECTOR VALUES (K=1,ND1)
+        107 |C                       (L=1,ND2).  THE COLUMNS HOLD THE VALUES FOR
+        108 |C                       THE M MEMBERS (SEE M BELOW).
+        109 |C                       (INTERNAL/OUTPUT)
+        110 |C         SDDATA(K,L) = USED FOR THE STANDARD ERRORS (K=1,ND1)
+        111 |C                       (L=1,ND2).  THE COLUMNS HOLD THE SD'S FOR THE
+        112 |C                       M MEMBERS (SEE M BELOW).  (INTERNAL/OUTPUT)
+        113 |C                 ND2 = MAXIMUM NUMBER OF ENSEMBLE MEMBERS.  (INPUT)
+        114 |C              KER(N) = DESIGNATES THE KERNAL TO BE USED FOR VARIABLE N
+        115 |C                       (N=1,ND4).
+        116 |C                       1 = NORMAL (GAUSIAN).
+        117 |C                       (INPUT)
+        118 |C                  NN = ON INPUT, THE FIRST VARIABLE IN THE ID LIST NOT
+        119 |C                       ALREADY USED.  THIS IS THE VARIABLE TO PROCESS.
+        120 |C                       ON OUTPUT, THE FIRST VARIABLE IN THE ID LIST NOT
+        121 |C                       USED.  WHEN ALL VARIABLES HAVE BEEN PROCESSED,
+        122 |C                       NN IS RETURNED = 9999.  (INPUT/OUTPUT)
+        123 |C                   M = THE NUMBER OF MEMBERS AVERAGED IN DISTF.
+        124 |C                       (OUTPUT)
+        125 |C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN
+        126 |C                       INTEGER VARIABLE (L=1,L3264W) (K=1,ND1).
+        127 |C                       NOTE THAT THIS REQUIRES TWO 32-BIT WORDS TO HOLD
+        128 |C                       THE DESCRIPTION BUT ONLY ONE 64-BIT WORD.
+        129 |C                       NEEDED IN CONST FOR ARGUMENT TO RDTDLM.
+        130 |C                       EQUIVALENCED TO CCALLD( ).
+        131 |C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,ND5).  EQUIVALENCED
+        132 |C                       TO ICALLD( , ).  (INTERNAL)
+        133 |C            IPACK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+        134 |C            IWORK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+        135 |C             DATA(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+        136 |C                 ND5 = DIMENSION OF IPACK( ), WORK( ), DATA( ), AND
+        137 |C                       CALLD( ), AND SECOND DIMENSION OF ICALLD( , ).
+        138 |C                       (INPUT)
+        139 |C         LSTORE(L,J) = THE ARRAY TO HOLD INFORMATION ABOUT THE DATA
+        140 |C                       STORED (L=1,12) (J=1,LITEMS).
+        141 |C                       L=1,4--THE 4 ID'S FOR THE DATA.
+        142 |C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+        143 |C                              THIS IS THE LOCATION IN CORE( ) WHERE
+        144 |C                              THE DATA START.  WHEN ON DISK,
+        145 |C                              THIS IS US THE RECORD NUMBER WHERE
+        146 |C                              THE DATA START.  NOTE THAT WHEN A FIELD
+        147 |C                              CANNOT BE STORED IN CORE( ), IT IS PUT
+        148 |C                              ON DISK.  IT MAY BE THAT A LATER FIELD
+        149 |C                              WILL FIT, AND IT IS PUT IN CORE( ).
+        150 |C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+        151 |C                       L=7  --2 FOR DATA PACKED IN TDLPACK, 1 FOR NOT.
+        152 |C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+        153 |C                              YYYYMMDDHH.
+        154 |C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+        155 |C                       L=10 --THE NUMBER IN THE LIST OF INPUT SOURCES
+        156 |C                              THIS VARIABLE CAME FROM.
+        157 |C                       L=11 --FOR U715, THIS WILL BE 7777, INDICATING
+        158 |C                              THE VARIABLE IS ALWAYS STORED IN THE
+        159 |C                              INTERNAL STORAGE FACILITY.
+        160 |C                       L=12 --US THE NUMBER OF HOURS THIS VARIABLE
+        161 |C                              MUST BE KEPT.  LATER SET TO A DATE WHEN
+        162 |C                              THIS VARIABLE CAN BE DISCARDED.
+        163 |C                       (INPUT)
+        164 |C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+        165 |C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+        166 |C                       FILLED.  (INPUT)
+        167 |C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA
+        168 |C                       IDENTIFIED IN LSTORE( , ) (J=1,ND10).  WHEN
+        169 |C                       CORE( ) IS FULL DATA ARE STORED ON DISK.
+        170 |C                       (INPUT)
+        171 |C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+        172 |C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+        173 |C                       DISK FILE.  (INPUT)
+        174 |C              NFETCH = THE NUMBER OF TIMES GFETCH HAS BEEN ENTERED.
+        175 |C                       GFETCH KEEPS TRACK OF THIS AND RETURNS THE
+        176 |C                       VALUE.  (OUTPUT)
+        177 |C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).
+        178 |C                       (INTERNAL)
+        179 |C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).
+        180 |C                       (INTERNAL)
+        181 |C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+        182 |C                       (INTERNAL)
+        183 |C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+        184 |C                       (INTERNAL)
+        185 |C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+        186 |C                       NOT ALL LOCATIONS ARE USED.  (INPUT)
+        187 |C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+        188 |C                       USED (EITHER 32 OR 64).  (INPUT)
+        189 |C              L3264W = NUMBER OF WORDS IN 64 BITS (EITHER 1 OR 2).
+        190 |C                       CALCULATED BY PARAMETER, BASED ON L3464B.
+        191 |C                       (INPUT)
+        192 |C                NDIM = THE SIZE OF ITABLE.
+        193 |C        ITABLE(NDIM) = CONTAINS A LIST OF VALID IDS FOR THIS SUBROUTINE.
+        194 |C            ISTOP(J) = FOR J=1, ISTOP IS INCREMENTED BY 1 EACH TIME
+        195 |C                       AN ERROR OCCURS THAT MAY BE FATAL.
+        196 |C                       FOR J=2, ISTOP IS INCREMENTED BY 1 WHENEVER AN
+        197 |C                       INPUT DATA RECORD IS NOT FOUND.
+        198 |C                       FOR J=3, ISTOP IS INCREMENTED BY 1 WHENEVER AN
+        199 |C                       AN UNUSUAL CIRCUMSTANCE OCCURS WHICH IS NOT FATAL.
+        200 |C                       (INPUT/OUTPUT)
+        201 |C                 IER = STATUS RETURN.
+        202 |C                         0 = GOOD RETURN.
+        203 |C                         3 = ATTEMPTED TO PROCESS ID NOT ITABLE.
+        204 |C                             MOST LIKELY THE KERNAL FLAG WAS SET
+        205 |C                             INCORRECTLY.
+        206 |C                       777 = SD = 0 FOUND IN KERNEL.
+        207 |C                       OTHER VALUES CAN COME FROM CALLED SUBROUTINES.
+        208 |C                       (OUTPUT)
+        209 |C               MDATE = NDATE UPDATED WITH ITAU( ).  NO REASON FOR
+        210 |C                       ITAU( ) TO BE OTHER THAN ZERO.  NEEDED FOR
+        211 |C                       RETVEC.  (INTERNAL)
+        212 |C                  MM = THE NUMBER OF VALUES IN RDATA( ) AND SDATA( ).
+        213 |C                       THIS IS THE NUMBER OF ENSEMBLES BEING
+        214 |C                       PROCESSED.  (INTERNAL)
+        215 |C
+        216 |C        1         2         3         4         5         6         7 X
+        217 |C
+        218 |C        NONSYSTEM SUBROUTINES USED
+        219 |C            TIMPR, PRSID1, RETVEC, KERNEL
+        220 |C
+        221 |      PARAMETER(NDIM=4)
+        222 |      CHARACTER*8 CCALL(ND1)
+        223 |      CHARACTER*8 CCALLD(ND5)
+        224 |      CHARACTER*60 RACESS(5)
+        225 |      INTEGER TID
+        226 |C
+        227 |      DIMENSION ISDATA(ND1),SDATA(ND2),SUMPRB(ND1),MEMCNT(ND1)
+        228 |      DIMENSION XDATA(ND1,ND2),SDDATA(ND1,ND2)
+        229 |      DIMENSION ID(4,NVRBL),IDPARS(15,NVRBL),
+        230 |     1          TRESHL(NVRBL),TRESHU(NVRBL),JD(4,NVRBL),ITAU(NVRBL),
+        231 |     2          KER(NVRBL)
+        232 |      DIMENSION ICALLD(L3264W,ND5),IPACK(ND5),IWORK(ND5),DATA(ND5)
+        233 |      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+        234 |      DIMENSION LSTORE(12,ND9)
+        235 |      DIMENSION CORE(ND10)
+        236 |      DIMENSION KFILRA(5),LD(4),LDPARS(15),ISTOP(3)
+        237 |      DIMENSION ITABLE(NDIM)
+        238 |      DATA JFIRST/0/
+        239 |      SAVE JFIRST,NDATES
+        240 |C        NDATE IS SAVED IN NDATES ON THE FIRST ENTRY SO THAT
+        241 |C        DIAGNOSTIC 212 WON'T PRINT AFTER THE FIRST DAY.
+        242 |C
+        243 |      IF(JFIRST.EQ.0)THEN
+        244 |         NDATES=NDATE
+        245 |         JFIRST=1
+        246 |      ENDIF
+        247 |C
+        248 |C        ITABLE IS THE LIST OF IDS THAT CAN BE HANDLED
+        249 |      DATA ITABLE /2032201,2033301,2034301,2032101/
+        250 |
+        251 |      IER=0
+        252 |      IFIRST=0
+        253 |      NNSAVE=9999
+        254 |      MEMCNT(:)=0
+        255 |      SUMPRB(:)=0.
+        256 |
+        257 |C        INITIALIZE NSAVE IN CASE ALL DATA RETRIEVES ARE SUCCESSFUL.
+        258 |      M=1
+        259 |C        M IS THE COLUMN IN XDATA( , ) TO RETRIEVE THE DATA.
+        260 |C
+        261 |      DO 200 N=NN,NVRBL
+        262 |C          NVRBL IS THE NUMBER OF VALUES IN THE ID( , ) LIST.
+        263 |C          NN IS THE LOCATION OF THE FIRST ONE NOT USED.
+        264 |        MDATE=NDATE+ITAU(N)
+        265 |C          GET THE SINGLE VALUE FORECAST FOR IDS THAT ARE THE SAME
+        266 |C          EXCEPT FOR THE DD.
+        267 |C
+        268 |C         FIND THE ID IN ITABLE.  IF NOT THEN WRITE AN ERROR AND
+        269 |C         ABORT
+        270 |C
+        271 |        IDFOUND=0
+        272 |        DO 120 I=1,NDIM
+        273 |          IF(ID(1,NN)/100 .EQ. ITABLE(I)) THEN
+        274 |            IDFOUND=1
+        275 |          ENDIF
+        276 | 120    CONTINUE
+        277 |C
+        278 |        IF(IDFOUND .EQ. 0) THEN
+        279 |          WRITE(KFILDO,*) '****ERROR: ENTERED AVGPRB FOR VARIALBE',
+        280 |     1     ' THAT IS NOT ACCOMODATED.'
+        281 |          WRITE(KFILDO,121) (ID(J,NN),J=1,4)
+        282 | 121      FORMAT(/,' ****VRBL ',
+        283 |     1         I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+        284 |          WRITE(KFILDO,*) '****WAS SET WITH KERNAL=3 HOWEVER',
+        285 |     1     ' AVGPRB WILL ONLY ACCEPT IDS LISTED IN ITABLE'
+        286 |          WRITE(KFILDO,*) '****CHECK ITABLE IN AVGPRB FOR VALID IDS.'
+        287 |          WRITE(KFILDO,*) '****THIS VARIABLE WILL BE SKIPPED IN',
+        288 |     1     ' THE ID LIST.'
+        289 |C
+        290 |C          INCREMENT M TO MOVE TO THE NEXT VARIABLE
+        291 |          M=M+1
+        292 |          IER=3
+        293 |        ELSE
+        294 |C
+        295 |        IF(ID(1,NN)/100.EQ.ID(1,N)/100.AND.
+        296 |     1     ID(2,NN).EQ.ID(2,N).AND.
+        297 |     2     IDPARS(8,NN).EQ.IDPARS(8,N).AND.
+        298 |     3     IDPARS(10,NN).EQ.IDPARS(10,N).AND.
+        299 |     4     IDPARS(11,NN).EQ.IDPARS(11,N).AND.
+        300 |     5     IDPARS(12,NN)-IDPARS(9,NN).EQ.IDPARS(12,N)-IDPARS(9,N).AND.
+        301 |     6     (ABS(ID(4,N)-ID(4,NN)).EQ.
+        302 |     7      ABS(IDPARS(15,N)-IDPARS(15,NN))))THEN	
+        303 |C
+        304 |C            THE ID OF VARIABLE N AGREES WITH THAT OF THE BASE VARIABLE
+        305 |C            NN, EXCEPT DD, R, AND TAU.  THE TEST ASSURES THAT THE DATES
+        306 |C            AND PROJECTIONS ARE SUCH THAT THE FORECASTS VERIFY AT THE
+        307 |C            SAME TIME.  NORMALLY, IDPARS(9,NN) WILL BE ZERO.
+        308 |C
+        309 |C            RETRIEVE THE SINGLE VALUE FORECASTS.
+        310 |C
+        311 |             LD(1)=ID(1,N)
+        312 |             LD(2)=ID(2,N)
+        313 |             LD(3)=ID(3,N)
+        314 |             LD(4)=ID(4,N)
+        315 |C
+        316 |             CALL PRSID1(KFILDO,LD,LDPARS)
+        317 |             ITIME=IDPARS(9,N)
+        318 |C            ITIME IS USED IN GFETCH.  IT IS CALLED ITAU IN RETVEC.
+        319 |C
+        320 |             CALL RETVEC(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+        321 |     1                   LD,LDPARS,JD(1,N),ITIME,
+        322 |     2                   NDATE,MDATE,CCALL,ISDATA,XDATA(1,M),ND1,NSTA,
+        323 |     3                   ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+        324 |     4                   LSTORE,ND9,LITEMS,CORE,ND10,
+        325 |     5                   NBLOCK,NFETCH,
+        326 |     6                   IS0,IS1,IS2,IS4,ND7,
+        327 |     7               L3264B,L3264W,IER)
+        328 |C           JD( ) IS NOT ACTUALLY USED IN RETVEC.  IT IS USED
+        329 |C           IN CALL TO CONST, BUT IS NOT USED THERE EITHER.
+        330 |C
+        331 |            IF(IER.NE.0)THEN
+        332 |            WRITE(KFILDO,125)(LD(J),J=1,4),NDATE
+        333 |  125       FORMAT(/,' ****VARIABLE NOT RETRIEVED BY RETVEC IN AVGPRB',
+        334 |     1               2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,' FOR DATE',I12)
+        335 |            ELSE
+        336 |C
+        337 |              IF(LDPARS(8).EQ.4)THEN
+        338 |                 CALL OPTX(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+        339 |     1                 LD,LDPARS,TRESHL(N),JD(1,N),ITAU(N),
+        340 |     2                 NDATE,MDATE,CCALL,ISDATA,XDATA(1,M),ND1,NCAT,NSTA,
+        341 |     3                 ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+        342 |     4                 LSTORE,ND9,LITEMS,CORE,ND10,
+        343 |     5                 LASTL,LASTD,NBLOCK,NSTORE,NFETCH,
+        344 |     6                 IS0,IS1,IS2,IS4,ND7,
+        345 |     7                 L3264B,L3264W,ISTAB,IER)
+        346 |C              IF IER IS RETRUNED NON-ZERO, THE DATA IN XDATA( ,M)
+        347 |C              WILL BE SET TO MISSING, BUT THE PROCESS WILL CONTINUE.
+        348 |              ENDIF
+        349 |C
+        350 |           ENDIF
+        351 |C
+        352 |         IF(IER.EQ.0)THEN
+        353 |            M=M+1
+        354 |	 ENDIF
+        355 |C
+        356 |C          CHECK TO SEE IF WE REACHED THE LAST VARIABLE.
+        357 |	 IF(N.EQ.NVRBL)THEN
+        358 |	   NNSAVE=9999
+        359 |	 ENDIF
+        360 |      ELSE
+        361 |C
+        362 |         IF(IFIRST.EQ.0)THEN
+        363 |            NNSAVE=N
+        364 |C               NNSAVE IS NOW THE FIRST VARIABLE IN THE ID( , ) LIST
+        365 |C               NOT USED.  LATER, TRANSFER NNSAVE TO NN TO BE USED
+        366 |C               ON NEXT ENTRY.
+        367 |            IFIRST=1
+        368 |         ENDIF
+        369 |C
+        370 |      ENDIF
+        371 |C
+        372 |C       FOR THE ITABLE CHECK
+        373 |      ENDIF
+        374 |  200 CONTINUE
+        375 |C
+        376 |C      DATA HAS BEEN RETRIEVED FOR ALL ENSEMBLE MEMEBERS NOW CHECK
+        377 |C      FOR MISSING VALUES AND TRUNCATE THE VALUES TO BE BETWEEN
+        378 |C      0 AND 1.  THE DATA FOR EACH MEMBER WILL BE RETURNED IN XDATA.
+        379 |C
+        380 |      DO 250 K=1,NSTA
+        381 |        DO 240 J=1,M-1
+        382 |	  IF(NINT(XDATA(K,J)).NE.9997.AND.
+        383 |     1       NINT(XDATA(K,J)).NE.9999.AND.
+        384 |     2       NINT(SUMPRB(K)).NE.9997.AND.
+        385 |     3       NINT(SUMPRB(K)).NE.9999)THEN
+        386 |C
+        387 |            IF(XDATA(K,J).LT.0) XDATA(K,J)=0.
+        388 |	    IF(XDATA(K,J).GT.1) XDATA(K,J)=1.
+        389 |C	
+        390 |C            MEMCNT(K)=MEMCNT(K)+1
+        391 |C            SUMPRB(K)=XDATA(K,J)+SUMPRB(K)
+        392 |          ELSE
+        393 |C            SUMPRB(K)=XDATA(K,J)
+        394 |            XDATA(K,J)=9999
+        395 |          ENDIF
+        396 |  240    CONTINUE
+        397 |  250  CONTINUE
+        398 |C
+        399 |C
+        400 |C      NOW SET THE COUNTER NN TO EQUAL NSAVE SO THE PROGRAM
+        401 |C      KNOWS WHERE THE NEXT SET OF VARiABLE IDS BEGIN IN THE
+        402 |C      ID LIST
+        403 |      NN=NNSAVE
+        404 |C
+        405 |C      DECREASE M BY 1 OTHERWISE IT WILL MISCOUNT THE NUMBER
+        406 |C      OF ENSEMBLE MEMBERS
+        407 |      M=M-1
+        408 |C
+        409 |  300 RETURN
+        410 |      END
+** avgprb   === End of Compilation 1 ===
+ 
+>>>>> FILE TABLE SECTION <<<<<
+ 
+ 
+                                       FILE CREATION        FROM
+FILE NO   FILENAME                    DATE       TIME       FILE    LINE
+     0    avgprb.f                    12/21/11   15:09:28
+ 
+ 
+>>>>> COMPILATION EPILOGUE SECTION <<<<<
+ 
+ 
+FORTRAN Summary of Diagnosed Conditions
+ 
+TOTAL   UNRECOVERABLE  SEVERE       ERROR     WARNING    INFORMATIONAL
+               (U)       (S)         (E)        (W)          (I)
+    0           0         0           0          0            0
+ 
+ 
+    Source records read.......................................     410
+1501-510  Compilation successful for file avgprb.f.
+1501-543  Object file created.

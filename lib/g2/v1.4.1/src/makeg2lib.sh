@@ -2,10 +2,10 @@
 
 case ${COMP:?} in
   intel)
-    #export FC=${1:-ifort}
-    #export CC=${2:-icc}
-    export FC=${1:-ftn}
-    export CC=${2:-cc}
+    export FC=${1:-ifort}
+    export CC=${2:-icc}
+    #export FC=${1:-ftn}
+    #export CC=${2:-cc}
     export CPP=${3:-cpp -p} 
     export flagOpt="-O3 -axCore-AVX2 -g"
     export flag64flt="-r8"

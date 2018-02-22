@@ -1,0 +1,39 @@
+      SUBROUTINE FIXIT(DATA,NROUND,DATA1)
+C 
+C        MARCH 1981   GLAHN   TDL   IBM 360/195 
+C        APRIL 1998   GLAHN   TDL   ADAPTED TO UNIX AND MOS-2000
+C
+C        PURPOSE
+C            TO ROUND A VALUE TO THE NEAREST HUNDREDTH, TENTH, WHOLE 
+C            NUMBER, OR TENS.
+C  
+C        DATA SET USE 
+C            NONE 
+C 
+C        VARIABLES 
+C                DATA = VALUE TO BE ROUNDED.  (INPUT) 
+C              NROUND = 1 - ROUND TO NEAREST HUNDREDTH.
+C                       2 - ROUND TO NEAREST TENTH.
+C                       3 - ROUND TO NEAREST WHOLE NUMBER. 
+C                       4 - ROUND TO TENS. 
+C                       (INPUT)
+C               DATA1 = ROUNDED VALUE.  (OUTPUT) 
+C  
+C        SUBROUTINES CALLED
+C            NONE
+C   
+      GO TO(120,110,100,130),NROUND  
+ 100  DATA1=IFIX(DATA+SIGN(.5,DATA))
+      RETURN  
+C   
+ 110  DATA1=(IFIX((DATA+SIGN(.05,DATA))*10.))/10.
+      RETURN 
+C    
+ 120  DATA1=(IFIX((DATA+SIGN(.005,DATA))*100.))/100.
+      RETURN 
+C   
+ 130  DATA1=DATA/10.
+      DATA1=IFIX(DATA1+SIGN(.5,DATA1))*10  
+      RETURN   
+C
+      END  

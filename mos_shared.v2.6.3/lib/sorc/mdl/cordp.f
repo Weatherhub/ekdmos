@@ -1,0 +1,439 @@
+      SUBROUTINE CORDP(KFILDO,KFIL10,IDPARS,JD,NDATE,
+     1                 SDATA,ND1,NSTA,
+     2                 IPACK,IWORK,FD1,FD2,ND2X3,
+     3                 LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     4                 IS0,IS1,IS2,IS4,ND7,
+     5                 ISTAV,L3264B,IER)
+C
+C        JANUARY  1998   SHIREY  TDL   MOS-2000
+C        NOVEMBER 2000   RUDACK  MODIFIED CODE TO CONFORM 
+C                                WITH MDL FORMAT SPECIFICATIONS
+C        DECEMBER 2002   WEISS   CHANGED ND5 TO ND2X3
+C        MAY      2003   GLAHN   REARRANGED TYPE STATEMENTS;
+C                                SPELL CHECK
+C        JUNE     2003   GLAHN   ELIMINATED INITIALIZATION OF
+C                                SDATA( ); REARRANGED CALL
+C        OCTOBER  2003   SMB     FIXED FORMAT STATEMENT 205
+C                                FOR THE IBM
+C        OCTOBER  2004   CARROLL ADDED OPTION TO CALCULATE
+C                                DEWPOINT FROM TEMPERATURE AND
+C                                RELATIVE HUMIDITY FOR MESOWEST.
+C
+C        PURPOSE 
+C            THIS SUBROUTINE WILL SET DEW POINT EQUAL TO ITS 
+C            CORRESPONDING TEMPERATURE IF THE TEMPERATURE
+C            IS LESS THAN -30 DEGREES F,
+C            AND THE DEW POINT IS MISSING.  THE 
+C            SUBROUTINE IS NEEDED FOR THE FOLLOWING REASON:
+C            WHEN THE TEMPERATURE IS BELOW -35F.  IN FACT ASOS, CAN 
+C            NOT REPORT DEW POINT WHEN THE TEMPERATURE IS BELOW
+C            -30F.  THEREFORE, ANY TEMPERATURES MEETING THESE 
+C            CRITERIA WILL HAVE MISSING DEW POINTS.  SINCE MOS
+C            TEMPERATURE AND DEW POINT ARE DEVELOPED  
+C            SIMULTANEOUSLY, ANY CASES THAT DO NOT HAVE DATA FOR 
+C            BOTH TEMP AND DEW POINT WILL BE TOSSED OUT.  IN OTHER
+C            WORDS, OUR DEVELOPMENTAL SAMPLE WILL NOT HAVE ANY
+C            EXTREME COLD EVENTS IN IT. TO SOLVE THIS PROBLEM 
+C            WE ARE SUBSTITUTING IN THE DEW POINTS WITH THE INTEREST
+C            OF HAVING GUIDANCE FOR EXTREME COLD EVENTS. PIECES OF
+C            THIS CODE WERE WRITTEN USING THE RESOURCES OF MITCH
+C
+C            THE CODE WAS MODIFIED TO CALCULATE DEWPOINT TEMPERATURE
+C            FROM TEMPERATURE AND RELATIVE HUMIDITY FOR THE MESOWEST
+C            DATA SETS.
+C 
+C            THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED:
+C
+C               703 102 - DEW POINT - MODIFIED      
+C
+C        DATA SET USE 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE 
+C                       (OUTPUT). 
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS
+C                       (INPUT-OUTPUT). 
+C 
+C        VARIABLES 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                       (INPUT). 
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM 
+C                       ACCESS (INPUT-OUTPUT).
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTOR ID CORRESPONDING TO ID( ) (J=1,15)
+C                       (INPUT).
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 
+C                            LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK 
+C                            IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).
+C                       THIS IS THE SAME AS ID(J), EXCEPT THAT THE 
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3),
+C                       T = IDPARS(8),
+C                       I = IDPARS(13),
+C                       S = IDPARS(14),
+C                       G = IDPARS(15), AND THRESH.
+C                       JD( ) IS USED TO IDENTIFY THE BASIC MODEL 
+C                       FIELDS AS READ FROM THE ARCHIVE (INPUT).
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED
+C                       (INPUT).
+C            SDATA(K) = DATA TO RETURN (K=1,ND1) (OUTPUT).
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT
+C                       WITH.  DIMENSION OF SDATA (INPUT).
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING
+C                       DEALT WITH (INPUT).
+C            IPACK(J) = WORK ARRAY (J=1,ND2X3) (INTERNAL).
+C            IWORK(J) = WORK ARRAY (J=1,ND2X3) (INTERNAL).
+C       FD1(J),FD2(J) = WORK ARRAYS (J=1,ND2X3). FD1 CONTAINS AIR
+C                       TEMPERATURE AND FD2 CONTAINS DEW POINT
+C                       TEMPERATURE (INTERNAL).
+C               ND2X3 = DIMENSION OF IPACK( ), IWORK( ), FD1( ),
+C                       AND FD2.  (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS), (INPUT-OUTPUT).
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR 
+C                              NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN 
+C                              RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE 
+C                              CHARACTERISTICS OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE 
+C                              SORTED LIST IN ID( ,N) (N=1,NPRED)
+C                              FOR WHICH THIS VARIABLE IS NEEDED, WHEN 
+C                              IT IS NEEDED ONLY ONCE FROM 
+C                              LSTORE( , ).  WHEN IT IS NEEDED MORE
+C                              THAN ONCE, THE VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING 
+C                              MSTORE( , ). LATER USED AS A WAY OF 
+C                              DETERMINING WHETHER TO KEEP THIS 
+C                              VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ), (INPUT). 
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT HAVE BEEN USED IN THIS RUN (INPUT).  
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA 
+C                       IDENTIFIED IN LSTORE( , ) (J=1,ND10). WHEN
+C                       CORE( ) IS FULL, DATA ARE STORED ON DISK
+C                       (OUTPUT).
+C                ND10 = DIMENSION OF CORE( ), (INPUT).
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE (INPUT).  
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.
+C                       IT IS A RUNNING  COUNT FROM THE BEGINNING OF 
+C                       THE PROGRAM.  THIS COUNT IS MAINTAINED IN 
+C                       CASE THE USER NEEDS IT (DIAGNOSTICS, ETC.),
+C                       (INTERNAL).  
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3)
+C                       (INTERNAL).
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+)  
+C                       (INTERNAL).
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12)
+C                       (INTERNAL).
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4)
+C                       (INTERNAL).
+C                 ND7 = DIMENSION OF IS0, IS1, IS2, AND IS4. NOT ALL
+C                       LOCATIONS ARE USED (INPUT).
+C               ISTAV = 1 SINCE THE DATA RETURNED ARE STATION DATA
+C                       (OUTPUT).
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING 
+C                       USED (EITHER 32 OR 64) (INPUT).
+C                 IER = STATUS RETURN.
+C                       0 = GOOD RETURN.
+C                       103 = IDPARS(1) AND/OR IDAPARS(2) NOT 
+C                             ACCOMMODATED IN THIS SUBROUTINE.
+C                       52 = NWORDS DOES NOT EQUAL NSTA. 
+C                       SEE GFETCH FOR VALUES WHEN IER.NE.0 AND
+C                       DATA ARE RETURNED AS MISSING. (INTERNAL-OUTPUT)
+C
+C         ADDITIONAL VARIABLES
+C                DEWC = DEWPOINT TEMPERATURE IN DEGREES CELSIUS (INTERNAL).
+C                   E = CALCULATED VAPOR PRESSURE NEEDED IN THE COMPUTATION
+C                       OF THE DEWPOINT (INTERNAL).
+C              EXPRAT = EXPONENTIAL RATIO USED IN THE CALCULATING THE
+C                       VAPOR PRESSURE (INTERNAL).
+C              IENTER = NUMBER OF TIMES SUBROUTINE IS ENTERED
+C                       (INTERNAL).
+C                   J = INTEGER COUNTER (INTERNAL).
+C               LD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       FD1( ) "AIR TEMPERATURE" (J=1,4) (INTERNAL).
+C               MD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       FD2( ) "DEW POINT TEMPERATURE" (J=1,4)
+C                       (INTERNAL).
+C               MISSP = PRIMARY MISSING VALUE INDICATOR. RETURNED AS ZERO
+C                       WHEN DATA ARE NOT PACKED (INTERNAL).
+C               MISSS = SECONDARY MISSING VALUE INDICATOR. RETURNED AS ZERO
+C                       WHEN DATA ARE NOT PACKED (INTERNAL).
+C               NPACK = 2 FOR TDL GRIB PACKED DATA: 1 FOR NOT PACKED.
+C                       THIS IS STORED IN LSTORE(7, ) (INTERNAL).
+C               NSLAB = RETURNED FROM GFETCH AS THE VALUE STORED IN
+C                       LSTORE(10, ) FOR THE FIRST FIELD.  THIS IS THE
+C                       VALUE OF NSLAB RETURNED.  WHEN IER NE 0, THIS
+C                       VALUE SHOULD NOT BE USED (OUTPUT).
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE, THAT
+C                       THE RECORD HAS BEEN FETCHED. THIS IS STORED
+C                       IN LSTORE(9, ) (INTERNAL).
+C              NWORDS = NUMBER OF WORDS RETURNED IN FD1 OR FD2( ),
+C                       (INTERNAL).
+C                TCEL = TEMPERATURE IN DEGREES CELSIUS (INTERNAL).
+C
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES CALLED 
+C            GFETCH
+C
+      IMPLICIT NONE
+C
+      INTEGER ND2X3,ND5,ND7,ND9,ND10
+      REAL FD1(ND2X3),FD2(ND2X3),FD3(ND2X3),SDATA(ND1),
+     1     CORE(ND10),E,EXPRAT
+C
+      INTEGER KFILDO,KFIL10
+      INTEGER IDPARS(15),JD(4),NDATE,ND1,NSTA
+      INTEGER IPACK(ND2X3),IWORK(ND2X3)
+      INTEGER LSTORE(12,ND9),LITEMS,NBLOCK,NFETCH
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7),
+     1        ISTAV,L3264B,IER
+C
+      INTEGER LD(4),MD(4),ND(4),IENTER
+      INTEGER NTIMES,NWORDS,NPACK,NSLAB,
+     1        J,MISSP,MISSS
+      CHARACTER*8 CCALLD(ND2X3)
+      REAL TCEL,DEWC
+C
+      DATA IENTER/0/
+      SAVE IENTER
+C
+C        STEP 1A. VERIFY THE PROCESSING OF CORDP
+C
+      IF(IDPARS(1).NE.703.OR.IDPARS(2).NE.102) THEN
+	 IER=103
+         WRITE(KFILDO,150)(JD(J),J=1,4),IER
+ 150     FORMAT(/' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE',
+     1           ' MODIFIED DEW POINT CHECK.',
+     2          /'     PREDICTOR ',I9.9,2I10.9,I4.3,
+     3           ' NOT ACCOMMODATED IN CORDP.  IER=',I3)
+	 GO TO 800
+      ENDIF
+C
+C        STEP 1B. INITIALIZATION
+C
+      IER=0
+      ISTAV=1
+      IENTER=IENTER+1
+C
+C        CONSTRUCT THE ARRAY LD FOR AIR TEMPERATURE
+C
+      LD(1)=702000000
+      LD(2)=IDPARS(7)
+      LD(3)=IDPARS(9)*1000000+IDPARS(12)
+      LD(4)=0
+C
+C        CONSTRUCT THE ARRAY MD FOR DEW POINT TEMPERATURE
+C
+      MD(1)=703100000
+      MD(2)=IDPARS(7)
+      MD(3)=IDPARS(9)*1000000+IDPARS(12)
+      MD(4)=0
+C
+C        CONSTRUCT THE ARRAY ND FOR RELATIVE HUMIDITY.
+C
+      ND(1)=703000000
+      ND(2)=IDPARS(7)
+      ND(3)=IDPARS(9)*1000000+IDPARS(12)
+      ND(4)=0
+C      
+C        STEP 2A. FETCH THE HOURLY AIR TEMPERATURE 
+C
+      CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,
+     4            IER)
+C
+      IF((IER.NE.0).AND.(IENTER.EQ.1)) THEN
+         WRITE(KFILDO,205) (JD(J),J=1,4),IER
+ 205     FORMAT(/,' ****ERROR IN CORDP FOR FIRST PROCESS DATE,',
+     1            ' HOURLY TEMPERATURE IS MISSING.', 
+     2          /,'     POSSIBLE DATA GAP.  ALL VALUES OF MODIFIED',
+     3            ' DEW POINT ARE MISSING',
+     4            ' FOR VARIABLE',I9.9,2I10.9,I4.3,' IER =',I5)
+         GO TO 800
+      ELSEIF((IER.NE.0).AND.(IENTER.GT.1)) THEN
+	 GO TO 800
+      ENDIF
+C
+      IF(NWORDS.NE.NSTA) THEN
+         WRITE(KFILDO,210)NWORDS,NSTA
+ 210     FORMAT(/,' ****NWORDS =',I6,' RETURNED FROM GFETCH',
+     1            ' NOT EQUAL TO NSTA =',I6,' FOR AIR TEMPERATURE',
+     2            ' IN CORDP.  DATA SET TO MISSING.')
+         IER=52
+         GO TO 800
+      ENDIF
+C
+C        STEP 2B. FETCH THE DEW POINT TEMPERATURE
+C
+      CALL GFETCH(KFILDO,KFIL10,MD,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,
+     4            IER)
+C
+      IF(IER.EQ.47) GO TO 240
+      IF((IER.NE.0).AND.(IENTER.EQ.1)) THEN
+         WRITE(KFILDO,212) (JD(J),J=1,4),IER
+ 212     FORMAT(/,' ****ERROR IN CORDP, FOR FIRST PROCESS DATE,',
+     1            ' DEW POINT TEMPERATURE IS MISSING', 
+     2          /,'     POSSIBLE DATA GAP.  ALL VALUES OF MODIFIED',
+     3            ' DEW POINT ARE MISSING',
+     4            ' FOR VARIABLE',I9.9,2I10.9,I4.3,' IER =',I5)
+         GO TO 800
+      ELSEIF((IER.NE.0).AND.(IENTER.GT.1)) THEN
+         GO TO 800
+      ENDIF
+C
+      IF(NWORDS.NE.NSTA) THEN
+         WRITE(KFILDO,215)NWORDS,NSTA
+ 215     FORMAT(/,' ****NWORDS =',I6,' RETURNED FROM GFETCH',
+     1            ' NOT EQUAL TO NSTA =',I6,' FOR DEWPT TEMPERATURE',
+     2            ' IN CORDP.  DATA SET TO MISSING.') 
+         IER=52 
+         GO TO 800 
+      ENDIF
+C
+C        STEP 3. IF TEMP IS COLDER THAN -30F AND DEW POINT IS 
+C                MISSING, SET DEW POINT EQUAL TO TEMP. 
+C
+      DO 220 J=1,NSTA
+         IF((FD1(J).LT.-30.).AND.(FD2(J).EQ.9999.))THEN
+	    SDATA(J)=FD1(J)
+         ELSE 
+	    SDATA(J)=FD2(J)
+         ENDIF
+ 220  CONTINUE
+
+ 230  GO TO 850 
+C
+C        STEP 2C.  FETCH THE RELATIVE HUMIDIDTY IF THE DEWPOINT IS
+C                  MISSING.
+C
+ 240  CALL GFETCH(KFILDO,KFIL10,ND,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD3,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,
+     4            IER)
+C
+      IF((IER.NE.0).AND.(IENTER.EQ.1)) THEN
+         WRITE(KFILDO,245) IER,(JD(J),J=1,4)
+ 245     FORMAT(/,' ****ERROR IN CORDP, FOR FIRST PROCESS DATE,',
+     1          ' HOURLY TEMPERATURE IS MISSING',
+     2          /,' POSSIBLE DATA GAP, **** ALL VALUES OF MODIFIED',
+     3          ' DEW POINT ARE MISSING ****, IER =',I5,
+     4          ' FOR VARIABLE',4I12)
+         GO TO 800
+      ELSEIF((IER.NE.0).AND.(IENTER.GT.1)) THEN
+         GO TO 800
+      ENDIF
+C
+      IF(NWORDS.NE.NSTA) THEN
+         WRITE(KFILDO,250)NWORDS,NSTA
+ 250     FORMAT(/,' ****NWORDS =',I6,' RETURNED FROM GFETCH',
+     1          ' NOT EQUAL TO NSTA =',I6,' FOR AIR TEMPERATURE',
+     2          ' IN CORDP. DATA SET TO MISSING.')
+         IER=52
+         GO TO 800
+      ENDIF
+C
+C       CALCULATE DEWPOINT FROM TEMPERATURE AND RELATIVE HUMIDITY.
+C
+      DO 300 J=1,NSTA
+C
+C       MAKE SURE THERE IS DATA.
+C
+      IF(INT(FD1(J)).NE.9999.AND.INT(FD3(J)).NE.9999) THEN
+C
+C       CONVERT T FROM DEG F TO DEG C.
+C
+          TCEL=(FD1(J)-32.)*(5./9.)
+C
+C       IF THE RH IS LESS THAN OR EQUAL TO 2 OR GREATER THAN 100 PERCENT
+C       SET TO MISSING.
+C
+          IF((FD3(J).LE.2.).OR.(FD3(J).GT.100.)) THEN
+C
+C              WRITE(12,251) FD3(J),CCALLD(J),NDATE
+C 251          FORMAT(' ****RH TOSSED AND DEWPOINT NOT CALCULATED ',
+C     1               'IN CORDP.  RH= ',F6.2,'    STA=',A5,
+C     2               '    DATE=',I10)
+C
+              SDATA(J)=9999.
+              GOTO 300
+          ENDIF
+C
+C       IF THE TEMPERATURE IS LESS THAN -70 OR GREATER THAN 130 THE
+C       SET THE TEMPERATURE TO MISSING.
+C
+         IF((FD1(J).LT.-70.).OR.(FD1(J).GT.130.).AND.
+     1       FD1(J).NE.9999)THEN
+C
+C             WRITE(12,253) FD1(J),CCALLD(J),NDATE
+C 253          FORMAT(' ****TEMPERATURE TOSSED  ',
+C      1               'IN CORDP.  TEMP= ',F6.2,'    STA=',A5,
+C      2               '    DATE=',I10)
+C
+              SDATA(J)=9999.
+              GOTO 300
+         ENDIF
+C
+C       COMPUTE EXPONENTIAL RATIO AND VAPOR PRESSURE.
+C
+          EXPRAT=EXP(17.27*TCEL/(TCEL+237.3))
+          E=(FD3(J)/100.)*(0.611)*EXPRAT
+C
+C       CALCULATE DEWPOINT IN DEG C.
+C
+          DEWC=(116.9+(237.3*LOG(E)))/(16.78-LOG(E))
+C
+C       CALCULATE DEWPOINT IN DEG F.
+C
+          SDATA(J)=((9./5.)*DEWC)+32.
+C
+C       IF THE DEWPOINT IS GREATER THAN THE TEMPERATURE THEN
+C       SET THE DEWPOINT EQUAL TO THE TEMPERATURE.
+C
+             IF(SDATA(J).GT.FD1(J)) THEN
+                SDATA(J)=FD1(J)
+             ENDIF
+      ELSE
+          SDATA(J)=9999.
+      ENDIF
+ 300  CONTINUE
+      GO TO 850
+C
+ 800  DO 810 J=1,ND1
+         SDATA(J)=9999.
+ 810  CONTINUE
+C
+ 850  RETURN
+      END     

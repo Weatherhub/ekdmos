@@ -1,0 +1,1211 @@
+      SUBROUTINE INT720(KFILDI,KFILDO,KFIL10,KFILAS,KFILVO,KFILGO,IP,
+     1                  KFILAC,ASCIFL,
+     2                  KFILRA,RACESS,NUMRA,ND12,FLNAM,
+     3                  ICALL,CCALL,NAME,NELEV,
+     4                  IWBAN,STALAT,STALON,ITIMEZ,ISDATA,NSTA,ND1,
+     5                  ID,IDPARS,THRESH,JD,JP,
+     6                  ISCALD,SMULT,SADD,ORIGIN,CINT,UNITS,
+     7                  PLAIN,IPLAIN,NPRED,ND4,
+     8                  IPACK,DATA,IWORK,ICALLD,CCALLD,ND5,
+     9                  KFILIN,NAMIN,JFOPEN,MODNUM,NUMIN,ND6,
+     A                  IDATE,NWORK,NDATES,ND8,INCCYL,
+     B                  NEW,NALPH,PXMISS,
+     C                  NSKIP,KSKIP,KWRITE,LTOTBV,LTOTRV,
+     D                  OUTNMV,OUTNMG,
+     E                  L3264B,L3264W,MINPK,JSTOP,ISTOP,
+     F                  THRPHS,THRQPF,THRTRW,THRSVR,
+     G                  IPHSBC,PHSTMP,NSVRLOC,NX,NY,IER)
+C
+C$$$   SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: U720
+C   PRGMMR: HUNTEMANN      ORG: W/OST22          DATE: 2012-03-20
+C
+C ABSTRACT: SUBROUTINE INT720 PERFORMS MUCH OF THE INITIALIZATION
+C           FOR U720.
+C
+C PROGRAM HISTORY LOG:
+C   10-02-01  GLAHN
+C   10-10-01  HUNTEMANN  ADDED KFILAC, IP20 TO CALL
+C   12-03-15  HUNTEMANN  ADDED KFILWX, CALL TO RDWXCN
+C   12-03-20  HUNTEMANN  ADDED NCEP DOCBLOCK. CHANGED CODE SO 
+C                        THAT THE DATE IS READ FROM THE NCEP 
+C                        DATE FILE WITH A CALL TO GET_NCEPDATE.
+C                        ADDED CALLS TO W3TAGB AND W3TAGE.
+C
+C USAGE:  CALLED BY U720
+C
+C        DATA SET USE
+C        INPUT FILES:
+C          FORT.KFILDI - UNIT NUMBER OF INPUT FILE.  (INPUT)
+C           FORT.KFILP - THE UNIT NUMBER FOR WHERE THE PREDICTOR LIST 
+C                        IS TO BE FOUND.  (INPUT)
+C          FORT.KFILCP - UNIT NUMBER FOR PREDICTOR CONSTANT FILE. 
+C                        (INPUT)
+C       FORT.KFILIN(J) - UNIT NUMBERS FOR INPUT DATA, ALL IN TDLPACK
+C                        FORMAT.  INPUT CAN INCLUDE GRIDPOINT (FILES)
+C                        DATA, PREDICTAND (OBSERVATIONS) DATA, VARIOUS
+C                        CONSTANTS, OR MOS FORECASTS (FOR 2ND GENERATION
+C                        MOS, POSSIBLY FOR LOCAL IMPLEMENTATION 
+C                        (J=1,NUMIN).  (INPUT)
+C        FORT.KFILD(J) - THE UNIT NUMBER FOR WHERE THE STATION LIST
+C                        (J=1) AND THE STATION DIRECTORY (J=2) RESIDES.
+C                        CORRESPONDS TO DIRNAM(J).  WHEN KFILD(1) =
+C                        KFILDI, THE DEFAULT INPUT IS INDICATED,
+C                        DIRNAM(1) IS NOT USED, AND THE FILE IS NOT
+C                        OPENED.  KFILD(1) CAN EQUAL KFILD(2), IN WHICH 
+C                        CASE THE STATION LIST IS TAKEN FROM THE 
+C                        DIRECTORY (I.E., A SEPARATE STATION LIST IS NOT 
+C                        PROVIDED).  (INPUT)
+C          FORT.KFILDT - UNIT NUMBER WHERE THE DATE LIST IS LOCATED.
+C                        (INPUT)
+C        OUTPUT FILES: 
+C           FORT.IP(J) - UNIT NUMBERS FOR OPTIONAL OUTPUT (SEE IP( )
+C                        UNDER "VARIABLES" BELOW.)  (J=1,25)  (OUTPUT)
+C          FORT.KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C          FORT.KFIL10 - UNIT NUMBER FOR INTERMEDIATE PREDICTOR STORAGE.
+C                        (OUTPUT)
+C          FORT.KFILVO - UNIT NUMBER OF VECTOR OUTPUT FILE.  (OUTPUT)
+C          FORT.KFILGO - UNIT NUMBER OF GRIDDED OUTPUT FILE.  (OUTPUT)
+C          FORT.KFILAC - UNIT NUMBER OF ASCII WEATHER KEY LIST OUTPUT
+C                        FILE. (OUTPUT)
+C          FORT.KFILAS - ASCII DATA FOR GMOS PLOT.  (OUTPUT)
+C       FORT.KFILRA(J) - UNIT NUMBERS OF THE EXTERNAL RANDOM ACCESS
+C                        FILES (INPUT/OUTPUT)
+C
+C        VARIABLES
+C              KFILDI = UNIT NUMBER TO READ INPUT FILE 'U720.CN'.
+C                       (INPUT)
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  INITIALLY,
+C                       THIS IS SET BY DATA STATEMENT.  LATER, IN 
+C                       IPOPEN, IF IP(1) NE 0, KFILDO IS SET = IP(1).
+C                       THIS ALLOWS CHANGING THE "DEFAULT" PRINT FILE ON 
+C                       THE FLY.  OTHERWISE, ON SOME SYSTEMS, THE OUTPUT
+C                       FILE MIGHT HAVE THE SAME NAME AND BE OVERWRITTEN.
+C                       WHEN THE OUTPUT FILE IS NOT THE ORIGINAL DEFAULT,
+C                       THE NAME IS GENERATED AND CAN BE DIFFERENT FOR
+C                       EACH RUN.  (INPUT)
+C              KFIL10 = UNIT NUMBER FOR INTERMEDIATE STORAGE.
+C                       (OUTPUT)
+C              KFILAS = UNIT NUMBER FOR ASCII DATA FOR GMOS_PLOT.
+C                       (OUTPUT)
+C              KFILVO = UNIT NUMBER OF VECTOR OUTPUT FILE.  (OUTPUT)
+C              KFILGO = UNIT NUMBER OF GRIDPOINT OUTPUT FILE.  (OUTPUT)
+C              KFILAC = UNIT NUMBER OF ASCII WEATHER KEY LIST FILE. 
+C                       (OUTPUT)
+C               IP(J) = EACH VALUE (J=1,25) INDICATES WHETHER (>1)
+C                       OR NOT (=0) CERTAIN INFORMATION WILL BE WRITTEN.
+C                       WHEN IP( ) > 0, THE VALUE INDICATES THE UNIT
+C                       NUMBER FOR OUTPUT.  THESE VALUES SHOULD NOT BE
+C                       THE SAME AS ANY KFILX VALUES EXCEPT POSSIBLY
+C                       KFILDO, WHICH IS THE DEFAULT OUTPUT FILE.  THIS
+C                       IS ASCII OUTPUT, GENERALLY FOR DIAGNOSTIC
+C                       PURPOSES.  THE FILE NAMES WILL BE 4 CHARACTERS
+C                       'U720', THEN 4 CHARACTERS FROM IPINIT, THEN
+C                       2 CHARACTERS FROM IP(J) (E.G., 'U720HRG130').
+C                       THE ARRAY IS INITIALIZED TO ZERO IN CASE LESS
+C                       THAN THE EXPECTED NUMBER OF VALUES ARE READ IN.
+C                       (OUTPUT)
+C                       (1) = ALL ERRORS AND OTHER INFORMATION NOT
+C                           SPECIFICALLY IDENTIFIED WITH OTHER IP( )
+C                           NUMBERS.  WHEN IP(1) IS READ AS NONZERO,
+C                           KFILDO, THE DEFAULT OUTPUT FILE UNIT NUMBER,
+C                           WILL BE SET TO IP(1).  WHEN IP(1) IS READ
+C                           AS ZERO, KFILDO WILL BE USED UNCHANGED.
+C                       (2) = THE INPUT DATES IN IDATE( ).  WHEN THERE
+C                           ARE ERRORS, PRINT WILL BE TO UNIT KFILDO AS 
+C                           WELL AS TO UNIT IP(2).
+C                       (3) = THE OUTPUT DATES IN IDATE( ).  WHEN THERE
+C                           ARE ERRORS, OUTPUT WILL BE TO UNIT KFILDO AS 
+C                           WELL AS TO UNIT IP(3).
+C                       (4) = THE STATION LIST (CALL LETTERS ONLY).  IF 
+C                           THERE ARE INPUT ERRORS, THE STATION LIST
+C                           WILL BE WRITTEN TO THE DEFAULT OUTPUT FILE
+C                           UNIT KFILDO AS WELL AS TO UNIT IP(4).
+C                       (5) = THE STATION DIRECTORY INFORMATION.  IF 
+C                           THERE ARE INPUT ERRORS, THE STATION LIST
+C                           WILL BE WRITTEN TO THE DEFAULT OUTPUT FILE
+C                           UNIT KFILDO AS WELL AS TO UNIT IP(5). 
+C                       (6) = THE VARIABLES AS THEY ARE BEING READ IN.
+C                           THIS IS GOOD FOR CHECKOUT; FOR ROUTINE
+C                           OPERATION, IP(7), IP(8), AND/OR IP(9),
+C                           MAY BE BETTER.  
+C                       (7) = THE VARIABLE LIST IN SUMMARY FORM.
+C                           IF THERE ARE ERRORS, THE VARIABLE LIST WILL 
+C                           BE WRITTEN TO THE DEFAULT OUTPUT FILE 
+C                           UNIT KFILDO AS WELL AS TO UNIT IP(7).
+C                           THIS LIST INCLUDES THE PARSED ID'S IN
+C                           IDPARS( , ).
+C                       (8) = THE VARIABLE LIST IN SUMMARY FORM AFTER 
+C                           REORDERING.  THIS LIST INCLUDES THE PARSED 
+C                           ID'S IN IDPARS( , ).
+C                       (9) = THE VARIABLE LIST IN SUMMARY FORM AFTER
+C                           REORDERING.  THIS DIFFERS FROM (8) IN THAT
+C                           (9) DOES NOT INCLUDE THE PARSED ID'S IN
+C                           IDPARS( , ), BUT RATHER INCLUDES THE
+C                           INFORMATION TAKEN FROM THE VARIABLE
+C                           CONSTANT FILE ON UNIT KFILCP.
+C                       (10) = THE VARIABLE ID'S FOR THE FIRST DAY AS
+C                           READ FROM THE ARCHIVE FILES.
+C                       (11) = THE VARIABLE ID'S OF THE ARCHIVED FIELDS
+C                           ACTUALLY NEEDED, IN ORDER AS THEY APPEAR ON
+C                           THE ARCHIVE FILES.
+C                       (12) = THE I,J POSITIONS OF THE STATIONS ON THE
+C                           NGRID GRIDS, TOGETHER WITH THE CALL LETTERS
+C                           AND NAMES.  ALSO USED FOR THE LIST OF
+C                           STATIONS ON THE INPUT FILES FOR VECTOR DATA.
+C                       (13) = GRIDPOINT FIELDS.  WHEN THE VARIABLE
+C                           LIST INDICATES GRIDPOINT VALUES ARE TO BE
+C                           WRITTEN FOR VIEWING (JP(1, )>0), THEY WILL
+C                           BE WRITTEN TO UNIT IP(13). 
+C                       (14) = GRIDPOINT FIELDS.  WHEN THE VARIABLE
+C                           LIST INDICATES GRIDPOINT VALUES ARE TO BE
+C                           CONTOURED AND WRITTEN FOR VIEWING 
+C                           (JP(2, )>0), THEY WILL BE WRITTEN TO UNIT
+C                           IP(14). 
+C                       (15) = INTERPOLATED VALUES.  WHEN THE VARIABLE
+C                           LIST INDICATES THE OUTPUT VECTOR DATA ARE TO
+C                           BE WRITTEN FOR VIEWING (JP(3, )>0), THEY
+C                           WILL BE WRITTEN TO UNIT IP(15).
+C                       (16) = DIAGNOSTICS FOR LINEARIZATION AND
+C                           CONSTANT ROUTINES (E.G., STATIONS IN
+C                           THRESHOLD LISTS THAT ARE NOT BEING DEALT
+C                           WITH IN THIS RUN).
+C                       (17) = VALUES OF IFIND( ), ISTAV( ), AND
+C                           ITIME( ) WRITTEN FOR EACH VARIABLE AFTER
+C                           DAY 1.
+C                       (18) = VARIABLES ACTUALLY SAVED IN MOS-2000
+C                           INTERNAL STORAGE SYSTEM AFTER DAY 1.
+C                       (19) = GRIDDED VARIABLES WRITTEN PACKED.  THIS
+C                           CAPABILITY WAS INSERTED FOR VIEWING THE
+C                           GRIDS WITH GMOS_PLOT.  IT ALSO CONTROLS THE
+C                           WRITING OF ASCII DATA FOR THE LAST VARIABLE
+C                           DEALT WITH FOR THE LAST DAY.  IF LEFT ON,
+C                           LOTS OF DATA MIGHT BE NEEDLESSLY PACKED AND
+C                           WRITTEN.  NORMALLY, U720 WOULD BE RUN FOR
+C                           ONE VARIABLE FOR ONE DATE WHEN IP(19) NE.0.
+C                       (20) = THE WEATHER KEY LIST PRINTED WITH 
+C                           CORRESPONDING INDICES FROM THE GRID. SAME AS 
+C                           OUTPUT IN KFILAC, EXCEPT WITH INDICES FOR 
+C                           CHECKOUT.
+C                       (21) = THE WEATHER KEY PRINTED FOR EACH STATION
+C                       (23) = INDICATES WHETHER (>0) OR NOT (=0)
+C                           STATEMENTS ABOUT EOF AND FILE OPENINGS AND
+C                           CLOSINGS WILL BE OUTPUT FOR PRINTING ON UNIT
+C                           IP(23).
+C           KFILRA(J) = HOLDS THE UNIT NUMBERS FOR ACCESSING THE
+C                       MOS-2000 EXTERNAL RANDOM ACCESS FILES
+C                       (J=1,ND12).  (OUTPUT)
+C           RACESS(J) = THE FILE NAMES CORRESPONDING TO KFILRA(J)
+C                       (J=1,ND12).  (CHARACTER*60)  (OUTPUT)
+C               NUMRA = THE NUMBER OF NON-ZERO UNIT NUMBERS IN 
+C                       KFILRA( ), MAX OF ND12.  (OUTPUT)
+C                ND12 = THE NUMBER OF MOS-2000 EXTERNAL RANDOM ACCESS
+C                       FILES THAT CAN BE USED ON THIS RUN.  (INPUT)
+C               FLNAM = THE NAME OF THE FILE FOR IP(19).
+C                       (CHARACTER*16)  (OUTPUT)
+C        ICALL(L,K,J) = 8 STATION CALL LETTERS AS CHARACTERS IN AN
+C                       INTEGER VARIABLE (L=1,L3264W) (K=1,NSTA) 
+C                       (J=1,6).  NOTE THAT THIS REQUIRES TWO 32-BIT
+C                       WORDS TO HOLD THE DESCRIPTION BUT ONLY ONE
+C                       64-BIT WORD.  EQUIVALENCED TO CCALL( , ).
+C                       (OUTPUT)
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+C                       DATA ARE KEYED TO THIS LIST, EXCEPT POSSIBLY 
+C                       CCALLD( ).  EQUIVALENCED TO ICALL( , , ).
+C                       (OOUTPUT)
+C             NAME(K) = NAMES OF STATIONS (K=1,NSTA)  (CHARACTER*20)
+C                       (OUTPUT)
+C            NELEV(K) = ELEVATION OF STATIONS (K=1,NSTA).  (OUTPUT)
+C            IWBAN(K) = WBAN NUMBERS OF STATIONS (K=1,NSTA).  THIS IS 
+C                       RETURNED FROM RDSTAD, BUT IS NOT NEEDED.
+C                       (OUTPUT)
+C           STALAT(K) = LATITUDE OF STATIONS (K=1,NSTA).  (OUTPUT)
+C           STALON(K) = LONGITUDE OF STATIONS (K=1,NSTA).  (OUTPUT)
+C           ITIMEZ(K) = TIME ZONE INDICATOR.  THE NUMBER OF HOURS
+C                       THE STATION IS DIFFERENT FROM UTC (K=1,NSTA).
+C                      (OUTPUT)
+C           ISDATA(K) = USED IN RDSTAD TO KEEP TRACK OF THE STATIONS
+C                       FOUND IN THE DIRECTORY (K=1,NSTA).  ALSO USED IN
+C                       PRED25 AND PRED26.  (INTERNAL)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT
+C                       WITH.  (OUTPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT
+C                       WITH (I.E., INTERPOLATION DONE FOR).  NOTE THAT
+C                       THIS DOES NOT INCLUDE THE NUMBER OF STATIONS IN
+C                       THE DIRECTORY UNLESS, OF COURSE, THE STATION
+C                       DIRECTORY IS TO BE USED AS THE STATION LIST.
+C                       SET BY PARAMETER.  (INPUT)
+C             ID(J,N) = THE INTEGER VARIABLE ID'S (J=1,4) (N=1,ND4).
+C         IDPARS(J,N) = THE PARSED, INDIVIDUAL COMPONENTS OF THE
+C                       VARIABLE ID'S CORRESPONDING TO ID( ,N)
+C                       (J=1,15), (N=1,ND4).
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 
+C                            1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK 
+C                            IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C           THRESH(N) = THE BINARY THRESHOLD ASSOCIATED WITH 
+C                       IDPARS( ,N), N=1,ND4).  (OUTPUT)
+C             JD(J,N) = THE BASIC INTEGER VARIABLE ID'S (J=1,4) 
+C                       (N=1,ND4).  (OUTPUT)
+C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3, ),
+C                       T = IDPARS(8,),
+C                       I = IDPARS(13, ),
+C                       S = IDPARS(14, ),
+C                       G = IDPARS(15, ), AND
+C                       THRESH( ).
+C                       JD( , ) IS USED TO IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE.
+C                       (OUTPUT)
+C             JP(J,N) = JP( ,N) INDICATES WHETHER (>0) OR NOT (=0)
+C                       VARIABLE N WILL BE OUTPUT FOR VIEWING 
+C                       (N=1,ND4).
+C                       J=1--GRIDPOINT VALUES,
+C                       J=2--GRIDPRINT WITH CONTOURS, AND
+C                       J=3--INTERPOLATED VALUES.
+C                       THIS ALLOWS INDIVIDUAL VARIABLE CONTROL ON THE
+C                       PRINT PARAMETERS IP(13), IP(14), AND IP(15).
+C                       (OUTPUT)
+C           ISCALD(N) = THE DECIMAL SCALING CONSTANT TO USE WHEN
+C                       PACKING THE INTERPOLATED DATA (N=1,ND4).
+C                       NO BINARY SCALING IS PROVIDED FOR.  (OUTPUT)
+C            SMULT(N) = THE MULTIPLICATIVE FACTOR WHEN CONTOURING OR
+C                       GRIDPRINTING THE DATA (N=1,ND4).  (OUTPUT)
+C             SADD(N) = THE ADDITIVE FACTOR WHEN CONTOURING OR
+C                       GRIDPRINTING THE DATA (N=1,ND4).  (OUTPUT)
+C           ORIGIN(N) = THE CONTOUR ORIGIN, APPLIES TO THE UNITS IN
+C                       UNITS(N) (N=1,ND4).  (OUTPUT)
+C             CINT(N) = THE CONTOUR INTERVAL, APPLIES TO THE UNITS IN
+C                       UNITS(N) (N=1,ND4).  (OUTPUT)
+C            UNITS(N) = THE UNITS OF THE DATA THAT APPLY AFTER
+C                       MULTIPLYING BY SMULT(N) AND ADDING SADD(N) 
+C                       (N=1,ND4).  (CHARACTER*12)  (OUTPUT)
+C            PLAIN(N) = THE PLAIN LANGUAGE DESCRIPTION OF THE VARIABLES
+C                       (N=1,ND4).  EQUIVALENCED TO IPLAIN( , , ).
+C                       (CHARACTER*32)  (OUTPUT)
+C       IPLAIN(L,J,N) = 32 CHARACTERS (L=1,L3264W) (J=1,4) OF PLAIN
+C                       LANGUAGE DESCRIPTION OF VARIABLES (N=1,ND4).
+C                       NOTE THAT THIS REQUIRES TWO 32-BIT WORDS TO HOLD
+C                       THE DESCRIPTION BUT ONLY ONE 64-BIT WORD.
+C                       EQUIVALENCED TO PLAIN( ).  (OUTPUT)
+C               NPRED = THE NUMBER OF VARIABLES ACTUALLY NEEDED AND
+C                       IDENTIFIED IN ID( , ), ETC.  (OUTPUT)
+C                 ND4 = THE MAXIMUM NUMBER OF VARIABLES FOR WHICH 
+C                       INTERPOLATED VALUES CAN BE PROVIDED.  SET BY
+C                       PARAMETER.  (INPUT)
+C            IPACK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C             DATA(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN 
+C                       INTEGER VARIABLE (L=1,L3264W) (K=1,NSTA).  THIS
+C                       LIST IS USED IN RDSTAD TO RETAIN THE ORIGINAL
+C                       LIST IN ICALL( ).  EQUIVALENCED TO CCALLD( ).
+C                       (OUTPUT)
+C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,NSTA).  THIS LIST IS
+C                       USED IN RDSTAD TO RETAIN THE ORIGINAL LIST IN 
+C                       CCALL( ).  EQUIVALENCED TO ICALLD( , ).
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), DATA( ) AND
+C                       CCALLD( ); SECOND DIMENSION OF ICALLD( , ).
+C                       THESE ARE GENERAL PURPOSE ARRAYS, SOMETIMES USED 
+C                       FOR GRIDS.  (INPUT)
+C           KFILIN(J) = UNIT NUMBERS FOR INPUT DATA, ALL IN TDLPACK 
+C                       FORMAT.  INPUT CAN INCLUDE GRIDPOINT (FILES)
+C                       DATA, PREDICTAND (OBSERVATIONS) DATA, VARIOUS
+C                       CONSTANTS, OR MOS FORECASTS (FOR 2ND GENERATION
+C                       MOS, POSSIBLY FOR LOCAL IMPLEMENTATION 
+C                       (J=1,NUMIN).  (OUTPUT)
+C            NAMIN(J) = HOLDS DATA SET NAMES FOR THE UNIT NUMBERS IN 
+C                       KFILIN(J) (J=1,NUMIN).  (CHARACTER*60)
+C                       (OUTPUT)
+C           JFOPEN(J) = FOR EACH FILE IN KFILIN(J), JFOPEN(J) IS 1 WHEN
+C                       THE FILE IS OPEN, IS 0 WHEN IT HAS ALREADY BEEN
+C                       USED AND IS 2 WHEN THE FILE HAS NOT BEEN OPENED 
+C                       (J=1,NUMIN).  (OUTPUT)
+C           MODNUM(J) = THE "MODEL" NUMBER CORRESPONDING TO KFILIN(J),
+C                       AND NAMIN(J) (J=1,NUMIN).  THIS MAY NOT HAVE
+C                       MEANING FOR SOME INPUTS, BUT IS NEEDED FOR THE
+C                       MODEL DATA.  (OUTPUT)
+C               NUMIN = THE NUMBER OF VALUES IN KFILIN( ), NAMES IN
+C                       NAMIN( ), ETC.  MAXIMUM OF ND6.  THIS IS REDUCED
+C                       IF THERE IS NO VARIABLE WITH A PARTICULAR
+C                       MODEL NUMBER.  (OUTPUT)
+C                 ND6 = MAXIMUM NUMBER OF MODELS THAT CAN BE DEALT WITH 
+C                       IN ONE RUN.  DIMENSION OF KFILIN( ) AND
+C                       NAMIN( ).  (INPUT)
+C            IDATE(J) = INITIAL DATE LIST (J=1,NDATES) WHICH MAY CONTAIN
+C                       NEGATIVE VALUES INDICATING A DATE SPAN.
+C                       THIS IS MODIFIED IN DATPRO TO CONTAIN THE
+C                       COMPLETE DATE LIST WITH THE DATES IN THE SPANS
+C                       FILLED IN (J=1,NDATES), WHERE NDATES HAS BEEN
+C                       INCREASED IF NECESSARY.  DATES ARE INPUT AS
+C                       YYMMDDHH AND MODIFIED TO YYYYMMDDHH.  ZEROS IN 
+C                       THE INPUT ARE ELIMINATED.  TERMINATOR IS 
+C                       99999999.  MAXIMUM NUMBER OF DATES IS ND8.
+C                       (OUTPUT)
+C            NWORK(J) = A WORK ARRAY (J=1,ND8).  (INTERNAL)
+C              NDATES = NUMBER OF VALUES IN IDATE( ).  MODIFIED AS
+C                       NECESSARY IN DATPRO.  (OUTPUT)
+C                 ND8 = DIMENSION OF IDATE( ) AND NWORK( ).  SET BY
+C                       PARAMETER.  (INPUT)
+C              INCCYL = INCREMENT IN HOURS BETWEEN DATE/TIMES THAT
+C                       ARE PUT INTO IDATE( ) BY SUBROUTINE DATPRO.
+C                       (OUTPUT)
+C                 NEW = 1 WHEN NEW 8-LETTER CALL LETTERS ARE TO BE USED;
+C                       0 WHEN OLD 3-LETTER CALL LETTERS ARE TO BE USED.
+C                       (OUTPUT)
+C               NALPH = 1 WHEN THE CALL LETTERS USED ARE TO BE
+C                         ALPHABETIZED (MORE EXACTLY, PUT IN THE ORDER 
+C                         THEY EXIST IN THE STATION DIRECTORY.
+C                       0 WHEN THE ORDER READ IN IS TO BE PRESERVED.
+C                       (OUTPUT)
+C              IXCTRL = WHEN NONZERO, INDICATES THAT THERE IS A SECOND
+C                       EXTERNAL CONTROL FILE TO READ.
+C                       = 1 WHEN WX IS TO BE USED
+C              PXMISS = THE VALUE OF A SECONDARY MISSING VALUE TO
+C                       INSERT WHEN THE SECONDARY MISSING VALUE IS 9997.
+C                       THIS ALLOWS MAINTAINING A 9997, TREATING IT AS 
+C                       ZERO, AS 9999, OR AS SOME OTHER VALUE.  (OUTPUT)
+C               NSKIP = THE NUMBER OF ERRORS THAT WILL BE TOLERATED ON
+C                       DAY 1 WITHOUT THE PROGRAM HALTING.  IF THIS
+C                       NUMBER IS EXCEEDED, STOP WILL BE AFTER DAY 3.
+C                       (OUTPUT)
+C               KSKIP = WHEN NONZERO, INDICATES THAT THE OUTPUT FILE
+C                       IS TO BE MOVED FORWARD UNTIL ALL DATA FOR
+C                       DATE KSKIP HAVE BEEN SKIPPED.  KSKIP IS INPUT
+C                       AS YYMMDDHH OR YYYYMMDDHH AND THEN USED AS
+C                       YYYYMMDDHH.  (OUTPUT)
+C              KWRITE = 0 IF CALL LETTERS RECORD IS NOT TO BE WRITTEN.
+C                       NE 0 OTHERWISE.  THIS HAS NO EFFECT UNLESS KSKIP
+C                       NE 0.  IF DATA ARE SKIPPED, THE EXISTING
+C                       CALL LETTERS RECORD IS CHECKED WITH THE ONE
+C                       AVAILABLE FOR WRITING.  IF THEY MATCH
+C                       THE NEW ONE IS NOT WRITTEN; HOWEVER, IF THEY
+C                       DON'T MATCH, THE NEW ONE IS WRITTEN WHEN 
+C                       KWRITE = 1, BUT THE PROGRAM HALTS WITH A
+C                       DIAGNOSTIC WHEN KWRITE = 0.  (OUTPUT)
+C              NTOTBV = THE TOTAL NUMBER OF BYTES IN THE SEQUENTIAL
+C                       VECTOR FILE ASSOCIATED WITH UNIT NO. KFILVO.
+C                       IT IS UPDATED WHEN THE DATA IN IPACK( ) ARE
+C                       WRITTEN. (INPUT/OUTPUT)
+C              NTOTRV = THE TOTAL NUMBER OF RECORDS IN THE SEQUENTIAL
+C                       VECTOR FILE ASSOCIATED WITH UNIT NO. KFILVO. 
+C                       IT IS UPDATED AS NEEDED IN WRITEP.
+C                       (INPUT/OUTPUT)
+C               KFILP = THE UNIT NUMBER FOR WHERE THE VARIABLE LIST
+C                       IS TO BE FOUND.  (OUTPUT)
+C              KFILCP = UNIT NUMBER FOR VARIABLE CONSTANT FILE.  THIS
+C                       CONTAINS DEFAULT VALUES FOR CERTAIN CONSTANTS
+C                       FOR BASIC NMC VARIABLES AND OTHER VARIABLES
+C                       SANS THRESHOLDS, ETC.  THESE INCLUDE PACKING
+C                       CONSTANTS, GRIDPOINT CONSTANTS, AND NAMES. 
+C                       (OUTPUT)
+C              KFILDT = THE UNIT NUMBER FOR WHERE THE DATE LIST IS
+C                       LOCATED.  (OUTPUT)
+C            KFILD(J) = THE UNIT NUMBERS FOR WHERE THE STATION LIST (J=1)
+C                       AND THE STATION DIRECTORY (J=2) RESIDE.
+C                       CORRESPONDS TO DIRNAM(J).  WHEN KFILD(1) =
+C                       KFILDI, THE DEFAULT INPUT IS INDICATED, DIRNAM(1)
+C                       IS NOT USED, AND THE FILE IS NOT OPENED.
+C                       KFILD(1) CAN EQUAL KFILD(2), IN WHICH CASE THE
+C                       STATION LIST IS TAKEN FROM THE DIRECTORY (I.E.,
+C                       A SEPARATE STATION LIST IS NOT PROVIDED). 
+C                      (OUTPUT)
+C               RUNID = INFORMATION INPUT TO IDENTIFY THE OUTPUT.
+C                       (CHARACTER*72)
+C               KSKIP = WHEN NONZERO, INDICATES THAT THE OUTPUT FILE
+C                       IS TO BE MOVED FORWARD UNTIL ALL DATA FOR
+C                       DATE KSKIP HAVE BEEN SKIPPED.  KSKIP IS INPUT
+C                       AS YYMMDDHH OR YYYYMMDDHH AND THEN USED AS
+C                       YYYYMMDDHH.  (OUTPUT)
+C              NTOTBV = THE TOTAL NUMBER OF BYTES ON THE FILE ASSOCIATED
+C                       WITH UNIT NO. KFILVO (THE INTERPOLATED FILE).
+C                       IT IS UPDATED WHEN THE DATA IN IPACK( ) ARE
+C                       WRITTEN.  (OUTPUT)
+C              NTOTRV = THE TOTAL NUMBER OF RECORDS IN THE FILE.  IT IS
+C                       UPDATED AS NEEDED IN WRITEP. (OUTPUT) 
+C              OUTNMV = NAME OF DATA SET FOR VECTOR OUTPUT.
+C                       (CHARACTER*60)  (INTERNAL)
+C              OUTNMG = NAME OF DATA SET FOR IGRIDDED OUTPUT.
+C                       (CHARACTER*60)  (INTERNAL)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C              L3264W = NUMBER OF WORDS IN 64 BITS (EITHER 1 OR 2).  
+C                       BASED ON L3464B.  (INPUT)
+C               MINPK = MINIMUM GROUP SIZE WHEN PACKING THE INTERPOLATED
+C                       VALUES.  FOR PRINT ONLY.  (INPUT)
+C               JSTOP = THE NUMBER OF ERRORS THAT WILL BE TOLERATED ON
+C                       THE TOTAL RUN BEFORE PROGRAM STOPS.  (OUTPUT)
+C            ISTOP(J) = FOR J=1, ISTOP( ) IS INCREMENTED BY 1 EACH TIME
+C                       AN ERROR OCCURS THAT MAY BE FATAL.
+C                       FOR J=2, ISTOP( ) IS INCREMENTED BY 1 WHENEVER
+C                       AN INPUT DATA RECORD IS NOT FOUND.
+C                       (INPUT/OUTPUT)
+C                 IER = STATUS RETURN.
+C                       0 = GOOD RETURN.  SEE CALLED ROUTINES FOR OTHER
+C                       VALUES.
+C                       OTHER VALUES RETURNED FROM SUBROUTINES.
+C                       (OUTPUT)
+C           DIRNAM(J) = HOLDS NAME OF DATA SET CONTAINING THE STATION
+C                       CALL LETTERS (J=1) AND STATION DIRECTORY (J=2).
+C                       IT IS EXPECTED THAT THE STATIONS IN
+C                       THE DIRECTORY BE ORDERED ALPHABETICALLY BY CALL
+C                       LETTERS.  (CHARACTER*60)  (INTERNAL)
+C              IPINIT = 4 CHARACTERS, USUALLY A USER'S INITIALS PLUS A
+C                       RUN NUMBER, TO APPEND TO 'U720' TO IDENTIFY A
+C                       PARTICULAR SEGMENT OF OUTPUT INDICATED BY A
+C                       SUFFIX IP(J).  THE RUN NUMBER ALLOWS MULTIPLE
+C                       RUNS OF U720 AND WRITING OF UNIQUELY NAMED FILES,
+C                       PROVIDED THE USER USES A DIFFERENT RUN NUMBER
+C                       FOR EACH RUN.  (INTERNAL)
+C             IUSE(J) = EACH VALUE J PERTAINS TO IP(J).  WHEN AN IP(J)
+C                       VALUE IS USED BY THE PROGRAM, IPRINT(J) = 1;
+C                       OTHERWISE, IPRINT(J) = 0.  USED BY IPRINT TO
+C                       PRINT IP( ) VALUES.  (INTERNAL)
+C              DATNAM = HOLDS DATA SET NAME FOR THE UNIT NUMBER IN
+C                       KFILDT.  (CHARACTER*60)  (INTERNAL)
+C              CONNAM = HOLDS DATA SET NAME FOR THE UNIT NUMBER IN
+C                       KFILCP.  (CHARACTER*60)  (INTERNAL)
+C              PRENAM = FILE NAME THAT CORRESPONDS TO THE UNIT NUMBER IN
+C                       KFILP.  (CHARACTER*60)  (INTERNAL)
+C              ASCIFL = FILE NAME THAT CORRESPONDS TO THE UNIT NUMBER IN
+C                       KFILAC. (CHARACTER*60)  (INTERNAL)
+C            ITEMP(J) = WORK ARRAY (J=1,14).  (INTERNAL)
+C             IDUM(J) = SCRATCH ARRAY (J=1,2).  (INTERNAL)
+C               STATE = VARIABLE SET TO STATEMENT NUMBER TO INDICATE
+C                       WHERE AN ERROR OCCURRED.  (CHARACTER*4)
+C                       (INTERNAL)
+C              KCHECK = 1 TO INDICATE ANY CALL LETTERS EXISTING ON THE
+C                       OUTPUT FILE WILL BE CHECKED WITH THOSE INPUT IN
+C                       CALL( ).  IF THERE IS A PROBLEM, THE PROGRAM
+C                       STOPS.  (INTERNAL)
+C           THRPHS(I) = REAL VECTOR OF LENGTH (4) CONTAINING THE PHASE
+C                       THRESHOLDS, EXPRESSED IN PERCENT, OF THE FOUR 
+C                       PERMITTED CATEGORICAL PROBABILITY FORECASTS 
+C                       (OUTPUT).  ELEMENTS WITHIN THRPHS MUST BE 
+C                       BETWEEN 0 AND 100 PERCENT, INCLUSIVE, AND BE 
+C                       MONOTONICALLY INCREASING. (I=1,4)
+C           THRQPF(I) = REAL VECTOR OF LENGTH (2) CONTAINING THE QPF6 
+C                       THRESHOLDS, EXPRESSED IN PERCENT, OF THE TWO 
+C                       PERMITTED CATEGORICAL PROBABILITY FORECASTS. 
+C                       ELEMENTS WITHIN THRQPF MUST BE BETWEEN 
+C                       0 AND 100 PERCENT, INCLUSIVE, AND BE 
+C                       MONOTONICALLY INCREASING. (OUTPUT)  (I=1,2)
+C           THRTRW(I) = REAL VECTOR OF LENGTH (4) CONTAINING THE THUNDER
+C                       THRESHOLDS, EXPRESSED IN PERCENT, OF THE FOUR 
+C                       PERMITTED CATEGORICAL PROBABILITY FORECASTS 
+C                       (OUTPUT).  ELEMENTS WITHIN THRTRW MUST BE 
+C                       BETWEEN 0 AND 100 PERCENT, INCLUSIVE, AND BE 
+C                       MONOTONICALLY INCREASING. (I=1,4)
+C           THRSVR(I) = REAL VECTOR OF LENGTH (4) CONTAINING THE SEVERE 
+C                       THRESHOLDS, EXPRESSED IN PERCENT, OF THE FOUR 
+C                       PERMITTED CATEGORICAL PROBABILITY FORECASTS 
+C                       (OUTPUT).  ELEMENTS WITHIN THRSVR MUST BE 
+C                       BETWEEN 0 AND 100 PERCENT, INCLUSIVE, AND BE 
+C                       MONOTONICALLY INCREASING. (I=1,4)
+C              PHSTMP = PRECIPITATION PHASE CUTOVER TEMPERATURE
+C                       THRESHOLD TO LIQUID.  IF THE MOS FORECAST
+C                       TEMPERATURE IS AT OR ABOVE PHSTMP, THE 
+C                       PRECIPITATION PHASE IS INITIALIZED TO 
+C                       LIQUID. (OUTPUT)
+C              IPHSBC = FLAG FOR USING CONDITIONAL PRECIPITATION TYPE
+C                       BEST CATEGORY THRESHOLDS:
+C                       1 = USE THRESHOLDS
+C                       ELSE = DON'T USE THRESHOLDS
+C                       (OUTPUT) 
+C             NSVRLOC = FLAG TO DETERMINE ORDER OF ASCII WEATHER SUBKEYS.
+C                       1 = SEVERE ALWAYS FIRST
+C                       2 = SCT,NUM,DEF SEVERE ALWAYS FIRST
+C                       3 = SHOW LESS SEVERE AT LATER PROJECTIONS
+C                       (OUTPUT) 
+C                  NX = NUMBER OF GRIDPOINTS IN X DIRECTION. (OUTPUT)
+C                  NY = NUMBER OF GRIDPOINTS IN Y DIRECTION. (OUTPUT)
+C 
+C        SUBPROGRAMS CALLED: IPOPEN, DATPRO, RDSNAM, RDSTAD, RDSTAL,
+C            RDPRED, RDSTR2, RDWXCN, PRED25, PRED26, PACK1D, IERX, 
+C            W3TAGB, W3TAGE
+C          UNIQUE: - NONE
+C          LIBRARY:
+C           MOSLIB - IOPEN, GET_NCEPDATE, RDSNAM, RDSTAD, RDSTAL,
+C                    RDPRED, RDSTR2, PRED25, PRED26, PACK1D, IERX
+C            W3LIB - W3TAGB, W3TAGE
+C        EXIT STATES:
+C          COND =    0 - SUCCESSFUL RUN
+C                  147 - ERROR IN ROUTINE SKIPWR
+C                  149 - STATION NOT IN DIRECTORY
+C                  160 - FATAL ERROR IN RDSTR2
+C                  238 - NUMBER OF ERRORS EXCEEDS JSTOP
+C                  299 - NUMBER OF ERRORS EXCEEDS NSKIP
+C                 1461 - INCONSISTENCY IN INPUT UNIT NUMBERS IN KFILIN() WITH
+C                        EITHER KFILDT, KFILRA(), KFILIO, KFILD(), KFILP, KFILCP,
+C                        KFILAC, OR KFILWX  
+C                 1462 - INCONSISTENCY IN INPUT UNIT NUMBERS IN KFILIN() WITH
+C                        KFILRA
+C                 1465 - INCONSISTENCY IN INPUT UNIT NUMBER IN KFILDI WITH EITHER
+C                        KFILDO, KFIL10, KFILAC, OR KFILIO
+C                 1466 - INCONSISTENCY IN INPUT UNIT NUMBER IN KFILP WITH
+C                        EITHER KFILDO, KFIL10, KFILAC, OR KFILIO
+C                 1467 - INCONSISTENCY IN INPUT UNIT NUMBER IN KFILCP WITH
+C                        EITHER KFILDO, KFIL10, KFILAC, OR KFILIO
+C                 1468 - INCONSISTENCY IN INPUT UNIT NUMBER IN IP() WITH
+C                        EITHER KFILDI, KFILP, KFILCP, KFILAC, OR KFILD()
+C                 1470 - INCONSISTENCY IN INPUT UNIT NUMBER IN IP() WITH
+C                        KFILRA
+C                 1473 - INCONSISTENCY IN INPUT UNIT NUMBER IN KFILRA WITH
+C                        EITHER KFILIN, KFILDT, KFILIO, KFILD(), KFILP, KFILCP,
+C                        KFILAC, OR KFILWX  
+C                 1475 - INCONSISTENCY IN INPUT UNIT NUMBER IN KFILAC WITH
+C                        EITHER KFILIN, KFILDT, KFILRA(), KFILIO, KFILD(), 
+C                        KFILP, KFILCP, OR KFILWX  
+C                 1476 - INCONSISTENCY IN INPUT UNIT NUMBER IN KFILWX WITH
+C                        EITHER KFILIN, KFILDT, KFILRA(), KFILIO, KFILD(), 
+C                        KFILP, KFILCP, OR KFILAC
+C                 9999 - ERROR WITH EITHER AN OPEN OR WRITE STATEMENT 
+C
+C REMARKS:  NONE 
+C                                                                       
+C ATTRIBUTES:                                                           
+C   LANGUAGE:  FORTRAN 90 (xlf90 compiler) 
+C   MACHINE:  IBM SP
+C
+C$$$               
+C
+      CHARACTER*4 STATE,IPINIT
+      CHARACTER*8 CCALL(ND1,6)
+      CHARACTER*8 CCALLD(ND5)
+      CHARACTER*16 FLNAM
+      CHARACTER*12 UNITS(ND4)
+      CHARACTER*20 NAME(ND1)
+      CHARACTER*32 PLAIN(ND4)
+      CHARACTER*60 NAMIN(ND6),RACESS(ND12)
+      CHARACTER*60 OUTNMV,OUTNMG,DIRNAM(2),PRENAM,CONNAM,DATNAM
+      CHARACTER*60 ASCIFL,WXCNFL
+      CHARACTER*72 RUNID/' '/
+C
+      DIMENSION ICALL(L3264W,ND1,6),
+     1          NELEV(ND1),IWBAN(ND1),STALAT(ND1),STALON(ND1),
+     2          ITIMEZ(ND1),ISDATA(ND1)
+      DIMENSION ID(4,ND4),IDPARS(15,ND4),THRESH(ND4),JD(4,ND4),
+     1          JP(3,ND4),ISCALD(ND4),
+     2          SMULT(ND4),SADD(ND4),ORIGIN(ND4),CINT(ND4)
+      DIMENSION IPLAIN(L3264W,4,ND4)
+      DIMENSION IPACK(ND5),DATA(ND5),IWORK(ND5),ICALLD(L3264W,ND5)
+      DIMENSION KFILIN(ND6),MODNUM(ND6),
+     1          JFOPEN(ND6)
+      DIMENSION IDATE(ND8),NWORK(ND8)
+      DIMENSION KFILRA(ND12)
+      DIMENSION ITEMP(14),IP(25),IUSE(25),KFILD(2),IDUM(2),ISTOP(2)
+      DIMENSION THRPHS(4),THRTRW(4),THRQPF(2),THRSVR(4)
+C
+      DATA IUSE/1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,0/
+      CALL W3TAGB('INTU720',2012,0130,0050,'OST22')
+C
+C
+C        READ AND PROCESS THE PRINT UNIT NUMBERS.  THE INPUT UNIT
+C        KFILDI HAS BEEN OPENED IN THE DRIVER OR BY SOME OTHER
+C        MECHANISM.
+C     
+C        NOTE THAT IF KFILDO NE IP(1) (READ BELOW), THE OUTPUT FROM
+C        TIMPR (IN THE DRIVER) WILL BE ON UNIT KFILDO, BUT ALL OTHER 
+C        "DEFAULT" PRINT ON UNIT IP(1), UNLESS THERE IS AN ERROR ON 
+C        THE OPEN STATEMENT BELOW OR THE FOLLOWING READ.
+C
+      STATE='108 ' 
+      READ(KFILDI,108,IOSTAT=IOS,ERR=900,END=109)IPINIT,(IP(J),J=1,25) 
+ 108  FORMAT(A4,25I3)
+C        LESS THAN 25 IP( ) VALUES WILL NOT BE INDICATED AS AN ERROR.
+C        SOME IP( ) VALUES ARE NOT USED; SEE IUSE( ).
+      CALL IPOPEN(KFILDO,'U720',IPINIT,IP,IER)
+C        WHEN IP(1) NE 0, KFILDO HAS BEEN SET TO IP(1).
+C        A FILE WILL BE OPENED FOR EVERY DIFFERENT VALUE IN IP( ).
+C        THE FILE NAMES WILL BE 4 CHARACTERS 'U720' THEN 4 CHARACTERS
+C        FROM IPINIT, THEN 2 CHARACTERS FROM IP(J).  IPINIT MIGHT BE
+C        'HRG1' INDICATING THE PERSONS INITIALS PLUS A SEQUENCE NUMBER.
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+ 109  WRITE(KFILDO,110)IPINIT
+ 110  FORMAT(/' IPINIT = ',A4)
+      CALL IPRINT(KFILDO,IP,IUSE)
+C
+C        TIME STAMP ALL ASCII OUTPUT OTHER THAN KFILDO.
+C        THIS IS NOT DONE IN IPOPEN BECAUSE SOME PROGRAMS
+C        MIGHT NOT WANT SOME FILE TO BE TIME STAMPED.
+C
+      DO 113 J=1,25
+      IF(IP(J).EQ.0.OR.IP(J).EQ.KFILDO)GO TO 113
+      IF(J.EQ.1)GO TO 112
+      IF(J.EQ.19)GO TO 113
+C        IP(19) IS FOR GRIDDED OUTPUT AND IS NOT STAMPED.
+C
+      DO 111 I=1,J-1
+      IF(IP(J).EQ.IP(I))GO TO 113
+ 111  CONTINUE
+C
+ 112  CALL TIMPR(IP(J),IP(J),'START U720          ')
+ 113  CONTINUE
+C
+C        FORM THE FILE NAME FOR IP(19), AND OPEN THE FILE
+C        AS UNFORMATTED.
+C
+      IF(IP(19).NE.0)THEN
+         FLNAM(1:4)='U720'
+         FLNAM(5:8)=IPINIT(1:4)
+         WRITE(FLNAM(9:10),'(I2.2)')IP(19)
+         CALL SYSTEM('rm -f '//FLNAM)
+C           REMOVE THE FILE OF NAME FLNAM OPENED IN IPOPEN AS
+C           FORMATTED.  IT MUST BE CLOSED AND OPENED AS UNFORMATTED.
+         FLNAM(11:16)='BINARY'
+C           THE "BINARY" IS ADDED TO THE FILE NAME TO INDICATE
+C           IT IS BINARY AND SHOULD NOT BE VIEWED.
+         CALL SYSTEM('rm -f '//FLNAM)
+C           REMOVE THE FILE OF NAME FLNAM IN CASE IT EXISTS. 
+         OPEN(UNIT=IP(19),STATUS='NEW',
+     1                 FORM='UNFORMATTED',IOSTAT=IOS,ERR=900)
+COPS     OPEN(UNIT=IP(19),FILE=FLNAM,STATUS='NEW',
+COPS 1                 FORM='UNFORMATTED',IOSTAT=IOS,ERR=900)
+C
+C           OPEN THE FILE KFILAS WITH NAME ASCII FOR DATA FOR
+C           GMOS_PLOT.  NOTE THAT OPENING THIS FILE IS CONTROLLED
+C           BY IP(19).
+C    
+         CALL SYSTEM('rm -f '//'ASCII')
+C           REMOVE THE FILE OF NAME ASCII IN CASE IT EXISTS.
+         OPEN(UNIT=KFILAS,STATUS='NEW',
+     1                 FORM='FORMATTED',IOSTAT=IOS,ERR=900)
+COPS     OPEN(UNIT=KFILAS,FILE='ASCII',STATUS='NEW',
+COPS 1                 FORM='FORMATTED',IOSTAT=IOS,ERR=900)
+C           THE 'GMOS_PLOT' SCRIPT REQUIRES AN ASCII FILE.  NORMALLY,
+C           THIS WOULD CONTAIN STATION DATA TO PLOT.
+      ENDIF
+C
+C        READ AND PRINT THE RUN IDENTIFICATION.
+C
+      STATE='115 '
+      READ(KFILDI,115,IOSTAT=IOS,ERR=900,END=116)RUNID 
+C        LESS THAN 72 CHARACTERS IS NOT CONSIDERED AN ERROR.
+ 115  FORMAT(A72)  
+ 116  WRITE(KFILDO,117)RUNID
+ 117  FORMAT(/' ',A72)
+C
+C        PRINT TO MAKE SURE USER KNOWS WHAT MACHINE IS BEING USED.
+C 
+      WRITE(KFILDO,119)L3264B
+ 119  FORMAT(/' RUNNING ON A',I3,'-BIT MACHINE.')
+C
+C        READ AND PRINT CONTROL INFORMATION.
+C
+      STATE='125 ' 
+      READ(KFILDI,125,IOSTAT=IOS,ERR=900,END=1250)
+     1     KSKIP,KWRITE,NSKIP,JSTOP,INCCYL,NEW,NALPH,PXMISS
+ 125  FORMAT(7(I10/),F10.0)
+      GO TO 1255
+C        INCOMPLETE CONTROL INFORMATION SHOULD BE CONSIDERED AN ERROR.
+C        HOWEVER, A SHORT RECORD DOES NOT CAUSE AN "END" CONDITION.
+ 1250 WRITE(KFILDO,1251)
+ 1251 FORMAT(/' ****CONTROL INFORMATION NOT COMPLETE.')
+      ISTOP(1)=ISTOP(1)+1
+C
+C        ACCEPT KSKIP AS YY OR YYYY FOR YEAR.  IF IT IS ZERO, NO
+C        SKIPPING IS DONE.
+C
+ 1255 IF(KSKIP.EQ.0)GO TO 126
+      IF(KSKIP/1000000.GT.1900)GO TO 126
+      IF(KSKIP/1000000.GT.60)KSKIP=KSKIP+1900000000
+      IF(KSKIP/1000000.LE.60)KSKIP=KSKIP+2000000000
+ 126  WRITE(KFILDO,127)KSKIP,KWRITE,NSKIP,JSTOP,INCCYL,NEW,NALPH,MINPK,
+     1                 PXMISS,L3264B
+ 127  FORMAT(/,' KSKIP ',I10,'   SKIP PAST THIS DATE ON OUTPUT FILE'/
+     1        ' KWRITE',I10,'   WILL DIRECTORY RECORD BE WRITTEN?',
+     X                      ' 1 = YES, 0 = NO'/
+     2        ' NSKIP ',I10,'   NUMBER OF ERRORS THAT WILL BE',
+     X                      ' TOLERATED ON DAY 1 BEFORE STOPPING'/
+     3        ' JSTOP ',I10,'   NUMBER OF ERRORS THAT WILL BE',
+     X                      ' TOLERATED ON TOTAL RUN BEFORE STOPPING'/
+     4        ' INCCYL',I10,'   INCREMENT IN HOURS BETWEEN DATE/TIMES'/
+     5        ' NEW   ',I10,'   NEW ICAO CALL LETTERS, 1 = YES,',
+     X                      ' 0 = NO'/
+     6        ' NALPH ',I10,'   ALPHABETIZE CALL LETTERS ACCORDING',
+     X                      ' TO DIRECTORY, 1 = YES, 0 = NO'/
+     7        ' MINPK ',I10,'   MINIMUM GROUP SIZE WHEN PACKING'/
+     8        ' PXMISS',F11.0,'  VALUE TO USE FOR SECONDARY MISSING',
+     X                      ' VALUE 9997'/
+     9        ' L3264B',I10,'   INTEGER WORD SIZE OF MACHINE')
+C 
+C        READ AND PROCESS UNIT NUMBER FOR READING
+C        DATE LIST.  FILE WILL BE OPENED AS 'OLD', UNLESS THE FILE
+C        IS THE DEFAULT INPUT FILE.
+C
+      CALL RDSNAM(KFILDI,KFILDO,KFILDT,DATNAM,IDUM,IDUM,1,
+     1            N,'OLD','FORMATTED',IP,IER)
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+COPS  WRITE(KFILDO,130)KFILDT,DATNAM
+      WRITE(KFILDO,130)KFILDT
+ 130  FORMAT(/,' NCEP DATE FILE UNIT NUMBER..',/,' ',I4)
+C
+C        READ AND PRINT THE DATE TO BE PROCESSED
+      CALL GET_NCEPDATE(KFILDT,IYR,IMO,IDA,IHR,NDATE,IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,134)
+ 134     FORMAT(/' ****ERROR: CAN NOT READ NCEP DATE FILE - ',
+     1           'CATASTROPHIC ERROR IN 720. STOP AT 134.')
+         CALL W3TAGE('U720')
+         STOP 134
+      ENDIF
+C
+      NDATES = 1
+      IDATE(1) = NDATE
+      WRITE(KFILDO,135)NDATES,(IDATE(J),J=1,NDATES) 
+ 135  FORMAT(/,' ',I4,' INPUT DATE AS READ',/,(1X,10I12)) 
+C
+C        READ AND PROCESS UNIT NUMBERS AND FILE NAMES FOR ALL TDLPACK 
+C        INPUT.  FILES WILL BE OPENED AS 'OLD'.
+C
+      CALL RDSNAM(KFILDI,KFILDO,KFILIN,NAMIN,MODNUM,JFOPEN,ND6,
+     1            NUMIN,'OLD','UNFORMATTED',IP,IER)
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+C
+      IF(NUMIN.EQ.0)THEN
+         WRITE(KFILDO,141)NUMIN
+ 141     FORMAT(/' ',I2,' MODEL INPUT DATA SETS.')
+      ELSE
+         WRITE(KFILDO,140)NUMIN,(KFILIN(M),MODNUM(M),NAMIN(M),M=1,NUMIN)
+ 140     FORMAT(/' ',I2,' MODEL INPUT DATA SETS, UNITS, MODEL NUMBERS,',
+     1           ' AND NAMES.'/(' ',I4,I3,2X,A60))
+      ENDIF
+C
+C        READ AND PROCESS UNIT NUMBERS AND FILE NAMES FOR ALL MOS-2000
+C        EXTERNAL RANDOM ACCESS FILES.  FILES WILL NOT BE OPENED.
+C
+      CALL RDSNAM(KFILDI,KFILDO,KFILRA,RACESS,IPACK,IWORK,ND12,
+     1            NUMRA,'NOT','NOTOPENED',IP,IER)
+C        IPACK( ) AND IWORK( ) ARE USED AS SCRATCH ARRAYS.  IT IS
+C        ASSUMED THEIR SIZE IS GE NUMRA; THIS IS GUARANTEED IN
+C        DRU720.  NOTE USE OF ND12 IN CALL, WHICH IS ND6 IN
+C        THE SUBROUTINE RDSNAM.
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+C
+      IF(NUMRA.NE.0)THEN
+         WRITE(KFILDO,142)NUMRA,(KFILRA(M),RACESS(M),M=1,NUMRA)
+ 142     FORMAT(/' ',I2,' MOS-2000 EXTERNAL RANDOM ACCESS DATA SETS,',
+     1          ' UNITS, AND NAMES.'/(' ',I4,2X,A60))
+      ELSE
+         WRITE(KFILDO,1420)NUMRA
+ 1420    FORMAT(/' ',I2,' MOS-2000 EXTERNAL RANDOM ACCESS DATA SETS.')
+C           THE ABOVE PRINT IS FOR THE EMPTY SET.
+      ENDIF
+C
+C        READ AND PROCESS UNIT NUMBER AND FILE NAME FOR VECTOR 
+C        OUTPUT.  FILE WILL BE OPENED AS 'OLD'.  THEREFORE, THE FILE
+C        SHOULD EXIST.  HOWEVER, U720 WILL OPEN IT ANYWAY AND PROCEED
+C        WITH AN ERROR INDICATED BY IER NE 0.
+C
+      CALL RDSNAM(KFILDI,KFILDO,KFILVO,OUTNMV,IDUM,IDUM,1,
+     1            IOUT,'NEW','UNFORMATTED',IP,IER)
+C        IOUT WILL COME BACK 1 OR ZERO FOR AN ERROR.
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+C
+      IF(KFILVO.EQ.0)THEN
+         WRITE(KFILDO,1425)
+ 1425    FORMAT(/,' NO VECTOR OUTPUT DATA SET PROVIDED;',
+     1           ' PACKED VECTOR OUTPUT WILL NOT BE WRITTEN.')
+         OUTNMV=' '
+      ELSE
+         WRITE(KFILDO,143)KFILVO,OUTNMV
+ 143     FORMAT(/,' VECTOR OUTPUT DATA SET, UNIT AND NAME.'/
+     1         (' ',I4,2X,A60))
+      ENDIF
+C
+C        READ AND PROCESS UNIT NUMBER AND FILE NAME FOR GRIDDED 
+C        OUTPUT.  FILE WILL BE OPENED AS 'OLD'.  THEREFORE, THE FILE
+C        SHOULD EXIST.  HOWEVER, U720 WILL OPEN IT ANYWAY AND PROCEED
+C        WITH AN ERROR INDICATED BY IER NE 0.
+C
+      CALL RDSNAM(KFILDI,KFILDO,KFILGO,OUTNMG,IDUM,IDUM,1,
+     1            IOUT,'NEW','UNFORMATTED',IP,IER)
+C        IOUT WILL COME BACK 1 OR ZERO FOR AN ERROR.
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+C
+      IF(KFILGO.EQ.0)THEN
+         WRITE(KFILDO,1435)
+ 1435    FORMAT(/' NO GRIDDED OUTPUT DATA SET PROVIDED;',
+     1           ' PACKED GRIDDED OUTPUT WILL NOT BE WRITTEN.')
+         OUTNMG=' '
+      ELSE
+         WRITE(KFILDO,1437)KFILGO,OUTNMG
+ 1437    FORMAT(/' GRIDDED OUTPUT DATA SET, UNIT AND NAME.'/
+     1         (' ',I4,2X,A60))
+      ENDIF
+C
+C        READ AND PROCESS UNIT NUMBER AND FILE NAME FOR ASCII WEATHER 
+C        KEY LIST OUTPUT.  FILE WILL BE OPENED AS 'NEW'. 
+C
+      CALL RDSNAM(KFILDI,KFILDO,KFILAC,ASCIFL,IDUM,IDUM,1,
+     1            IOUT,'NEW','FORMATTED',IP,IER)
+C        IOUT WILL COME BACK 1 OR ZERO FOR AN ERROR.
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+C
+      IF(KFILAC.EQ.0)THEN
+         WRITE(KFILDO,1438)
+ 1438    FORMAT(/' NO WEATHER KEY LIST FILE PROVIDED;',
+     1          ' WEATHER KEY LIST WILL NOT BE WRITTEN.')
+      ELSE
+         WRITE(KFILDO,1439)KFILAC,ASCIFL
+ 1439    FORMAT(/' WEATHER KEY LIST, UNIT AND NAME. '/,I4,2X,A60)
+      ENDIF
+C
+C        READ AND PROCESS UNIT NUMBER AND FILE NAME FOR EXTERNAL
+C        CONTOL FILE.
+C
+      CALL RDSNAM(KFILDI,KFILDO,KFILWX,WXCNFL,IDUM,IDUM,1,
+     1            IOUT,'OLD','FORMATTED',IP,IER)
+C        IOUT WILL COME BACK 1 OR ZERO FOR AN ERROR.
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+C
+      IF(KFILWX.EQ.0)THEN
+         WRITE(KFILDO,1441)
+ 1441    FORMAT(/' NO EXTERNAL CONTROL FILE PROVIDED.')
+C
+C        INITIALIZE MISSING WEATHER GRID PARAMETERS
+C
+         THRPHS=-1
+         THRQPF=-1
+         THRTRW=-1
+         THRSVR=-1
+         IPHSBC=0
+         PHSTMP=50.
+         NSVRLOC=2
+      ELSE
+         OPEN(UNIT=KFILWX,STATUS='OLD',
+     1        FORM='FORMATTED',IOSTAT=IOS,ERR=900)
+COPS     OPEN(UNIT=KFILWX,FILE=WXCNFL,STATUS='OLD',
+COPS 1        FORM='FORMATTED',IOSTAT=IOS,ERR=900)
+         WRITE(KFILDO,1442)KFILWX,WXCNFL
+ 1442    FORMAT(/' EXTERNAL WEATHER CONTROL FILE, UNIT AND NAME. '/,
+     1          I4,2X,A60)
+         CALL RDWXCN(KFILDO,KFILWX,THRPHS,THRQPF,THRTRW,THRSVR,
+     1               IPHSBC,PHSTMP,NSVRLOC,NX,NY,IER)
+      ENDIF
+C
+C        READ AND PROCESS UNIT NUMBERS AND FILE NAMES FOR STATION LIST
+C        (CALL LETTERS) AND STATION DIRECTORY WHICH HOLDS CALL LETTERS,
+C        LATITUDE, LONGITUDE, WBAN NUMBER, ELEVATION, AND NAME FOR EACH 
+C        POSSIBLE STATION.  THIS CAN BE A MASTER DIRECTORY, OR BE A
+C        DIRECTORY SUPPLIED BY A USER.
+C
+      CALL RDSNAM(KFILDI,KFILDO,KFILD,DIRNAM,IDUM,IDUM,2,
+     1            N,'OLD','FORMATTED',IP,IER)
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+      WRITE(KFILDO,144)(KFILD(J),DIRNAM(J),J=1,2)
+ 144  FORMAT(/,' STATION LIST AND DIRECTORY DATA SETS, UNITS AND NAMES.'
+     1       ,/,(' ',I4,2X,A60))
+C
+C        READ STATION LIST AND OTHER STATION INFORMATION.  THE STATION
+C        LIST CAN COME FROM THE DIRECTORY OR BE SEPARATE.  IF SEPARATE,
+C        IT CAN BE ON THE DEFAULT INPUT FILE KFILDI, OR BE ON A SEPARATE 
+C        FILE AS DETERMINED BY KFILD(J).  THE STATION LIST CAN BE 
+C        USED AS READ, OR ORDERED ACCORDING TO THE STATION DIRECTORY,
+C        WHICH IS ALPHABETICAL BY ICAO CALL LETTERS.
+C
+      IF(NALPH.EQ.0)THEN
+         CALL RDSTAL(KFILDO,IP(4),IP(5),KFILD,NEW,CCALL,
+     1               NAME,NELEV,IWBAN,STALAT,STALON,ITIMEZ,ISDATA,
+     2               ND1,NSTA,IER)
+      ELSE
+         CALL RDSTAD(KFILDO,IP(4),IP(5),KFILD,NEW,CCALL,CCALLD,
+     1               NAME,NELEV,IWBAN,STALAT,STALON,ITIMEZ,ISDATA,
+     2               ND1,NSTA,IER)
+      ENDIF
+C
+      IF(IER.NE.0.AND.IER.NE.36)ISTOP(1)=ISTOP(1)+1
+C        IER = 36 JUST MEANS A LINK WAS NECESSARY IN FINDING A
+C        STATION AND SHOULD NOT BE COUNTED AS AN ERROR.
+      MUST=0
+      IF(IER.EQ.35.OR.IER.EQ.37)MUST=1
+C        MUST INDICATES WHETHER TO LET PROGRAM GO INTO INTERPOLATION.
+C        IF A STATION IS NOT IN THE DIRECTORY, LAT/LON NOT AVAILABLE.
+C        STOP FOR SAFETY.
+      IF(KFILD(1).NE.KFILDI)CLOSE(UNIT=KFILD(1))
+      CLOSE(UNIT=KFILD(2))
+C        THE FILES ARE CLOSED WHEN THEY ARE NOT THE SAME AS
+C        THE DEFAULT INPUT FILE.  THE DIRECTORY IS NEVER THE DEFAULT.
+C
+C        READ AND PROCESS UNIT NUMBER AND FILE NAME FOR READING
+C        VARIABLE LIST.
+C
+      CALL RDSNAM(KFILDI,KFILDO,KFILP,PRENAM,IDUM,IDUM,1,
+     1            N,'OLD','FORMATTED',IP,IER)
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+      WRITE(KFILDO,145)KFILP,PRENAM
+ 145  FORMAT(/,' VARIABLE LIST DATA SET, UNIT AND NAME.',/,
+     1       (' ',I4,2X,A60))
+C
+C        READ AND PROCESS UNIT NUMBER FOR THE VARIABLE CONSTANTS
+C        DIRECTORY.
+C
+      CALL RDSNAM(KFILDI,KFILDO,KFILCP,CONNAM,IDUM,IDUM,1,
+     1            N,'OLD','FORMATTED',IP,IER)
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+      WRITE(KFILDO,146)KFILCP,CONNAM
+ 146  FORMAT(/,' VARIABLE CONSTANT DIRECTORY, UNIT AND NAME.',/,
+     1       (' ',I4,2X,A60))
+C
+C        CHECK POSSIBLE INCONSISTENCY OF INPUT UNIT NUMBERS WITH
+C        OTHERS USED BY THE PROGRAM.  THIS SHOULD PROTECT THE LARGE
+C        DATA SETS IN NAMIN( ) FROM BEING OVERWRITTEN.
+C
+      DO 1464 J=1,NUMIN
+C
+      IF(KFILIN(J).EQ.KFILDT  .OR.
+     1   KFILIN(J).EQ.KFILVO  .OR.
+     2   KFILIN(J).EQ.KFILGO  .OR.
+     3   KFILIN(J).EQ.KFILAC  .OR.
+     4   KFILIN(J).EQ.KFILWX  .OR.
+     5   KFILIN(J).EQ.KFILD(1).OR.
+     6   KFILIN(J).EQ.KFILD(2).OR.
+     7   KFILIN(J).EQ.KFILP   .OR.
+     8   KFILIN(J).EQ.KFILCP)THEN
+         WRITE(KFILDO,1461)
+ 1461    FORMAT(/,' ****INCONSISTENCY IN INPUT UNIT NUMBERS',
+     1           ' IN KFILIN( ) WITH EITHER KFILDT, KFILVO,',/,
+     2           '     KFILGO, KFILAC, KFILWX, KFILD( ), KFILP,',
+     3           ' OR KFILCP.',/,'     STOP IN U720 AT 1461')
+         CALL W3TAGE('U720')
+         STOP 1461
+      ENDIF
+C
+      IF(NUMRA.EQ.0)GO TO 1464
+C
+      DO 1463 L=1,NUMRA
+      IF(KFILIN(J).EQ.KFILRA(L))THEN
+         WRITE(KFILDO,1462)
+ 1462    FORMAT(/,' ****INCONSISTENCY IN INPUT UNIT NUMBERS',
+     1           ' IN KFILIN( ) WITH KFILRA( ).'/
+     2           '     STOP IN U720 AT 1462')
+         CALL W3TAGE('U720')
+         STOP 1462
+      ENDIF
+C 
+ 1463 CONTINUE
+C
+ 1464 CONTINUE
+C
+      IF(KFILDI.EQ.KFILDO.OR.
+     1   KFILDI.EQ.KFIL10.OR.
+     2   KFILDI.EQ.KFILVO.OR.
+     3   KFILDI.EQ.KFILGO.OR.
+     4   KFILDI.EQ.KFILAC.OR.
+     5   KFILDI.EQ.KFILWX)THEN
+         WRITE(KFILDO,1465)
+ 1465    FORMAT(/,' ****INCONSISTENCY IN INPUT UNIT NUMBER IN KFILDI',
+     1           ' WITH EITHER KFILDO, KFIL10, KFILGO, KFILVO,',/,
+     2           '     KFILWX, OR KFILAC.'/
+     3           '     STOP IN U720 AT 1465')
+         CALL W3TAGE('U720')
+         STOP 1465
+      ENDIF
+C
+      IF(KFILP.NE.0     .AND.
+     1  (KFILP.EQ.KFILDO.OR.
+     2   KFILP.EQ.KFIL10.OR.
+     3   KFILP.EQ.KFILGO.OR.
+     4   KFILP.EQ.KFILVO.OR.
+     5   KFILP.EQ.KFILAC.OR.
+     6   KFILP.EQ.KFILWX))THEN
+         WRITE(KFILDO,1466)
+ 1466    FORMAT(/,' ****INCONSISTENCY IN INPUT UNIT NUMBER IN KFILP',
+     1           ' WITH EITHER KFILDO, KFIL10, KFILGO, KFILVO,',/,
+     2           '     KFILWX, OR KFILAC.'/
+     3           '     STOP IN U720 AT 1466')
+         CALL W3TAGE('U720')
+         STOP 1466
+      ENDIF
+C
+      IF(KFILCP.NE.0     .AND.
+     1  (KFILCP.EQ.KFILDO.OR.
+     2   KFILCP.EQ.KFIL10.OR.
+     3   KFILCP.EQ.KFILGO.OR.
+     4   KFILCP.EQ.KFILVO.OR.
+     5   KFILCP.EQ.KFILAC.OR.
+     6   KFILCP.EQ.KFILWX))THEN
+         WRITE(KFILDO,1467)
+ 1467    FORMAT(/,' ****INCONSISTENCY IN INPUT UNIT NUMBER IN KFILCP',
+     1           ' WITH EITHER KFILDO, KFIL10, KFILGO, KFILVO,',/,
+     2           '     KFILWX, OR KFILAC.'/
+     3           '     STOP IN U720 AT 1467')
+         STOP 1467
+         CALL W3TAGE('U720')
+      ENDIF
+C
+      DO 1469 J=1,25
+C
+      IF(IP(J).NE.0       .AND.
+     1  (IP(J).EQ.KFILDI  .OR.
+     2   IP(J).EQ.KFILP   .OR.
+     3   IP(J).EQ.KFILCP  .OR.
+     4   IP(J).EQ.KFILD(1).OR.
+     5   IP(J).EQ.KFILD(2).OR.
+     6   IP(J).EQ.KFILDT  .OR.
+     7   IP(J).EQ.KFILGO  .OR.
+     8   IP(J).EQ.KFILVO  .OR.
+     9   IP(J).EQ.KFILAC  .OR.
+     A   IP(J).EQ.KFILWX))THEN
+         WRITE(KFILDO,1468)
+ 1468    FORMAT(/,' ****INCONSISTENCY IN INPUT UNIT NUMBER IN IP( )',
+     1           ' WITH EITHER KFILDI, KFILP, KFILCP, KFILD( ),',/,
+     2           '     KFILVO, KFILGO, KFILWX, KFILAC, OR KFILDT.'/
+     3           '     STOP IN U720 AT 1468')
+         CALL W3TAGE('U720')
+         STOP 1468
+      ENDIF
+C
+ 1469 CONTINUE
+C
+      DO 1472 L=1,NUMRA
+C        LOOP WILL NOT EXECUTE IF NUMRA = 0.
+C
+      DO 1471 J=1,25
+C     
+      IF(IP(J).NE.0.AND.IP(J).EQ.KFILRA(L))THEN
+         WRITE(KFILDO,1470)
+ 1470    FORMAT(/' ****INCONSISTENCY IN INPUT UNIT NUMBERS',
+     1           ' IN IP( ) WITH KFILRA( ).',/
+     2           '     STOP IN U720 AT 1470')
+         CALL W3TAGE('U720')
+         STOP 1470
+      ENDIF
+C
+ 1471 CONTINUE      
+C
+ 1472 CONTINUE
+C
+      DO 1474 L=1,NUMRA
+C        LOOP WILL NOT EXECUTE IF NUMRA = 0.
+C
+      IF(KFILRA(L).EQ.KFILDI  .OR.
+     1   KFILRA(L).EQ.KFILP   .OR.
+     2   KFILRA(L).EQ.KFILCP  .OR.
+     3   KFILRA(L).EQ.KFILD(1).OR.
+     4   KFILRA(L).EQ.KFILD(2).OR.
+     5   KFILRA(L).EQ.KFILDT  .OR.
+     6   KFILRA(L).EQ.KFILGO  .OR.
+     7   KFILRA(L).EQ.KFILVO  .OR.
+     8   KFILRA(L).EQ.KFILAC  .OR.
+     9   KFILRA(L).EQ.KFILWX)THEN
+         WRITE(KFILDO,1473)
+ 1473    FORMAT(/' ****INCONSISTENCY IN INPUT UNIT NUMBER IN',
+     1           ' KFILRA( ) WITH EITHER KFILDI, KFILP, KFILCP,',/,
+     2           '     KFILD( ), KFILDT, KFILVO, KFILGO, KFILWX,',
+     3           ' OR KFILAC.',/,'     STOP IN U720 AT 1473')
+         CALL W3TAGE('U720')
+         STOP 1473
+      ENDIF
+C
+ 1474 CONTINUE
+C
+C        KFILVO AND KFILGO DO NOT DO THIS CHECK.  
+      IF(KFILAC.NE.0       .AND.
+     1  (KFILAC.EQ.KFILDI  .OR.
+     1   KFILAC.EQ.KFILP   .OR.
+     2   KFILAC.EQ.KFILCP  .OR.
+     3   KFILAC.EQ.KFILD(1).OR.
+     4   KFILAC.EQ.KFILD(2).OR.
+     5   KFILAC.EQ.KFILDT  .OR.
+     6   KFILAC.EQ.KFILGO  .OR.
+     7   KFILAC.EQ.KFILVO  .OR.
+     8   KFILAC.EQ.KFILWX))THEN
+         WRITE(KFILDO,1475)
+ 1475    FORMAT(/' ****INCONSISTENCY IN INPUT UNIT NUMBER IN',
+     1           ' KFILAC WITH EITHER KFILDI, KFILP, KFILCP,',/,
+     2           '     KFILD( ), KFILDT, KFILVO, KFILWX, OR KFILGO.',/,
+     4           '     STOP IN U720 AT 1475')
+         CALL W3TAGE('U720')
+         STOP 1475
+      ENDIF
+C
+      IF(KFILWX.NE.0       .AND.
+     1  (KFILWX.EQ.KFILDI  .OR.
+     2   KFILWX.EQ.KFILP   .OR.
+     3   KFILWX.EQ.KFILCP  .OR.
+     4   KFILWX.EQ.KFILD(1).OR.
+     5   KFILWX.EQ.KFILD(2).OR.
+     6   KFILWX.EQ.KFILDT  .OR.
+     7   KFILWX.EQ.KFILGO  .OR.
+     8   KFILWX.EQ.KFILVO))THEN
+         WRITE(KFILDO,1476)
+ 1476    FORMAT(/' ****INCONSISTENCY IN INPUT UNIT NUMBER IN',
+     1           ' KFILWX WITH EITHER KFILDI, KFILP, KFILCP,',/,
+     2           '     KFILD( ), KFILDT, KFILAC, KFILVO, OR KFILGO.',/
+     4           '     STOP IN U720 AT 1476')
+         CALL W3TAGE('U720')
+         STOP 1476
+      ENDIF
+C
+C        READ VARIABLE LIST FOR WHICH INTERPOLATED VALUES ARE
+C        TO BE OUTPUT.
+C
+      CALL RDPRED(KFILDO,IP(6),IP(7),IP(8),IP(9),KFILP,KFILCP,
+     1            ID,IDPARS,THRESH,JD,JP,ISCALD,SMULT,SADD,
+     2            ORIGIN,CINT,PLAIN,UNITS,ND4,NPRED,ISTOP(1),IER)
+      IF(KFILP.NE.KFILDI)CLOSE(UNIT=KFILP)
+C        FILE KFILP IS CLOSED WHEN IT IS NOT THE SAME AS
+C        THE DEFAULT INPUT FILE.
+C
+C        SKIP RECORDS ON THE OUTPUT FILE WHEN KSKIP NE 0.
+C        THE STATION LIST IN ICALL( ) IS CHECKED WITH THE STATION
+C        LIST AS THE FIRST RECORD IN THE FILE.  IF THEY DO NOT 
+C        MATCH, THE PROGRAM RESPONDS TO KWRITE.  WHEN RECORDS
+C        ARE NOT SKIPPED, THE CALL LETTERS RECORD IS WRITTEN.
+C        WHEN KFILVO = 0, SKIPWR DOES NOTHING.
+C 
+      KCHECK=1
+      CALL SKIPWR(KFILDO,KFILVO,KSKIP,KWRITE,KCHECK,
+     1            CCALL,ND1,NSTA,
+     2            CCALLD,ND5,IPACK,ND5,
+     3            LTOTBV,LTOTRV,L3264B,L3264W,IER)
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,147)
+ 147     FORMAT(/,' ****PROGRAM STOP AT 147 BECAUSE OF ERROR IN',
+     1           ' ROUTINE SKIPWR.  OTHERWISE, GOOD DATA MIGHT',
+     2           ' BE OVERWRITTEN.')
+         CALL W3TAGE('U720')
+         STOP 147
+C           STOP THE PROGRAM FOR SAFETY.  OTHERWISE, GOOD DATA MIGHT
+C           BE OVERWRITTEN.
+      ENDIF
+C
+ 148  IF(MUST.NE.0)THEN
+C           IF A STATION WAS NOT IN THE DIRECTORY, STOP HERE.
+         WRITE(KFILDO,149)
+ 149     FORMAT(/,' ****PROGRAM STOP AT 149 BECAUSE OF STATION',
+     1           ' NOT IN DIRECTORY.')
+         CALL W3TAGE('U720')
+         STOP 149
+      ENDIF
+C
+      RETURN
+C 
+C        ERROR STOP BELOW IS FOR ERRORS OF CONTROL INFORMATION INPUT.
+C
+ 900  CALL IERX(KFILDO,KFILDO,IOS,'INT720',STATE)
+      CALL W3TAGE('U720')
+      STOP 9999
+      END

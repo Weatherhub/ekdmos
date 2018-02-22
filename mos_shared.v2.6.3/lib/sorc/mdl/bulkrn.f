@@ -1,0 +1,635 @@
+      SUBROUTINE BULKRN(KFILDO,KFIL10,
+     1                  IDPARS,JD,NDATE,
+     2                  SDATA,DIR,ND1,NSTA,
+     3                  NGRIDC,ND11,NSLAB,IPACK,IWORK,DATA,ND5, 
+     4                  FDWL,FDBL,FDCP,FDWS,FDUI,FDVI,FDDM,ND2X3,
+     5                  LSTORE,ND9,LITEMS,CORE,ND10,
+     6                  LASTL,NBLOCK,LASTD,NSTORE,NFETCH,
+     7                  IS0,IS1,IS2,IS4,ND7,
+     8                  ISTAV,L3264B,MISTOT,IER)                 
+C
+C        JULY      2004 TRIMARCO     MDL MOS-2000
+C        OCTOBER   2004 TRIMARCO     MODIFIED CODE TO OUTPUT THE 
+C                                    BULK RICHARDSON NUMBER AS A GRID
+C                                    BINARY. ALSO ADDED THE CAPABILITY
+C                                    TO OUTPUT THE BULK SHEAR.
+C        APRIL     2005 TRIMARCO     MODIFIED TO COMPUTE THE BULK
+C                                    RICHARDSON NUMBER AT STATIONS INSTEAD
+C                                    OF GRID POINTS. THIS IS NECESSARY IN
+C                                    ORDER TO RETAIN VALUES THAT ARE ONLY
+C                                    BETWEEN THE RANGE OF 10-50 WHEN 
+C                                    INTERPOLATED TO STATIONS IN U201.
+C
+C        PURPOSE 
+C            TO COMPUTE AN ESTIMATE OF THE BULK RICHARDSON NUMBER
+C            FOR A SPECIFIED LAYER BOUNDED BY TWO ISOBARIC LEVELS.
+C            THIS SUBROUTINE ALLOWS FOR TWO DIFFERENT MODEL INPUTS.
+C                 007140 - AVN/GFS AFTER 10/1/98   
+C                 007150 - 32KM ETA
+C            THE OUTPUT DATA ARE GIVEN IN NONDIMENSIONAL UNITS.
+C            THIS PREDICTOR HAS BEEN CREATED AS A GRID BINARY. 
+C            IF THE VALUE IS LESS THAN 10, THUNDERSTORMS ARE UNLIKELY,
+C            AND THE VALUE HAS BEEN SET TO ZERO.
+C            IF THE VALUE IS GREATER THAN 10, YET LESS THAN 50,
+C            THERE IS A MODERATE CHANCE OF SUPERCELLULAR(SEVERE) STORMS,
+C            AND THE VALUE HAS BEEN SET TO 1.    
+C            IF THE VALUE IS GREATER THAN 50, THERE IS A STRONG CHANCE
+C            THAT THUNDERSTORMS WILL BE MULTICELLULAR(NONSEVERE),
+C            AND THE VALUE HAS BEEN SET TO ZERO.
+C
+C            THIS CODE HAS ALSO BEEN MODIFIED TO OUTPUT THE BULK SHEAR
+C            ASSOCIATED WITH THE O-6KM LAYER. ESSENTIALLY, THE SHEAR IS
+C            THE DENOMINATOR IN THE BULK RICHARDSON NUMBER ALGORITHM.
+C            IDS ACCOMODATED FOR THE BULK SHEAR ARE:
+C                 007145 - GFS  
+C                 007155 - ETA
+C
+C        DATA SET USE
+C            KFIL10 - UNIT NUMBER OF MDL MOS-2000 FILE SYSTEM ACCESS
+C                     (INPUT-OUTPUT)
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                     (OUTPUT) 
+C 
+C        VARIABLES 
+C             CORE(J) = ARRAY TO STORE OR RETRIEVE DATA IDENTIFIED IN
+C                       LSTORE( , ) (J=1,ND10).  WHEN CORE( ) IS FULL,
+C                       DATA ARE STORED ON DISK.  UPON RETURN TO THE
+C                       CALLING PROGRAM, THE ARRAY WILL BE IN THE SIZE
+C                       OF LX*LY (OUTPUT).
+C          DIR(K,J,M) = THE IX (J=1) AND JY (J=2) POSITIONS ON THE GRID
+C                       FOR THE COMBINATION OF GRID CHARACTERISTICS M
+C                       (M=1,NGRID) AND STATION K (K=1,NSTA) IN NGRIDC( ,M).
+C                       (INPUT)
+C             FDWL(J) = WORK ARRAY TO HOLD WIND SPEEDS (M/S).
+C                       (J=1,ND2X3) (INTERNAL)
+C             FDBL(J) = WORK ARRAY TO HOLD BOUNDARY LAYER WIND SPEED (M/S).
+C                       (J=1,ND2X3) (INTERNAL)
+C             FDCP(J) = WORK ARRAY TO HOLD CAPE (J/KG).
+C                       (J=1,ND2X3) (INTERNAL)
+C             FDWS(J) = ACCUMULATOR WORK ARRAY TO HOLD THE SUM OF LAYER
+C                       WIND SPEEDS (M/S) (J=1,ND2X3) (INTERNAL)
+C             FDUI(J) = WORK ARRAY USED FOR EARTH ORIENTED U COMPONENT IN 
+C                       SUBROUTINE WSPEED (M/S) (J=1,ND2X3) (INTERNAL)
+C             FDVI(J) = WORK ARRAY USED FOR EARTH ORIENTED V COMPONENT IN
+C                       SUBROUTINE WSPEED (M/S) (J=1,ND2X3) (INTERNAL)
+C             FDDM(J) = WORK ARRAY TO HOLD THE DENOMINATOR OF THE FINAL
+C                       EQUATION FOR BULK RICHARDSON NUMBER (J=1,ND2X3)
+C                       (INTERNAL)
+C             ICCCFFF = FIRST TWO WORDS OF THE PARSED ID 
+C                       (INTERNAL).
+C                 I,J = LOOP COUNT (INTERNAL)
+C           IDPARS(J) = PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID CORRESPONDING TO ID(J) (J=1,15) DEFINED IN
+C                       THE CALLING PROGRAM (INPUT)
+C                       J=1  -- CCC (CLASS OF VARIABLE)
+C                       J=2  -- FFF (SUBCLASS OF VARIABLE)
+C                       J=3  -- B (BINARY INDICATOR)
+C                       J=4  -- DD (DATA SOURCE, MODEL NUMBER)
+C                       J=5  -- V (VERTICAL APPLICATION)
+C                       J=6  -- LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1
+C                               LEVEL)
+C                       J=7  -- LTLTLTLT (TOP OF LAYER)
+C                       J=8  -- T (TRANSFORMATION)
+C                       J=9  -- RR (RUN TIME OFFSET -- PREVIOUS CYCLE.
+C                               IT IS ALWAYS A POSITIVE NUMBER AND
+C                               COUNTED BACKWARDS IN TIME.)
+C                       J=10 -- OT (TIME APPLIACTION)
+C                       J=11 -- OH (TIME PERIOD IN HOURS)
+C                       J=12 -- TAU (PROJECTION IN HOURS)
+C                       J=13 -- I (INTERPOLATION TYPE)
+C                       J=14 -- S (SMOOTHING INDICATOR)
+C                       J=15 -- G (GRID INDICATOR)
+C              IDTMPL = IDENTIFIER OF A TEMPLATE WHICH CONTAINS THE
+C                       ISOBARIC LEVELS ASSOCIATED WITH THE OUTPUT
+C                       DATA OF A SPECIFIED NWP MODEL (INTERNAL).
+C                       1 -- AVN/GFS AFTER 10/1/98
+C                       2 -- 32KM ETA
+C                 IER = STATUS RETURN
+C                         0 = GOOD RETURN
+C                       100 = GRID CHARACTERISTICS ARE DIFFERENT FOR
+C                             THE 2 FIELDS.
+C                       103 = IDPARS() ARE NOT ACCOMMODATED IN THIS
+C                             SUBROUTINE.
+C                       SEE GFETCH FOR OTHER VALUES WHEN
+C                       IER.NE.0 AND DATA ARE RETURNED AS MISSING
+C                       (INTERNAL-OUTPUT)
+C                  IL = LOOP COUNT FOR ISOBARIC LEVELS (INTERNAL).
+C             ILIM(J) = NUMBER OF ISOBARIC LEVELS IN THE TEMPLATES
+C                       (J=1,2) (INTERNAL).
+C            IPACK(J) = WORK ARRAY (J=1,ND5) (INTERNAL)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 IDS (J=1,3) (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 IDS (J=1,22+)(INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 IDS (J=1,12)
+C                       IS2(3) AND IS2(4) ARE USED BY THE CALLING
+C                       PROGRAM AS GRID DIMENSION (INTERNAL-OUTPUT)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 IDS (J=1,4) (INTERNAL)
+C               ISTAV = 0 -- WHEN THE DATA RETURNED ARE GRID DATA OR
+C                            DATA ARE NOT AVAILABLE FOR RETURN
+C                       1 -- WHEN THE DATA RETURNED ARE STATION DATA
+C                       (OUTPUT)
+C       ITEMPLAT(I,J) = STORAGE FOR ISOBARIC LEVELS IN TEMPLATES
+C                       (I=1,11, J=1,2) (INTERNAL).
+C         ITMPL,JTMPL = DIMENSIONS OF THE TEMPLATE ARRAY (INTERNAL).
+C                  IV = VERTICAL PROCESSING FLAG.  CURRENTLY SET TO BE
+C                       ZERO; MAY BE ASSIGNED DIFFERENT VALUE(S) IN
+C                       THE FUTURE (INTERNAL).
+C            IWORK(J) = WORK ARRAY (J=1,ND5) (INTERNAL)
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).  THIS
+C                       IS THE SAME AS ID(J) EXCEPT THAT THE PORTIONS
+C                       PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3)
+C                       T = IDPARS(8)
+C                       I = IDPARS(13)
+C                       S = IDPARS(14)
+C                       G = IDPARS(15)
+C                       JD( ) IS USED TO HELP IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE (INPUT)
+C             JDWL(J) = SAME AS JD(J) EXCEPT FOR WIND SPEEDS
+C                       (J=1,4) (INTERNAL).
+C             JDBL(J) = SAME AS JD(J) EXCEPT FOR BOUNDARY LAYER WIND
+C                       (J=1,4) (INTERNAL).
+C             JDCP(J) = SAME AS JD(J) EXCEPT FOR CAPE
+C                       (J=1,4) (INTERNAL).
+C           JWPARS(J) = PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID CORRESPONDING TO JDWL(J) (J=1,15).  SAME AS
+C                       IDPARS(J), BUT SPECIFICALLY FOR WIND SPEED. (INPUT)
+C           JBPARS(J) = PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID CORRESPONDING TO JDBL(J) (J=1,15).  SAME AS
+C                       IDPARS(J), BUT SPECIFICALLY FOR BOUNDARY WIND. (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS
+C                       (INPUT)
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                       (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS DEPENDING ON THE
+C                       MACHINE BEING USED (EITHER 32 OR 64) (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT HAVE BEEN USED IN THIS RUN (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS) (INPUT-OUTPUT)
+C                       L=1,4-- THE 4 IDS FOR THE DATA
+C                       L=5  -- LOCATION OF STORED DATA.  WHEN IN CORE,
+C                               THIS IS THE LOCATION IN CORE( ) WHERE
+C                               THE DATA START.  WHEN ON DISK, THIS IS
+C                               MINUS THE RECORD NUMBER WHERE THE DATA
+C                               START.
+C                       L=6  -- THE NUMBER OF 4-BYTE WORDS STORED
+C                       L=7  -- 2 FOR DATA PACKED IN TDL GRIB FORMAT,
+C                               1 OTHERWISE
+C                       L=8  -- DATE/TIME OF THE DATA IN FORMAT
+C                               YYYYMMDDHH
+C                       L=9  -- NO. OF TIMES DATA HAVE BEEN RETRIEVED
+C                       L=10 -- NUMBER OF THE SLAB IN DIR( , ,L) AND IN
+C                               NGRIDC(,L) DEFINING THE CHARACTERISTICS
+C                               OF THE GRID
+C                       L=11 -- NUMBER OF PREDICTORS IN THE SORTED LIST
+C                               IN IS( ,N) (N=1,NPRED) FOR WHICH THIS
+C                               VARIABLE IS NEEDED ONLY ONCE FROM
+C                               LSTORE( , ).  WHEN IT IS NEEDED MORE
+C                               THAN ONCE, THE VALUE IS SET TO 7777.
+C                       L=12 -- USED INITIALLY IN ESTABLISHING
+C                               MSTORE( , ).  LATER USED TO DETERMINE
+C                               WHETHER TO KEEP THIS VARIABLE
+C           LXWL,LYWL = DIMENSIONS OF THE GRID RETURNED WITH THE DATA
+C                       OF WIND SPEED (INTERNAL)
+C           LXBL,LYBL = DIMENSIONS OF THE GRID RETURNED WITH THE DATA
+C                       OF BOUNDARY LAYER WIND (INTERNAL)
+C           LXCP,LYCP = DIMENSIONS OF THE GRID RETURNED WITH THE DATA
+C                       OF CAPE (INTERNAL) 
+C               MISSP = PRIMARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO
+C                       MISSING VALUE (INTERNAL)
+C               MISSS = SECONDARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO
+C                       SECONDARY MISSING VALUE (INTERNAL)
+C              MISTOT = TOTAL NUMBER OF MISSING ITEMS ENCOUNTED IN
+C                       UNPACKING GRIDS (INPUT-OUTPUT)
+C              NBLOCK = BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM DISK
+C                       FILE (INPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+C                       FIRST DIMENSION OF DIR( , , ).  (INPUT)
+C               ND2X3 = DIMENSION OF FDWL( ), FDBL( ), FDCP( ), FDWS( ), 
+C                       FDUI( ), AND FDVI( ). (INPUT)
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), AND FDBRN( )
+C                       (INPUT)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4().
+C                       NOT ALL LOCATIONS ARE USED. (INPUT)
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ) (INPUT)
+C                ND10 = DIMENSION OF CORE( ) (INPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH IN THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ) (INPUT)
+C               NDATE = DATE/TIME FOR WHICH THE PREDICTOR IS NEEDED
+C                       (INPUT)
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.  IT IS
+C                       A RUNNING COUNT FROM THE BEGINNING OF THE MAIN
+C                       PROGRAM.  THIS COUNT IS MAINTAINED IN CASE THE
+C                       USER NEEDS IT FOR DIAGNOSTICS, ETC. (OUTPUT)
+C         NGRIDC(L,M) = HOLDING THE GRID CHARACTERISTICS (L=1,6) FOR
+C                       EACH GRID COMBINATION(M=1,NGRID) (INPUT-OUTPUT)
+C                       L=1 -- MAP PROJECTION NUMBER(3=LAMBERT, 5=POLAR
+C                              STEREOGRAPHIC)
+C                       L=2 -- GRID LENGTH IN METERS
+C                       L=3 -- LATITUDE AT WHICH GRID LENGTH IS CORRECT
+C                              *1000
+C                       L=4 -- GRID ORIENTATION IN DEGREES *1000
+C                       L=5 -- LATITUDE OF LL CORNER IN DEGREES *1000
+C                       L=6 -- LONGITUDE OF LL CORNER IN DEGREES *1000
+C               NPACK = 2 FOR TDL GRIB PACKED DATA; 1 OTHERWISE.  THIS
+C                       IS RETURNED FROM CALLING GFETCH (INTERNAL)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR( , , ) AND IN
+C                       NGRIDC( , ) DEFINING THE CHARACTERISTICS OF THE
+C                       GRID.  IT IS USED TO IDENTIFY THE DATA SOURCE,
+C                       I.E., THE MODEL. (OUTPUT)
+C              NSLABW = SAME AS NSLAB.  RETURNED FROM CALLING WSPEED
+C                       FOR WIND SPEED (INTERNAL)
+C              NSLABB = SAME AS NSLAB. RETURNED FROM CALLING WSPEED FOR
+C                       BOUNDARY LAYER WINDS (INTERNAL)
+C              NSLABC = SAME AS NSLAB. RETURNED FROM CALLING GFETCH FOR 
+C                       CAPE (INTERNAL)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT WITH.
+C                       (INPUT)
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE, THAT
+C                       THE RECORD HAS BEEN FETCHED.  THIS IS STORED IN
+C                       LSTORE(9, ) (INTERNAL)
+C              NWORDS = NUMBER OF WORDS RETURNED IN FDCP( ).
+C                       THIS IS RETURNED FROM CALLING GFETCH. (INTERNAL)
+C            SDATA(K) = INTERPOLATED DATA TO RETURN, WHEN STATION DATA ARE
+C                       BEING GENERATED (K=1,NSTA). THE ARRAY IN WHICH THE
+C                       BULK RICHARDSON NUMBER IS BEING RETURNED (OUTPUT)
+C
+C        NON-SYSTEM SUBROUTINES USED
+C            GFETCH, WSPEED, PRSID1, INTRPB 
+C
+C
+C
+      INTEGER I,IDTMPL,IER,IL,ISTAV,
+     1        IV,J,K,L,M,N,II,MI,JK,NN,IK,KK,NI,NL,MJ,NJ,
+     2        KFILDO,KFIL10,
+     3        L3264B,LITEMS,LXWL,LYWL,LXBL,LYBL,LXCP,LYCP,
+     4        MISSP,MISSS,MISTOT,
+     5        ND2X3,ND5,ND7,ND9,ND10,ND11,
+     6        NBLOCK,NDATE,NFETCH,NPACK,NSLAB,NSLABW,NTIMES,NWORDS,
+     7        NSTA,NSLABB,NSLABC
+      INTEGER, PARAMETER :: ITMPL=11,JTMPL=2
+      INTEGER ITEMPLAT(ITMPL,JTMPL),ILIM(JTMPL)
+      INTEGER JD(4),JDWL(4),JDBL(4),JDCP(4),JWPARS(15),JBPARS(15)
+      INTEGER ICCCFFF(3),IDPARS(15)
+      INTEGER IPACK(ND5),IWORK(ND5)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER LSTORE(12,ND9)
+      INTEGER NGRIDC(6,ND11)
+C
+      REAL    DATA(ND5)
+      REAL    DIR(ND1,2,ND11),SDATA(ND1)
+      REAL    FDWL(ND2X3),FDBL(ND2X3),FDCP(ND2X3),FDWS(ND2X3)
+      REAL    FDUI(ND2X3),FDVI(ND2X3),FDDM(ND2X3)
+      REAL    CORE(ND10)
+C
+C
+      DATA ILIM/11,11/
+      DATA (ITEMPLAT(J,1),J=1,11)
+     1               /1000,975,950,925,900,850,800,750,700,600,500/,
+     2     (ITEMPLAT(I,2),I=1,11)
+     3               /1000,975,950,925,900,850,800,750,700,600,500/
+C
+C        RESET ERROR CODE
+C
+      IER=0
+      ISTAV=0
+C
+      DO 50 J=1,ND1
+       FDWS(J)=0.0
+       FDDM(J)=0.0
+       SDATA(J)=0.0
+  50  CONTINUE
+C
+C        INITIALIZE ACCUMULATOR WORK ARRAYS
+C
+C
+C        *****************************************************
+C        BEGINNING OF PREDICTOR ID VERIFICATION ---           
+C        VERIFY INDIVIDUAL WORDS OF THE PREDICTOR IDENTIFIER: 
+C        *****************************************************
+C
+C        VERIFY THE VARIABLE CLASS
+C
+      IF((IDPARS(1).NE.007).AND.((IDPARS(2).NE.140)
+     1   .OR.(IDPARS(2).NE.150).OR.(IDPARS(2).NE.145).OR.
+     2   (IDPARS(2).NE.155))) THEN
+        WRITE(KFILDO,100) IDPARS(1),IDPARS(2)
+  100 FORMAT(/' ****MESSAGE FROM SUBROUTINE BULKRN ***',
+     1       /'     THE VALUES OF IDPARS(1) AND IDPARS(2)',
+     2              'IS NOT FOR THE BULK RICHARSON #',
+     3       /'     IDPARS(1) = ',I3,' IDPARS(2) =',I3)
+        IER=103
+        GO TO 700
+C
+      END IF
+C
+C        VERIFY THE SUBCLASS OF VARIABLE AND ASSIGN A LAYER TEMPLATE
+C        AND NUMBER OF LEVELS PER LAYER
+C
+      IF((IDPARS(4).EQ.8).AND.((IDPARS(2).EQ.140).OR.
+     1   (IDPARS(2).EQ.145)))THEN
+        IDTMPL=1  
+      ELSEIF((IDPARS(4).EQ.7).AND.((IDPARS(2).EQ.150).OR.
+     1       (IDPARS(2).EQ.155)))THEN
+        IDTMPL=2 
+      END IF
+C
+C        VERIFY THE VERTICAL PROCESSING FLAG
+C        *******************************************************
+C        REMARK: IV IS CURRENTLY SET TO BE ZERO (0).            
+C                THE FOLLOWING BLOCK IS RESERVED FOR FUTURE USE 
+C                OF DIFFERENT VERTICAL PROCESSING FLAG.         
+C        *******************************************************
+      IV = 0
+C
+      IF(IDPARS(5).NE.IV) THEN
+        WRITE(KFILDO,103) IDPARS(5)
+  103 FORMAT(/' ****MESSAGE FROM SUBROUTINE BULKRN ***',
+     1       /'     THE VALUE OF IDPARS(5) IS NOT A VERTICAL ',
+     2              'PROCESSING FLAG',
+     3       /'     THAT CAN BE HANDLED BY SUBROUTINE BULKRN.',
+     4       /'     IDPARS(5) = ',I1)
+        IER=103
+        GO TO 700
+C
+      END IF
+C
+C        *********************************
+C        END OF PREDICTOR ID VERIFICATION 
+C        *********************************
+C
+C        CAPE ID
+      ICCCFFF(1)=007100
+C        WIND SPEED ID
+      ICCCFFF(2)=004210
+C        BOUNDARY WIND ID
+      ICCCFFF(3)=004216
+C
+C        CREATE PREDICTOR ID FOR CAPE.
+C
+       JDCP(1)=ICCCFFF(1)*1000+IDPARS(4)
+       JDCP(2)=0
+       JDCP(3)=IDPARS(9)*1000000+IDPARS(12)
+       JDCP(4)=0
+C
+C        FETCH DATA FOR CAPE
+C
+      CALL GFETCH(KFILDO,KFIL10,JDCP,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,DATA,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLABC,MISSP,MISSS,L3264B,1,IER)
+C
+      IF(IER.NE.0) GO TO 700
+      LXCP=IS2(3)
+      LYCP=IS2(4)
+      NSLAB=NSLABC
+C
+C
+      CALL INTRPB(KFILDO,DATA,LXCP,LYCP,DIR(1,1,NSLAB),ND1,NSTA,FDCP)
+C
+C
+C        CREATE PREDICTOR ID FOR WIND SPEEDS.
+C
+        JDWL(1)=ICCCFFF(2)*1000+IDPARS(4)
+        JDWL(3)=IDPARS(9)*1000000+IDPARS(12)
+        JDWL(4)=0
+C
+      IF (IDTMPL.EQ.1) THEN
+C
+C        CALCULATE BOUNDARY LAYER WIND FROM LAYER WINDS
+C
+      DO 500 IL=1,3
+C
+C        CREATE PREDICTOR ID FOR WIND SPEEDS.
+C
+        JDWL(2)=ITEMPLAT(IL,IDTMPL)
+C
+C        FETCH DATA FOR WIND SPEEDS.
+C
+        CALL PRSID1(KFILDO,JDWL,JWPARS)
+        CALL WSPEED(KFILDO,KFIL10,JWPARS,JDWL,NDATE,
+     1             NGRIDC,ND11,NSLABW,IPACK,IWORK,DATA,ND5,  
+     2             LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3             IS0,IS1,IS2,IS4,ND7,
+     4             FDUI,FDVI,ND2X3,
+     5             ISTAV,L3264B,MISTOT,IER)
+C
+        IF(IER.NE.0) GO TO 700
+        LXWL=IS2(3)
+        LYWL=IS2(4)
+        NSLAB=NSLABW
+C
+      CALL INTRPB(KFILDO,DATA,LXWL,LYWL,DIR(1,1,NSLAB),ND1,NSTA,FDWL)  
+C
+C
+C        PRINT GRIDPOINT VALUES OF WIND SPEEDS
+C        ON AN ISOBARIC SURFACE  -----  FOR VERIFICATION
+C
+C      WRITE(KFILDO,900) (JDWL(N),N=1,4),NDATE,(FDWL(II),II=1,ND1,50)
+C  900 FORMAT(/' ****GRIDPOINT VALUES FOR VARIABLE ',4I12,' FOR DATE ',
+C     1       I12,(/140F10.5))
+C
+        DO NI=1,ND1
+C
+          IF ((IL.EQ.1).OR.(IL.EQ.3)) THEN
+             FDWL(NI) = (12.5*FDWL(NI))
+           ELSEIF (IL.EQ.2) THEN
+             FDWL(NI) = (25.0*FDWL(NI))
+          END IF
+C
+           FDWS(NI)=FDWS(NI)+FDWL(NI)
+C
+        END DO
+C
+  500 CONTINUE
+C
+        DO N=1,ND1
+           FDBL(N)=FDWS(N)/50.0
+           FDWS(N)=0.0
+        END DO
+C
+C
+       ELSEIF (IDTMPL.EQ.2) THEN
+C
+C        CREATE PREDICTOR ID FOR BOUNDARY WIND
+C
+       JDBL(1)=ICCCFFF(3)*1000+IDPARS(4)
+       JDBL(2)=970
+       JDBL(3)=IDPARS(9)*1000000+IDPARS(12)
+       JDBL(4)=0
+C
+C        FETCH DATA FOR BOUNDARY WIND
+C
+        CALL PRSID1(KFILDO,JDBL,JBPARS)
+        CALL WSPEED(KFILDO,KFIL10,JBPARS,JDBL,NDATE,
+     1             NGRIDC,ND11,NSLABB,IPACK,IWORK,DATA,ND5,  
+     2             LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3             IS0,IS1,IS2,IS4,ND7,
+     4             FDUI,FDVI,ND2X3,
+     5             ISTAV,L3264B,MISTOT,IER)
+C
+        IF(IER.NE.0) GO TO 700
+        LXBL=IS2(3)
+        LYBL=IS2(4)
+        NSLAB=NSLABB
+C
+      CALL INTRPB(KFILDO,DATA,LXBL,LYBL,DIR(1,1,NSLAB),ND1,NSTA,FDBL)  
+C
+C
+C        PRINT GRIDPOINT VALUES OF BOUNDARY WINDS
+C        ON A SIGMA SURFACE  -----  FOR VERIFICATION
+C
+C      WRITE(KFILDO,920) (JDBL(N),N=1,4),NDATE,(FDBL(II),II=1,ND1,50)
+C  920 FORMAT(/' ****GRIDPOINT VALUES FOR VARIABLE ',4I12,' FOR DATE ',
+C     1       I12,(/140F10.5))
+C
+       END IF
+C
+C
+       DO 600 IL=1,ILIM(IDTMPL)
+C
+C      WRITE(KFILDO,15) ILIM(IDTMPL)
+C   15 FORMAT('ILIM(IDTMPL) IS ',I2)
+C
+C        CREATE PREDICTOR ID FOR WIND SPEEDS.
+C
+        JDWL(2)=ITEMPLAT(IL,IDTMPL)
+C
+C        FETCH DATA FOR WIND SPEEDS 
+C
+        CALL PRSID1(KFILDO,JDWL,JWPARS)
+        CALL WSPEED(KFILDO,KFIL10,JWPARS,JDWL,NDATE,
+     1             NGRIDC,ND11,NSLABW,IPACK,IWORK,DATA,ND5,   
+     2             LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3             IS0,IS1,IS2,IS4,ND7,
+     4             FDUI,FDVI,ND2X3,
+     5             ISTAV,L3264B,MISTOT,IER)
+C
+        IF(IER.NE.0) GO TO 700
+        LXWL=IS2(3)
+        LYWL=IS2(4)
+        NSLAB=NSLABW
+C
+      CALL INTRPB(KFILDO,DATA,LXWL,LYWL,DIR(1,1,NSLAB),ND1,NSTA,FDWL)  
+C
+C
+C        PRINT GRIDPOINT VALUES OF WIND SPEEDS
+C        ON AN ISOBARIC SURFACE  -----  FOR VERIFICATION
+C
+C      WRITE(KFILDO,910) (JDWL(N),N=1,4),NDATE,(FDWL(II),II=1,ND1,50)
+C  910 FORMAT(/' ****GRIDPOINT VALUES FOR VARIABLE ',4I12,' FOR DATE ',
+C     1       I12,(/140F10.5))
+C
+C
+        IF(NSLABW.NE.NSLABC.OR.LXWL.NE.LXCP.OR.
+     1     LYWL.NE.LYCP) THEN
+          IER=100
+          WRITE(KFILDO,405) (JDWL(MJ),MJ=1,4),
+     1      (JDCP(NL),NL=1,4),(JDBL(NJ),NJ=1,4),
+     2      (NGRIDC(J,NSLABW),J=1,6),(NGRIDC(J,NSLABV),J=1,6),
+     3      (NGRIDC(J,NSLABB),J=1,6),
+     4      LXWL,LXBL,LXCP,LYWL,LYBL,LYCP,IER
+  405 FORMAT(/' ****COMPARISON OF GRID CHARACTERISTICS ',
+     1       '      BETWEEN THE DATA OF WIND SPEED ',
+     2              ',BOUNDARY WIND, AND CAPE:',
+     3       /'     JDWL(J) = ',I10,3(',',2X,I10),
+     4       /'     JDCP(J) = ',I10,3(',',2X,I10),
+     5       /'     JDBL(J) = ',I10,3(',',2X,I10),
+     6      //'     NGRIDC(J,NSLABW) = ',I10,5(',',2X,I10),
+     7       /'     NGRIDC(J,NSLABC) = ',I10,5(',',2X,I10),
+     8       /'     NGRIDC(J,NSLABB) = ',I10,5(',',2X,I10),
+     9      //'     LXWL = ',I3,5X,'LXBL=',I3,5X,'LXCP =',I3,
+     A       /'     LYWL = ',I3,5X,'LYBL=',I3,5X,'LYCP =',I3,
+     B      //'     IER = ',I3)
+         GO TO 700
+        END IF
+C
+C        WEIGHT EACH WIND SPEED IN THE LAYER BASED ON THE 
+C        WEIGHTED MEAN.
+C        ADD UP THE VALUES OF THE WEIGHTED WINDS THROUGHOUT THE LAYER
+C        SO THAT A MEAN IS COMPUTED.
+C
+        DO MI=1,ND1
+C
+         IF (IL.EQ.1) THEN 
+            FDWL(MI) = (12.5*FDWL(MI))
+          ELSEIF ((IL.EQ.2).OR.(IL.EQ.3).OR.(IL.EQ.4)) THEN
+            FDWL(MI) = (25.0*FDWL(MI))
+          ELSEIF (IL.EQ.5) THEN 
+            FDWL(MI) = (37.5*FDWL(MI))
+          ELSEIF ((IL.EQ.6).OR.(IL.EQ.7).OR.(IL.EQ.8).OR.(IL.EQ.11))
+     1        THEN
+            FDWL(MI) = (50.0*FDWL(MI))
+          ELSEIF (IL.EQ.9) THEN 
+            FDWL(MI) = (75.0*FDWL(MI))
+          ELSEIF (IL.EQ.10) THEN 
+            FDWL(MI) = (100.0*FDWL(MI))
+         END IF
+C
+           FDWS(MI)=FDWS(MI)+FDWL(MI)
+        END DO
+C
+C      WRITE(KFILDO,950) (FDWS(NI),NI=1,ND1,50)
+C  950 FORMAT(/'****GRIDPOINT VALUES FOR WIND SPEED TOTS',(/,140F10.5))
+C
+  600 CONTINUE
+C
+C        COMPUTE BULK RICHARDSON NUMBER
+C
+      DO JL=1,ND1
+         FDDM(JL)=(0.5*(((FDWS(JL)/500.0)-FDBL(JL))**2.0))
+              IF (FDDM(JL).LE.1.0) THEN
+                  FDDM(JL)=1.0
+              ENDIF
+      END DO
+C
+C      WRITE(KFILDO,960) (FDDM(NI),NI=1,ND1,50)
+C  960 FORMAT(/' ****GRIDPOINT VALUES FOR BULK SHEAR',(/,140F10.5))
+C
+C
+      ISTAV=1
+C
+C        IF THE ID EQUALS 007145 OR 007155, THEN THE BULK SHEAR
+C        HAS BEEN REQUESTED. THE BULK WIND SHEAR IS MERELY THE
+C        THE DENOMINATOR IN THE BULK RICHARDSON NUMBER COMPUTATION.
+C        IF THE BULK SHEAR IDS HAVE NOT BEEN REQUESTED, THEN THE
+C        BULK RICHARDSON NUMBER WILL BE COMPUTED FROM THE CAPE
+C        DIVIDED BY THE BULK WIND SHEAR.
+C
+      DO JK=1,ND1
+         IF ((IDPARS(2).EQ.145).OR.(IDPARS(2).EQ.155)) THEN
+             SDATA(JK)=FDDM(JK)
+         ELSE
+             SDATA(JK)=FDCP(JK)/FDDM(JK)
+         ENDIF
+C
+C        IF THE BULK RICHARDSON NUMBER HAS BEEN COMPUTED, THEN
+C        THE VALUE WILL BE LIMITED TO BETWEEN 10.0 AND 50.0
+C        THIS IS DONE BECAUSE THAT RANGE OF VALUES SIGNIFIES
+C        THAT A THUNDERSTORM WILL BE SEVERE.
+C
+         IF (((IDPARS(2).EQ.140).OR.(IDPARS(2).EQ.150)).AND.
+     1      ((SDATA(JK).LT.10.0).OR.(SDATA(JK).GT.50.0))) THEN
+             SDATA(JK)=0.0
+         ENDIF
+      END DO
+C
+C        PRINT GRIDPOINT VALUES OF BULK RICHARDSON NUMBER         
+C        FOR THE SPECIFIED LAYER  -----  FOR VERIFICATION
+C
+C      WRITE(KFILDO,940) (JD(NN),NN=1,4),NDATE,(SDATA(IK),IK=1,ND1,50)
+C  940 FORMAT(/' ****GRIDPOINT VALUES FOR VARIABLE BRN',4I12,
+C     1        ' FOR DATE ',I12,(/10F10.5))
+C
+      GO TO 800
+C
+  700 DO KK=1,ND1
+       SDATA(KK)=9999.
+      END DO
+C
+C
+  800 RETURN
+      END

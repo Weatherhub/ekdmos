@@ -1,0 +1,261 @@
+      SUBROUTINE CKTDP(KFILDO,KFIL10,P,FD4,FD6,NX,NY,ND2X3,
+     1                 ID,LSTORE,ND9,LITEMS,NWORDS,NDATE,
+     2                 IS0,IS1,IS2,IS4,ND7,
+     3                 IPACK,IWORK,ND5,
+     4                 CORE,ND10,NBLOCK,NFETCH,L3264B,ISTOP,IER)
+C
+C        FEBRUARY  2008   GLAHN   MDL   MOS-2000
+C        MARCH     2008   GLAHN   ADDED CHECK ON CCC = 223
+C        JULY      2008   GLAHN   ADDED AVERAGE AND MAX CORRECTION
+C        AUGUST    2008   GLAHN   MODIFIED COMPUTATIONS DO 149 LOOP
+C        SEPTEMBER 2008   GLAHN   ADDED FD6( ) FOR CHANGE GRID;
+C                                 REARRANGED LOOP DO 150
+C        OCTOBER   2008   COSGROVE   MODIFIED FORMAT STATEMENT FOR IBM
+C                                 COMPILE
+C        NOVEMBER  2008   IM/GLAHN   MODIFIED FOR HOURLY ANALYSIS
+C        JUNE      2009   GLAHN   SCALED DIFFERENCES IN FD6( ) * 10
+C 
+C        PURPOSE 
+C            TO CHECK A SURFACE DEW POINT ANALYSIS IN P( , ) WITH A
+C            TEMPERATURE ANALYSIS AND IF THE DEW POINT IS GREATER THAN
+C            THE TEMPERATURE, THE DEWPOINT GRIDPOINT IS SET EQUAL
+C            TO THE TEMPERATURE.  THIS ASSUMES THERE ARE MORE
+C            AND MORE ACCURATE TEMPERATURE FORECASTS AT SOME HOURS
+C            THAN DEWPOINT, ESPECIALLY AT BUOYS.  THE TEMPERATURE
+C            ANALYSIS IS IN INTERNAL STORAGE AND IS READ INTO FD4( , ).
+C            THE DEWPOINT ID IS IN ID( ).
+C
+C            CALLED WITH  CCC = 223 MOS DEW POINT.
+C            ASSUMES TEMP CCC = 222.
+C            ALSO CALLED WITH CCCFFF = 723130 OBS DEW POINT.
+C            ASSUMES OBS TEMP CCCFFF = 722000.
+C
+C            DIAGNOSTIC OUTPUT IS THE AVERAGE VALUE OF THE CORRECTIONS
+C            AND THE MAXIMUM CORRECTION.  ALL CORRECTIONS WILL BE
+C            NEGATIVE. 
+C
+C            A RETURNED GRID IN FD6( , ) WILL CONTIAN THE CORRECTIONS
+C            MADE SCALED.  THESE WILL BE NEGATIVE.
+C
+C        DATA SET USE 
+C           KFILDO - UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT)
+C           KFIL10 - UNIT NUMBR FOR RANDOM FILE ACCESS.  (INPUT)
+C
+C        VARIABLES 
+C              KFILDO = UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (INPUT)
+C              KFIL10 = THE UNIT NUMBR FOR RANDOM FILE ACCESS.  (INPUT)
+C            P(IX,JY) = THE DEWPOINT ANALYSIS TO CHECK (IX=1,NX)
+C                       (JY=1,NY).  (INPUT/OUTPUT)
+C          FD4(IX,JY) = WORK ARRAY (IX=1,NX) (JY=1,NY).  (INTERNAL)
+C          FD6(IX,JY) = HOLDS THE CHANGES MADE TO P( , ) SCALED *10
+C                       (IX=1,NX) (JY=1,NY).  (OUTPUT)
+C                  NX = X-EXTENT OF P( , ) AND FD4( , ). (INPUT)
+C                  NY = Y-EXTENT OF P( , ) AND FD4( , ). (INPUT)
+C               ND2X3 = THE SIZE OF THE ARRAYS IN P( , ) AND
+C                       FD4( , ).  (INPUT)
+C               ID(J) = THE 4-WORD ID OF THE VARIABLE DEWPOINT GRID
+C                       (J=1,4).  (INPUT)
+C         LSTORE(L,J) = THE ARRAY TO HOLD INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  THIS IS
+C                       INITIALIZED TO ZERO AS NEEDED ON FIRST ENTRY 
+C                       ONLY.  (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                              COUNTED IN GFETCH.
+C                       L=10 --FOR U201, NSLAB, THE NUMBER OF THE SLAB 
+C                              IN DIR( , ,L) AND IN NGRIDC( ,L) DEFINING
+C                              THE CHARACTERISTICS OF THIS GRID.
+C                              FOR OTHER ROUTINES NOT REQUIRING GRID
+C                              DEFINITIONS, THIS NUMBER MAY MEAN
+C                              SOMETHING ELSE.  FOR INSTANCE, IN U600 IT
+C                              IS THE "MODEL NUMBER" OR SOURCE OF THE
+C                              DATA STORED.
+C                       L=11 --VARIOUS USES, DEPENDING ON PROGRAM.
+C                       L=12 --USED INITIALLY IN ESTABLISHING
+C                              MSTORE( , ).  LATER USED AS A WAY OF
+C                              DETERMINING WHETHER TO KEEP THIS
+C                              VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT ARE FILLED.  (INPUT)  
+C              NWORDS = NUMBER OF WORDS RETURNED FROM GFETCH.
+C                       (INTERNAL)
+C               NDATE = DATE/TIME OF THE DATA PROCESSED IN FORMAT
+C                       YYYYMMDDHH.  THIS IS STORED IN LSTORE(8, ).  
+C                       (INPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,4).
+C                       (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,21+).
+C                       (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C                       (INTERNAL)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                       (INTERNAL)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND
+C                       IS4( ).  (INPUT)
+C            IPACK(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ) AND WORK( ).  (INPUT)
+C             CORE(J) = THE LINEAR ARRAY WHERE THE DATA ARE TO BE
+C                       STORED, WHEN SPACE IS AVAILABLE (J=1,ND10).
+C                       (INPUT)
+C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE RANDOM DISK FILE.
+C                       (INPUT)
+C              NFETCH = A COUNT OF THE NUMBER OF TIMES GFETCH IS
+C                       ENTERED.  IT IS A RUNNING COUNT FROM THE
+C                       BEGINNING OF THE PROGRAM.  (OUTPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C            ISTOP(J) = ISTOP(1)--IS INCREMENTED BY 1 EACH TIME AN ERROR 
+C                                 OCCURS.
+C                       ISTOP(2)--IS INCREMENTED WHEN THERE ARE
+C                                 FEW DATA (200) FOR AN ANALYSIS.
+C                       ISTOP(3)--IS INCREMENTED WHEN A DATA RECORD 
+C                                 COULD NOT BE FOUND.
+C                       ISTOP(4)--IS INCREMENTED WHEN A LAPSE RATE COULD
+C                                 NOT BE COMPUTED OR HAS TOO FEW CASES
+C                                 TO BE USED.
+C                       ISTOP(5)--IS INCREMENTED WHEN NO NON-MISSING
+C                                 GRIDPOINT AROUND THE DATA POINT IS
+C                                 OF THE SAME TYPE.
+C                       ISTOP(6)--IS INCREMENTED WHEN THERE IS A PROBLEM
+C                                 WITH MAKING BOGUS STATIONS.
+C                       (INPUT/OUTPUT)
+C                 IER = STATUS RETURN.  (OUTPUT)
+C                        0 = GOOD RETURN.
+C                       OTHER VALUES FROM GFETCH.
+C               LD(J) = THE VARIABLE IDS TO RETRIEVE BY GFETCH (J=1,4).
+C                       (INTERNAL)
+C               NPACK = RETURNED FROM GFETCH.  NOT NEEDED.  (INTERNAL)
+C              NSOURC = RETURNED FROM GFETCH.  NOT NEEDED.  (INTERNAL)
+C              NTIMES = RETURNED FROM GFETCH.  NOT NEEDED.  (INTERNAL)
+C               MISSP = RETURNED FROM GFETCH.  NOT NEEDED.  (INTERNAL)
+C               MISSS = RETURNED FROM GFETCH.  NOT NEEDED.  (INTERNAL)
+C              ICOUNT = NUMBER OF TIMES DP WAS CORRECTED.  (INTERNAL)
+C              DIFMAX = MAXIMUM (NEGATIVE) DIFFERENCE CORRECTED.
+C                       (INTERNAL)
+C              DIFAVG = AVERAGE DIFFERENCE CORRECTED.  (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C                         
+C        NON SYSTEM SUBROUTINES CALLED 
+C           NONE
+C
+      DIMENSION ID(4)
+      DIMENSION P(NX,NY),FD4(NX,NY),FD6(NX,NY)
+      DIMENSION IPACK(ND5),IWORK(ND5)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION LSTORE(12,ND9)
+      DIMENSION CORE(ND10)
+      DIMENSION LD(4),ISTOP(6)
+C
+C        INITIALIZE AND INCREMENT AS NEEDED.
+C
+      IER=0
+C
+C        CHECK THE CCC = 223.
+C
+      IF(ID(1)/1000000.NE.223.AND.ID(1)/1000000.NE.723)THEN
+         WRITE(KFILDO,105)(ID(J),J=1,4)
+ 105     FORMAT(/' ****CCC NOT CORRECT IN CKTDP.  ID = ',3I10.9,I10.3,/,
+     1           '     CHECKING OF DEW POINT WITH TEMPERATURE GRID',
+     2           ' ABORTED.')
+         GO TO 800
+      ENDIF
+C
+C        GET THE TEMPERATURE ANALYSIS.
+C
+      IF(ID(1)/1000000.EQ.223)THEN
+         LD(1)=ID(1)-1000000
+C           THIS MAKES THE CCCFFF OF 223 = 222 FOR MOS TEMPERATURE.
+      ELSEIF(ID(1)/1000000.EQ.723)THEN
+         LD(1)=ID(1)-1130000
+C           THIS MAKES THE CCCFFF OF 723130 = 222000 FOR OBS TEMPERATURE.
+      ENDIF
+C
+      LD(2)=ID(2)
+      LD(3)=ID(3)
+      LD(4)=ID(4)
+      ITIME=0
+      CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD4,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSOURC,MISSP,MISSS,L3264B,ITIME,
+     4            IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,130)(LD(J),J=1,4)
+  130    FORMAT(/,' ****TEMPERATURE NOT RETRIEVED BY GFETCH IN CKTDP',
+     1            2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,/
+     2            '     TEMPERATURE-DEW POINT GRIDS CANNOT BE CHECKED.')
+         ISTOP(1)=ISTOP(1)+1
+         GO TO 800
+      ENDIF
+C
+      IF(NWORDS.NE.NX*NY)THEN
+         WRITE(KFILDO,131)NWORDS,NX*NY
+ 131     FORMAT(/,' ****NWORDS =',I6,' RETURNED FROM GFETCH',
+     1            ' NOT EQUAL TO NX*NY =',I6,' IN CKTDP.'/
+     2            '     TEMPERATURE-DEW POINT GRIDS CANNOT BE CHECKED.')
+         ISTOP(1)=ISTOP(1)+1
+         GO TO 800
+      ENDIF
+C
+C        CHECK GRIDS.  WHEN DEW POINT EXCEEDS TEMPERATURE, SET DEW TO
+C        TEMPERATURE.
+C
+      ICOUNT=0
+      DIFMAX=9999.
+      DIFAVG=0.
+C
+      DO 150 JY=1,NY
+      DO 149 IX=1,NX
+      FD6(IX,JY)=9999.
+C
+      IF(P(IX,JY).GT.9998.9.OR.
+     1   FD4(IX,JY).GT.9998.9)GO TO 149
+C
+      IF(P(IX,JY).GT.FD4(IX,JY))THEN
+C           THE TEMPERATURE GRID WAS NOT CLIPPED TO THE NEFD AREA.
+C           MAKE THE CHECK ONLY WHERE P( , ) NOT 9999.
+C
+         ICOUNT=ICOUNT+1
+         DIFF=FD4(IX,JY)-P(IX,JY)
+         DIFAVG=DIFAVG+DIFF
+         DIFMAX=MIN(DIFMAX,DIFF)
+C           THE DIFFERENCES ARE ALWAYS NEGATIVE.
+         FD6(IX,JY)=DIFF*10.
+C           THE DIFFERENCE MAP WILL HAVE NEGATIVE VALUES IN DEG F.
+C           NOTE THE SCALING X 10.
+         P(IX,JY)=FD4(IX,JY)
+C
+      ELSE
+         FD6(IX,JY)=0.
+      ENDIF
+C
+ 149  CONTINUE
+ 150  CONTINUE
+C
+      IF(ICOUNT.NE.0)THEN
+         DIFAVG=DIFAVG/ICOUNT
+      ELSE
+         DIFMAX=0.
+      ENDIF
+C
+      WRITE(KFILDO,155)ICOUNT,DIFAVG,DIFMAX
+ 155  FORMAT(/' DEW POINT GRID WAS DECREASED BY TEMPERATRE',I8,
+     1        ' TIMES:  AVERAGE CORRECTION =',F6.1,';',
+     2        '  MAXIMUM CORRECTION =',F6.1)
+C
+ 800  CONTINUE
+      RETURN
+      END

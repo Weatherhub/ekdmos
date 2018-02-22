@@ -1,0 +1,923 @@
+      SUBROUTINE WXPCAT(KFILDO,KFIL10,IP12,KFILRA,RACESS,
+     1                  NUMRA,ID,IDPARS,JD,NDATE,
+     2                  CCALL,NAME,STALAT,STALON,
+     3                  ISDATA,SDATA,DIR,ND1,NSTA,
+     4                  ND2X3,ICALLD,CCALLD,IPACK,IWORK,
+     5                  ND5,NGRIDC,NGRID,ND11,
+     6                  NSLAB,LSTORE,ND9,LITEMS,CORE,ND10,
+     7                  NBLOCK,NFETCH,LASTL,LASTD,NSTORE,
+     8                  IS0,IS1,IS2,IS4,ND7,
+     9                  L3264B,L3264W,ISTAV,
+     A                  NX,NY,JSTA,GPPI,RRMIS,RRMIS2,MISSEL,
+     B                  IER)
+C
+C        SEPTEMBER 2010   HUNTEMANN   MDL   MOS-2000
+C        JUNE      2011   HUNTEMANN   MDL   ADDED PARALLELIZATION
+C        NOVEMBER  2012   HUNTEMANN   MDL   ADDED CHECKS ON GRID SPECS
+C                                           AFTER CALLING GTVEGR
+C        MARCH     2013   HUNTEMANN   MDL   UPDATED DOCUMENTATION,
+C                                           ADDED IMPLICIT NONE
+C
+C        PURPOSE
+C           COMPUTES PRECIPITATION POTENTIAL INDEX AND 
+C           BASED ON COORDINATED POP03, POP6, AND POP12 
+C           FORECASTS.  CALLED BY GENWX.
+C
+C           THIS ROUTINE IS FOR GRIDPOINT DATA.  GRIDPOINT DATA ARE 
+C           RETURNED IN GPPI( ).
+C
+C        DATA SET USE
+C            KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                     (INPUT-OUTPUT) 
+C            IP12   - INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                     STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                     THE FILE WHOSE UNIT NUMBER IS IP12.  (OUTPUT)
+C         
+C        VARIABLES
+C           INPUT/OUTPUT VARIABLES
+C
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) 
+C                       FILE. (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT-OUTPUT) 
+C                IP12 = INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                       STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                       THE FILE WHOSE UNIT NUMBER IS IP12.
+C           KFILRA(J) = THE UNIT NUMBERS FOR WHICH RANDOM ACCESS FILES
+C                       ARE AVAILABLE (J=1,NUMRA).  (INPUT)
+C           RACESS(J) = THE FILE NAMES ASSOCIATED WITH KFILRA(J)
+C                       (J=1,NUMRA).(CHARACTER*60)  (INPUT)
+C               NUMRA = THE NUMBER OF VALUES IN KFILRA( ) AND RACESS( ).
+C                       (INPUT)
+C               ID(J) = THE PREDICTOR ID (J=1,4).  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTOR ID CORRESPONDING TO ID( ) 
+C                       (J=1,15).  (INPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C             JD(J,N) = THE BASIC INTEGER VARIABLE ID (J=1,4) (N=1,NPRED).
+C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE PORTIONS
+C                       PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3, ),
+C                       T = IDPARS(8, ),
+C                       I = IDPARS(13, ),
+C                       S = IDPARS(14, ),
+C                       G = IDPARS(15, ), AND
+C                       THRESH( ).
+C                       JD( , ) IS USED TO FOR INPUT TO CONSTG, BECAUSE
+C                       INTERPOLATION INTO THE GRID MAY BE REQUIRED,
+C                       BUT IS NOT PART OF THE BASIC ID.  (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED.  (INPUT)
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+C                       DATA ARE KEYED TO THIS LIST, EXCEPT POSSIBLY 
+C                       CCALLD( ).  EQUIVALENCED TO ICALL( , , ). 
+C                       (CHARACTER*8)  (INPUT)
+C             NAME(K) = NAMES OF STATIONS (K=1,NSTA).  USED FOR PRINTOUT
+C                       ONLY.  (CHARACTER*20)  (INPUT)
+C           STALAT(K) = LATITUDE OF STATIONS (K=1,NSTA).  (INPUT/OUTPUT)
+C           STALON(K) = LONGITUDE OF STATIONS (K=1,NSTA).  (INPUT/OUTPUT)
+C           ISDATA(K) = WORK ARRAY (K=1,ND1).  (INTERNAL)
+C            SDATA(K) = DATA RETURNED WHEN DATA ARE VECTOR (K=1,NSTA).
+C                       (OUTPUT)
+C          DIR(K,J,M) = THE IX (J=1) AND JY (J=2) POSITIONS ON THE GRID
+C                       FOR THE COMBINATION OF GRID CHARACTERISTICS M
+C                       (M=1,NGRID) AND STATION K (K=1,NSTA) IN NGRIDC( ,M).
+C                       (INPUT/OUTPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+C                       DIMENSION OF SEVERAL VARIABLES.  (INPUT)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT WITH.
+C                       (INPUT)
+C               ND2X3 = DIMENSION OF GRIDDED VARIABLES. (INPUT)
+C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN INTEGER
+C                       VARIABLE (L=1,L3264W) (K=1,ND5).  THIS ARRAY IS USED 
+C                       TO READ THE STATION DIRECTORY FROM A MOS-2000
+C                       EXTERNAL FILE.  EQUIVALENCED TO CCALLD( ). 
+C                       (CHARACTER*8)  (INTERNAL)
+C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,ND5).  THIS ARRAY IS USED 
+C                       IN CONST TO READ THE STATION DIRECTORY.  EQUIVALENCED 
+C                       TO ICALLD( , ).  (CHARACTER*8)  (INTERNAL)
+C            IPACK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), DATA( ) AND
+C                       CCALLD( ); SECOND DIMENSION OF ICALLD( , ).
+C                       THESE ARE GENERAL PURPOSE ARRAYS, SOMETIMES USED
+C                       FOR GRIDS.  
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR EACH GRID
+C                       COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                            STEREOGRAPHIC). 
+C                       L=2--GRID LENGTH IN MILLIMETERS,
+C                       L=3--LATITUDE AT WHICH GRID LENGTH IS CORRECT *10000,
+C                       L=4--GRID ORIENTATION IN DEGREES *10000,
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *10000,
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES *10000.
+C                       (INPUT/OUTPUT)
+C               NGRID = THE NUMBER OF GRID COMBINATIONS IN DIR( , , ),
+C                       MAXIMUM OF ND11.  (INPUT/OUTPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH ON THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ) AND DIR( , , ).  (INPUT)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR( , , ) AND
+C                       IN GRIDC( , ) DEFINING THE CHARACTERISTICS
+C                       OF THIS GRID.  SEE LSTORE(10, ).  FOR THE
+C                       COMPUTATION ROUTINES RETURNING A GRID, THIS
+C                       VALUE MUST BE OUTPUT BY GFETCH.
+C                       NSLAB = 0 FOR VECTOR DATA (AND FOR NO DATA
+C                       RETURNED AND NWORDS = 0), AS STORED BY GSTORE;
+C                       OTHERWISE, GRIDDED DATA ARE INDICATED.  (OUTPUT) 
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE CHARACTERISTICS
+C                              OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE SORTED
+C                              LIST IN ID( ,N) (N=1,NPRED) FOR WHICH THIS
+C                              VARIABLE IS NEEDED, WHEN IT IS NEEDED ONLY
+C                              ONCE FROM LSTORE( , ).  WHEN IT IS NEEDED
+C                              MORE THAN ONCE, THE VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING MSTORE( , ).
+C                              LATER USED AS A WAY OF DETERMINING WHETHER
+C                              TO KEEP THIS VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , ) THAT 
+C                       HAVE BEEN USED IN THIS RUN.
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA IDENTIFIED IN
+C                       LSTORE( , ) (J=1,ND10).  WHEN CORE( ) IS FULL
+C                       DATA ARE STORED ON DISK.  (OUTPUT)
+C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE.  (INPUT)
+C              NFETCH = THE NUMBER OF TIMES GFETCH HAS BEEN ENTERED.  GFETCH
+C                       KEEPS TRACK OF THIS AND RETURNS THE VALUE.  (OUTPUT)
+C               LASTL = THE LAST LOCATION IN CORE( ) USED FOR MOS-2000 INTERNAL
+C                       STORAGE.  INITIALIZED TO 0 ON FIRST ENTRY TO GSTORE.
+C                       ALSO INITIALIZED IN U720 IN CASE GSTORE IS NOT ENTERED.
+C                       MUST BE CARRIED WHENEVER GSTORE IS TO BE CALLED.
+C                       (INPUT/OUTPUT)
+C               LASTD = TOTAL NUMBER OF PHYSICAL RECORDS ON DISK FOR MOS-2000
+C                       INTERNAL STORAGE.  MUST BE CARRIED WHENEVER GSTORE
+C                       IS TO BE CALLED.  (INPUT)
+C              NSTORE = THE NUMBER OF TIMES GSTORE HAS BEEN ENTERED.  GSTORE
+C                       KEEPS TRACK OF THIS AND RETURNS THE VALUE.  (OUTPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).  (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).  (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).  (INTERNAL)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).  (INTERNAL)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED.  (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C              L3264W = NUMBER OF WORDS IN 64 BITS, EITHER 1 OR 2.
+C                       (INPUT)
+C               ISTAV = 1 WHEN THE DATA RETURNED ARE VECTOR (STATION)
+C                         DATA.  
+C                       0 WHEN THE DATA RETURNED ARE GRID DATA.
+C                         THIS ESSENTIALLY TELLS U720 (PRED25/PRED26)
+C                         HOW TO TREAT THE DATA, EVEN IF MISSING (9999)
+C                        (OUTPUT)
+C
+C           WEATHER GRID INPUT/OUTPUT VARIABLES:
+C                  NX = NUMBER OF GRIDPOINTS IN X DIRECTION. (INPUT)
+C                  NY = NUMBER OF GRIDPOINTS IN Y DIRECTION. (INPUT)
+C             JSTA(K) = ARRAY CONTAINING THE GRIDPOINT LOCATIONS OF
+C                       THE STATIONS IN THE STATION LIST. 
+C                       (K=1,NSTA) (OUTPUT)
+C               RRMIS = MISSING DATA FLAG. (INPUT)
+C              RRMIS2 = MISSING DATA FLAG. (INPUT)
+C              MISSEL = INTEGER VALUE DENOTING AN ELEMENT NOT FETCHED. 
+C                       (INPUT)
+C             GPPI(J) = PRECIPITATION POTENTIAL INDEX GRIDPOINT 
+C                       FORECASTS. (J=1,ND2X3) (OUTPUT)
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                        47 = DATA NOT RETURNED FROM GTVEGR.
+C                       103 = IDPARS(1) AND IDPARS(2) NOT ACCOMMODATED IN
+C                             THIS ROUTINE.
+C                       187 = PROJECTION NOT ACCOMMODATED IN THIS ROUTINE.
+C                       SEE CALLED ROUTINES FOR OTHER VALUES.
+C                       (INTERNAL-OUTPUT)
+C
+C           INTERNAL VARIABLES
+C           ITABLE(I) = CCCFFF OF THE POP12 (I=1) AND POPO3 (I=2) 
+C                       FORECASTS AND POP6 (I=3) FORECASTS. (INTERNAL)
+C            IDO(K,M) = 4-WORD MOS ID USED TO OBTAIN GPOPO3. 
+C                       (K=1,4) (M=1,4) (INTERNAL)
+C            IDP(K,M) = 4-WORD MOS ID USED TO OBTAIN GPOP6. 
+C                       (K=1,2) (M=1,4) (INTERNAL)
+C               LD(M) = 4-WORD MOS ID USED TO OBTAIN GPOP12. 
+C                       (M=1,4)(INTERNAL)
+C           IER_WORD3 = ERROR FLAG.  IF TAU IS NOT
+C                       DIVISIBLE BY 3, WORD 3 OF THE ID CANNOT
+C                       BE DETERMINED AND IER_WORD3 IS SET TO 1.
+C                       RETURNED FROM WXWRD3. (INTERNAL)
+C               ISTOP = ERROR FLAG RETURNED FROM HSMTH. (INTERNAL)
+C              IPOP12 = 1 SIGNIFIES GPOP12 DATA ARE CORRECT.  
+C                       IF NOT, IT WILL BE SET TO MISSEL. (INTERNAL)
+C            IPOP6(K) = 1 SIGNIFIES GPOP6 DATA ARE CORRECT.  
+C                       IF NOT, IT WILL BE SET TO MISSEL. 
+C                       (K=1,2) (INTERNAL)
+C           IPOPO3(K) = 1 SIGNIFIES GPOPO3 DATA ARE CORRECT.  
+C                       IF NOT, IT WILL BE SET TO MISSEL. 
+C                       (K=1,4) (INTERNAL)
+C         GPOPO3(K,J) = ARRAY CONTAINING POPO3 GRIDPOINT FORECASTS. 
+C                       (K=1,4) (J=1,ND2X3) (INTERNAL)
+C          GPOP6(K,J) = ARRAY CONTAINING POP6 GRIDPOINT FORECASTS. 
+C                       (K=1,2) (J=1,ND2X3) (INTERNAL)
+C           GPOP12(J) = ARRAY CONTAINING POP12 GRIDPOINT FORECASTS. 
+C                       (J=1,ND2X3) (INTERNAL)
+C              FACTOR = FACTOR USED TO INFLATE POPO3 OR POP6 FORECASTS TO 
+C                       APPROPRIATE SCALE FOR PPI. (INTERNAL)
+C               FD(K) = WORK VARIABLE CONTAINING EITHER POPO3, POP6,
+C                       OR POP12 FORECASTS.  (K=1,4) (INTERNAL)
+C               POP12 = WORK VARIABLE. (INTERNAL)
+C             FCSTMAX = MAXIMUM POPO3, POP6, OR POP12 FORECAST
+C                       IN THIS FORECAST PERIOD. (INTERNAL)
+C              PPI(J) = WORK VARIABLE CONTAINING THE FOUR PPI FORECASTS
+C                       FOR THIS 12-HOUR PERIOD. (J=1,4) (INTERNAL)
+C                IPPI = FLAG FOR METHOD TO DETERMINE PPI.
+C                       1 - USE ONLY POPO3
+C                       2 - USE POPO3 AND POP12
+C                       3 - USE POP6 AND POP12
+C                       (INTERNAL)
+C
+C           VARIABLES USED FOR DETERMINING GRIDPOINT LOCATION OF
+C           STATIONS
+C                MAPP = MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                       STEREOGRAPHIC, 7=MERCATOR). (INTERNAL)
+C              XMESHL = MESH LENGTH IN METERS AT XLAT DEGREES N 
+C                       LATITUDE. (INTERNAL)
+C              ORIENT = ORIENTATION IN DEGREES WEST LONGITUDE.
+C              (INTERNAL)
+C                XLAT = LATITUDE IN DEGREES AT WHICH XMESHL APPLIES.
+C                       ALSO THE LATITUDE OF TANGENCY.  DON'T USE
+C                       NEGATIVE. (INTERNAL)
+C              XLATLL = LATITUDE OF LOWER LEFT (1,1) CORNER POINT OF
+C                       THE GRID. (INTERNAL)
+C              XLONLL = LONGITUDE OF LOWER LEFT (1,1) CORNER POINT OF
+C                       THE GRID.  DON'T USE NEGATIVE. (INTERNAL)
+C               X1,Y1 = IJ (LEFT TO RIGHT) AND JY (BOTTON TO TOP)
+C                       GRIDPOINT NUMBERS OF THE POINT ALAT, ALON,
+C                       CONSIDERING THE LOWER LEFT CORNER POINT 
+C                       TO BE (1,1). (INTERNAL)
+C
+C        NONSYSTEM SUBROUTINES USED
+C            PRSID1, WXWRD3, GTVEGR, LMLLIJ, PSLLIJ, MCLLIJ,
+C            SCALX, HSMTH
+C
+C***********************************************************************
+C
+      IMPLICIT NONE
+C
+C        DECLARE MOS2K SYSTEM VARIABLES:
+C
+      CHARACTER*8 CCALL(ND1,6)
+      CHARACTER*8 CCALLD(ND5)
+      CHARACTER*20 NAME(ND1)
+      CHARACTER*60 RACESS(5)
+C
+      INTEGER KFILDO,KFIL10,IP12,KFILRA(5),
+     1        NUMRA,ID(4),IDPARS(15),JD(4),NDATE,
+     3        ISDATA(ND1),ND1,NSTA,
+     4        ND2X3,ICALLD(L3264W,ND5),IPACK(ND5),IWORK(ND5),
+     5        ND5,NGRIDC(6,ND11),NGRID,ND11,
+     6        NSLAB,LSTORE(12,ND9),ND9,LITEMS,ND10,
+     7        NBLOCK,NFETCH,LASTL,LASTD,NSTORE,
+     8        IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7),ND7,
+     9        L3264B,L3264W,ISTAV,IER
+C
+      REAL    STALAT(ND1),STALON(ND1),SDATA(ND1),
+     1        DIR(ND1,2,ND11),CORE(ND10)
+C
+C        DECLARE WEATHER GRID VARIABLES (INPUT/OUTPUT):
+C
+      INTEGER NX,NY,MISSEL
+C
+      REAL    RRMIS,RRMIS2,GPPI(ND2X3)
+C
+C        DECLARE VARIABLES FOR DETERMINING GRIDPOINT
+C        LOCATION OF STATIONS:
+C
+      INTEGER MAPP,JSTA(NSTA)
+      REAL    XMESHL,ORIENT,XLAT,XLATLL,XLONLL,X1,Y1
+C
+C        DECLARE WEATHER GRID VARIABLES (INTERNAL):
+C
+      INTEGER LDPARS(15),IDO(4,4),IDP(2,4),LD(4),
+     1        IPOPO3(4),IPOP6(4),IPOP12,IPPI,
+     2        IER_WORD3,I,J,K,L,M,
+     3        NSIZE,ISTOP
+C
+      REAL    GPOP12(ND2X3),GPOP6(2,ND2X3),
+     1        GPOPO3(4,ND2X3),FD(4),PPI(4),
+     2        FACTOR,FCSTMAX,POP12
+C
+      INTEGER ITABLE(6) / 228500,228630,223290,223390,223250,223350/
+C                         WX     POPO3  HRPOP6 HRPOP12 GPOP6 GPOP12  
+C
+C        INITIALIZE VARIABLES.
+C
+      IER=0
+      IPPI=0
+C
+C***********************************************************************
+C
+C***D WRITE(KFILDO,100)(ID(J),J=1,4)
+ 100  FORMAT(' *********** IN WXPCAT *************'/' ',4I10)
+C
+C        VERIFY THE PROCESSING INDICATOR, IDPARS(1) AND IDPARS(2).
+C
+      IF(ITABLE(1).EQ.IDPARS(1)*1000+IDPARS(2).AND.
+     1  (IDPARS(7).EQ.0.OR.IDPARS(7).EQ.1.OR.
+     2   IDPARS(7).EQ.2.OR.IDPARS(7).EQ.3.OR.
+     3   IDPARS(7).EQ.4.OR.IDPARS(7).EQ.5.OR.
+     4   IDPARS(7).EQ.6.OR.IDPARS(7).EQ.7))GO TO 108
+C
+      WRITE(KFILDO,102)(ID(L),L=1,4)
+  102 FORMAT(/,' ****WXPCAT ENTERED FOR VARIABLE',
+     1        2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+     2        ' NOT ACCOMMODATED.')
+      IER=103
+      GO TO 340
+C
+  108 CONTINUE
+C
+C***********************************************************************
+C  
+C        THE PRECIPITATION POTENTIAL INDEX (PPI) ALGORITHM IS DESIGNED TO 
+C        CALCULATE PPI WITHIN A FORECAST PERIOD.  A FORECAST PERIOD IS 
+C        DEFINED AS THE 12-HOUR PERIOD ENDING 00Z OR 12Z.  PPI USES THE
+C        POP12 FORECAST THAT SPANS THE FORECAST PERIOD AND THE FOUR POPO3
+C        FORECASTS MADE FOR PROJECTIONS WITHIN THAT FORECAST PERIOD. 
+C        IF NECESSARY, POP6 FORECASTS WILL BE USED IN PLACE OF POPO3.
+C
+C        SET UP THE FIRST WORD OF THE IDS TO BE FETCHED.
+      IDO(1:4,1)=ITABLE(2)*1000+100+IDPARS(3)*100+IDPARS(4)
+      IDP(1:2,1)=ITABLE(3)*1000+100+IDPARS(3)*100+IDPARS(4)
+      LD(1)=ITABLE(4)*1000+100+IDPARS(3)*100+IDPARS(4)
+C
+C        SET UP THE SECOND WORD OF THE IDS TO BE FETCHED.
+      IDO(1:4,2)=0
+      IDP(1:2,2)=0
+      LD(2)=0
+C
+C        SET UP THE THIRD WORD OF THE IDS TO BE FETCHED.
+      CALL WXWRD3(IDPARS(12),IDO(1:4,3),IDP(1:2,3),LD(3),IER_WORD3)
+C
+C        IF TAU IS NOT 3-HOURLY, GMOS WX CANNOT BE MADE.  IT IS
+C        LIKELY THAT THIS WILL NOT BE TRIGGERED BECAUSE IN OPTION
+C        IF MOD(IDPARS(12),3) NE 0, TIMTRP IS CALLED, NOT GENWX.
+      IF(IER_WORD3.NE.0)THEN
+         WRITE(KFILDO,105)IDPARS(12)
+  105    FORMAT(/,' ****BAD PROJECTION IN IDPARS(12) =',I5,
+     1            '.  PROJECTION MUST BE A MULTIPLE OF 3 ',
+     2            'IN WXPCAT.')
+         IER=187
+         GO TO 340
+      ENDIF
+C
+C        SET UP THE FINAL WORD OF THE IDS TO BE FETCHED.
+C     IDO(1:4,4)=500000000 !5 KM
+      IDO(1:4,4)=950000000 !2.5 KM
+      IDP(1:2,4)=950052000
+      LD(4)=950052000
+C
+C***********************************************************************
+C
+C        NOW THAT THE IDS ARE SET UP FOR POPO3, POP6, AND POP12,
+C        GET THE POPO3 FORECASTS.
+C 
+      DO K=1,4
+         CALL PRSID1(KFILDO,IDO(K,1:4),LDPARS)
+         JD=IDO(K,1:4)
+         IPOPO3(K)=1
+C           IPOPO3(K) = 1 SIGNIFIES DATA ARE CORRECT.  IF NOT, IT
+C           WILL BE SET TO MISSEL.
+         CALL GTVEGR(KFILDO,KFIL10,IP12,IDO(K,1:4),LDPARS,JD,NDATE,
+     1               KFILRA,RACESS,NUMRA,
+     2               CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     3               ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     4               NGRIDC,NGRID,ND11,NSLAB,
+     5               IPACK,IWORK,GPOPO3(K,1:ND2X3),ND2X3,
+     6               LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     7               NBLOCK,LASTD,NSTORE,NFETCH,
+     8               IS0,IS1,IS2,IS4,ND7,
+     9               ISTAV,L3264B,L3264W,IER)
+C
+         IF(IER.NE.0)THEN
+            WRITE(KFILDO,127)(IDO(K,M),M=1,4)
+  127       FORMAT(/' ####VARIABLE = ',3I10.9,I11.3,
+     1              ' NOT RETRIEVED BY GTVEGR IN WXPCAT.')
+            IPOPO3(K)=MISSEL
+            GPOPO3(K,1:ND2X3)=RRMIS
+         ELSEIF(ISTAV.NE.0)THEN
+            WRITE(KFILDO,129)(IDO(K,M),M=1,4)
+  129       FORMAT(/' ****RECORD RETURNED FROM GTVEGR FOR VARIABLE',
+     1                I9.9,1X,I9.9,1X,I9.9,1X,I10.3,/,
+     2              '     SHOULD BE GRIDPOINT, BUT IS INDICATED AS',
+     3              ' VECTOR.  NOT USED.')
+            IPOPO3(K)=MISSEL
+            GPOPO3(K,1:ND2X3)=RRMIS
+         ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+            WRITE(KFILDO,130)(IDO(K,M),M=1,4),IS2(3),NX,IS2(4),NY
+  130       FORMAT(/,' ****GRID CHARACTERISTICS FOR VARIABLE ',4I11,
+     1               ' DO NOT MATCH IN WXPCAT.',/,
+     2               ' IS2(3) =',I8,'    NX   = ',I10,/,
+     3               ' IS2(4) =',I8,'    NY   = ',I10,/,
+     4               ' THIS VARIABLE NOT USED.')
+            IPOPO3(K)=MISSEL
+            GPOPO3(K,1:ND2X3)=RRMIS
+         ENDIF 
+      ENDDO
+C
+C        GET THE HRPOP12 FORECAST
+C 
+      CALL PRSID1(KFILDO,LD,LDPARS)
+      IPOP12=1
+      JD=LD
+C        IPOP12 = 1 SIGNIFIES DATA ARE CORRECT.  IF NOT, IT
+C        WILL BE SET TO MISSEL.
+      CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1            LD,LDPARS,JD,NDATE,
+     2            KFILRA,RACESS,NUMRA,
+     3            CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4            ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5            NGRIDC,NGRID,ND11,NSLAB,
+     6            IPACK,IWORK,GPOP12,ND2X3,
+     7            LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8            NBLOCK,LASTD,NSTORE,NFETCH,
+     9            IS0,IS1,IS2,IS4,ND7,
+     A            ISTAV,L3264B,L3264W,IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,127)(LD(M),M=1,4)
+         IPOP12=MISSEL
+         GPOP12(1:ND2X3)=RRMIS
+      ELSEIF(ISTAV.NE.0)THEN
+         WRITE(KFILDO,129)(LD(M),M=1,4)
+         IPOP12=MISSEL
+         GPOP12(1:ND2X3)=RRMIS
+      ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+         WRITE(KFILDO,130)(LD(M),M=1,4),IS2(3),NX,IS2(4),NY
+         IPOP12=MISSEL
+         GPOP12=RRMIS
+      ELSE
+C
+C        CHECK HRMOS GRID.  IT COULD BE ALL MISSINGS IF
+C        A PREVIOUS CYCLE WAS UNAVAILABLE.  IPOP12 WILL
+C        RETURN AS 1 IF THE GRID CONTAINS NON-MISSING VALUES.
+C        IT WILL RETURN AS MISSEL IF THE GRID IS ALL MISSING
+C        VALUES.
+C
+         CALL CKMISS(KFILDO,GPOP12,LD,ND2X3,IPOP12,MISSEL,RRMIS,IER)
+      ENDIF 
+C
+C        IF HRMOS POP12 CANNOT BE FETCHED, TRY TO
+C        GET THE GMOS POP12 FORECAST
+C 
+      IF(IPOP12.EQ.MISSEL)THEN
+         LD(1)=ITABLE(6)*1000+100+IDPARS(3)*100+IDPARS(4)
+         CALL PRSID1(KFILDO,LD,LDPARS)
+         IPOP12=1
+         JD=LD
+C        IPOP12 = 1 SIGNIFIES DATA ARE CORRECT.  IF NOT, IT
+C        WILL BE SET TO MISSEL.
+         CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1               LD,LDPARS,JD,NDATE,
+     2               KFILRA,RACESS,NUMRA,
+     3               CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4               ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5               NGRIDC,NGRID,ND11,NSLAB,
+     6               IPACK,IWORK,GPOP12,ND2X3,
+     7               LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8               NBLOCK,LASTD,NSTORE,NFETCH,
+     9               IS0,IS1,IS2,IS4,ND7,
+     A               ISTAV,L3264B,L3264W,IER)
+C
+         IF(IER.NE.0)THEN
+            WRITE(KFILDO,127)(LD(M),M=1,4)
+            IPOP12=MISSEL
+            GPOP12(1:ND2X3)=RRMIS
+         ELSEIF(ISTAV.NE.0)THEN
+            WRITE(KFILDO,129)(LD(M),M=1,4)
+            IPOP12=MISSEL
+            GPOP12(1:ND2X3)=RRMIS
+         ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+            WRITE(KFILDO,130)(LD(M),M=1,4),IS2(3),NX,IS2(4),NY
+            IPOP12=MISSEL
+            GPOP12=RRMIS
+         ENDIF 
+      ENDIF
+C
+C        GET THE POP6 FORECASTS
+C 
+      DO K=1,2
+         CALL PRSID1(KFILDO,IDP(K,1:4),LDPARS)
+         JD=IDP(K,1:4)
+         IPOP6(K)=1
+C        IPOP6(K) = 1 SIGNIFIES DATA ARE CORRECT.  IF NOT, IT
+C        WILL BE SET TO MISSEL.
+         CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1               IDP(K,1:4),LDPARS,JD,NDATE,
+     2               KFILRA,RACESS,NUMRA,
+     3               CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4               ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5               NGRIDC,NGRID,ND11,NSLAB,
+     6               IPACK,IWORK,GPOP6(K,1:ND2X3),ND2X3,
+     7               LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8               NBLOCK,LASTD,NSTORE,NFETCH,
+     9               IS0,IS1,IS2,IS4,ND7,
+     A               ISTAV,L3264B,L3264W,IER)
+C
+         IF(IER.NE.0)THEN
+            WRITE(KFILDO,127)(IDP(K,M),M=1,4)
+            IPOP6(K)=MISSEL
+            GPOP6(K,1:ND2X3)=RRMIS
+         ELSEIF(ISTAV.NE.0)THEN
+            WRITE(KFILDO,129)(IDP(K,M),M=1,4)
+            IPOP6(K)=MISSEL
+            GPOP6(K,1:ND2X3)=RRMIS
+         ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+            WRITE(KFILDO,130)(IDP(K,M),M=1,4),IS2(3),NX,IS2(4),NY
+            IPOP6(K)=MISSEL
+            GPOP6(K,1:ND2X3)=RRMIS
+         ELSE
+C
+C        CHECK HRMOS GRID.  IT COULD BE ALL MISSINGS IF
+C        A PREVIOUS CYCLE WAS UNAVAILABLE.  IPOP6 WILL
+C        RETURN AS 1 IF THE GRID CONTAINS NON-MISSING VALUES.
+C        IT WILL RETURN AS MISSEL IF THE GRID IS ALL MISSING
+C        VALUES.
+C
+            CALL CKMISS(KFILDO,GPOP6(K,1:ND2X3),IDP(K,1:4),
+     1                  ND2X3,IPOP6(K),MISSEL,RRMIS,IER)
+         ENDIF
+C
+C        IF HRMOS POP6 CANNOT BE FETCHED, TRY TO
+C        GET THE GMOS POP6 FORECAST
+C 
+         IF(IPOP6(K).EQ.MISSEL)THEN
+            IDP(K,1)=ITABLE(5)*1000+100+IDPARS(3)*100+IDPARS(4)
+            CALL PRSID1(KFILDO,IDP(K,1:4),LDPARS)
+            JD=IDP(K,1:4)
+            IPOP6(K)=1
+C        IPOP6(K) = 1 SIGNIFIES DATA ARE CORRECT.  IF NOT, IT
+C        WILL BE SET TO MISSEL.
+            CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1                  IDP(K,1:4),LDPARS,JD,NDATE,
+     2                  KFILRA,RACESS,NUMRA,
+     3                  CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4                  ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5                  NGRIDC,NGRID,ND11,NSLAB,
+     6                  IPACK,IWORK,GPOP6(K,1:ND2X3),ND2X3,
+     7                  LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8                  NBLOCK,LASTD,NSTORE,NFETCH,
+     9                  IS0,IS1,IS2,IS4,ND7,
+     A                  ISTAV,L3264B,L3264W,IER)
+C
+            IF(IER.NE.0)THEN
+               WRITE(KFILDO,127)(IDP(K,M),M=1,4)
+               IPOP6(K)=MISSEL
+               GPOP6(K,1:ND2X3)=RRMIS
+            ELSEIF(ISTAV.NE.0)THEN
+               WRITE(KFILDO,129)(IDP(K,M),M=1,4)
+               IPOP6(K)=MISSEL
+               GPOP6(K,1:ND2X3)=RRMIS
+            ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+               WRITE(KFILDO,130)(IDP(K,M),M=1,4),IS2(3),NX,IS2(4),NY
+               IPOP6(K)=MISSEL
+               GPOP6(K,1:ND2X3)=RRMIS
+            ENDIF 
+         ENDIF
+      ENDDO 
+C
+C        DETERMINE GRIDPOINTS FOR STATIONS IN STATION LIST.
+C
+      MAPP=NGRIDC(1,NSLAB)
+      XMESHL=NGRIDC(2,NSLAB)/1000.
+      ORIENT=NGRIDC(4,NSLAB)/10000.
+      XLAT=NGRIDC(3,NSLAB)/10000.
+      XLATLL=NGRIDC(5,NSLAB)/10000.
+      XLONLL=NGRIDC(6,NSLAB)/10000.
+C
+      IF(XMESHL.NE.0.AND.ORIENT.NE.0.AND.XLAT.NE.0.AND.
+     1   XLATLL.NE.0.AND.XLONLL.NE.0)THEN
+         DO K=1,NSTA
+            IF(MAPP.EQ.3)THEN
+               CALL LMLLIJ(KFILDO,STALAT(K),STALON(K),XMESHL,
+     1                     ORIENT,XLAT,XLATLL,XLONLL,X1,Y1)
+            ELSEIF(MAPP.EQ.5)THEN
+               CALL PSLLIJ(KFILDO,STALAT(K),STALON(K),XMESHL,
+     1                     ORIENT,XLAT,XLATLL,XLONLL,X1,Y1)
+            ELSEIF(MAPP.EQ.7)THEN
+               CALL MCLLIJ(KFILDO,STALAT(K),STALON(K),XMESHL,
+     1                     ORIENT,XLAT,XLATLL,XLONLL,X1,Y1)
+CD          ELSE
+CD             WRITE(KFILDO,212)MAPP,(ID(J),J=1,4)
+C212           FORMAT(/,' ****MAP PROJECTION NUMBER =',I3,
+CD   1                 ' NOT EXPECTED.',
+CD   2                 '     PREDICTOR ',I9.9,1X,I9.9,1X,I9.9,I3,
+CD   3                 ' NOT COMPUTED IN WXPCAT.')
+CD             IER=60
+CD             GO TO 340
+            ENDIF
+C
+            JSTA(K)=INT(INT(Y1)*NX+INT(X1))
+         ENDDO
+      ENDIF
+C
+C        RESET VARIABLES NEEDED LATER FOR PACKING.
+C
+      IER=0
+      ISTAV=0
+      NSLAB=1
+C
+C***********************************************************************
+C
+C        IF NO ELEMENTS WERE SUCCESSFULLY FETCHED, RETURN.
+C
+      IF((IPOPO3(1).EQ.MISSEL).AND.(IPOPO3(2).EQ.MISSEL).AND.
+     1   (IPOPO3(3).EQ.MISSEL).AND.(IPOPO3(4).EQ.MISSEL).AND.
+     2   (IPOP6(1).EQ.MISSEL).AND.(IPOP6(2).EQ.MISSEL).AND.
+     3   (IPOP12.EQ.MISSEL))THEN
+         WRITE(KFILDO,110)IDPARS(12) 
+  110    FORMAT(/,' ****NO POP12, POP6, OR POPO3 FORECASTS ARE ',
+     1            'AVAILABLE. CANNOT MAKE PRECIPITATION POTENTIAL ',
+     2            'FOR IDPARS(12)=',I5,'.')
+         GO TO 340
+      ENDIF
+C
+C        NOW THAT FETCHING IS DONE, GET PRECIPITATION POTENTIAL 
+C        INDEX (PPI).  THE ALGORITHM FOR PPI CONSISTS OF THREE STEPS:
+C           1) GET INFLACTION FACTOR FOR EACH GRIDPOINT AND FORECAST 
+C              PERIOD.  FACTOR IS THE POP12 FORECAST DIVIDED BY THE 
+C              MAXIMUM POPO3 OR POP6 FORECAST (OR A DERIVED FACTOR)
+C           2) INFLATE POPO3 OR POP6 FORECASTS BY INFLATION FACTOR.
+C           3) CONSISTENCY CHECK, SMOOTH, CHECK AGAIN.
+C
+C        DETERMINE WHAT ELEMENTS ARE AVAILABLE, MAKING ASSUMPTION THAT 
+C        THERE IS NO TIME WHEN ONLY POP6 OR ONLY POP12 IS AVAILABLE.
+C
+      DO I=1,4
+         IF(IDPARS(12).EQ.IDO(I,3))THEN
+            IF(IPOPO3(I).NE.MISSEL.AND.IPOP12.EQ.MISSEL)THEN
+               IPPI=1
+            ELSEIF(IPOPO3(I).NE.MISSEL.AND.IPOP12.NE.MISSEL)THEN
+               IPPI=2
+            ELSEIF((IPOP6(1).NE.MISSEL).OR.(IPOP6(2).NE.MISSEL).AND.
+     1         (IPOP12.NE.MISSEL))THEN
+               WRITE(KFILDO,120) 
+  120          FORMAT(/,' ****PRECIPITATION POTENTIAL USING ',
+     1                  'POP6 AND POP12 ONLY. CHECK ',
+     2                  'POPO3 DATA.')
+               IPPI=3
+            ENDIF
+         ENDIF
+      ENDDO
+C
+C        BEFORE WE START, INFLATE EVERYTHING SO OUR INDICES 
+C        WILL RANGE FROM 0 TO 100.
+C
+      CALL SCALX(KFILDO,GPOP12,ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GPOP6(1,1:ND2X3),ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GPOP6(2,1:ND2X3),ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GPOPO3(1,1:ND2X3),ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GPOPO3(2,1:ND2X3),ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GPOPO3(3,1:ND2X3),ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GPOPO3(4,1:ND2X3),ND2X3,1.,2,IER)
+C
+C        LOOP THROUGH ALL GRIDPOINTS IN PARALLEL
+C
+!$OMP PARALLEL DO 
+!$OMP& SHARED(GPOPO3,GPOP6,GPOP12,GPPI)
+!$OMP& PRIVATE(I,J,FD,POP12,FACTOR,FCSTMAX,PPI)
+      DO 200 J=1,ND2X3
+         FD(1:4)=RRMIS
+         PPI(1:4)=RRMIS
+         FACTOR=1.
+         FCSTMAX=0.
+         POP12=RRMIS
+C
+         SELECT CASE (IPPI)
+C
+C        ONLY POPO3 IS AVAILABLE.
+C
+            CASE(1)
+               FD(1)=GPOPO3(1,J)
+               FD(2)=GPOPO3(2,J)
+               FD(3)=GPOPO3(3,J)
+               FD(4)=GPOPO3(4,J)
+C
+C        SINCE POP12 IS MISSING, USE A DERIVED INFLATION FACTOR.
+               FACTOR=1.3 
+C
+               DO I=1,4
+                  IF(FD(I).NE.RRMIS)THEN
+                     PPI(I)=FD(I)*FACTOR
+                  ELSE
+                     PPI(I)=RRMIS2
+                  ENDIF
+               ENDDO
+C
+C        POPO3 AND POP12 ARE AVAILABLE.
+C
+            CASE(2)
+               DO I=1,4
+                  IF(GPOPO3(I,J).EQ.RRMIS)THEN
+                     FD(I)=RRMIS2
+                  ELSE
+                     FD(I)=GPOPO3(I,J)
+                  ENDIF
+               ENDDO
+C
+               POP12=GPOP12(J)
+C
+C        GET FCSTMAX FOR THIS GRIDPOINT IN THIS FORECAST PERIOD.
+C        GET THE MAXIMUM OF THE AVAILABLE FORECASTS AND SET IT 
+C        EQUAL TO FCSTMAX.  IF THE MAXIMUM IS ZERO,
+C        SET FCSTMAX TO 100 FOR SAFETY.
+C   
+               IF(MAX(FD(1),FD(2),FD(3),FD(4)).NE.RRMIS2)THEN
+                  FCSTMAX=MAX(FD(1),FD(2),FD(3),FD(4))
+               ELSE 
+                  FCSTMAX=100.
+               ENDIF
+C
+C        WHEN FCSTMAX IS (NEAR) 0, WE CANNOT OBTAIN A FACTOR.
+C
+               IF(FCSTMAX.GE.0.1)THEN
+                  FACTOR=POP12/FCSTMAX
+               ELSE
+                  FACTOR=-1.
+               ENDIF
+C
+C        WHEN THE POP12 GRID IS NON-MISSING BUT POP12 IS MISSING
+C        AT A GRIDPOINT, PPI WILL BE MISSING AT THAT GRIDPOINT.
+C
+               DO I=1,4
+                  IF(POP12.EQ.RRMIS)THEN
+                     PPI(I)=RRMIS2
+                  ELSEIF(FD(I).EQ.FCSTMAX)THEN
+                     PPI(I)=POP12
+                  ELSEIF(FACTOR.EQ.-1.)THEN
+                     PPI(I)=POP12
+                  ELSEIF(FD(I).NE.RRMIS2)THEN
+                     PPI(I)=FD(I)*FACTOR
+                  ELSE
+                     PPI(I)=RRMIS2
+                  ENDIF
+               ENDDO
+C
+C        POP6 AND POP12 ARE AVAILABLE.
+C
+            CASE(3)
+               IF(GPOP6(1,J).NE.RRMIS)THEN
+                  FD(1)=GPOP6(1,J)
+                  FD(2)=GPOP6(1,J)
+               ELSE
+                  FD(1)=RRMIS2
+                  FD(2)=RRMIS2
+               ENDIF
+C
+               IF(GPOP6(2,J).NE.RRMIS)THEN
+                  FD(3)=GPOP6(2,J)
+                  FD(4)=GPOP6(2,J)
+               ELSE
+                  FD(3)=RRMIS2
+                  FD(4)=RRMIS2
+               ENDIF
+C
+               POP12=GPOP12(J)
+C
+C        GET FCSTMAX FOR THIS GRIDPOINT IN THIS FORECAST PERIOD.
+C        GET THE MAXIMUM OF THE AVAILABLE FORECASTS AND SET IT 
+C        EQUAL TO FCSTMAX.  IF THE MAXIMUM IS ZERO,
+C        SET FCSTMAX TO 100 FOR SAFETY.
+C
+               IF(MAX(FD(1),FD(2),FD(3),FD(4)).NE.RRMIS2)THEN
+                  FCSTMAX=MAX(FD(1),FD(2),FD(3),FD(4))
+               ELSE 
+                  FCSTMAX=100.
+               ENDIF
+C
+C        WHEN FCSTMAX IS NEAR 0, WE CANNOT OBTAIN A FACTOR.
+C
+C***           IF(POP12.EQ.RRMIS)THEN   ! THIS FACTOR IS TO INFLATE
+C***              FACTOR=1.1            ! POP6 IF POP12 IS UNAVAILABLE
+               IF(FCSTMAX.GE.0.1)THEN
+                  FACTOR=POP12/FCSTMAX
+               ELSE
+                  FACTOR=-1.
+               ENDIF
+C
+C        WHEN THE POP12 GRID IS NON-MISSING BUT POP12 IS MISSING
+C        AT A GRIDPOINT, PPI WILL BE MISSING AT THAT GRIDPOINT.
+C
+               DO I=1,4
+                  IF(POP12.EQ.RRMIS)THEN
+                     PPI(I)=RRMIS2
+                  ELSEIF(FD(I).EQ.FCSTMAX)THEN
+                     PPI(I)=POP12
+                  ELSEIF(FACTOR.EQ.-1.)THEN
+                     PPI(I)=POP12
+                  ELSEIF(FD(I).NE.RRMIS2)THEN
+                     PPI(I)=FD(I)*FACTOR
+                  ELSE
+                     PPI(I)=RRMIS2
+                  ENDIF
+               ENDDO
+C
+C        IF NO POPO3, POP6, POP12, SET PPI TO MISSING.
+C
+            CASE DEFAULT
+               PPI(1:4)=RRMIS2
+C
+         END SELECT
+C
+         DO I=1,4
+C
+C        ENFORCE UPPER LIMIT OF INDEX.
+            IF(PPI(I).GT.100.)PPI(I)=100.
+C
+C        SET MISSING DATA BACK TO RRMIS
+            IF(PPI(I).EQ.RRMIS2)PPI(I)=RRMIS
+C
+C        GET THE PPI FOR THE RELEVANT TAU.
+            IF(IDO(I,3).EQ.IDPARS(12))GPPI(J)=PPI(I)
+         ENDDO
+C
+ 200  CONTINUE
+!$OMP END PARALLEL DO
+C
+C        SMOOTH PPI.
+C
+      CALL HSMTH(KFILDO,GPPI,NX,NY,4,1,ISTOP,IER)
+C
+      DO 300 J=1,ND2X3
+C
+C        AFTER SMOOTHING, DO ANOTHER CONSISTENCY CHECK.
+C
+         IF(GPPI(J).GT.GPOP12(J)) GPPI(J)=GPOP12(J)
+C
+ 300  CONTINUE
+C
+C        THIS DIAGNOSTIC OUTPUT WILL PRINT TO KFILDO THE GRIDPOINT
+C        OF EACH STATION PROVIDED IN THE STATION LIST AND THE VALUES
+C        USED TO CALCULATE THAT STATION'S PPI.
+C
+D     WRITE(KFILDO,554)
+D 554 FORMAT(/,'CCALL',7X,'J',4X,'POPO3(1,J)',1X,'POPO3(2,J)',1X,
+D    1         'POPO3(3,J)',1X,'POPO3(4,J)',1X,' POP6(1,J)',1X,
+D    2         ' POP6(2,J)',1X,'  POP12(J)',1X,'   GPPI(J)')
+D     DO K=1,NSTA
+D 555    FORMAT(A5,3X,I8,3X,F8.3,3X,F8.3,3X,F8.3,3X,F8.3,3X,
+D    1          F8.3,3X,F8.3,3X,F8.3,3X,F8.3)
+D        IF(JSTA(K).GT.0.AND.JSTA(K).LE.ND2X3)THEN
+D           WRITE(KFILDO,555) CCALL(K,1),JSTA(K),GPOPO3(1:4,JSTA(K)),
+D    1      GPOP6(1:2,JSTA(K)),GPOP12(JSTA(K)),GPPI(JSTA(K))
+D        ELSE
+D 556       FORMAT(A5,3X,I8,3X,A13)
+D           WRITE(KFILDO,556)CCALL(K,1),JSTA(K),"OUT OF BOUNDS"
+D        ENDIF
+D     ENDDO
+C
+      GO TO 350
+C
+C        MUST SET RETURNABLE ARRAY TO MISSING FOR SAFETY
+C        WHEN DATA CANNOT BE RETURNED.
+C
+ 340  DO 341 J=1,ND2X3
+         GPPI(J)=RRMIS
+ 341  CONTINUE
+C
+ 350  RETURN
+      END

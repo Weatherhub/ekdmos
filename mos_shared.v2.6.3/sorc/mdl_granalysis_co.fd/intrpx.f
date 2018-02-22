@@ -1,0 +1,63 @@
+      SUBROUTINE INTRPX(KFILDO,P,NX,NY,DIR,ND1,NSTA,DATA) 
+C 
+C        AUGUST    2008   GLAHN   MDL MOS-2000
+C                                 ADAPTED FROM INTRPL IN LAMPLIB
+C 
+C        PURPOSE 
+C            TO INTERPOLATE INTO FIELD P(NX,NY) FOR ALL STATION
+C            LOCATIONS.  BILINEAR INTERPOLATION IS USED.  THE POINT 
+C            MUST BE INSIDE THE GRID, OR A MISSING VALUE WILL RESULT.
+C 
+C        DATA SET USE
+C            KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C            P(IX,JY) = FIELD TO INTERPOLATE INTO (IX=1,NX) (JY=1,NY).
+C                       (INPUT)
+C                  NX = THE IX (WEST-EAST) EXTENT OF P( , ).  (INPUT)
+C                  NY = THE JY (SOUTH-NORTH) EXTENT OF P( , ).  (INPUT)
+C            DIR(K,J) = THE IX (J=1) AND JY (J=2) POSITIONS ON THE GRID
+C                       FOR STATION K (K=1,NSTA).  (INPUT)
+C                 ND1 = THE MAXIMUM NUMBER OF STATIONS.  FIRST DIMENSION
+C                       OF DIR( , ).  (INPUT)
+C                NSTA = THE NUMBER OF STATIONS BEING DEALT WITH.  (INPUT)
+C             DATA(K) = THE INTERPOLATED VALUES FOR ALL STATIONS (K=1,NSTA).
+C                       (OUTPUT)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES CALLED
+C            NONE.
+C
+      DIMENSION DIR(ND1,2),DATA(NSTA)
+      DIMENSION P(NX,NY)
+C
+      DO 160 K=1,NSTA
+      BX=DIR(K,1)
+      BY=DIR(K,2)
+      NBX=BX 
+      NBY=BY 
+C
+C        START BI-LINEAR INTERPOLATION. 
+C 
+ 130  NBXP1=NBX+1 
+      NBYP1=NBY+1
+C
+      IF(NBX.GE.1.AND.NBX.LE.NX.AND.
+     1   NBY.GE.1.AND.NBY.LE.NY)THEN 
+         DX=BX-FLOAT(NBX) 
+         DY=BY-FLOAT(NBY) 
+         DATA(K)=P(NBX,NBY)
+     1      +(P(NBXP1,NBY)-P(NBX,NBY))*DX
+     2      +(P(NBX,NBYP1)-P(NBX,NBY))*DY
+     3      +(P(NBX,NBY)+P(NBXP1,NBYP1)-P(NBX,NBYP1)-P(NBXP1,NBY))*DX*DY 
+      ELSE
+         DATA(K)=9999.
+      ENDIF
+C
+CD     WRITE(KFILDO,159)K,BX,BY,DATA(K)
+CD159  FORMAT(' AT 159 IN INTRPX--K,BX,BY,DATA(K)',I6,3F10.2)
+ 160  CONTINUE
+C
+      RETURN 
+      END 

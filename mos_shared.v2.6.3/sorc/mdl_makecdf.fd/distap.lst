@@ -1,0 +1,1288 @@
+IBM XL Fortran for AIX, V12.1 (5724-U82) Version 12.01.0000.0001 --- /gpfs/c/nco/ops/nwpara/sorc/ekd_makecdf.fd/distap.f 03/06/12 15:10:34
+ 
+>>>>> OPTIONS SECTION <<<<<
+***   Options In Effect   ***
+  
+         ==  On / Off Options  ==
+         CCLINES         CR              DBG             ESCAPE
+         FULLPATH        I4              INLGLUE         INTLOG
+         NOLIBESSL       NOLIBPOSIX      OBJECT          SOURCE
+         STRICT          SWAPOMP         THREADED        UNWIND
+         NOZEROSIZE
+  
+         ==  Options Of Integer Type ==
+         ALIAS_SIZE(65536)     FIXED(72)             MAXMEM(-1)
+         OPTIMIZE(3)           SPILLSIZE(512)        STACKTEMP(0)
+  
+  
+         ==  Options of Integer and Character Type ==
+         SMP(OMP,SCHEDULE(RUNTIME))
+  
+         ==  Options Of Character Type  ==
+         64(LARGETYPE)         ALIAS(STD,INTPTR)     ALIGN(BINDC(POWER),STRUCT(NATURAL))
+         ARCH(PWR6)            AUTODBL(NONE)         DESCRIPTOR(V1)
+         DIRECTIVE($OMP)       ENUM()                FLAG(I,I)
+         FLOAT(RNDSNGL,MAF,FOLD,RNGCHK,SINGLE)
+         HALT(S)               IEEE(NEAR)            INITAUTO( 0      )
+         INTSIZE(4)            LANGLVL(EXTENDED)     POSITION(APPENDOLD)
+         REALSIZE(4)           SAVE(ALL)             TUNE(PWR6)
+         UNROLL(AUTO)          XFLAG()               XLF2003(NOPOLYMORPHIC,NOBOZLITARGS,NOSTOPEXCEPT,NOVOLATILE,NOAUTOREALLOC,OLDNANINF)
+         XLF77(NOLEADZERO,GEDIT77,NOBLANKPAD,OLDBOZ,INTARG,INTXOR,PERSISTENT,SOFTEOF)
+         XLF90(NOSIGNEDZERO,NOAUTODEALLOC,OLDPAD)
+  
+>>>>> SOURCE SECTION <<<<<
+          1 |      SUBROUTINE DISTAP(KFILDO,KFIL10,KFILAO,IP12,IP15,
+          2 |     1                 KFILRA,RACESS,NUMRA,
+          3 |     2                 ID,IDPARS,JD,TRESHL,TRESHU,ITAU,NVRBL,
+          4 |     3                 NDATE,CCALL,ISDATA,SDATA,ND1,NSTA,
+          5 |     4                 XDATA,SDDATA,ND2,KER,ISD,SD,DS,NN,M,
+          6 |     5                 ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+          7 |     6                 LSTORE,ND9,LITEMS,CORE,ND10,
+          8 |     7                 NBLOCK,NFETCH,
+          9 |     8                 IS0,IS1,IS2,IS4,ND7,
+         10 |     9                 XAXIS,PDF,CDF,ND11,NPCDF,CDFTH,XCDF,NCDFTH,
+         11 |     A                 L3264B,L3264W,ISTOP,IER)
+         12 |C
+         13 |C        SEPTEMBER 2009  WAGNER    CREATED FROM DISTF
+         14 |C                                  BEFORE KERN=2
+         15 |C           JULY   2010  ZYLSTRA   MODIFIED TO CALCULATE HEAT INDEX
+         16 |C                                  FROM FORECASTED TEMPERATURE AND
+         17 |C                                  FORECASTED RELATIVE HUMIDITY AND
+         18 |C                                  TO CALCULATE WIND CHILL FROM
+         19 |C                                  FORECASTED TEMPERATURE AND FORECASTED
+         20 |C                                  WIND SPEED.  ADDED FUNCTION HTINDX.
+         21 |C        OCTOBER   2010  ZYLSTRA   MODIFIED TO CALCULATE HEAT INDEX
+         22 |C                                  FROM FORECASTED TEMPERATURE AND
+         23 |C                                  FORECASTED DEWPOINT TEMPERATURE.
+         24 |C                                  ADDED FUNCTIONS RELHUM AND WCHILL.
+         25 |C       NOVEMBER   2010  VEENHUIS  MODIFIED IF STATEMENT NEAR LINE 361
+         26 |C                                  TO INCLUDE A CHECK FOR THE 'G' AS THIS
+         27 |C                                  IS NEEDED TO HANDLE MULTIPLE MODELS.
+         28 |C        DECEMBER  2010  VEENHUIS  MULTIPLE CHANGES TO CORRECT PREXISTING ERRORS.
+         29 |C                                  THE ORIGINAL DISTAP CODE WAS BASED ON AN EARLIER
+         30 |C                                  VERSION OF DISTF WHICH HAD SOME ISSUES. THE FIXES
+         31 |C                                  INCLUDE:
+         32 |C                                  1.) ARRAYS INCORRECTLY SIZE WITH ND1 ARE NOW SIZED
+         33 |C                                      WITH ND2
+         34 |C                                  2.) CHECKS TO MAKE SURE DIVISION BY ZERO WILL NOT
+         35 |C                                      OCCUR.
+         36 |C                                  3.) INCREASED THE STANDARD DEVIATION CHECK FROM
+         37 |C                                      9 TO 12.
+         38 |C          DECEMBER 2010 VEENHUIS  REMOVED RETREIVALS OF STANDARD ERROR FOR WIND SPEED
+         39 |C                                  AND DEWPOINT SINCE THESE ARE NOT USED.  MODIFIED
+         40 |C                                  A PRINT STATMENT.  REMOVED ARRAYS WSSD(ND1,ND2) AND
+         41 |C                                  DPSD(ND1,ND2).
+         42 |C          DECEMBER 2010 VEENHUIS  CHANGED THE ID OF THE SUFACE TEMPERATURE TO 202000
+         43 |C          JANUARY  2011 VEENHUIS  MODIFED CHECK THAT MAKES SURE ND11 IS NOT EXCEEDED.
+         44 |C                                  THE CODE NOW SKIPS TO THE NEXT STATION IF THIS
+         45 |C                                  OCCURS.
+         46 |C          MARCH    2011 VEENHUIS  CODE WAS NOT CORRECTLY PASSING BACK THE MEAN OF
+         47 |C                                  THE DISTRIBUTION. INSERTED CODE TO DO THIS.
+         48 |C
+         49 |C        PURPOSE
+         50 |C            DISTAP IS CALLED FROM OPTY AND COMPUTES A DISTRIBUTION
+         51 |C            FUNCTION FOR THE APPARENT TEMPERATURE FROM THE
+         52 |C            TEMPERATURE, WIND SPEED, AND DEWPOINT TEMPERATURE FORECASTS.
+         53 |C
+         54 |C        DATA SET USE
+         55 |C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+         56 |C            KFIL10    - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM
+         57 |C                        ACCESS.  (INPUT-OUTPUT)
+         58 |C            KFILAO    - UNIT NUMBER OF ASCII OUTPUT FILE.  ZERO MEANS
+         59 |C                        OUTPUT WILL NOT BE WRITTEN.  (OUTPUT)
+         60 |C            IP12      - LIST OF STATIONS ON THE INPUT FILES.  (OUTPUT)
+         61 |C            IP15      - LIST OF DATA IN DIST.  (OUTPUT)
+         62 |C            KFILRA(J) - UNIT NUMBERS FOR EXTERNAL RANDOM ACCESS FILES
+         63 |C                        (J=1,5).  (INPUT)
+         64 |C
+         65 |C        VARIABLES
+         66 |C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+         67 |C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+         68 |C                       (INPUT)
+         69 |C              KFILAO = UNIT NUMBER OF ASCII OUTPUT FILE.
+         70 |C                       ZERO MEANS OUTPUT WILL NOT BE WRITTEN.  (INPUT)
+         71 |C                IP12 = INDICATES WHETHER (>0) OR NOT (=0) THE LIST OF
+         72 |C                       STATIONS ON THE EXTERNAL RANDOM ACCESS FILES
+         73 |C                       WILL BE LISTED TO UNIT IP12.  (INPUT)
+         74 |C                IP15 = LIST OF DATA IN DIST.  (INPUT)
+         75 |C           KFILRA(J) = THE UNIT NUMBERS FOR THE MOS-2000 EXTERNAL
+         76 |C                       RANDOM ACCESS FILES (J=1,NUMRA)
+         77 |C           RACESS(J) = THE FILE NAME FOR THE MOS-2000 EXTERNAL RANDOM
+         78 |C                       ACCESS FILE (J=1,NUMRA).  (CHARACTER*60)
+         79 |C               NUMRA = THE NUMBER OF VALUES IN KFILRA( ) AND RACESS( ).
+         80 |C                       (INPUT)
+         81 |C             ID(J,N) = THE VARIABLE ID (J=1,4) (N=1,NVRBL).  (INPUT)
+         82 |C         IDPARS(J,N) = THE PARSED, INDIVIDUAL COMPONENTS OF THE
+         83 |C                       VARIABLE ID CORRESPONDING TO ID( ) (J=1,15)
+         84 |C                       (N=1,NVRBL).
+         85 |C                       J=1--CCC (CLASS OF VARIABLE),
+         86 |C                       J=2--FFF (SUBCLASS OF VARIABLE),
+         87 |C                       J=3--B (BINARY INDICATOR),
+         88 |C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+         89 |C                       J=5--V (VERTICAL APPLICATION),
+         90 |C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY
+         91 |C                            1 LAYER),
+         92 |C                       J=7--LTLTLTLT (TOP OF LAYER),
+         93 |C                       J=8--T (TRANSFORMATION),
+         94 |C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK
+         95 |C                            IN TIME),
+         96 |C                       J=10--OT (TIME APPLICATION),
+         97 |C                       J=11--OH (TIME PERIOD IN HOURS),
+         98 |C                       J=12--TAU (PROJECTION IN HOURS),
+         99 |C                       J=13--I (INTERPOLATION TYPE),
+        100 |C                       J=14--S (SMOOTHING INDICATOR), AND
+        101 |C                       J=15--G (GRID INDICATOR).
+        102 |C                       (INPUT)
+        103 |C             JD(J,N) = THE BASIC INTEGER VARIABLE ID (J=1,4)
+        104 |C                       (N=1,NVRBL).  THIS IS THE SAME AS ID(J), EXCEPT
+        105 |C                       THAT THE FOLLOWING PORTIONS ARE OMITTED:
+        106 |C                       B = IDPARS(3),
+        107 |C                       G = IDPARS(15), AND
+        108 |C                       THRESH.
+        109 |C                       (INPUT)
+        110 |C           TRESHL(N) = THE LOWER BINARY THRESHOLD ASSOCIATED WITH
+        111 |C                       IDPARS( ,N) (N=1,NVRBL).  (INPUT)
+        112 |C           TRESHU(N) = THE UPPER BINARY THRESHOLD ASSOCIATED WITH
+        113 |C                       IDPARS( ,N) (N=1,NVRBL).  (INPUT)
+        114 |C             ITAU(N) = THE NUMBER OF HOURS AHEAD TO FIND A VARIABLE
+        115 |C                       (N=1,NVRBL).  THIS DOES NOT APPLY TO ALL
+        116 |C                       SUBROUTINES.  NO PRESENT USE; SHOULD BE ZERO.
+        117 |C                       (INPUT)
+        118 |C               NVRBL = THE NUMBER OF VARIABLES IN ID( , ), ETC.
+        119 |C                       (INPUT)
+        120 |C               NDATE = THE DATE/TIME FOR WHICH VARIABLE IS NEEDED.
+        121 |C                       (INPUT)
+        122 |C            CCALL(K) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+        123 |C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+        124 |C                       OUTPUT FOR (K=1,NSTA).  ALL STATION DATA ARE
+        125 |C                       KEYED TO THIS LIST.  (CHARACTER*8)  (INPUT)
+        126 |C           ISDATA(K) = WORK ARRAY (K=1,ND1). (INTERNAL)
+        127 |C            SDATA(K) = WORK ARRAY (K=1,ND1).  (INTERNAL)
+        128 |C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT
+        129 |C                       WITH.  (INPUT)
+        130 |C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT
+        131 |C                       WITH.  (INPUT)
+        132 |C          XDATA(K,L) = THE ARRAY USED FOR VECTOR VALUES (K=1,ND1)
+        133 |C                       (L=1,ND2).  THE COLUMNS HOLD THE VALUES FOR
+        134 |C                       THE M MEMBERS (SEE M BELOW).
+        135 |C                       (INTERNAL/OUTPUT)
+        136 |C         SDDATA(K,L) = USED FOR THE STANDARD ERRORS (K=1,ND1)
+        137 |C                       (L=1,ND2).  THE COLUMNS HOLD THE SD'S FOR THE
+        138 |C                       M MEMBERS (SEE M BELOW).  (INTERNAL/OUTPUT)
+        139 |C                 ND2 = MAXIMUM NUMBER OF ENSEMBLE MEMBERS.  (INPUT)
+        140 |C              KER(N) = DESIGNATES THE KERNEL TO BE USED FOR VARIABLE N
+        141 |C                       (N=1,ND4).
+        142 |C                       1 = NORMAL (GAUSIAN).
+        143 |C                       (INPUT)
+        144 |C              ISD(N) = DESIGNATES WHETHER THE KERNEL WIDTH FOR
+        145 |C                       VARIABLE N (N=1,ND4) IS TO BE TAKEN FROM SD( )
+        146 |C                       IN THE VARIABLE RECORD OR FROM A PACKED INPUT
+        147 |C                       RECORD.
+        148 |C                       0 = COMES FROM PACKED RECORD;
+        149 |C                       2 = WHEN THERE ARE MULTIPLE ENSEMBLES OR
+        150 |C                           ONLY ONE ENSEMBLE AND SD( ) > 9,
+        151 |C                           CALL KERNELW; OTHERWISE, CALL KERNEL.
+        152 |C                       3 = CALL SUBROUTINE SCALE3 TO SCALE THE
+        153 |C                           DISPERSION OF THE KERNEL DENSITY OUTPUT
+        154 |C                           TO APPROXIMATELY WHAT IT WOULD HAVE BEEN
+        155 |C                           WITH A SINGLE RUN.
+        156 |C                       (INPUT)
+        157 |C               SD(N) = A FACTOR TO USE IN THE SPREAD ADJUSTMENT FOR
+        158 |C                       MULTIPLE ENSEMBLES FOR THIS VARIABLE N
+        159 |C                       (N=1,ND4).  (INPUT)
+        160 |C               DS(N) = SCALING FACTOR FOR THE STANDARD DEVIATION FOR
+        161 |C                       THIS VARIABLE (N=1,ND4).  (INPUT)
+        162 |C                  NN = ON INPUT, THE FIRST VARIABLE IN THE ID LIST NOT
+        163 |C                       ALREADY USED.  THIS IS THE VARIABLE TO PROCESS.
+        164 |C                       ON OUTPUT, THE FIRST VARIABLE IN THE ID LIST NOT
+        165 |C                       USED.  WHEN ALL VARIABLES HAVE BEEN PROCESSED,
+        166 |C                       NN IS RETURNED = 9999.  (INPUT/OUTPUT)
+        167 |C                   M = THE NUMBER OF MEMBERS AVERAGED IN DISTAP.
+        168 |C                       (OUTPUT)
+        169 |C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN
+        170 |C                       INTEGER VARIABLE (L=1,L3264W) (K=1,ND1).
+        171 |C                       NOTE THAT THIS REQUIRES TWO 32-BIT WORDS TO HOLD
+        172 |C                       THE DESCRIPTION BUT ONLY ONE 64-BIT WORD.
+        173 |C                       NEEDED IN CONST FOR ARGUMENT TO RDTDLM.
+        174 |C                       EQUIVALENCED TO CCALLD( ).
+        175 |C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,ND5).  EQUIVALENCED
+        176 |C                       TO ICALLD( , ).  (INTERNAL)
+        177 |C            IPACK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+        178 |C            IWORK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+        179 |C             DATA(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+        180 |C                 ND5 = DIMENSION OF IPACK( ), WORK( ), DATA( ), AND
+        181 |C                       CALLD( ), AND SECOND DIMENSION OF ICALLD( , ).
+        182 |C                       (INPUT)
+        183 |C         LSTORE(L,J) = THE ARRAY TO HOLD INFORMATION ABOUT THE DATA
+        184 |C                       STORED (L=1,12) (J=1,LITEMS).
+        185 |C                       L=1,4--THE 4 ID'S FOR THE DATA.
+        186 |C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+        187 |C                              THIS IS THE LOCATION IN CORE( ) WHERE
+        188 |C                              THE DATA START.  WHEN ON DISK,
+        189 |C                              THIS IS US THE RECORD NUMBER WHERE
+        190 |C                              THE DATA START.  NOTE THAT WHEN A FIELD
+        191 |C                              CANNOT BE STORED IN CORE( ), IT IS PUT
+        192 |C                              ON DISK.  IT MAY BE THAT A LATER FIELD
+        193 |C                              WILL FIT, AND IT IS PUT IN CORE( ).
+        194 |C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+        195 |C                       L=7  --2 FOR DATA PACKED IN TDLPACK, 1 FOR NOT.
+        196 |C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+        197 |C                              YYYYMMDDHH.
+        198 |C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+        199 |C                       L=10 --THE NUMBER IN THE LIST OF INPUT SOURCES
+        200 |C                              THIS VARIABLE CAME FROM.
+        201 |C                       L=11 --FOR U715, THIS WILL BE 7777, INDICATING
+        202 |C                              THE VARIABLE IS ALWAYS STORED IN THE
+        203 |C                              INTERNAL STORAGE FACILITY.
+        204 |C                       L=12 --US THE NUMBER OF HOURS THIS VARIABLE
+        205 |C                              MUST BE KEPT.  LATER SET TO A DATE WHEN
+        206 |C                              THIS VARIABLE CAN BE DISCARDED.
+        207 |C                       (INPUT)
+        208 |C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+        209 |C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+        210 |C                       FILLED.  (INPUT)
+        211 |C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA
+        212 |C                       IDENTIFIED IN LSTORE( , ) (J=1,ND10).  WHEN
+        213 |C                       CORE( ) IS FULL DATA ARE STORED ON DISK.
+        214 |C                       (INPUT)
+        215 |C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+        216 |C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+        217 |C                       DISK FILE.  (INPUT)
+        218 |C              NFETCH = THE NUMBER OF TIMES GFETCH HAS BEEN ENTERED.
+        219 |C                       GFETCH KEEPS TRACK OF THIS AND RETURNS THE
+        220 |C                       VALUE.  (OUTPUT)
+        221 |C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).
+        222 |C                       (INTERNAL)
+        223 |C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).
+        224 |C                       (INTERNAL)
+        225 |C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+        226 |C                       (INTERNAL)
+        227 |C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+        228 |C                       (INTERNAL)
+        229 |C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+        230 |C                       NOT ALL LOCATIONS ARE USED.  (INPUT)
+        231 |C            XAXIS(J) = THE DATA VALUES ALONG THE X-AXIS, EACH
+        232 |C                       VALUE CORRESPONDING TO A VALUE IN PDF(J) AND
+        233 |C                       CDF(J) (J=1,NPCDF).  (OUTPUT)
+        234 |C              PDF(J) = THE PDF WRITTEN TO UNIT KFILAO (J=1,NPCDF).
+        235 |C                       (OUTPUT)
+        236 |C              CDF(J) = THE CDF WRITTEN TO UNIT KFILAO (J=1,NPCDF).
+        237 |C                       (OUTPUT)
+        238 |C                ND11 = THE MAXIMUM NUMBER OF VALUES IN XAXIS( ),
+        239 |C                       PDF( ), AND CDF( ).  (INPUT)
+        240 |C               NPCDF = THE NUMBER OF VALUES IN PDF( ), CDF( ), AND
+        241 |C                       XAXIS( ).  (OUTPUT)
+        242 |C            CDFTH(J) = THE THRESHOLDS, OR PROBABILITY LEVELS, FOR
+        243 |C                       OUTPUTTING THE CDF VALUES (J=1,NCDFTH).
+        244 |C                       (INPUT)
+        245 |C           XCDF(K,J) = THE VALUES FOR STATION K (K=1,NSTA) OF THE CDF
+        246 |C                       FOR EACH OF THE LEVELS IN CDFTH(J) (J=1,NCDFTH)
+        247 |C                       (OUTPUT)
+        248 |C              NCDFTH = NUMBER OF VALUES IN CDFTH( ) AND XCDF( ).
+        249 |C                       (INPUT)
+        250 |C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+        251 |C                       USED (EITHER 32 OR 64).  (INPUT)
+        252 |C              L3264W = NUMBER OF WORDS IN 64 BITS (EITHER 1 OR 2).
+        253 |C                       CALCULATED BY PARAMETER, BASED ON L3464B.
+        254 |C                       (INPUT)
+        255 |C            ISTOP(J) = FOR J=1, ISTOP IS INCREMENTED BY 1 EACH TIME
+        256 |C                       AN ERROR OCCURS THAT MAY BE FATAL.
+        257 |C                       FOR J=2, ISTOP IS INCREMENTED BY 1 WHENEVER AN
+        258 |C                       INPUT DATA RECORD IS NOT FOUND.
+        259 |C                       FOR J=3, ISTOP IS INCREMENTED BY 1 WHENEVER AN
+        260 |C                       AN UNUSUAL CIRCUMSTANCE OCCURS WHICH IS NOT FATAL.
+        261 |C                       (INPUT/OUTPUT)
+        262 |C                 IER = STATUS RETURN.
+        263 |C                         0 = GOOD RETURN.
+        264 |C                       777 = SD = 0 FOUND IN KERNEL.
+        265 |C                       OTHER VALUES CAN COME FROM CALLED SUBROUTINES.
+        266 |C                       (OUTPUT)
+        267 |C               MDATE = NDATE UPDATED WITH ITAU( ).  NO REASON FOR
+        268 |C                       ITAU( ) TO BE OTHER THAN ZERO.  NEEDED FOR
+        269 |C                       RETVEC.  (INTERNAL)
+        270 |C            RDATA(J) = HOLDS THE SINGLE VALUE FORECASTS TO FURNISH
+        271 |C                       TO KERNEL (J=1,ND1).  (AUTOMATIC)  (INTERNAL)
+        272 |C                  MM = THE NUMBER OF VALUES IN RDATA( ) AND SDATA( ).
+        273 |C                       THIS IS THE NUMBER OF ENSEMBLE MEMBERS BEING
+        274 |C                       PROCESSED.  (INTERNAL)
+        275 |C                KERN = DETERMINES HOW THE PDF WILL BE ASSESSED
+        276 |C 			1=TENTHS OF A DEGREE
+        277 |C                       2=WHOLE DEGREES (INTERNAL)
+        278 |C                 DIF = WIDTH OF THE BIN IN THE CDF (INTERNAL)
+        279 |C              NSTART = STARTING POSITION OF THE CDF (INTERNAL)
+        280 |C                 TID = ID ASSOCIATED WITH THE PARALLEL PROCESS
+        281 |C			(INTERNAL)
+        282 |C                RMAX = THE MAXIMUM VALUE OF RDATA() (INTERNAL)
+        283 |C                RMIN = THE MINIMUM VALUE OF RDATA() (INTERNAL)
+        284 |C                SMAX = THE MAXIMUM VALUE OF SDATA() (INTERNAL)
+        285 |C                SMIN = THE MINIMUM VALUE OF SDATA() (INTERNAL)
+        286 |C                 FAC = THE XAXIS IN XAXIS( ) WILL BE MODIFIED BY
+        287 |C                       THE FACTOR FAC.  THIS IS TO CORRECT FOR
+        288 |C                       OVERDISPERSION.  IT COULD BE USED FOR
+        289 |C                       UNDERDISPERSION IF NEEDED.  (INTERNAL)
+        290 |C             FMAXVAL = MAXIMUM XAXIS VALUE USED WHEN CALCULATING THE
+        291 |C			KERNELS (INTERNAL)
+        292 |C             FMINVAL = MINIMUM XAXIS VALUE USED WHEN CALCULATING THE
+        293 |C                       KERNELS (INTERNAL)
+        294 |C                RFAC = USED TO PRESERVE THE TENTHS DIGIT WHEN NECESSARY
+        295 |C			(INTERNAL)
+        296 |C            TDATA(J) = ARRAY TO HOLD THE ENSEMBLE VALUES (INTERNAL)
+        297 |C              TSD(J) = ARRAY TO HOLD THE STANDARD DEVIATIONS (INTERNAL)
+        298 |C                 LOC = CURRENT LOCATION OF THE PDF (INTERNAL)
+        299 |C              FACTOR = THE CONSTANT MULTIPLIER FOR THE NORMAL DENSITY.
+        300 |C			FOR THIS BASIC DENSITY, THE NUMBER OF CASES IS
+        301 |C			NOT RELEVANT. (INTERNAL)
+        302 |C            TWOSIGSQ = THE DIVISION IN THE EXPONENT FOR THE NORMAL
+        303 |C			DENSITY (INTERNAL)
+        304 |C 	          TOT = SUMMATION OF THE PDF (INTERNAL)
+        305 |C		 TOT2 = HALF THE SUMMATION OF THE PDF (INTERNAL)
+        306 |C                CMED = PERCENT MEDIAN OF THE PDF (INTERNAL)
+        307 |C              TOTJM1 = PROBABILITY AT THE MEDIAN OF THE PDF
+        308 |C			(INTERNAL)
+        309 |C                 X50 = XAXIS LOCATION OF THE MEAN OF THE PDF
+        310 |C			(INTERNAL)
+        311 |C                XMED = XAXIS LOCATION OF THE MEDIAN OF THE PDF
+        312 |C                       (INTERNAL)
+        313 |C
+        314 |C        1         2         3         4         5         6         7 X
+        315 |C
+        316 |C        NONSYSTEM SUBROUTINES USED
+        317 |C            TIMPR, PRSID1, RETVEC
+        318 |C
+        319 |C        NONSYSTEM FUNCTIONS USED
+        320 |C            WCHILL, HTINDX, RELHUM
+        321 |C
+        322 |      CHARACTER*8 CCALL(ND1)
+        323 |      CHARACTER*8 CCALLD(ND5)
+        324 |      CHARACTER*60 RACESS(5)
+        325 |      INTEGER TID, OMP_GET_NUM_THREADS,NTHREADS, OMP_GET_THREAD_NUM
+        326 |C
+        327 |      DIMENSION ISDATA(ND1),SDATA(ND2)
+        328 |      DIMENSION RDATA(ND2)
+        329 |C        RDATA( ), AND TDATA ( ) ARE AUTOMATIC ARRAYS
+        330 |      DIMENSION XDATA(ND1,ND2),SDDATA(ND1,ND2)
+        331 |      DIMENSION WSDATA(ND1,ND2)
+        332 |      DIMENSION DPDATA(ND1,ND2)
+        333 |      DIMENSION TDATA(ND2),TSD(ND2)
+        334 |      DIMENSION ID(4,NVRBL),IDPARS(15,NVRBL),
+        335 |     1          TRESHL(NVRBL),TRESHU(NVRBL),JD(4,NVRBL),ITAU(NVRBL),
+        336 |     2          KER(NVRBL),ISD(NVRBL),SD(NVRBL),DS(NVRBL)
+        337 |      DIMENSION ICALLD(L3264W,ND5),IPACK(ND5),IWORK(ND5),DATA(ND5)
+        338 |      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+        339 |      DIMENSION LSTORE(12,ND9)
+        340 |      DIMENSION CORE(ND10)
+        341 |      DIMENSION CDFTH(NCDFTH),XCDF(ND1,NCDFTH)
+        342 |      DIMENSION XAXIS(ND11),PDF(ND11),CDF(ND11)
+        343 |      DIMENSION KFILRA(5),LD(4),LDPARS(15),ISTOP(3)
+        344 |C
+        345 |      DATA JFIRST/0/
+        346 |      SAVE JFIRST,NDATES
+        347 |C
+        348 |      XLOW=0
+        349 |C
+        350 |C        NDATE IS SAVED IN NDATES ON THE FIRST ENTRY SO THAT
+        351 |C        DIAGNOSTIC 212 WON'T PRINT AFTER THE FIRST DAY.
+        352 |C
+        353 |      IF(JFIRST.EQ.0)THEN
+        354 |         NDATES=NDATE
+        355 |         JFIRST=1
+        356 |      ENDIF
+        357 |C
+        358 |C        GET SINGLE VALUE ESTIMATES AND THE STANDARD DEVIATION FOR
+        359 |C        EACH ENSEMBLE MEMBER (DENOTED BY DD).  THIS CAN BE A SINGLE
+        360 |C        RUN WITH OR WITHOUT AN ACCOMPANYING STANDARD DEVIATION
+        361 |C        PACKED RECORD.
+        362 |C
+        363 |      IFIRST=0
+        364 |      NNSAVE=9999
+        365 |C        INITIALIZE NNSAVE IN CASE ALL DATA RETRIEVES ARE SUCCESSFUL.
+        366 |      M=1
+        367 |C        M IS THE COLUMN IN XDATA( , ) RECEIVING THE DATA.
+        368 |C
+        369 |      DO 200 N=NN,NVRBL
+        370 |C
+        371 |C        NVRBL IS THE NUMBER OF VALUES IN THE ID( , ) LIST.
+        372 |C        NN IS THE LOCATION OF THE FIRST ONE NOT USED.
+        373 |      MDATE=NDATE+ITAU(N)
+        374 |C        I KNOW OF NO CURRENT USE FOR TAU NE 0, BUT IS CARRIED ALONG.
+        375 |C
+        376 |C        GET THE SINGLE VALUE FORECAST AND ITS ASSOCIATED
+        377 |C        STANDARD DEVIATION FOR IDS THAT ARE THE SAME
+        378 |C        EXCEPT FOR THE DD AND G.
+        379 |C
+        380 |      IF(ID(1,NN)/100.EQ.ID(1,N)/100.AND.
+        381 |     1   ID(2,NN).EQ.ID(2,N).AND.
+        382 |     2   IDPARS(8,NN).EQ.IDPARS(8,N).AND.
+        383 |     3   IDPARS(10,NN).EQ.IDPARS(10,N).AND.
+        384 |     4   IDPARS(11,NN).EQ.IDPARS(11,N).AND.
+        385 |     5   IDPARS(12,NN)-IDPARS(9,NN).EQ.IDPARS(12,N)-IDPARS(9,N).AND.
+        386 |     6   ID(4,NN)/10 .EQ. ID(4,N)/10)THEN
+        387 |C
+        388 |C           THE ID OF VARIABLE N AGREES WITH THAT OF THE BASE VARIABLE
+        389 |C           NN, EXCEPT DD, R, TAU, AND G.  THE TEST ASSURES THAT THE DATES
+        390 |C           AND PROJECTIONS ARE SUCH THAT THE FORECASTS VERIFY AT THE
+        391 |C           SAME TIME.  NORMALLY, IDPARS(9,NN) WILL BE ZERO.
+        392 |C
+        393 |C           RETRIEVE THE SINGLE VALUE SURFACE TEMPERATURE FORECASTS (deg F).
+        394 |C
+        395 |         LD(1)=202000000+(IDPARS(3,N)*100)+IDPARS(4,N)
+        396 |         LD(2)=ID(2,N)
+        397 |         LD(3)=ID(3,N)
+        398 |         LD(4)=ID(4,N)
+        399 |         CALL PRSID1(KFILDO,LD,LDPARS)
+        400 |         ITIME=IDPARS(9,N)
+        401 |C           ITIME IS USED IN GFETCH.  IT IS CALLED ITAU IN RETVEC.
+        402 |         IER=0
+        403 |         CALL RETVEC(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+        404 |     1               LD,LDPARS,JD(1,N),ITIME,
+        405 |     2               NDATE,MDATE,CCALL,ISDATA,XDATA(1,M),ND1,NSTA,
+        406 |     3               ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+        407 |     4               LSTORE,ND9,LITEMS,CORE,ND10,
+        408 |     5               NBLOCK,NFETCH,
+        409 |     6               IS0,IS1,IS2,IS4,ND7,
+        410 |     7               L3264B,L3264W,IER)
+        411 |C           JD( ) IS NOT ACTUALLY USED IN RETVEC.  IT IS USED
+        412 |C           IN CALL TO CONST, BUT IS NOT USED THERE EITHER.
+        413 |C
+        414 |         IF(IER.NE.0)THEN
+        415 |            WRITE(KFILDO,125)(LD(J),J=1,4),NDATE
+        416 |  125       FORMAT(/,' ****VARIABLE NOT RETRIEVED BY RETVEC IN DISTAP',
+        417 |     1             2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,' FOR DATE',I12)
+        418 |C         ELSE
+        419 |C            IF(LDPARS(8).EQ.4)THEN
+        420 |C               CALL OPTX(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+        421 |C     1               LD,LDPARS,TRESHL(N),JD(1,N),ITAU(N),
+        422 |C     2               NDATE,MDATE,CCALL,ISDATA,XDATA(1,M),ND1,NCAT,NSTA,
+        423 |C     3               ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+        424 |C     4               LSTORE,ND9,LITEMS,CORE,ND10,
+        425 |C     5               LASTL,LASTD,NBLOCK,NSTORE,NFETCH,
+        426 |C     6               IS0,IS1,IS2,IS4,ND7,
+        427 |C     7               L3264B,L3264W,ISTAB,IER)
+        428 |C              IF IER IS RETURNED NON-ZERO, THE DATA IN XDATA( ,M)
+        429 |C              WILL BE SET TO MISSING, BUT THE PROCESS WILL CONTINUE.
+        430 |C            ENDIF
+        431 |         ENDIF
+        432 |         IIER=IER
+        433 |C
+        434 |C           EVEN IF THE VARIABLE IS NOT RETRIEVED, THE SE RECORD
+        435 |C           IS TRIED SO THAT NSTORE( , ) CAN BE INITIALIZED CORRECTLY.
+        436 |C
+        437 |C           RETRIEVE THE STANDARD ERRORS.  THE STANDARD ERRORS HAVE
+        438 |C           THE SAME ID EXCEPT FOR 200 IN THE LLLL PORTION OF WORD 2.
+        439 |C
+        440 |         LD(2)=ID(2,N)+002000000
+        441 |         CALL PRSID1(KFILDO,LD,LDPARS)
+        442 |         JER=0
+        443 |         CALL RETVEC(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+        444 |     1               LD,LDPARS,JD(1,N),ITIME,
+        445 |     2               NDATE,MDATE,CCALL,ISDATA,SDDATA(1,M),ND1,NSTA,
+        446 |     3               ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+        447 |     4               LSTORE,ND9,LITEMS,CORE,ND10,
+        448 |     5               NBLOCK,NFETCH,
+        449 |     6               IS0,IS1,IS2,IS4,ND7,
+        450 |     7               L3264B,L3264W,JER)
+        451 |C
+        452 |C           JD( ) IS NOT ACTUALLY USED IN RETVEC.  IT IS USED
+        453 |C           IN CALL TO CONST, BUT IS NOT USED THERE EITHER.
+        454 |C           NOTE THAT JER RATHER THAN IER IS USED IN THE CALL.
+        455 |C
+        456 |C
+        457 |C	    THE STANDARD DEVIATION MAY NOT HAVE THE SAME FIRST WORD
+        458 |C	    AS THE RELATED ELEMENT.  CHECK ONE MORE TIME FOR IT.
+        459 |C
+        460 |         IF(JER.NE.0)THEN
+        461 |            LD(1)=ID(1,N)-20000
+        462 |            CALL PRSID1(KFILDO,LD,LDPARS)
+        463 |            CALL RETVEC(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+        464 |     1               LD,LDPARS,JD(1,N),ITIME,
+        465 |     2               NDATE,MDATE,CCALL,ISDATA,SDDATA(1,M),ND1,NSTA,
+        466 |     3               ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+        467 |     4               LSTORE,ND9,LITEMS,CORE,ND10,
+        468 |     5               NBLOCK,NFETCH,
+        469 |     6               IS0,IS1,IS2,IS4,ND7,
+        470 |     7               L3264B,L3264W,JER)
+        471 |         ENDIF
+        472 |C
+        473 |         IF(JER.NE.0)THEN
+        474 |            WRITE(KFILDO,135)(LD(J),J=1,4),NDATE
+        475 |  135       FORMAT(/,' ****VARIABLE NOT RETRIEVED BY RETVEC IN DISTAP',
+        476 |     1                2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,' FOR DATE',I12)
+        477 |         ENDIF
+        478 |         JJER=JER
+        479 |C
+        480 |C           RETRIEVE THE SINGLE VALUE WIND SPEED FORECASTS (kts).
+        481 |C
+        482 |         LD(1)=204210000+(IDPARS(3,N)*100)+IDPARS(4,N)
+        483 |         LD(2)=ID(2,N)
+        484 |         LD(3)=ID(3,N)
+        485 |         LD(4)=ID(4,N)
+        486 |         CALL PRSID1(KFILDO,LD,LDPARS)
+        487 |         ITIME=IDPARS(9,N)
+        488 |C           ITIME IS USED IN GFETCH.  IT IS CALLED ITAU IN RETVEC.
+        489 |         IER=0
+        490 |         CALL RETVEC(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+        491 |     1               LD,LDPARS,JD(1,N),ITIME,
+        492 |     2               NDATE,MDATE,CCALL,ISDATA,WSDATA(1,M),ND1,NSTA,
+        493 |     3               ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+        494 |     4               LSTORE,ND9,LITEMS,CORE,ND10,
+        495 |     5               NBLOCK,NFETCH,
+        496 |     6               IS0,IS1,IS2,IS4,ND7,
+        497 |     7               L3264B,L3264W,IER)
+        498 |C
+        499 |C           JD( ) IS NOT ACTUALLY USED IN RETVEC.  IT IS USED
+        500 |C           IN CALL TO CONST, BUT IS NOT USED THERE EITHER.
+        501 |C
+        502 |         IF(IER.NE.0)THEN
+        503 |            WRITE(KFILDO,126)(LD(J),J=1,4),NDATE
+        504 |  126       FORMAT(/,' ****VARIABLE NOT RETRIEVED BY RETVEC IN DISTAP',
+        505 |     1             2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,' FOR DATE',I12)
+        506 |         ENDIF
+        507 |         IIER=IIER+IER
+        508 |C
+        509 |C           RETRIEVE THE SINGLE VALUE DEWPOINT TEMPERATURE FORECASTS (deg F).
+        510 |C
+        511 |         LD(1)=203000000+(IDPARS(3,N)*100)+IDPARS(4,N)
+        512 |         LD(2)=ID(2,N)
+        513 |         LD(3)=ID(3,N)
+        514 |         LD(4)=ID(4,N)
+        515 |         CALL PRSID1(KFILDO,LD,LDPARS)
+        516 |         ITIME=IDPARS(9,N)
+        517 |C           ITIME IS USED IN GFETCH.  IT IS CALLED ITAU IN RETVEC.
+        518 |         IER=0
+        519 |         CALL RETVEC(KFILDO,KFIL10,IP12,KFILRA,RACESS,NUMRA,
+        520 |     1               LD,LDPARS,JD(1,N),ITIME,
+        521 |     2               NDATE,MDATE,CCALL,ISDATA,DPDATA(1,M),ND1,NSTA,
+        522 |     3               ICALLD,CCALLD,IPACK,IWORK,DATA,ND5,
+        523 |     4               LSTORE,ND9,LITEMS,CORE,ND10,
+        524 |     5               NBLOCK,NFETCH,
+        525 |     6               IS0,IS1,IS2,IS4,ND7,
+        526 |     7               L3264B,L3264W,IER)
+        527 |C
+        528 |C           JD( ) IS NOT ACTUALLY USED IN RETVEC.  IT IS USED
+        529 |C           IN CALL TO CONST, BUT IS NOT USED THERE EITHER.
+        530 |C
+        531 |         IF(IER.NE.0)THEN
+        532 |            WRITE(KFILDO,127)(LD(J),J=1,4),NDATE
+        533 |  127       FORMAT(/,' ****VARIABLE NOT RETRIEVED BY RETVEC IN DISTAP',
+        534 |     1             2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,' FOR DATE',I12)
+        535 |         ENDIF
+        536 |         IIER=IIER+IER
+        537 |C
+        538 |         IF(IIER.EQ.0.AND.JJER.EQ.0)THEN
+        539 |            M=M+1
+        540 |C              UNLESS THE SINGLE VALUE FORECASTS FOR TEMP, DEW, AND WIND SPEED
+        541 |C              AND THE TEMP STANDARD ERROR CAN BE RETRIEVED FOR ALL INDEPENDENT ELEMENTS,
+        542 |C              THE DATA ARE NOT SAVED AND THE COLUMN NUMBER IS NOT UPDATED.
+        543 |C              THIS ALLOWS THE USE OF LESS THAN THE FULL SET OF EXPECTED ENSEMBLES.
+        544 |         ENDIF
+        545 |      ELSE
+        546 |         IF(IFIRST.EQ.0)THEN
+        547 |            NNSAVE=N
+        548 |C               NNSAVE IS NOW THE FIRST VARIABLE IN THE ID( , ) LIST
+        549 |C               NOT USED.  LATER, TRANSFER NNSAVE TO NN TO BE USED
+        550 |C               ON NEXT ENTRY.
+        551 |            IFIRST=1
+        552 |         ENDIF
+        553 |      ENDIF
+        554 |C
+        555 | 200  CONTINUE
+        556 |      M=M-1
+        557 |C
+        558 |C        THERE HAVE BEEN M RECORDS RETRIEVED.  EACH HAS THE SAME
+        559 |C        ID'S EXCEPT THE DD'S AND POSSIBLY THE RR'S AND TAU'S.
+        560 |C
+        561 |      IF(M.EQ.0)THEN
+        562 |C           THIS IS NORMAL WHEN ALL ENSEMBLE MEMBERS HAVE BEEN
+        563 |C           RETRIEVED.  HOWEVER, CALLING PROGRAM OUGHT TO NOT
+        564 |C           BE CALLING IN THIS CASE.
+        565 |         NN=9999
+        566 |         GO TO 300
+        567 |      ELSE
+        568 |         IF(IP15.NE.0)THEN
+        569 |            WRITE(IP15,201)M, NDATE
+        570 | 201        FORMAT(/' ',I3,' ENSEMBLE MEMBERS HAVE BEEN RETRIEVED',/,
+        571 |     1                ' FOR TEMPERATURE, DEWPOINT, WIND SPEED,',/,
+        572 |     2                ' AND THEIR CORRESPONDING STANDARD DEVIATIONS',/,
+        573 |     3                ' FOR DATE',I12)
+        574 |            DO 205 K=1,NSTA
+        575 |C
+        576 |            WRITE(IP15,202)CCALL(K),
+        577 |     1         (XDATA(K,L),L=1,M),(SDDATA(K,L),L=1,M),
+        578 |     2         (DPDATA(K,L),L=1,M),
+        579 |     3         (WSDATA(K,L),L=1,M)
+        580 | 202        FORMAT(/,A8,/,4('     ',21F6.1,/))
+        581 | 205        CONTINUE
+        582 |         ENDIF
+        583 |      ENDIF
+        584 |C
+        585 |C        CHECK FOR KERNEL USED.
+        586 |C
+        587 |      IF(KER(NN).NE.2)THEN
+        588 |         WRITE(KFILDO,207)KER(NN),(ID(J,NN),J=1,4)
+        589 | 207     FORMAT(/,' ****KER( ) =',I4,' NE 2',
+        590 |     1            ' FOR VARIABLE',
+        591 |     2             2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+        592 |     3            ' SUBROUTINE DISTAP',/,
+        593 |     4            ' ENTERED WITH INCORRECT KERNAL')
+        594 |         KER(NN)=1
+        595 |         ISTOP(3)=ISTOP(3)+1
+        596 |      ENDIF
+        597 |C
+        598 |C
+        599 |C	LOOP THROUGH EACH STATION IN PARALLEL
+        600 |C
+        601 |!$OMP PARALLEL DO
+        602 |!$OMP& PRIVATE(K,L,I,MM,NPCDF,RDATA,SDATA,KERN,PDF,CDF)
+        603 |!$OMP& PRIVATE(XAXIS,LD,LL,DIF,F,ISTOP,NSTART,IER,TID,J)
+        604 |!$OMP& PRIVATE(RMAX,SMAX,RMIN,SMIN,FAC,FMAXVAL,FMINVAL)
+        605 |!$OMP& PRIVATE(RFAC,TDATA,TSD,LOC,FACTOR,XLOW)
+        606 |!$OMP& PRIVATE(XBAR,SKEW,SKEWN,SKEWD)
+        607 |!$OMP& PRIVATE(TWOSIGSQ,TOT,TOT2,CMED,TOTJM1,P,X50,XMED)
+        608 |      DO 250 K=1,NSTA
+        609 |      TID=OMP_GET_THREAD_NUM()
+        610 |C
+        611 |C
+        612 |C  CONSTRUCT ENSEMBLE APPARENT TEMPERATURE
+        613 |C
+        614 |C  CALCULATE THE MEAN VALUE OF THE SURFACE TEMPERATURE ENSEMBLE.
+        615 |C  IF THIS VALUE IS LESS THAN OR EQUAL TO 50 deg F,  THEN THE
+        616 |C  WIND CHILL FORMULA IS APPLIED TO EACH ENSEMBLE MEMBER REGARDLESS
+        617 |C  OF THEIR VALUE.
+        618 |C
+        619 |      MM=0
+        620 |      XBAR=0.
+        621 |      DO 210 L=1,M
+        622 |         IF(XDATA(K,L).NE.9999.
+        623 |     1      .AND.WSDATA(K,L).NE.9999.)THEN
+        624 |            MM=MM+1
+        625 |            XBAR=XBAR+XDATA(K,L)
+        626 |         ENDIF
+        627 | 210  CONTINUE
+        628 |C
+        629 |      MMM=MM
+        630 |      IF(MMM.GT.0)THEN
+        631 |         XBAR=XBAR/MMM
+        632 |C      WRITE(*,*) "XBAR: ",XBAR
+        633 |C
+        634 |      MM=0
+        635 |      IF(XBAR.LE.50.)THEN
+        636 |C        APPLY WIND CHILL TO EACH MEMBER IF THE
+        637 |C        SURFACE TEMPERATURE AND WIND SPEED ARE
+        638 |C        AVAILABLE.
+        639 |         DO 211 L=1,M
+        640 |            IF(XDATA(K,L).NE.9999.
+        641 |     1         .AND.WSDATA(K,L).NE.9999.)THEN
+        642 |                  MM=MM+1
+        643 |                  RDATA(MM)=WCHILL(XDATA(K,L),WSDATA(K,L))
+        644 |                  SDATA(MM)=SDDATA(K,L)
+        645 |            ENDIF
+        646 | 211     CONTINUE
+        647 |      ELSE
+        648 |C        IF SURFACE TEMPERATURE OF A ENSEMBLE MEMBER IS
+        649 |C        AVAILABLE AND LESS THAN 78 deg F, THEN ITS VALUE
+        650 |C        TO THE APPARENT TEMPERATURE.  IF THE SURFACE
+        651 |C        TEMPERATURE IS AVAILABLE AND GREATER THAN OR EQUAL
+        652 |C        TO 78 deg F AND THE DEWPOINT TEMPERATURE IS
+        653 |C        AVAILABLE, THEN APPLY THE HEAT INDEX FORMULA TO
+        654 |C        OBTAIN THE APPARENT TEMPERATURE.
+        655 |         DO 212 L=1,M
+        656 |            IF(XDATA(K,L).NE.9999.)THEN
+        657 |               IF(XDATA(K,L).LT.78.)THEN
+        658 |                  MM=MM+1
+        659 |                  RDATA(MM)=XDATA(K,L)
+        660 |                  SDATA(MM)=SDDATA(K,L)
+        661 |               ELSEIF(DPDATA(K,L).NE.9999.)THEN
+        662 |                  MM=MM+1
+        663 |                  RDATA(MM)=HTINDX(XDATA(K,L),DPDATA(K,L))
+        664 |                  SDATA(MM)=SDDATA(K,L)
+        665 |               ENDIF
+        666 |            ENDIF
+        667 | 212     CONTINUE
+        668 |      ENDIF
+        669 |C
+        670 |      DO 213 L=1,ND2
+        671 |        XDATA(K,L)=9999.
+        672 | 213  CONTINUE
+        673 |      DO 214 L=1,MM
+        674 |        XDATA(K,L)=RDATA(L)
+        675 | 214  CONTINUE
+        676 |C
+        677 |      ENDIF
+        678 |C
+        679 |C        AT THIS POINT, RDATA( ) AND SDATA( ) CONTAIN MM
+        680 |C        NON-MISSING FORECASTS.
+        681 |C
+        682 |      IF(MM.EQ.0)THEN
+        683 |         IF(NDATE.EQ.NDATES)THEN
+        684 |C              THIS DIAGNOSTIC WILL PRINT ON ONLY THE FIRST DAY.
+        685 |            WRITE(KFILDO,215)CCALL(K),(ID(J,NN),J=1,4),NDATE
+        686 | 215        FORMAT(/,' NO FORECASTS FOR STATION ',A8,
+        687 |     1              ' FOR VARIABLE',
+        688 |     2                2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+        689 |     3               ' FOR DATE',I12,'.  (PRINT ON DAY 1.)')
+        690 |         ENDIF
+        691 |C
+        692 |C              WHEN THERE ARE NO GOOD NON-MISSING FORECASTS
+        693 |C              FOR STATION K, SET THE XCDF(K,L) VALUES MISSING
+        694 |C              FOR ALL THRESHOLDS.
+        695 |C
+        696 |         DO 216 L=1,NCDFTH
+        697 |         XCDF(K,L)=9999.
+        698 | 216     CONTINUE
+        699 |      ELSEIF(MM.NE.M)THEN
+        700 |         WRITE(KFILDO,217)MM,CCALL(K),(ID(J,NN),J=1,4),NDATE
+        701 | 217     FORMAT(/,' ONLY',I4,' FORECASTS FOR STATION ',A8,
+        702 |     1            ' FOR VARIABLE',
+        703 |     2             2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+        704 |     3            ' FOR DATE',I12)
+        705 |      ENDIF
+        706 |C
+        707 |C
+        708 |      FAC=1.
+        709 |C        FAC IS INITIALIZED TO 1 IN CASE SCALE3 IS NOT CALLED.
+        710 |C
+        711 |      IF(ISD(NN).EQ.3)THEN
+        712 |C
+        713 |C           COMPUTE FAC, THE SPREAD FACTOR TO USE IN KERNEL.
+        714 |C           INITIALIZE MAX AND  VALUES.
+        715 |C
+        716 |         RMAX=RDATA(1)
+        717 |         SMAX=SDATA(1)
+        718 |         RMIN=RDATA(1)
+        719 |         SMIN=SDATA(1)
+        720 |C
+        721 |C           FIND THE MAXIMA RMAX( ) AND SDMAX( ) AND THE MINIMA
+        722 |C           RMIN( ) AND SDMIN( ).
+        723 |C
+        724 |         DO 140 L=1,MM
+        725 |C
+        726 |         IF(RDATA(L).GT.RMAX)THEN
+        727 |            RMAX=RDATA(L)
+        728 |            SMAX=SDATA(L)
+        729 |         ELSEIF(RDATA(L).LT.RMIN)THEN
+        730 |            RMIN=RDATA(L)
+        731 |            SMIN=SDATA(L)
+        732 |         ENDIF
+        733 |C
+        734 | 140     CONTINUE
+        735 |C
+        736 |C           THE SPREAD ADJUSTMENT FAC IS A FACTOR OF SD.  WHEN SD = 0,
+        737 |C           THE SPREAD IS NOT AFFECTED BY THE SPREAD OF THE MEANS.
+        738 |C           WHEN SD = 1, THERE IS NO SPREAD ADJUSTMENT AT ALL.
+        739 |C           SD BETWEEN 0 AND 1 GIVES SPREAD ADJUSTMENT AS A CONTINUOUS
+        740 |C           RANGE.
+        741 |C
+        742 |         FAC=(3*(SMAX+SMIN)+SD(MM)*(RMAX-RMIN))/
+        743 |     1       (3*(SMAX+SMIN)+(RMAX-RMIN))
+        744 |      ENDIF
+        745 |C
+        746 |C
+        747 |      KERN=1
+        748 |      RFAC=10.
+        749 |      IF(SDATA(MM).GT.12.)THEN
+        750 |         KERN=2
+        751 |         RFAC=1.
+        752 |      ENDIF
+        753 |C
+        754 |C   CONSTRUCT THE KERNEL
+        755 |C
+        756 |      FMAXVAL=-9999999
+        757 |      FMINVAL=+9999999
+        758 |C
+        759 |C        CHECK SCALING FACTOR.
+        760 |C
+        761 |      IF(DS(NN).EQ.0.)THEN
+        762 |         WRITE(KFILDO,103) J
+        763 | 103     FORMAT(/' ****SCALING FACTOR IS INPUT AS ZERO.',
+        764 |     1           '  ASSUME SCALING OF 1.  PROCEEDING.')
+        765 |         FDS=1.
+        766 |         IER=777
+        767 |      ELSE
+        768 |         FDS=DS(NN)
+        769 |      ENDIF
+        770 |C
+        771 |C        PUT THE REAL NUMBERS IN DATA( ) INTO TDATA( ) ROUNDED
+        772 |C        TO TENTHS OF UNITS.
+        773 |C
+        774 |      DO 105 J=1,MM
+        775 |C        IF RFAC=10, IT IS EXPECTED THE DATA IN RDATA( ) ARE TO TENTHS OF
+        776 |C        UNITS, AND NOTHING IS LOST HERE.  OTHERWISE, TENTHS
+        777 |C        OF UNITS IS ALL THE PRECISION THAT IS KEPT.
+        778 |C        IF RFAC=10, THE DATA( ) ARE MULTIPLIED BY 10, SO THE SD'S MUST BE ALSO.
+        779 |C        THE SD'S ARE SCALED BY DS.
+        780 |C
+        781 |      IF(KERN.EQ.1)THEN
+        782 |         TDATA(J)=NINT(RDATA(J)*RFAC)
+        783 |         TSD(J)=NINT(FDS*SDATA(J)*RFAC)
+        784 |      ELSE
+        785 |         TDATA(J)=RDATA(J)*RFAC
+        786 |         TSD(J)=FDS*SDATA(J)*RFAC
+        787 |      ENDIF
+        788 |C
+        789 |      IF(TSD(J).LE.0)THEN
+        790 |         WRITE(KFILDO,104)J
+        791 | 104     FORMAT(/' ****STANDARD DEVIATION OF THE',I4,'TH VALUE',
+        792 |     1           ' IN TENTHS OF UNITS ROUNDS TO ZERO.',/,
+        793 |     2           '     ASSUME 1 SCALED UNIT.  PROCEEDING.')
+        794 |         TSD(J)=1.
+        795 |         IER=777
+        796 |      ENDIF
+        797 |C
+        798 | 105  CONTINUE
+        799 |C
+        800 |C        FIND MAXIMUM AND MINIMUM EXTENTS OF THE FINAL DENSITY.
+        801 |C        THIS WILL BE THE SMALLEST AND LARGEST TDATA( ) VALUES
+        802 |C        EACH EXTENDED TO THE LEFT AND RIGHT, RESPECTIVELY,
+        803 |C        BY 3 TIMES ITS RESPECTIVE TSD( )
+        804 |C
+        805 |      DO 120 N=1,MM
+        806 |C
+        807 |      IF(TDATA(N)-3*TSD(N).LT.FMINVAL)THEN
+        808 |         FMINVAL=TDATA(N)-3*TSD(N)
+        809 |      ENDIF
+        810 |C
+        811 |      IF(TDATA(N)+3*TSD(N).GT.FMAXVAL)THEN
+        812 |         FMAXVAL=TDATA(N)+3*TSD(N)
+        813 |      ENDIF
+        814 |C
+        815 | 120  CONTINUE
+        816 |C
+        817 |C        SET THE X-AXIS VALUES.
+        818 |C        XAXIS( ) IS THE AXIS IN TERMS OF THE INCOG DATA.  THE
+        819 |C        DATA HAVE BEEN SCALED*10; SCALING MUST BE TAKEN OUT.  THIS
+        820 |C        COVERS THE RANGE 3 SIGMA BELOW THE IMUM VALUE AND
+        821 |C        3 SIGMA ABOVE THE MAXIMUM VALUE IN INCREMENTS OF TENTHS
+        822 |C        OF UNITS OF THE ORIGINAL DATA.
+        823 |C
+        824 |      NPCDF=FMAXVAL-FMINVAL+1
+        825 |C
+        826 |      IF(NPCDF.GT.ND11)THEN
+        827 |         WRITE(KFILDO,139) ND11,NPCDF
+        828 | 139     FORMAT(/,' ****DIMENSION ND11 =',I8,' TOO SMALL TO',
+        829 |     1            ' COMPUTE CDF( ) IN KERNEL.  INCREASE TO ',I8,
+        830 |     2            ' OR MORE.  PROCEEDING.')
+        831 |         IER=778
+        832 |      ELSE
+        833 |C
+        834 |        IF(KERN.EQ.1)THEN
+        835 |           DO 141 J=1,NPCDF
+        836 |C
+        837 |           XAXIS(J)=(FMINVAL+J-1)/RFAC
+        838 |C
+        839 |C        THE X-AXIS WILL COVER 3 STANDARD DEVIATIONS IN TERMS OF
+        840 |C        TENTHS OF UNITS, LABELED IN WHOLE UNITS, ON EITHER SIDE
+        841 |C        OF THE MAX AND  VALUE IN DATA( ).
+        842 |C
+        843 | 141       CONTINUE
+        844 |         ELSE
+        845 |            XAXIS(1)=FMINVAL
+        846 |            FINC=(FMAXVAL-FMINVAL)/(NPCDF-1)-1
+        847 |            DO 1415 J=2,NPCDF
+        848 |            XAXIS(J)=FMINVAL+(J-1)*FINC
+        849 | 1415       CONTINUE
+        850 |         ENDIF
+        851 |C
+        852 |C        ZERO THE PDF( ) AND CDF( ) ARRAYS.
+        853 |C
+        854 |        DO 142 J=1,NPCDF
+        855 |        PDF(J)=0.
+        856 |        CDF(J)=0.
+        857 | 142    CONTINUE
+        858 |C
+        859 |C        COMPUTE THE KERNEL OVER THE RANGE MINUS 3 SIGMA
+        860 |C        TO PLUS 3 SIGMA AROUND EACH VALUE IN TDATA( ).
+        861 |C
+        862 |        DO 160 N=1,MM
+        863 |C
+        864 |        FACTOR=1./(TSD(N)*SQRT(2.*3.14159))
+        865 |C          FACTOR IS THE CONSTANT MULTIPLIER FOR THE NORMAL DENSITY.
+        866 |C          FOR THIS BASIC DENSITY, THE NUMBER OF CASES IS NOT RELEVANT.
+        867 |        TWOSIGSQ=2.*TSD(N)*TSD(N)
+        868 |C         TWOSIG IS THE DIVISION IN THE EXPONENT FOR THE NORMAL
+        869 |C         DENSITY.
+        870 |C
+        871 |C        CALCULATE THE KERNEL.
+        872 |C
+        873 |        DO 150 J=-NINT(3*TSD(N)),+NINT(3*TSD(N))
+        874 |C
+        875 |        LOC=NINT(TDATA(N)-FMINVAL+J+1)
+        876 |        PDF(LOC)=PDF(LOC)+FACTOR*EXP(-(FLOAT(J*J))/TWOSIGSQ)
+        877 |C
+        878 | 150    CONTINUE
+        879 |C
+        880 | 160    CONTINUE
+        881 |C
+        882 |C        ADJUST THE DISTRIBUTION BY THE FACTOR FAC.  THIS IS DONE
+        883 |C        BY MODIFYING THE VALUES IN XAXIS( ).  THIS WILL NOT OVERFLOW
+        884 |C        ARRAYS UNLESS FAC IS POSITIVE, THEN IT MIGHT.
+        885 |C
+        886 |C
+        887 |        IF(ABS(1.-FAC).GT..001)THEN
+        888 |C        A FACTOR FAC OF UNITY OR NEARLY SO NEED NOT BE USED.
+        889 |           TOT=0.
+        890 |C
+        891 |           DO 162,J=1,NPCDF
+        892 |           TOT=TOT+PDF(J)
+        893 | 162       CONTINUE
+        894 |C
+        895 |           TOT2=TOT/2.
+        896 |           CMED=0.
+        897 |           XMED=0.
+        898 |           XLOW=9999.0
+        899 |C
+        900 |           DO 164 J=1,NPCDF
+        901 |           CMED=CMED+PDF(J)
+        902 |           IF(PDF(J).EQ.0.0.AND.PDF(J-1).NE.0.0)XLOW=XAXIS(J)
+        903 |C
+        904 |C
+        905 |C
+        906 |           IF(CMED.GE.TOT2.AND.PDF(J-1).GT.0.0)THEN
+        907 |              CMED=CMED-PDF(J)/2.+.0001
+        908 |C               FOR A SYMMETRICAL DISTRIBUTION (AS WOULD OCCUR WITH
+        909 |C               TWO ENSEMBLE MEMBERS WITH THE SAME SD) WITH AN ODD
+        910 |C               NUMBER OF POINTS ON THE SCALE, THE CENTER POINT
+        911 |C               VALUE REPRESENTS BOTH HALVES.  THE SMALL ADDITIVE
+        912 |C               FACTOR IS SO THE CALCULATED MIDDLE WILL STILL BE
+        913 |C               BETWEEN THE CORRECT POINTS (IT MAY NOT BE NECESSARY).
+        914 |C               THIS MAY NOT BE EXACTLY CORRECT FOR NON-SYMMETRICAL
+        915 |C               DISTRIBUTIONS, BUT IS CLOSE ENOUGH.
+        916 |              TOTJM1=CMED-PDF(J-1)
+        917 |              IF(CMED.NE.TOTJM1)THEN
+        918 |                P=(TOT2-TOTJM1)/(CMED-TOTJM1)
+        919 |C               THE 50 PERCENT MAY NOT FALL EXACTLY ON AN EVEN J.
+        920 |C               P IS THE FRACTION OF THE WAY THE 50 PERCENT VALUE
+        921 |C               IS FROM J-1.
+        922 |              ELSE
+        923 |C              DROP THROUGH HERE IF THERE IS A GAP BETWEEN ENSEMBLE
+        924 |C              MEMBERS AND THE PDF VALUE AT THE MEDIAN IS 0.0
+        925 |               XMED=XAXIS(J)-(XAXIS(J)-XLOW)/2.
+        926 |               GO TO 165
+        927 |              ENDIF
+        928 |              X50=J-1+P
+        929 |              XMED=XAXIS(J-1)+(XAXIS(J)-XAXIS(J-1))*P
+        930 |              GO TO 165
+        931 |           ENDIF
+        932 |C
+        933 | 164       CONTINUE
+        934 |C
+        935 | 165       CONTINUE
+        936 |C
+        937 |           DO 167 J=1,NPCDF
+        938 |           XAXIS(J)=XMED+(XAXIS(J)-XMED)*FAC
+        939 | 167       CONTINUE
+        940 |C
+        941 |        ENDIF
+        942 |C
+        943 |C        NOW COMPUTE THE CDF( ) AND NORMALIZE THE PDF( ) AND CDF( ).
+        944 |C
+        945 |        CDF(1)=.0
+        946 |C        THE AREA BEYOND 3 SIGMA IS IGNORED.
+        947 |        TOT=0.
+        948 |        DO 180 J=2,NPCDF
+        949 |C
+        950 |        CDF(J)=CDF(J-1)+(PDF(J-1)+PDF(J))/2.
+        951 |        TOT=TOT+PDF(J)
+        952 |C
+        953 | 180    CONTINUE
+        954 |C
+        955 |        DO 190 J=1,NPCDF
+        956 |         PDF(J)=PDF(J)/TOT
+        957 |         CDF(J)=CDF(J)/TOT
+        958 | 190    CONTINUE
+        959 |C
+        960 |C
+        961 |        IF(IER.EQ.777)THEN
+        962 |         WRITE(KFILDO,221)(ID(J,NN),J=1,4),CCALL(K)
+        963 | 221     FORMAT('     VARIABLE ',4I11,' STATION ',A8)
+        964 |        ELSEIF(IER.EQ.778)THEN
+        965 |         DO 2215 L=1,NCDFTH
+        966 |            XCDF(K,L)=9999.
+        967 | 2215    CONTINUE
+        968 |        ENDIF
+        969 |C
+        970 |        IF(KFILAO.NE.0)THEN
+        971 |C
+        972 |C           WRITE THE ASCII DATA.  FORM THE ID'S.
+        973 |C
+        974 |         LD(1)=ID(1,NN)
+        975 |C
+        976 |         IF(M.GT.1)THEN
+        977 |            LD(1)=(LD(1)/100)*100+76
+        978 |C              WHEN MORE THAN ONE ENSEMBLE IS INVOLVED, USE DD = 76.
+        979 |C              OTHERWISE, USE THE DD OF THE MEMBER.
+        980 |         ENDIF
+        981 |C
+        982 |         LD(2)=ID(2,NN)
+        983 |C           THIS PUTS THE PROBABILITY THRESHOLD INTO LLLL OF WORD 2.
+        984 |C           IT ASSUMES UUUU = 0, BUT RETAINS THE FIRST DIGIT, V.
+        985 |         LD(3)=ID(3,NN)
+        986 |         LD(4)=ID(4,NN)
+        987 |C
+        988 |         WRITE(KFILAO,222)CCALL(K),(LD(J),J=1,4),NDATE,NPCDF
+        989 | 222     FORMAT(/,' ',A8,I12,2X,3I11.9,I11.3,I6)
+        990 |C
+        991 |         WRITE(KFILAO,223)(XAXIS(J),PDF(J),CDF(J),J=1,NPCDF)
+        992 | 223     FORMAT(' ',3F12.6)
+        993 |        ENDIF
+        994 |C
+        995 |C
+        996 |C        FIND THE DATA VALUE IN XAXIS( ) CORRESPONDING TO THE
+        997 |C        THRESHOLDS IN CDFTH( ) APPLIED TO CDF( ) AND PUT
+        998 |C        THEM IN XCDF( , ).
+        999 |C
+       1000 |        NSTART=2
+       1001 |        DO 230 L=1,NCDFTH
+       1002 |          DO 220 LL=NSTART,NPCDF
+       1003 |            IF(CDF(LL).GT.CDFTH(L))THEN
+       1004 |              DIF=CDF(LL)-CDF(LL-1)
+       1005 |C
+       1006 |             IF(DIF.LE.0.)THEN
+       1007 |              XCDF(K,L)=XAXIS(LL)
+       1008 |              WRITE(KFILDO,2195)CCALL(K)
+       1009 | 2195         FORMAT(/' ****CDF( ) AT TWO POINTS ALONG THE',
+       1010 |     1              ' AXIS ARE EQUAL FOR STATION ',A8,
+       1011 |     2              '.  PROBABLY AN ERROR.  CONTINUING.')
+       1012 |              ISTOP(3)=ISTOP(3)+1
+       1013 |             ELSE
+       1014 |              F=(CDFTH(L)-CDF(LL-1))/DIF
+       1015 |              XCDF(K,L)=XAXIS(LL-1)+(XAXIS(LL)-XAXIS(LL-1))*F
+       1016 |C              PACKING WILL DO ROUNDING.
+       1017 |             ENDIF
+       1018 |C
+       1019 |             NSTART=LL
+       1020 |             GO TO 230
+       1021 |            ENDIF
+       1022 |  220    CONTINUE
+       1023 |  230   CONTINUE
+       1024 |C        DO 2229 L=1,NCDFTH
+       1025 |C        WRITE(*,*) L,CDFTH(L),XCDF(K,L)
+       1026 |C 2229   CONTINUE
+       1027 |C
+       1028 |        IF(IP15.NE.0)THEN
+       1029 |           WRITE(IP15,232)NCDFTH,(CDFTH(L),XCDF(K,L),L=1,NCDFTH)
+       1030 | 232       FORMAT(/,' VALUES CORRESPONDING TO ',I4,' THRESHOLDS.',/,
+       1031 |     1           (5(3X,2F8.2)))
+       1032 |        ENDIF
+       1033 |C
+       1034 |      ENDIF
+       1035 | 250  CONTINUE
+       1036 |!$OMP END PARALLEL DO
+       1037 |C
+       1038 |      NN=NNSAVE
+       1039 |  300 RETURN
+       1040 |      END
+** distap   === End of Compilation 1 ===
+ 
+>>>>> COMPILATION UNIT EPILOGUE SECTION <<<<<
+ 
+ 
+TOTAL   UNRECOVERABLE  SEVERE       ERROR     WARNING    INFORMATIONAL
+               (U)       (S)         (E)        (W)          (I)
+    0           0         0           0          0            0
+ 
+>>>>> OPTIONS SECTION <<<<<
+***   Options In Effect   ***
+  
+         ==  On / Off Options  ==
+         CCLINES         CR              DBG             ESCAPE
+         FULLPATH        I4              INLGLUE         INTLOG
+         NOLIBESSL       NOLIBPOSIX      OBJECT          SOURCE
+         STRICT          SWAPOMP         THREADED        UNWIND
+         NOZEROSIZE
+  
+         ==  Options Of Integer Type ==
+         ALIAS_SIZE(65536)     FIXED(72)             MAXMEM(-1)
+         OPTIMIZE(3)           SPILLSIZE(512)        STACKTEMP(0)
+  
+  
+         ==  Options of Integer and Character Type ==
+         SMP(OMP,SCHEDULE(RUNTIME))
+  
+         ==  Options Of Character Type  ==
+         64(LARGETYPE)         ALIAS(STD,INTPTR)     ALIGN(BINDC(POWER),STRUCT(NATURAL))
+         ARCH(PWR6)            AUTODBL(NONE)         DESCRIPTOR(V1)
+         DIRECTIVE($OMP)       ENUM()                FLAG(I,I)
+         FLOAT(RNDSNGL,MAF,FOLD,RNGCHK,SINGLE)
+         HALT(S)               IEEE(NEAR)            INITAUTO( 0      )
+         INTSIZE(4)            LANGLVL(EXTENDED)     POSITION(APPENDOLD)
+         REALSIZE(4)           SAVE(ALL)             TUNE(PWR6)
+         UNROLL(AUTO)          XFLAG()               XLF2003(NOPOLYMORPHIC,NOBOZLITARGS,NOSTOPEXCEPT,NOVOLATILE,NOAUTOREALLOC,OLDNANINF)
+         XLF77(NOLEADZERO,GEDIT77,NOBLANKPAD,OLDBOZ,INTARG,INTXOR,PERSISTENT,SOFTEOF)
+         XLF90(NOSIGNEDZERO,NOAUTODEALLOC,OLDPAD)
+  
+>>>>> SOURCE SECTION <<<<<
+       1041 |C
+       1042 |C
+       1043 |C   THE FUNCTION HTINDX CALCULATES THE HEAT INDEX IN DEGREES
+       1044 |C   FAHRENHEIT GIVEN THE SURFACE TEMPERATURE IN DEGREES FAHRENHEIT
+       1045 |C   AND THE DEWPOINT TEMPERATURE IN DEGREES FAHRENHEIT.
+       1046 |C
+       1047 |C
+       1048 |      FUNCTION HTINDX(TFAH,DFAH)
+       1049 |
+       1050 |      RHPC=RELHUM(TFAH,DFAH)
+       1051 |
+       1052 |      HTINDX=-42.379+2.049011523*TFAH+10.14333127*RHPC
+       1053 |     1  -0.22475541*TFAH*RHPC-0.00683783*TFAH*TFAH
+       1054 |     2  -0.05481717*RHPC*RHPC+0.00122874*TFAH*TFAH*RHPC
+       1055 |     3  +0.00085282*TFAH*RHPC*RHPC-0.00000199*TFAH*TFAH*RHPC*RHPC
+       1056 |
+       1057 |      IF(RHPC.LT.13..AND.(TFAH.GE.80..AND.TFAH.LT.112.)) THEN
+       1058 |        HTINDX=HTINDX-((13.-RHPC)/4.)*SQRT((17.-ABS(TFAH-95.))/17.)
+       1059 |      ENDIF
+       1060 |
+       1061 |      IF(RHPC.GT.85..AND.(TFAH.GE.80..AND.TFAH.LE.87.)) THEN
+       1062 |        HTINDX=HTINDX+((RHPC-85.)/10.)*((87.-TFAH)/5.)
+       1063 |      ENDIF
+       1064 |C      WRITE(*,*) "HTINDX: ",TFAH,DFAH,RHPC,HTINDX
+       1065 |
+       1066 |      RETURN
+       1067 |      END
+** htindx   === End of Compilation 2 ===
+ 
+>>>>> COMPILATION UNIT EPILOGUE SECTION <<<<<
+ 
+ 
+TOTAL   UNRECOVERABLE  SEVERE       ERROR     WARNING    INFORMATIONAL
+               (U)       (S)         (E)        (W)          (I)
+    0           0         0           0          0            0
+ 
+>>>>> OPTIONS SECTION <<<<<
+***   Options In Effect   ***
+  
+         ==  On / Off Options  ==
+         CCLINES         CR              DBG             ESCAPE
+         FULLPATH        I4              INLGLUE         INTLOG
+         NOLIBESSL       NOLIBPOSIX      OBJECT          SOURCE
+         STRICT          SWAPOMP         THREADED        UNWIND
+         NOZEROSIZE
+  
+         ==  Options Of Integer Type ==
+         ALIAS_SIZE(65536)     FIXED(72)             MAXMEM(-1)
+         OPTIMIZE(3)           SPILLSIZE(512)        STACKTEMP(0)
+  
+  
+         ==  Options of Integer and Character Type ==
+         SMP(OMP,SCHEDULE(RUNTIME))
+  
+         ==  Options Of Character Type  ==
+         64(LARGETYPE)         ALIAS(STD,INTPTR)     ALIGN(BINDC(POWER),STRUCT(NATURAL))
+         ARCH(PWR6)            AUTODBL(NONE)         DESCRIPTOR(V1)
+         DIRECTIVE($OMP)       ENUM()                FLAG(I,I)
+         FLOAT(RNDSNGL,MAF,FOLD,RNGCHK,SINGLE)
+         HALT(S)               IEEE(NEAR)            INITAUTO( 0      )
+         INTSIZE(4)            LANGLVL(EXTENDED)     POSITION(APPENDOLD)
+         REALSIZE(4)           SAVE(ALL)             TUNE(PWR6)
+         UNROLL(AUTO)          XFLAG()               XLF2003(NOPOLYMORPHIC,NOBOZLITARGS,NOSTOPEXCEPT,NOVOLATILE,NOAUTOREALLOC,OLDNANINF)
+         XLF77(NOLEADZERO,GEDIT77,NOBLANKPAD,OLDBOZ,INTARG,INTXOR,PERSISTENT,SOFTEOF)
+         XLF90(NOSIGNEDZERO,NOAUTODEALLOC,OLDPAD)
+  
+>>>>> SOURCE SECTION <<<<<
+       1068 |C
+       1069 |C
+       1070 |C   THE FUNCTION RELHUM CALCULATES THE RELATIVE HUMIDITY IN PERCENT
+       1071 |C   FROM THE SURFACE TEMPERATURE IN DEGREES FAHRENHEIT AND THE
+       1072 |C   DEWPOINT TEMPERATURE IN DEGREES FAHRENHEIT.
+       1073 |C
+       1074 |C
+       1075 |      FUNCTION RELHUM(TFAH,DFAH)
+       1076 |      F=9./5.
+       1077 |
+       1078 |      TCEL=(TFAH-32.)/F
+       1079 |      SVP=6.1078*EXP((17.269*TCEL)/(TCEL+237.3))
+       1080 |
+       1081 |      DCEL=(DFAH-32.)/F
+       1082 |      VP=6.1078*EXP((17.269*DCEL)/(DCEL+237.3))
+       1083 |
+       1084 |      RELHUM=(VP/SVP)*100.
+       1085 |      IF(VP.GE.SVP) RELHUM=0.99
+       1086 |
+       1087 |      END
+** relhum   === End of Compilation 3 ===
+ 
+>>>>> COMPILATION UNIT EPILOGUE SECTION <<<<<
+ 
+ 
+TOTAL   UNRECOVERABLE  SEVERE       ERROR     WARNING    INFORMATIONAL
+               (U)       (S)         (E)        (W)          (I)
+    0           0         0           0          0            0
+ 
+>>>>> OPTIONS SECTION <<<<<
+***   Options In Effect   ***
+  
+         ==  On / Off Options  ==
+         CCLINES         CR              DBG             ESCAPE
+         FULLPATH        I4              INLGLUE         INTLOG
+         NOLIBESSL       NOLIBPOSIX      OBJECT          SOURCE
+         STRICT          SWAPOMP         THREADED        UNWIND
+         NOZEROSIZE
+  
+         ==  Options Of Integer Type ==
+         ALIAS_SIZE(65536)     FIXED(72)             MAXMEM(-1)
+         OPTIMIZE(3)           SPILLSIZE(512)        STACKTEMP(0)
+  
+  
+         ==  Options of Integer and Character Type ==
+         SMP(OMP,SCHEDULE(RUNTIME))
+  
+         ==  Options Of Character Type  ==
+         64(LARGETYPE)         ALIAS(STD,INTPTR)     ALIGN(BINDC(POWER),STRUCT(NATURAL))
+         ARCH(PWR6)            AUTODBL(NONE)         DESCRIPTOR(V1)
+         DIRECTIVE($OMP)       ENUM()                FLAG(I,I)
+         FLOAT(RNDSNGL,MAF,FOLD,RNGCHK,SINGLE)
+         HALT(S)               IEEE(NEAR)            INITAUTO( 0      )
+         INTSIZE(4)            LANGLVL(EXTENDED)     POSITION(APPENDOLD)
+         REALSIZE(4)           SAVE(ALL)             TUNE(PWR6)
+         UNROLL(AUTO)          XFLAG()               XLF2003(NOPOLYMORPHIC,NOBOZLITARGS,NOSTOPEXCEPT,NOVOLATILE,NOAUTOREALLOC,OLDNANINF)
+         XLF77(NOLEADZERO,GEDIT77,NOBLANKPAD,OLDBOZ,INTARG,INTXOR,PERSISTENT,SOFTEOF)
+         XLF90(NOSIGNEDZERO,NOAUTODEALLOC,OLDPAD)
+  
+>>>>> SOURCE SECTION <<<<<
+       1088 |C
+       1089 |C
+       1090 |C   THE FUNCTION WCHILL CALCULATES THE WIND CHILL TEMPERATURE
+       1091 |C   IN DEGREES FAHRENHEIT GIVEN THE SURFACE TEMPERATURE IN DEGREES
+       1092 |C   FAHRENHEIT AND THE WIND SPEED IN KNOTS.
+       1093 |C
+       1094 |C
+       1095 |      FUNCTION WCHILL(TFAH,WSKTS)
+       1096 |
+       1097 |      WSMPH=1.15*WSKTS
+       1098 |      IF(WSMPH.GE.1.)THEN
+       1099 |         WCHILL=35.74+0.6215*TFAH-(35.75-0.4275*TFAH)*WSMPH**.16
+       1100 |      ELSE
+       1101 |         WCHILL=TFAH
+       1102 |      ENDIF
+       1103 |
+       1104 |      RETURN
+       1105 |      END
+** wchill   === End of Compilation 4 ===
+ 
+>>>>> COMPILATION UNIT EPILOGUE SECTION <<<<<
+ 
+ 
+TOTAL   UNRECOVERABLE  SEVERE       ERROR     WARNING    INFORMATIONAL
+               (U)       (S)         (E)        (W)          (I)
+    0           0         0           0          0            0
+ 
+>>>>> FILE TABLE SECTION <<<<<
+ 
+ 
+                                       FILE CREATION        FROM
+FILE NO   FILENAME                    DATE       TIME       FILE    LINE
+     0    distap.f                    12/21/11   15:09:28
+ 
+ 
+>>>>> COMPILATION EPILOGUE SECTION <<<<<
+ 
+ 
+FORTRAN Summary of Diagnosed Conditions
+ 
+TOTAL   UNRECOVERABLE  SEVERE       ERROR     WARNING    INFORMATIONAL
+               (U)       (S)         (E)        (W)          (I)
+    0           0         0           0          0            0
+ 
+ 
+    Source records read.......................................    1105
+1501-510  Compilation successful for file distap.f.
+1501-543  Object file created.

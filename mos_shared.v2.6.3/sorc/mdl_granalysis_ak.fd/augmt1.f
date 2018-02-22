@@ -1,0 +1,1309 @@
+      SUBROUTINE AUGMT1(KFILDO,KFIL10,KFILAU,FLAUG,NAREA,ICYCLE,
+     1                  MDATE,ID,IDPARS,JD,IBACK,NHRRUN,
+     2                  CCALL,NAME,XDATA,LNDSEA,NSTA,ND1,
+     3                  LSTORE,ND9,LITEMS,
+     4                  IS0,IS1,IS2,IS4,ND7,
+     5                  IPACK,IWORK,DATA,ND5,
+     6                  CORE,ND10,NBLOCK,NFETCH,
+     7                  L3264B,ISTOP,IER)
+C
+C        JULY      2008   GLAHN   TDL   MOS-2000
+C        JULY      2008   GLAHN   ADDED LNDSEA( ) TO CALL
+C        JULY      2008   GLAHN   ADDED WIND CAPABILITY
+C        OCTOBER   2008   COSGROVE   ADDED COMMA FOR IBM
+C        JANUARY   2009   GLAHN   ADDED ENSEMBLE MEAN TEMP, DP
+C        MARCH     2009   GLAHN   EXPANDED FROM AUGMENTING LAMP
+C                                 FORECASTS TO ALSO EKDMOS FORECASTS.
+C                                 CHANGED NDATE TO MDATE; ADDED TO
+C                                 PURPOSE; ELIMINATED CHECK FOR WATER
+C                                 POINTS IN DO 220; MADE CHECK ON
+C                                 'LIST(K).NE.999999' SEPARATE FROM 
+C                                 'NOALOC(LIST(K)).NE.9999', ADDED
+C                                 IFIRST; ADDED ISTOP( )S
+C        APRIL     2009   GLAHN   MODIFIED FORMAT 130 AND 118; RETURN
+C                                 WITH IER=777 WHEN CAN'T GET DATA;
+C                                 ADDED REWIND KFILAU AT 130
+C        APRIL     2009   GLAHN   ADDED CHECK FOR WATER POINT ABOVE
+C                                 220.  ADDED HNRRUN TO CALL AND
+C                                 TO UPDATE TAU
+C        APRIL     2009   GLAHN   ADDED NAME( ) TO CALL
+C        APRIL     2009   GLAHN   ADDED TEMP AND DP PROB TO ITABLE( , )
+C        APRIL     2009   GLAHN   KEPT FROM REPLACING WATER VALUE
+C                                 WHEN A PROBABILITY AT 217; REMOVED
+C                                 LAST TWO ITEMS IN ITABLE( , )
+C        APRIL     2009   GLAHN   ADDED EKD MAX, MIN TO ITABLE( , )
+C        MAY       2009   GLAHN   ADDED CODE FOR MAX/MIN AUGMENTATION
+C                                 OF MOS TEMP/DEWPOINT; ADDED NAREA
+C                                 AND ICYCLE TO CALL
+C        MAY       2009   GLAHN   ADDED ICOR 
+C        MAY       2009   GLAHN   ADDED HOURLY TEMP, DP CAPABILITY
+C        MAY       2009   GLAHN   REPLACED DO 205 M=1,NOALOC(LIST(K))
+C                                 WITH DO 205 M=1,MIN(6,NOALOC(LIST(K))
+C        MAY       2009   GLAHN   CHANGED THE ABOVE BACK; LIMITED
+C                                 KOUNT TO 5
+C        MAY       2009   GLAHN   CHANGED ICOR=1 TO 0 FOR DEWPOINT
+C        MAY       2009   GLAHN   CORRECTED INDEXING; ADDED LISTD( ),
+C                                 TEMP( )
+C        MAY       2009   GLAHN   ADDED ELSE TEMP(K)=XDATA(K) ABOVE
+C                                 2180; ADDED ISPACE; INITIALIZED
+C                                 TEMP( ) DIFFERENTLY; SAVED IALL
+C        MAY       2009   GLAHN   EXCLUDED MAX/MIN PROB FOR REPLACING
+C                                 AT 201
+C        MAY       2009   GLAHN   ADDED JFIRST; INCREASED USE OF L
+C                                 FOR EKDMOS TEMP AND DEWPOINT; 
+C                                 CHANGED ENTRIES IN ITABLE( , ) FOR
+C                                 EKDMOS TEMP AND DEWPOINT; PURPOSE;
+C                                 REPLACED LAND WITH WATER IN 2180
+C        MAY       2009   GLAHN   MORE USE OF ISPACE
+C        SEPTEMBER 2009   GAW     MODIFIED OPEN STATEMENT FOR OPERATIONS
+C        NOVEMBER  2009   GAW     MODIFIED THE WAY JDATE IS SET.
+C                                                            
+C        PURPOSE
+C            THE AUGMT^ SERIES OF ROUTINES IS TO PROVIDE A VALUE,
+C            FABRICATED IN SOME MANNER, TO ANALYZE IN U405A WHEN
+C            ONE DOES NOT EXIST.  THIS PARTICULAR ONE AUGMT1
+C            AUGMENTS LAMP OR EKDMOS FORECASTS WITH MOS FORECASTS.
+C            UP TO MAXSTA NEIGHBORS ARE FOUND IN THE PREPROCESSOR
+C            U179 THAT MAY HAVE BOTH MOS AND AUXILIARY FORECASTS.
+C            THESE ARE USED TO OBTAIN A BIAS OR OFFSET.  THEN THAT
+C            OFFSET IS APPLIED TO THE POINT WHICH DOES NOT HAVE A LAMP
+C            OR EKDMOS FORECAST BUT DOES HAVE A MOS FORECAST.  THIS
+C            WORKS FOR EKDMOS MEAN OR EKDMOS PROBABILITIES.
+C
+C            THE U179 FILE IS ALWAYS READ THE FIRST TIME THIS ROUTINE
+C            IS ENTERED FOR A RUN.  THE STATION LIST ON IT IS
+C            COORDINATED WITH THE ONE BEING USED IN U155.  BOTH THE
+C            FILE NAME AND THE ID IN THE FIRST RECORD ARE SAVED.
+C            ON SUBSEQUENT ENTIRES, THE FIRST RECORD IS READ, AND IF
+C            THE FILE AND ID ARE THE SAME, IT NEED NOT BE READ. 
+C            READ.
+C
+C            THE MDATE COMING IN IS THE CYCLE OF THE DATA, SO IF
+C            TWO CYCLES ARE BEING ANALYZED TOGETHER, BOTH WILL BE
+C            AUGMENTED.
+C
+C            EXCEPT FOR MOS OR EKDMOS TEMP AND DEWPOINT AUGMENTED
+C            BY MOS MAX OR MIN TEMPERATURE, THE PROJECTION OF THE
+C            VARIABLE AND ITS AUGMENTED VARIABLE ARE THE SAME.
+C            SPECIAL CODE IS NECESSARY FOR THESE EXCEPTIONS.  BOTH
+C            TEMP AND DEWPOINT CAN BE AUGMENTED BY MAX TEMP FOR
+C            5 SPECIFIC TIMES (WHICH VARY BY AREA, E.G., CONUS)
+C            OR MIN TEMP FOR THE OTHER 3 TIMES.
+C
+C            THE ITABLE FOR AUGMENTING MOS AND EKDMOS TEMPERATURE
+C            AND DEWPOINT IS SET UP TO BE AUGMENTED BY MOS MAX AND
+C            MIN.  IF EKDMOS MAX AND MIN ARE TO BE USED TO AUGMENT,
+C            THE ITABLE MUST BE CHANGED.  AS OF 6/4/09, THE MAX
+C            AND MIN USING CO-OP STATIONS WERE NOT AVAILABLE.
+C
+C        DATA SET USE
+C            KFILDO   - UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT)
+C            KFIL10   - UNIT NUMBER FOR INTERNAL RANDOM ACCESS STORAGE.
+C                       (INPUT)
+C            KFILAU   - THE UNIT NUMBER FOR THE FILE HOLDING THE
+C                       AUXILIARY DATA.  (INPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (INPUT)
+C              KFIL10 = UNIT NUMBER FOR INTERNAL RANDOM ACCESS STORAGE.
+C                       (INPUT/OUTPUT)
+C              KFILAU = THE UNIT NUMBER FOR THE FILE HOLDING THE
+C                       AUXILIARY DATA.  (INPUT)
+C               FLAUG = THE FILE NAME OF THE AUXILIARY DATA.  
+C                       (CHARACTER*60)  (INPUT)
+C               NAREA = THE AREA OVER WHICH THE ANALYSIS IS MADE:
+C                       1 = CONUS,
+C                       2 = ALASKA,
+C                       3 = HAWAII,
+C                       4 = PUERTO RICO.
+C              ICYCLE = CYCLE OF RUN = JDATE(4) IN CALLING PROGRAM.
+C                       (INPUT)
+C               MDATE = DATE/TIME, YYYYMMDDHH, OF THE CYCLE OF THE 
+C                       DATA NEEDED   (INPUT)
+C               ID(J) = 4-WORD ID OF VARIABLE TO PROVIDE FIRST GUESS FOR
+C                       (J=1,4).  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE
+C                       VARIABLE ID'S CORRESPONDING TO ID( ,N)
+C                       (J=1,15), (N=1,ND4).
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 
+C                            1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK 
+C                            IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C                       (INPUT)
+C               JD(J) = THE BASIC INTEGER VARIABLE ID'S (J=1,4) 
+C                       (N=1,ND4).
+C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3, ),
+C                       T = IDPARS(8,),
+C                       I = IDPARS(13, ),
+C                       S = IDPARS(14, ),
+C                       G = IDPARS(15, ), AND
+C                       THRESH( ).
+C                       NOT ACTUALLY USED.  (INPUT)
+C               IBACK = THE NUMBER OF CYCLES TO GO BACK FOR MOS
+C                       FORECASTS AS NECESSARY.  (INPUT)
+C              NHRRUN = THE HOURS PRIOR TO THE RUN TIME IN NDATE TO
+C                       INCLUDE IN THE ANALYSIS IN THE CALLING PROGRAM.
+C                       USED IN AUGMT1 TO UPDATE THE TAU.  (INPUT)
+C            CCALL(K) = CALL LETTERS OF STATIONS BEING DEALT WITH.
+C                       (CHARACTER*8)  (INPUT)
+C             NAME(K) = NAMES OF STATIONS (K=1,NSTA).  (CHARACTER*20)
+C                       (INPUT)
+C            XDATA(K) = DATA VALUES ON INPUT; AUGMENTED VALUES
+C                       ON OUTPUT (K=1,NSTA). (INPUT/OUTPUT)
+C           LNDSEA(K) = LAND/SEA INFLUENCE FLAG FOR EACH STATION
+C                       (K=1,NSTA).
+C                       0 = WILL BE USED FOR ONLY OCEAN WATER (=0)
+C                           GRIDPOINTS.
+C                       3 = WILL BE USED FOR ONLY INLAND WATER (=3)
+C                           GRIDPOINTS.
+C                       6 = WILL BE USED FOR BOTH INLAND WATER (=3)
+C                           AND LAND (=9) GRIDPOINTS.
+C                       9 = WILL BE USED FOR ONLY LAND (=9) GRIDPOINTS.
+C                       (INPUT)
+C                 ND1 = FIRST DIMENSION OF XDATA( ) AND DIMENSION
+C                       OF FD1( ).  (INPUT)
+C                NSTA = NUMBER OF STATIONS BEING USED; THE NUMBER
+C                       OF VALUES IN XDATA( ).  (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT/OUTPUT)
+C                 ND9 = MAXIMUM NUMBER OF FIELDS STORED IN LSTORE( , ).
+C                       SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS J IN LSTORE( ,L).  
+C                       (INPUT/OUTPUT)
+C              NTIMES = THE NUMBER OF TIMES GFETCH HAS BEEN ACCESSED.
+C                       (INPUT/OUTPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,4).
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,21+).
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       (INPUT)
+C            IPACK(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY FOR GFETCH (J=1,ND5).  (INTERNAL)
+C             DATA(J) = WORK ARRAY FOR GFETCH (J=1,ND5) AND COMPUTATIONS.
+C                       (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ), WORK( ), AND DATA( ).
+C                       (INPUT)
+C             CORE(J) = SPACE ALLOCATED FOR SAVING PACKED GRIDPOINT 
+C                       FIELDS (J=1,ND10).  WHEN THIS SPACE IS 
+C                       EXHAUSTED, SCRATCH DISK WILL BE USED.  THIS IS 
+C                       THE SPACE USED FOR THE MOS-2000 INTERNAL RANDOM 
+C                       ACCESS SYSTEM.  (INPUT)
+C                ND10 = THE MEMORY IN WORDS ALLOCATED TO THE SAVING OF 
+C                       DATA CORE( ).  WHEN THIS SPACE IS EXHAUSTED,
+C                       SCRATCH DISK WILL BE USED.  (INPUT)
+C              NBLOCK = BLOCK SIZE IN WORDS OF INTERNAL MOS-2000 DISK
+C                       STORAGE.  (INPUT)
+C              NFETCH = INCREMENTED EACH TIME DATA ARE FETCHED BY
+C                       GFETCH.  IT IS A RUNNING COUNT FROM THE
+C                       BEGINNING OF THE PROGRAM.  THIS COUNT 
+C                       IS MAINTAINED IN CASE THE USER NEEDS IT
+C                       (DIAGNOSTICS, ETC.).  (OUTPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C            ISTOP(J) = ISTOP(1) IS INCREMENTED BY 1 WHENEVER AN ERROR 
+C                       OCCURS AND THE PROGRAM PROCEEDS.  ISTOP IS
+C                       INCREMENTED WHEN THE FIRST CHOICE OF FIRST
+C                       GUESS IS NOT AVAILABLE (I.E., MGUESS NE 
+C                       IGUESS(1)).  ISTOP(3) IS INCREMENTED BY 1
+C                       WHEN A DATA RECORD COULD NOT BE FOUND.
+C                       (INPUT/OUTPUT)
+C            ISTOP(J) = ISTOP(1) IS INCREMENTED BY 1 EACH TIME AN ERROR
+C                                OCCURS.
+C                       ISTOP(2) IS INCREMENTED WHEN LESS THAN
+C                                200 STATIONS ARE AVAILABLE FOR AN
+C                                ANALYSIS.
+C                       ISTOP(3) IS INCREMENTED WHEN A DATA RECORD 
+C                                CANNOT BE FOUND.
+C                       (INPUT/OUTPUT)
+C                 IER = ERROR CODE. 
+C                         0 = GOOD RETURN.
+C                       103 = COULD NOT IDENTIFY ID IN INTERNAL TABLE.
+C                       777 = NO FIRST GUESS AVAILABLE.  FATAL ERROR.
+C                        OTHER VALUES FROM CALLED ROUTNES.  EVERY
+C                        ERROR IS FATAL FOR THIS ELEMENT.
+C                       (OUTPUT)
+C               NSLAB = SLAB OF THE GRID CHARACTERISTICS.  RETURNED
+C                       BY GFETCH.  USED FOR CHECKING FOR EQUAL
+C                       CHARACTERISTICS OF GRIDS READ.  (INTERNAL)
+C         ITABLE(J,L) = HOLDS THE 4-WORD IDS (J=1,4) OF THE NCAT
+C                       VARIABLES TO WHICH THIS ROUTINE APPLIES 
+C                       AND THE DATA TO ACCESS (L=1,NCAT).  (INTERNAL)     
+C              TRATIO = THE FRACTION OF THE WAY BETWEEN 3-HOURLY GRIDS
+C                       TO GET THE PROJECTION NEEDED, WHEN TIME 
+C                       INTERPOLATION IS NEEDED.  WILL BE 0, 1/3, OR
+C                       2/3.  (INTERNAL)
+C               JDATE = THE DATE TIME TO LOOK FOR MOS DATA.  (INTERNAL)
+C               JTAU1 = THE FIRST PROJECTION AUXILIARY DATA ARE NEEDED.
+C                       (INTERNAL)
+C               JTAU2 = THE SECOND PROJECTION AUXILIARY DATA ARE NEEDED.
+C                       (INTERNAL)
+C               KDATE = SET TO MDATE, POSSIBLY MODIFIED.  (INTERNAL)
+C            DATA1(J) = WORK ARRAY FOR GFETCH (J=1,ND5) AND COMPUTATIONS.
+C                       (AUTOMATIC)  (INTERNAL)
+C              MAXSTA = THE MAXIMUM NUMBER OF NEIGHBORS (AUGMENTING
+C                       STATIONS) PROVIDED ON THE FILE WITH UNIT NUMBER
+C                       KFILAU.  (INTERNAL)
+C             LIST(K) = THE LOCATION IN THE STATION LIST (K=1,NSTA) OF
+C                       THE SAME STATION IN THE AUGMENTING LIST.
+C                       (INTERNAL)
+C           LISTD(KK) = THIS LOCATION IN THE CCALLD( ) LIST OF THE 
+C                       STATION IN THE CCALL( ) LIST (K=1,NSTA).
+C                       (INTERNAL)
+C             TEMP(K) = TEMPORARY ARRAY FOR AUGMENTING XDATA( ).  
+C                       (INTERNAL)
+C           CCALLD(M) = THE AUGMENTING STATION CALL LETTERS (M=1,MSTA). 
+C                       (INTERNAL)
+C           NOALOC(M) = THE NUMBER OF AUGMENTING STATIONS FOR STATION M
+C                       (M=1,MSTA).  (INTERNAL)
+C          IALOC(M,L) = THE POSITIONS OF THE AUGMENTING STATIONS
+C                       (L=1,MAXSTA) IN THE AUGMENTING LIST (M=1,MSTA).
+C                       (INTERNAL)
+C          RDIST(M,L) = THE DISTANCES OF THE OF THE AUGMENTING STATIONS
+C                       (L=1,MAXSTA) IN THE AUGMENTING LIST FROM THE
+C                       STATION BEING AUGMENTED. (M=1,MSTA).  (INTERNAL)
+C                MSTA = THE NUMBER OF STATIONS THAT HAVE A LIST.
+C                       (INTERNAL)
+C              IFIRST = CONTROLS PRINTING AND SPACING OF DIAGNOSTICS AT
+C                       194, 195, 196. (INTERNAL)
+C              JFIRST = CONTROLS PRINTING AND SPACING OF DIAGNOSTICS AT
+C                       2185, ETC.  (INTERNAL)
+C               IREPL = 1 WHEN A WATER STATION IS TO BE REPLACED FROM
+C                       THE AUGMENTING LIST IF THERE IS NO AVERAGE VALUE
+C                       TO USE.  IT IS ZERO FOR PROBABILITIES AND FOR
+C                       LAND STATIONS.  (INTERNAL)
+C       MAXTAB(M,N,I) = THE MINIMUM (M=1) AND MAXIMUM (J=2) TEMP AND
+C                       DEWPOINT PROJECTIONS TO AUGMENT BY THE MAX 
+C                       TEMP FOR THE FOUR ANALYSIS AREAS (N=1,4) FOR
+C                       TWO CYCLES (I=1 FOR 00Z; I=2 FOR 12Z).
+C                       (INTERNAL)
+C                ICOR = 0 WHEN EITHER + OR 1 DELTA WILL BE APPLIED;
+C                       1 WHEN ONLY + DELTA WILL BE APPLIED (REFERS TO
+C                         AUGMENTATION OF TEMPERATURE OR DEW POINT BY
+C                         MINIMUM TEMPERATURE); AND
+C                       2 WHEN ONLY - DELTA WILL BE APPLIED (REFERS TO
+C                         AUGMENTATION OF TEMPERATURE OR DEW POINT BY
+C                         MAXIMUM TEMPERATURE).
+C              ISPACE = CONTROLS SPACING BETWEEN #### DIAGNOSTICS.
+C                       (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES USED 
+C            GFETCH, TIMPR
+C
+      PARAMETER (IDCAT=13)
+C
+      CHARACTER*4 STATE
+      CHARACTER*8 CCALL(ND1),CCALLD,TRASH
+      CHARACTER*20 NAME(ND1)
+      CHARACTER*60 FLAUG,FILEID,SAVFL,SAVID
+C
+      DIMENSION ID(4),IDPARS(15),JD(4)
+      DIMENSION XDATA(ND1),LNDSEA(ND1)
+      DIMENSION DATA1(ND5)
+C        DATA1( ) IS AN AUTOMATIC ARRAY.
+      DIMENSION IPACK(ND5),IWORK(ND5),DATA(ND5)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION LSTORE(12,ND9)
+      DIMENSION CORE(ND10)
+      DIMENSION ISTOP(3),ITABLE(4,IDCAT*2),MAXTAB(2,4,2),LD(4)
+C
+      ALLOCATABLE CCALLD(:),NOALOC(:),IALOC(:,:),RDIST(:,:),LIST(:),
+     1            LISTD(:),TEMP(:)
+C
+      DATA SAVFL/' '/,
+     1     SAVID/' '/
+C
+C        NOTE:  ADDITIONS TO THE ITABLE( , ) BELOW SHOULD BE AT
+C               THE END BECAUSE SOME TESTS ASSUME THE ORDER HERE.
+      DATA ITABLE/222020005,0,0,0, 202020008,0,0,0,
+     1            223020005,0,0,0, 203020008,0,0,0,
+     2            224325005,0,0,0, 204335008,0,0,0,
+     3            224010005,0,0,0, 204020008,0,0,0,
+     4            224110005,0,0,0, 204120008,0,0,0, 
+C        THE ABOVE ACCOMMODATES FOR LAMP, IN ORDER:
+C           TEMPERATURE
+C           DEW POINT
+C           WIND SPEED
+C           U-WIND
+C           V-WIND
+     5            222020076,000000000,0,0, 202150008,0,0,0,
+     6            223020076,000000000,0,0, 202150008,0,0,0,
+     7            222120076,000000000,0,0, 202150008,0,0,0,
+     8            222220076,000000000,0,0, 202250008,0,0,0,
+C        THE ABOVE ACCOMMODATES FOR ENSEMBLE MEANS AND
+C        PROBABILITIES, IN ORDER:
+C           TEMPERATURE
+C           DEW POINT
+C           MAX TEMP
+C           MIN TEMP
+     9            222020008,0,0,0, 202150008,0,0,0,
+     A            223020008,0,0,0, 202150008,0,0,0,
+C        THE ABOVE ACCOMMODATES FOR MOS,
+C        IN ORDER:
+C           TEMPERATURE
+C           DEW POINT
+     B            722000085,0,0,0, 702000000,0,0,0,
+     C            723130085,0,0,0, 703100000,0,0,0/
+C        THE ABOVE ACCOMMODATES FOR OBS,
+C        IN ORDER:
+C           TEMPERATURE
+C           DEW POINT
+C
+      DATA MAXTAB/15,27,
+     1            18,30,
+     2            18,30,
+     3            12,24,
+C        THE ABOVE ARE FOR THE 00Z CYCLE.
+     4            27,39,
+     5            30,42,
+     6            30,42,
+     7            24,36/
+C        THE ABOVE ARE FOR THE 12Z CYCLE.
+C
+      SAVE SAVFL,SAVID
+      SAVE CCALLD,NOALOC,IALOC,RDIST,LIST,LISTD,TEMP
+      SAVE IALL
+C
+CD     CALL TIMPR(KFILDO,KFILDO,'START AUGMT1        ')
+C
+      IER=0
+      IFIRST=0
+      JFIRST=0
+      ISPACE=0
+C
+C        DETERMINE WHETHER VARIABLE IS IN THE LIST.
+C        THE TAU IS NOT IN THE TABLE TO MAKE IT GENERIC, BUT
+C        IS IN ID(3).  ALSO, THE DESIGNATION FOR ENSEMBLE MEAN
+C        (LLLL=^3^^) OR PROBABILITIES XX (LLLL=^^XX) ARE 
+C        OMITTED.
+C
+      DO 105 L=1,IDCAT
+      M=(L-1)*2+1
+C        ITABLE( , ) CONSTRUCTION AND INDEXING IS FOR EASY 
+C        READING AND MODIFICATION.
+CD     WRITE(KFILDO,103)(ITABLE(J,M),J=1,4)
+CD103  FORMAT(/' AT 103 IN AUGMT1--(ITABLE(J,M),J=1,4)',4I11)
+C
+      IF(ID(1).EQ.ITABLE(1,M).AND.
+     1   (ID(3)/1000).EQ.(ITABLE(3,M)/1000).AND.
+     2   ID(4).EQ.ITABLE(4,M))THEN
+         GO TO 111
+C           THIS DEFINES L.  NOTE THAT ID(2) IS NOT CHECKED HERE.
+      ENDIF
+C
+ 105  CONTINUE
+C
+C        DROP THROUGH HERE MEANS THE ID WAS NOT FOUND.
+C
+      ISTOP(1)=ISTOP(1)+1
+      IER=103
+      WRITE(KFILDO,110)(ID(J),J=1,4),IER
+ 110  FORMAT(/,' ****VARIABLE ',I9.9,I10.9,I10.9,I4.3,' NOT',
+     1         ' ACCOMMODATED IN SUBROUTINE AUGMT1.  IER =',I3,/,
+     2         '     AUGMENTATION CANNOT BE DONE.  PROCEEDING.')
+      GO TO 900
+C
+C         MAKE SURE THIS IS EITHER A MEAN OR PROBABILITY FORECAST
+C         WHEN EKDMOS.
+C
+ 111  IF(IDPARS(4).EQ.76)THEN
+C
+         IF((IDPARS(6)-(IDPARS(6)/1000)*1000).EQ.0)THEN
+            IER=103
+            WRITE(KFILDO,1110)(ID(J),J=1,4),IER
+ 1110       FORMAT(/' ****LLLL DOES NOT INDICATE EITHER A MEAN OR',
+     1              ' PROBABILITY FORECAST FOR EKDMOS VARIABLE ',
+     2                I9.9,I10.9,I10.9,I4.3,/,
+     3              '     IER =',I5,'.  ABORT AUGMENTATION.',
+     4              '  PROCEEDING.')
+            GO TO 900
+         ENDIF
+C
+      ENDIF
+C
+C        MAKE SURE MOS AND EKDMOS ARE AT 00 AND 12 CYCLES.
+C        LAMP AND HOURLY DATA CAN BE AN ANY HOUR (CYCLE).
+C
+      IF(L.GE.6.AND.L.LE.11)THEN
+C     
+         IF(ICYCLE.NE.00.AND.ICYCLE.NE.12)THEN
+            WRITE(KFILDO,1115)ICYCLE
+ 1115       FORMAT(/' ****ICYCLE =',I4,' NOT EQUAL TO 00 OR 12',
+     1              ' IN AUGMT1 FOR MOS.  AUGMENTATION NOT DONE.')
+            ISTOP(1)=ISTOP(1)+1
+            GO TO 900
+         ENDIF
+C
+      ENDIF
+C    
+C        LOOK FOR UP TO IBACK RUN CYCLES OF FORECASTS AT 6-H 
+C        INTERVALS.  FOR IBACK = 3, THIS WILL GO BACK 18 HOURS
+C        WHETHER 6-H RUNS ARE THERE OR NOT.  (IF THIS IS USED
+C        FOR LAMP, A MOD WILL LIKELY NEED TO BE MADE.)
+C
+      KDATE=MDATE
+      ICOR=0
+C 
+      DO 120 KCYCLE=0,IBACK
+C
+      IF(L.GE.6.AND.L.LE.11)THEN
+C
+C           THIS IS FOR AUGMENTATION BY MOS FORECASTS.
+C
+         NHR=KDATE-(KDATE/100)*100
+C           NHR IS THE HOUR OF THE RUN.  IT IS EXPECTED THIS WILL BE
+C           0, 6, 12, OR 18 FOR MOS, BUT CAN BE ANY HOUR FOR LAMP.
+COPS     CHANGE TO THE WAY JDATE IS SET, SUGGESTED BY DR. GLAHN
+COPS         JDATE=KDATE-MOD(NHR,6)
+            CALL UPDAT(KDATE,-MOD(NHR,6),JDATE)
+C           JDATE IS THE DATE OF THE DATA NEEDED.
+C
+C           IT IS ASSUMED THE MOS FORECASTS RUN TIMES ARE
+C           ARE AVAILABLE AT 6-H INTERVALS AND THE PROJECTIONS
+C           ARE AVAILABLE AT 3-H INTERVALS.  USE THE CORRECT
+C           PROJECTION IF IT IS AVAILABLE; IF NOT, USE LINEAR
+C           INTERPOLATION IN TIME.
+C
+         IFGTAU=IDPARS(12)+MOD(NHR,6)+KCYCLE*6
+C           IFGTAU IS THE PROJECTION OF THE MOS FORECASTS.
+C
+         IF(MOD(IDPARS(12),3).EQ.0)THEN
+            JTAU1=IFGTAU
+            JTAU2=999
+            TRATIO=0
+         ELSE
+            JTAU1=IFGTAU-MOD(IFGTAU,3)
+            JTAU2=JTAU1+3
+            TRATIO=MOD(IFGTAU,3)/3.
+         ENDIF
+C
+C           GET THE MOS FORECASTS.
+C
+         LD(1)=ITABLE(1,M+1)
+         LD(2)=ITABLE(2,M+1)
+         LD(3)=ITABLE(3,M+1)+JTAU1+NHRRUN
+         LD(4)=ITABLE(4,M+1)
+      ELSE
+C
+C           THIS IS FOR HOURLY DATA ANALYSIS.  THE PROJECTION
+C           IS STILL ZERO, BUT THE DATE IS ONE HOUR PREVIOUS.
+C 
+         CALL UPDAT(KDATE,-1,JDATE)
+         JTAU2=999
+         LD(1)=ITABLE(1,M+1)
+         LD(2)=ITABLE(2,M+1)
+         LD(3)=ITABLE(3,M+1)
+         LD(4)=ITABLE(4,M+1)
+      ENDIF
+C   
+C           SPECIAL ACCOMMODATION FOR MOS OR EKDMOS TEMP OR
+C           DEWPOINT AUGMENTED BY MOS MAX OR MIN.
+C
+         IF(L.EQ.10.OR.L.EQ.11.OR.L.EQ.6.OR.L.EQ.7)THEN
+            ICC=ICYCLE/12+1
+C
+            IF(ICYCLE.EQ.0)THEN
+               ITEST=IDPARS(12)-((IDPARS(12)-9)/24)*24
+C
+C                 THIS LOOP HANDLES 00 GMT CYCLE.
+C
+               IF(ITEST.GE.MAXTAB(1,NAREA,ICC).AND.
+     1            ITEST.LE.MAXTAB(2,NAREA,ICC))THEN 
+                  IBASMX=(IDPARS(12)-9)/24
+                  MMTAU=30+24*IBASMX
+                  ICOR=2
+C                    AUGMENT WITH MAX TEMP.
+C
+CCC                  WRITE(KFILDO,112)
+CCC     1                NAREA,ICYCLE,IDPARS(12),
+CCC     2                MAXTAB(1,NAREA,ICC),MAXTAB(2,NAREA,ICC),IBASMX,
+CCCC     3                ITEST,MMTAU
+CCCC 112              FORMAT(/' AT 112--',
+CCC     1               'NAREA,ICYCLE,IDPARS(12),',
+CCC     2               'MAXTAB(1,NAREA,ICC),MAXTAB(2,NAREA,ICC),IBASMX,',
+CCC     3               'ITEST,MMTAU',9I5)
+C
+                  IF(IDPARS(12).LT.15)THEN
+C
+                     IF(ISPACE.EQ.0)THEN
+                        WRITE(KFILDO,2175)
+                        ISPACE=1
+                     ENDIF
+C
+                     WRITE(KFILDO,1122)
+ 1122                FORMAT(' ####MAX TEMPERATURE DOES NOT EXIST',
+     1                      ' FOR THIS PROJECTION.  AUGMENTATION NOT',
+     2                      ' DONE.')
+                     GO TO 900
+                  ENDIF
+C
+               ELSE       
+                  IBASMX=(IDPARS(12)-6)/24
+                  MMTAU=18+24*IBASMX
+                  ICOR=1
+C                    AUGMENT WITH MIN TEMP.  MIN TEMP IS STORED
+C                    AT 24-H INCREMENTS STARTING AT TAU = 42 FOR THE
+C                    0000 CYCLE AND AT TAU = 30 FOR THE 1200 CYCLE.
+C
+CD                 WRITE(KFILDO,1125)
+CD    1                NAREA,ICYCLE,IDPARS(12),
+CD    2                MAXTAB(1,NAREA,ICC),MAXTAB(2,NAREA,ICC),IBASMX,
+CD    3                ITEST,MMTAU
+CD1125             FORMAT(/' AT 1125--',
+CD    1               'NAREA,ICYCLE,IDPARS(12),',
+CD    2               'MAXTAB(1,NAREA,ICC),MAXTAB(2,NAREA,ICC),IBASMX,',
+CD    3               'ITEST,MMTAU',9I5)
+C
+                  IF(IDPARS(12).LT.30)THEN
+C
+                     IF(ISPACE.EQ.0)THEN
+                        WRITE(KFILDO,2175)
+                        ISPACE=1
+                     ENDIF
+C
+                     WRITE(KFILDO,1127)
+ 1127                FORMAT(' ####MIN TEMPERATURE DOES NOT EXIST',
+     1                      ' FOR THIS PROJECTION.  AUGMENTATION NOT',
+     2                      ' DONE.')
+                     GO TO 900
+                  ENDIF
+C
+                  LD(1)=LD(1)+100000
+C                    GET MIN TEMP RATHER THAN MAX TEMP.
+               ENDIF
+C
+               LD(3)=ITABLE(3,M+1)+MMTAU+NHRRUN
+C
+            ELSE
+C
+C                 THIS LOOP HANDLES 12 GMT CYCLE.
+C
+               ITEST=IDPARS(12)-((IDPARS(12)-27)/24)*24
+C
+               IF(ITEST.GE.MAXTAB(1,NAREA,ICC).AND.
+     1            ITEST.LE.MAXTAB(2,NAREA,ICC))THEN 
+                  IBASMX=(IDPARS(12)-3)/24
+                  MMTAU=18+24*IBASMX
+                  ICOR=2
+C                    AUGMENT WITH MAX TEMP.
+C
+CD                 WRITE(KFILDO,113)
+CD    1                NAREA,ICYCLE,IDPARS(12),
+CD    2                MAXTAB(1,NAREA,ICC),MAXTAB(2,NAREA,ICC),IBASMX,
+CD    3                ITEST,MMTAU
+CD113              FORMAT(/' AT 113--',
+CD    1               'NAREA,ICYCLE,IDPARS(12),',
+CD    2               'MAXTAB(1,NAREA,ICC),MAXTAB(2,NAREA,ICC),IBASMX,',
+CD    3               'ITEST,MMTAU',9I5)
+C
+                  IF(IDPARS(12).LT.27)THEN
+C
+                     IF(ISPACE.EQ.0)THEN
+                        WRITE(KFILDO,2175)
+                        ISPACE=1
+                     ENDIF
+C
+                     WRITE(KFILDO,1132)
+ 1132                FORMAT(' ####MAX TEMPERATURE DOES NOT EXIST',
+     1                      ' FOR THIS PROJECTION.  AUGMENTATION NOT',
+     2                      ' DONE.')
+                     GO TO 900
+                  ENDIF
+C
+               ELSE       
+                  IBASMX=(IDPARS(12)-6)/24
+                  MMTAU=30+24*IBASMX
+                  ICOR=1
+C                    AUGMENT WITH MIN TEMP.  MIN TEMP IS STORED
+C                    AT 24-H INCREMENTS STARTING AT TAU = 42 FOR THE
+C                    0000 CYCLE AND AT TAU = 30 FORTHE 1200 CYCLE.
+C
+CD                 WRITE(KFILDO,1135)
+CD    1                NAREA,ICYCLE,IDPARS(12),
+CD    2                MAXTAB(1,NAREA,ICC),MAXTAB(2,NAREA,ICC),IBASMX,
+CD    3                ITEST,MMTAU
+CD1135             FORMAT(/' AT 1135--',
+CD    1               'NAREA,ICYCLE,IDPARS(12),',
+CD    2               'MAXTAB(1,NAREA,ICC),MAXTAB(2,NAREA,ICC),IBASMX,',
+CD    3               'ITEST,MMTAU',9I5)
+C
+                  IF(IDPARS(12).LT.18)THEN
+C
+                     IF(ISPACE.EQ.0)THEN
+                        WRITE(KFILDO,2175)
+                        ISPACE=1
+                     ENDIF
+C
+                     WRITE(KFILDO,1137)
+ 1137                FORMAT(' ####MIN TEMPERATURE DOES NOT EXIST',
+     1                      ' FOR THIS PROJECTION.  AUGMENTATION NOT',
+     2                      ' DONE.')
+                     GO TO 900
+                  ENDIF
+C
+                  LD(1)=LD(1)+100000
+C                    GET MIN TEMP RATHER THAN MAX TEMP.
+               ENDIF
+C
+               LD(3)=ITABLE(3,M+1)+MMTAU+NHRRUN
+            ENDIF
+C
+         ENDIF
+C
+C           OVERRIDE ICOR = 1 FOR MOS DEW POINT (L=11) AND EKDMOS
+C           DEWPOINT (L=9).  TEMPERATURE CAN ONLY GO UP FROM MIN,
+C           BUT DEW POINT CAN GO UP OR DOWN.  
+C
+         IF((L.EQ.11.OR.L.EQ.9).AND.ICOR.EQ.1)THEN
+            ICOR=0
+         ENDIF
+C
+         CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1               IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,DATA,ND5,
+     2               NWORDS,NPACK,JDATE,NTIMES,CORE,ND10,
+     3               NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(3)=ISTOP(3)+1
+            GO TO 116
+C              IF THE GRID IS NOT AVAILABLE, TRY ANOTHER RUN CYCLE. 
+         ENDIF
+C
+C           AT THIS POINT, THE MOS FORECASTS FOR THE 1ST PROJECTION
+C           NEEDED FOR (POSSIBLE) TIME INTERPOLATION HAS BEEN READ 
+C           INTO DATA( ).  TRY FOR THE SECOND RECORD IF NEEDED
+C           FOR INTERPOLATION.
+C
+         IF(JTAU2.EQ.999)GO TO 125
+C           TRANSFER WHEN NO SECOND FIELD NECESSARY.
+c
+         LD(3)=ITABLE(3,M+1)+JTAU2+NHRRUN        
+C
+         CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1               IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,DATA1,ND5,
+     2               NWORDS1,NPACK,JDATE,NTIMES,CORE,ND10,
+     3               NBLOCK,NFETCH,LSLAB,MISSP,MISSS,L3264B,1,IER)
+C
+         IF(IER.NE.0)THEN
+            ISTOP(3)=ISTOP(3)+1
+            GO TO 116
+C              IF THE GRID IS NOT AVAILABLE, TRY ANOTHER RUN CYCLE. 
+         ENDIF
+C
+         IF(NWORDS.NE.NWORDS1)THEN
+            ISTOP(1)=ISTOP(1)+1
+            WRITE(KFILDO,114)
+ 114        FORMAT(/' ****NUMBER OF WORDS RETURNED FROM GFETCH NOT',
+     1              ' CONSISTENT IN AUGMT1 AT 114.  TRY ANOTHER',
+     2              ' RUN CYCLE.')
+            GO TO 116
+         ENDIF
+C
+C           INTERPOLATE.
+C     
+         DO 115 K=1,NWORDS 
+C
+         IF(DATA(K).LT.9998..AND.DATA1(K).LT.9998.)THEN    
+            DATA(K)=(DATA1(K)-DATA(K))*TRATIO+DATA(K)
+C              FALLS THROUGH HERE WHEN ONE OR BOTH ARE MISSING.
+         ELSEIF(DATA1(K).LT.9998.)THEN
+            DATA(K)=DATA1(K)
+C              IF DATA(K) IS MISSING, IT IS LEFT SO.
+         ENDIF
+C
+ 115     CONTINUE      
+C
+         GO TO 125      
+C
+C           AT THIS POINT, THE AUXILIARY FORECASTS HAVE HAS NOT BEEN
+C           OBTAINED.  TRY ANOTHER RUN CYCLE UNLESS KCYCLE.EQ.IBACK.
+C
+ 116     IF(KCYCLE.LT.IBACK)THEN
+            WRITE(KFILDO,117)(LD(J),J=1,4),JDATE
+ 117        FORMAT('     AUXILIARY FORECASTS ',3I10.9,I10.3,
+     1             '  UNAVAILABLE FOR DATE',I11,
+     2             '  TRY ANOTHER CYCLE.')
+C              PREPARE DATE/TIME.
+            CALL UPDAT(KDATE,-6,KDATE) 
+         ELSE
+            WRITE(KFILDO,118)(LD(J),J=1,4),JDATE
+ 118        FORMAT(' ****AUXILIARY FORECASTS ',3I10.9,I10.3,
+     1             '  UNAVAILABLE FOR DATE',I11,
+     2             '  CANNOT AUGMENT FORECASTS.')
+            IER=777
+            GO TO 900
+         ENDIF
+C
+ 120  CONTINUE
+
+C        OPEN THE FILE AND READ THE PAIRS LIST.  THE FIRST RECORD
+C        IS AN IDENTIFICATION.  READ IT IN ASCII AND RETAIN IT.
+C        IF THE FILE NAME AND THE ID MATCH, THE DATA DO NOT
+C        HAVE TO BE READ AND MATCHED WITH THE CURRENT LIST.
+C
+ 125  STATE='130 '
+COPS      OPEN(UNIT=KFILAU,FILE=FLAUG,STATUS='OLD',
+      OPEN(UNIT=KFILAU,STATUS='OLD',
+     1     IOSTAT=IOS,ERR=126)
+      GO TO 129
+C
+ 126  WRITE(KFILDO,127)FLAUG,KFILAU
+ 127  FORMAT(/' ****AUGMENTATION FILE ',A60,' ON UNIT NO.',I4,
+     1        ' COULD NOT BE OPENED.'/'     AUGMENTATION NOT DONE.')
+      ISTOP(1)=ISTOP(1)+1
+      GO TO 900
+C      
+ 129  WRITE(KFILDO,130)KFILAU,FLAUG
+ 130  FORMAT(/,' OPENING PAIRS FILE ON UNIT NO.',I3,
+     1         ' FILE = ',A60)
+      REWIND KFILAU
+      STATE='132 '
+      READ(KFILAU,132,ERR=900)FILEID
+ 132  FORMAT(A60)
+C
+      IF(FILEID.EQ.SAVID.AND.FLAUG.EQ.SAVFL)THEN
+C           THE FILE FOR AUXILIARY FORECASTS IS THE SAME AS USED
+C           PREVIOUSLY.
+         WRITE(KFILDO,135)
+ 135     FORMAT(' THE FILE FOR AUXILIARY FORECASTS IN AUGMT1',
+     1          ' IS THE SAME AS USED BEFORE.',
+     2          '  IT DOES NOT HAVE TO BE READ.')
+         GO TO 201
+C           THE TWO LISTS OF STATIONS ARE THE SAME, SO ALL
+C           ARRAYS ARE THE SAME, EXCEPT TEMP( ) TO HOLD THE 
+C           DATA NEEDS TO BE INITIALIZED.
+      ELSE
+         SAVID(1:60)=FILEID(1:60)
+         SAVFL(1:60)=FLAUG(1:60)
+         WRITE(KFILDO,137)FILEID
+ 137     FORMAT(' IDENTIFICATION ON THIS FILE IS:  ',A60)
+C
+C           READ THE NUMBER OF STATIONS AND MAXIMUM PAIRS.
+C
+         STATE='138 '
+         READ(KFILAU,138,ERR=900)MSTA,MAXSTA
+ 138     FORMAT(2I6)
+         WRITE(KFILDO,139)MAXSTA,MSTA,FLAUG
+ 139     FORMAT(' UP TO',I3,' STATIONS IN EACH LIST FOR ',
+     1           I7,' STATIONS READ FROM FILE ',A60)
+C
+C           IF THIS IS A DIFFERENT FILE, LIKELY MSTA OR MAXSTA
+C           WILL BE DIFFERENT.  DEALLOCATE AND REALLOCATE.
+C           IT WON'T HURT IF THEY HAVE HAVEN'T BEEN ALLOCATED.
+C
+         DEALLOCATE(CCALLD,NOALOC,IALOC,RDIST,LIST,LISTD,TEMP,
+     1              STAT=IOS)
+         IALL=MAX(NSTA,MSTA)         
+C           NOTE THAT MSTA CAN BE LARGER OR SMALLER THAN NSTA.
+         ALLOCATE(CCALLD(IALL),NOALOC(IALL),IALOC(IALL,MAXSTA),
+     1            RDIST(IALL,MAXSTA),LIST(IALL),LISTD(IALL),
+     2            TEMP(IALL),STAT=IOS)
+C
+         IF(IOS.EQ.1)THEN
+            WRITE(KFILDO,140)
+ 140        FORMAT(/' ****ALLOCATION OF ARRAYS FAILED IN AUGMT1 AT',
+     1              ' 120.  ARRAY ALREADY ALLOCATED.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 900
+C
+         ELSEIF(IOS.EQ.2)THEN
+            WRITE(KFILDO,141)
+ 141        FORMAT(/' ****ALLOCATION OF ARRAYS FAILED IN AUGMT1 AT',
+     1              ' 121.  ARRAY NOT ALLOCATED.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 900
+         ENDIF
+C
+C           INITIALIZE LIST( ) AND LISTD( ).
+C
+         DO 145 K=1,IALL
+         LIST(K)=999999
+         LISTD(K)=999999
+ 145     CONTINUE
+C  
+C           READ THE PAIRS.
+C  
+         DO 160 KK=1,MSTA
+         STATE='150 '
+         READ(KFILAU,150,IOSTAT=IOS,ERR=910)CCALLD(KK),NOALOC(KK)
+ 150     FORMAT(A8,I8)
+C
+CCC         WRITE(KFILDO,151)KK,MSTA,CCALLD(KK),NOALOC(KK)
+CCC 151     FORMAT(' AT 151--KK,MSTA,CCALLD(KK),NOALOC(KK)',2I6,2X,A8,I6)
+C
+         IF(NOALOC(KK).EQ.9999)GO TO 160
+C           NOALOC( ) = 9999 SIGNIFIES THERE IS NO LIST TO READ.
+C           IALOC( , ) AND RDIST( ,) WILL BE UNDEFINED.
+C
+         IF(NOALOC(KK).GT.MAXSTA)THEN
+            WRITE(KFILDO,152)KK,NOALOC(KK),MAXSTA
+ 152        FORMAT(/' ****NALOC(KK) =',I8,' GT MAXSTA =',I4,
+     1              ' FOR STATION NO. KK =',I6,' IN AUGMT1 AT 152.',/,
+     2              '     FATAL ERROR.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 900
+         ENDIF
+C
+         STATE='155 '
+         READ(KFILAU,155,IOSTAT=IOS,ERR=910)(IALOC(KK,J),RDIST(KK,J),
+     1                            J=1,NOALOC(KK)) 
+ 155     FORMAT(10(I6,F10.2))
+C
+         DO 1558 J=1,NOALOC(KK)
+C
+         IF(IALOC(KK,J).GT.MSTA)THEN
+            WRITE(KFILDO,1555)IALOC(KK,J),MSTA,CCALLD(KK)
+1555        FORMAT(/,' ****LOCATION IN IALOC(KK,J) =',I9,
+     1               ' GREATER THAN SIZE OF LIST =',I6,
+     2               ' FOR STATION ',A8,/,
+     3               '     FATAL ERROR.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 900
+         ENDIF
+C
+ 1558    CONTINUE
+C
+CCC         WRITE(KFILDO,156)KK,(IALOC(KK,J),RDIST(KK,J),J=1,NOALOC(KK))
+CCC 156     FORMAT(' AT 156 IN AUGMT1--KK,(IALOC(KK,J),RDIST(KK,J),',
+CCC     1          'J=1,NOALOC(KK))',I6,/,(I6,F10.2))
+ 160     CONTINUE
+C
+C           READ THE TERMINATOR.
+C
+         STATE='162 '
+         READ(KFILAU,150,IOSTAT=IOS,ERR=910)TRASH
+C
+         IF(TRASH.NE.'999999  ')THEN
+            WRITE(KFILDO,165)TRASH
+ 165        FORMAT(' ****DID NOT FIND TERMINATOR ON FILE IN AUGMT1.',
+     1             '  FOUND INSTEAD ',A8,/,
+     2             '     COUNT AS FATAL ERROR.')
+            ISTOP(1)=ISTOP(1)+1
+            IER=777
+            GO TO 900
+         ENDIF
+C
+      ENDIF
+C
+      WRITE(KFILDO,167)NSTA,MSTA
+ 167  FORMAT(/' THERE ARE',I6,' STATIONS BEING ANALYZED, AND',I6,
+     1        ' STATIONS FOR AUGMENTATION.  SOME MAY HAVE MISSING',
+     2        ' DATA.')
+C
+C        FIND THE LINKS FROM THE AUXILIARY MSTA LIST TO THE
+C        PRIMARY NSTA LIST.
+C
+      ISTART=1
+      IEND=MSTA
+C
+      DO 200 K=1,NSTA
+C
+C        FIND THE STATION IN CCALL(K) IN THE CCALLD(KK) LIST.
+C        THEY OUGHT TO BOTH BE AT LEAST APPROXIMATELY IN ORDER, 
+C        AND STORE THE ORDER IN LIST( ).
+C
+ 170  DO 190 KK=ISTART,IEND
+C
+      IF(CCALLD(KK).EQ.CCALL(K))THEN
+         LIST(K)=KK
+         LISTD(KK)=K
+         ISTART=KK
+C           ISTART SET TO KK RATHER THAN KK+1 TO KEEP FROM INDEXING
+C           PAST END OF ARRAY WHEN ISTART = IEND.
+         IEND=MSTA
+CCCD        WRITE(KFILDO,175)K,KK,CCALL(K),LIST(K),ISTART,IEND
+CCCD175     FORMAT(' AT 175--K,KK,CCALL(K),LIST(K),ISTART,IEND',
+CCCD    1          2I6,2X,A8,3I6)
+         GO TO 200
+      ENDIF
+C
+ 190  CONTINUE
+C
+      IF(ISTART.NE.1)THEN
+         IEND=ISTART
+         ISTART=1
+         GO TO 170
+      ENDIF
+C
+C        DROP THROUGH HERE MEANS AUXILIARY STATION NOT FOUND.
+C
+      IF(IFIRST.EQ.0)THEN 
+         WRITE(KFILDO,194)
+ 194     FORMAT(' ')
+         IFIRST=IFIRST+1
+         ISTOP(1)=ISTOP(1)+1
+      ENDIF
+C    
+      IF(IFIRST.LE.3)THEN
+         WRITE(KFILDO,195)CCALL(K),NAME(K)
+ 195     FORMAT(' ****STATION ',A8,A20,' NOT FOUND IN AUXILIARY LIST.',
+     1         '  PROCEEDING.')
+         IFIRST=IFIRST+1
+      ENDIF
+C  
+      IF(IFIRST.EQ.4)THEN
+         WRITE(KFILDO,196)
+ 196     FORMAT('     THIS DIAGNOSTIC WILL NOT PRINT AGAIN.',
+     1          '  COUNTED AS ONE ISTOP ERROR.')
+         IFIRST=IFIRST+1
+      ENDIF
+C      
+      LIST(K)=999999
+      ISTART=1
+      IEND=MSTA
+      IFIRST=IFIRST+1
+C        IF STATION NOT FOUND, RESTART THE PROCESS FROM THE TOP.
+C        THIS SHOULD BE UNUSUAL.
+C
+ 200  CONTINUE
+C
+      IF(IFIRST.NE.0)THEN
+         WRITE(KFILDO,2001)IFIRST
+ 2001    FORMAT('     THERE WERE',I6,' ERRORS OF THIS TYPE.')
+      ENDIF
+C
+CD     DO 2005 K=1,MIN(IALL,ND1)
+C        IALL COULD EXCEED ND1.
+CD     WRITE(KFILDO,2000)K,CCALL(K),LIST(K),LISTD(K),XDATA(K),
+CD    1                  DATA(K)
+CD2000 FORMAT(' AT 2000--K,CCALL(K),LIST(K),LISTD(K),XDATA(K),',
+CD    1       'DATA(K)',I6,2X,A8,2I8,2F8.1)
+CD2005 CONTINUE
+C
+C        SET IREPL TO 1 OR 0 INDICATING WHETHER A WATER VALUE
+C        IS OR IS NOT TO BE REPLACED WHEN THERE IS NO LIST BUT
+C        THERE IS AN AUXILIARY VALUE.  IT CAN BE REPLACED FOR
+C        THE EKDMOS MEAN BUT NOT FOR PROBABILITIES.
+C
+ 201  MPROB=IDPARS(6)-(IDPARS(6)/100)*100
+C        MPROB IS THE PROBABILITY LEVEL WHEN L = 6, 7, 8, OR 9.
+C        WHEN OTHER EKDMOS PROBABILITIES ARE ADDED, THIS WILL
+C        BE MODIFIED.
+      IREPL=1
+C
+      IF((L.GE.6.AND.L.LE.9).AND.MPROB.NE.0)THEN
+         IREPL=0
+      ENDIF
+C
+C        AUGMENT THE LIST OF DATA IN XDATA( ).
+C
+      DO 220 K=1,NSTA
+      TEMP(K)=9999.
+C
+      IF(LIST(K).NE.999999)THEN
+C     
+CD        WRITE(KFILDO,2015)K,LIST(K),LISTD(K),NOALOC(LIST(K)),
+CD    1                     IALOC(LIST(K),1)
+CD2015    FORMAT(/' AT 2015--K,LIST(K),LISTD(K),NOALOC(LIST(K)),',
+CD    1           'IALOC(LIST(K),1)',5I10)
+C
+         IF(NOALOC(LIST(K)).NE.9999)THEN
+C
+CD           IF(LISTD(K).NE.999999)THEN
+C
+CD              LOC=LISTD(IALOC(LIST(K),1))
+C                 NOTE THE 1.
+C
+CD              IF(LOC.NE.999999)THEN
+CD                 WRITE(KFILDO,2017)K,LIST(K),LISTD(K),
+CD    1                              IALOC(LIST(K),1),LOC
+CD2017             FORMAT(/' AT 2017--K,LIST(K),LISTD(K),',
+CD    1                    'IALOC(LIST(K),1),LOC',6I10)
+C
+CD                 WRITE(KFILDO,202)K,CCALL(K),LIST(K),NOALOC(LIST(K)),
+CD    1                             XDATA(K),DATA(K),XDATA(LOC),
+CD    2                             DATA(LOC)
+CD202              FORMAT(/,' AT 202--K,CCALL(K),LIST(K),',
+CD    1                     'NOALOC(LIST(K)),',
+CD    2                     'XDATA(K),DATA(K),XDATA(LOC),DATA(LOC)',/,
+CD    3                      I7,2X,A8,I8,I3,4F8.1)
+CD              ENDIF
+C
+CD           ENDIF
+C
+            IF(XDATA(K).LT.9998.)THEN
+C                 THIS MEANS THE DATA VALUE IS THERE AND DOESN'T NEED
+C                 TO BE FABRICATED.
+               TEMP(K)=XDATA(K)
+               GO TO 220
+            ENDIF
+C
+            IF(DATA(K).GT.9998.)GO TO 220
+C              THIS MEANS THE MOS VALUE (THE VALUE TO ADD TO)
+C              IS MISSING, SO CAN'T DO IT.
+C
+            SUM=0.
+            KOUNT=0
+C
+            DO 205 M=1,NOALOC(LIST(K))
+            IF(IALOC(LIST(K),M).GT.IALL)GO TO 205
+C
+            LOC=LISTD(IALOC(LIST(K),M))
+C
+            IF(LOC.EQ.999999)THEN
+C
+CD              WRITE(KFILDO,2021)
+CD2021          FORMAT('STATION IN PAIRS LIST IS NOT A',
+CD    1                ' STATION BEING ANALYZED, SO CANNOT BE USED IN',
+CD    2                ' AUGMENTATION.')
+C
+CD              WRITE(KFILDO,2022)K,M,LIST(K),LISTD(K),
+CD    1                          IALOC(LIST(K),M),LOC
+CD2022          FORMAT(' AT 2022--K,M,LIST(K),LISTD(K),',
+CD    1                'IALOC(LIST(K),M),LOC',6I9)
+               GO TO 205
+            ENDIF
+C
+CD           IF(CCALL(K).EQ.'WLVW4   ')THEN
+CD              WRITE(KFILDO,2025)K,LIST(K),CCALL(K),CCALLD(LIST(K)),
+CD    1              XDATA(LOC),DATA(LOC),
+CD    2              IALOC(LIST(K),M)
+CD2025          FORMAT(/' AT 2025--K,LIST(K),CCALL(K),CCALLD(LIST(K)),',
+CD    1             'XDATA(LOC),DATA(LOC)',
+CD    2             'IALOC(LIST(K),M)',
+CD    3             /,10X,2I5,2X,2A8,2F10.1,I10)
+CD           ENDIF
+C
+            IF(XDATA(LOC).LT.9998..AND.
+     1          DATA(LOC).LT.9998.)THEN
+C
+               SUM=SUM+XDATA(LOC)
+     1                 -DATA(LOC)
+C
+               KOUNT=KOUNT+1
+               IF(KOUNT.GE.5)GO TO 2050
+C                 LIMIT AVERAGING TO 5 STATIONS.  THE STATION LIST IS
+C                 ORDERED, SO THE 5 CLOSEST ONES WITH DATA WILL BE USED.
+            ENDIF
+C
+ 205        CONTINUE
+C
+ 2050       IF(KOUNT.NE.0)THEN
+               DELTA=SUM/KOUNT
+C
+               IF(DATA(K).LT.9998.)THEN
+C                 XDATA(K) CAN BE MISSING.  CHECK ABOVE SHOULD DO IT.
+C
+                  IF(ICOR.EQ.0)THEN
+                     TEMP(K)=DATA(K)+DELTA
+C                       APPLY A POSITIVE OR NEGATIVE DELTA. THIS APPLIES
+C                       TO MOST VARIABLES EXCEPT FOR TEMPERATURE AN FOR
+C                       DEWPOINT AUGMENTED BY THE MIN.                
+C
+CD                    WRITE(KFILDO,2054)CCALL(K),DELTA,TEMP(K),DATA(K)
+CD2054                FORMAT(/' AT 2054 AUGMENTING CCALL(K) = ',A8,
+CD    1                       '  WITH DELTA = ',F10.1,
+CD    2                       '  TEMP(K),DATA(K) =',2F10.1)
+C
+                  ELSEIF(ICOR.EQ.1)THEN
+C
+                     IF(DELTA.GT.0.)THEN                  
+                        TEMP(K)=DATA(K)+DELTA
+C                          APPLY A POSITIVE DELTA TO TEMPERATURE BASED
+C                          ON MIN.
+                     ELSE
+                        TEMP(K)=DATA(K)
+C                          SET THE VALUE TO THE MIN.
+                     ENDIF
+C
+CD                    WRITE(KFILDO,2055)CCALL(K),DELTA
+CD2055                FORMAT(/' AT 2055 AUGMENTING CCALL(K) =  ',A8,
+CD    1                       '  WITH DELTA = ',F10.1)
+C
+                  ELSEIF(ICOR.EQ.2)THEN
+C
+                     IF(DELTA.LT.0.)THEN
+                        TEMP(K)=DATA(K)+DELTA
+C                          APPLY A NEGATIVE DELTA TO TEMPERATURE BASED
+C                          ON MAX.
+                     ELSE
+                        TEMP(K)=DATA(K)
+C                          SET THE VALUE TO THE MAX.
+                     ENDIF
+C  
+CD                    WRITE(KFILDO,2056)CCALL(K),DELTA
+CD2056                FORMAT(/' AT 2056 AUGMENTING CCALL(K) =  ',A8,
+CD    1                       '  WITH DELTA = ',F10.1)
+C
+                  ENDIF
+C
+CD                 WRITE(KFILDO,206)K,CCALL(K),DATA(K),TEMP(K)
+CD206              FORMAT(' AT 206--K,CCALL(K),DATA(K),TEMP(K)',
+CD    1                   I6,2X,A8,2F8.1)
+               ENDIF
+C
+            ELSE
+C
+C                 IF THERE ARE NO DATA TO AVERAGE IN THE LIST, THEN
+C                 SET XDATA( ) = DATA( ) FOR WATER STATIONS.  IT HAS
+C                 ALREADY BEEN DETERMINED THAT XDATA( ) IS NOT GOOD,
+C                 AND IF DATA( ) IS MISSING, XDATA( ) IS JUST RESET
+C                 TO MISSING.  THE REPLACEMENT MAY BE IMPORTANT FOR
+C                 WATER STATIONS, BUT THE POSSIBLE DIFFERENCES OVER
+C                 LAND MAKE REPLACEMENT QUESTIONABLE.  ALSO, LAND 
+C                 STATIONS ARE MORE DENSE AND REPLACEMENT IS NOT AS
+C                 NECESSARY.  HOWEVER, THIS REPLACEMENT IS NOT FOR
+C                 EKDMOS PROBABILITIES; IREPL GOVERNS THE REPLACEMENT.
+C
+C                 THE DIAGNOSTIC PRINT BELOW CAN BECOME VOLUMINOUS
+C                 AND IS LIKELY TOO MUCH TO USE EXCEPT IN CHECKOUT.
+C                 IF TWO CYCLES ARE AVERAGED, ONE CAN BE MISSING
+C                 AND THE OTHER NOT; THE ONE NOT MISSING IS USED.
+C
+               IF(LNDSEA(K).LE.3)THEN
+C
+                  IF(IREPL.EQ.1)THEN
+                     TEMP(K)=DATA(K)
+CD                    WRITE(KFILDO,217)CCALL(K),NAME(K)
+CD217                 FORMAT(/' ####REPLACING MISSING WATER STATION',
+CD    1                       10X,A8,A20,'  WITH AUGMENTING VALUE WHEN',
+CD    2                       ' THE LIST AVERAGING FAILS.')
+                  ELSE
+CD                    WRITE(KFILDO,2170)CCALL(K),NAME(K)
+CD2170                FORMAT(/' ####LIST AVERAGING FAILED FOR WATER',
+CD    1                       ' STATION  ',A8,A20,
+CD    2                       '  PROBABILITY VALUE NOT REPLACED')
+                  ENDIF
+C
+               ELSE
+CD                 WRITE(KFILDO,2171)CCALL(K),NAME(K)
+CD2171             FORMAT(/' ####LIST AVERAGING FAILED FOR LAND',
+CD    1                    ' STATION   ',A8,A20,'  VALUE NOT',
+CD    2                       ' REPLACED')
+C
+               ENDIF
+C
+            ENDIF      
+C 
+         ELSE
+C   
+C              IF THERE ARE NO STATIONS IN LIST, REPLACE XDATA( ) WITH
+C              DATA( ) WHEN XDATA( ) IS MISSING AND IT IS A WATER
+C              STATION.  WATER IS NECESSARY FOR LAMP AND FOR EKDMOS IN
+C              GREAT SALT LAKE.  THERE MAY BE A MISSING LIST BECAUSE OF
+C              SOME REASON LIKE NOT USING THE SAME STATION LIST IN U155
+C              AND U179, SO DON'T REPLACE OVER LAND.
+C
+            IF(LNDSEA(K).LE.3)THEN
+C
+               IF(IREPL.EQ.1)THEN
+C
+                  IF(ISPACE.EQ.0)THEN
+                     WRITE(KFILDO,2175)
+ 2175                FORMAT(' ')
+                     ISPACE=1
+                  ENDIF
+C
+                  WRITE(KFILDO,218)CCALL(K),NAME(K)
+ 218              FORMAT(' ####THERE IS NO LIST FOR WATER STATION  ',
+     1                    5X,A8,A20,'  IT IS REPLACED IF APPROPRIATE.')
+C
+CD                 IF(CCALL(K).EQ.'BGRUT   ')THEN
+CD                    WRITE(KFILDO,9999)K,LIST(K),CCALL(K),
+CD    1                    CCALLD(LIST(K)),XDATA(K),DATA(K)
+CD9999                FORMAT(/' AT 9999--K,LIST(K),CCALL(K),',
+CD    1                       'CCALLD(LIST(K)),XDATA(K),DATA(K)',
+CD    2                     /,10X,2I5,2X,2A8,2F10.1)
+CD                 ENDIF
+C
+                  IF(XDATA(K).GT.9998.)THEN
+                     TEMP(K)=DATA(K)
+                  ELSE
+                     TEMP(K)=XDATA(K)
+C                       THE DATA VALUE MUST BE TRANSFERRED TO TEMP( )
+C                       TO BE KEPT.
+                  ENDIF
+C    
+               ELSE 
+C
+                  IF(ISPACE.EQ.0)THEN
+                     WRITE(KFILDO,2175)
+                     ISPACE=1
+                  ENDIF
+C
+                  WRITE(KFILDO,2180)CCALL(K),NAME(K) 
+ 2180             FORMAT(' ####THERE IS NO LIST FOR WATER STATION  ',
+     1                   5X,A8,A20,'  IT IS NOT REPLACED FOR A',
+     2                   ' PROBABILITY VALUE.') 
+               ENDIF
+C  
+            ENDIF
+C
+         ENDIF
+C
+      ELSE
+C
+         IF(JFIRST.EQ.0)THEN 
+            WRITE(KFILDO,2185)
+ 2185       FORMAT(' ')
+            ISTOP(1)=ISTOP(1)+1
+         ENDIF
+C    
+         IF(JFIRST.LE.1)THEN
+            WRITE(KFILDO,219)K,LIST(K),CCALL(K),NAME(K)
+ 219        FORMAT(' ****STATION IN ANALYSIS LIST NOT IN AUGMENTATION',
+     1             ' LIST.  K,LIST(K),CCALL(K) ARE',I6,I10,2X,A8,A20)
+            JFIRST=JFIRST+1
+         ENDIF
+C  
+         IF(JFIRST.EQ.2)THEN
+            WRITE(KFILDO,2190)
+ 2190       FORMAT('     THIS DIAGNOSTIC WILL NOT PRINT AGAIN FOR',
+     1             ' THIS AUGMENTATION.  COUNTED AS ONE ISTOP ERROR.')
+            JFIRST=JFIRST+1
+         ENDIF
+C
+         IF(JFIRST.GT.2)THEN
+            JFIRST=JFIRST+1
+         ENDIF
+C
+      ENDIF
+C
+ 220  CONTINUE
+C
+      IF(JFIRST.NE.0)THEN
+         WRITE(KFILDO,221)JFIRST
+ 221     FORMAT(/'    THERE WERE',I6,' CASES IN WHICH A STATION IN THE',
+     1          ' ANALYSIS LIST WAS NOT IN AUGMENTATION LIST.',
+     2          '     LOOK AT HOW U179 WAS RUN.')
+      ENDIF
+C
+C        REPLACE XDATA( ) WITH THE AUGMENTED DATA IN TEMP( ).
+C
+      DO 222 K=1,NSTA
+      XDATA(K)=TEMP(K)
+ 222  CONTINUE
+C
+CD     WRITE(KFILDO,225)(K,XDATA(K),K=1,NSTA)
+C        NOTE THAT THESE VALUES ARE NOT SCALED--JUST WHAT IS
+C        BEING ANALYZED.  SCALING COULD BE DONE HERE OR IN A
+C        FOLLOWING ROUTINE.
+CD225  FORMAT(/,' IN AUGMT1 AT 225',/,(I6,F8.2))
+C
+CD     CALL TIMPR(KFILDO,KFILDO,'END   AUGMT1        ')
+C
+ 900  RETURN
+C        ERROR STOP BELOW IS FOR ERRORS OF CONTROL INFORMATION INPUT.
+ 910  CALL IERX(KFILDO,KFILDO,IOS,'AUGMT1',STATE)
+      STOP 9999
+      END

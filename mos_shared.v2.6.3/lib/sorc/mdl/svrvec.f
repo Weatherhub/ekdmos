@@ -1,0 +1,522 @@
+      SUBROUTINE SVRVEC(KFILDO,KFIL10,ID,IDPARS,JD,NDATE,
+     1                  SDATA,ND1,NSTA,
+     2                  IPACK,IWORK,DATA,FDDATA,FDTSTM,SVRWX,
+     3                  CSVRWX,SFDTSTM,SAVWX,ND2X3,
+     4                  LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     5                  IS0,IS1,IS2,IS4,ND7,
+     6                  ISTAV,L3264B,IER)
+C
+C        OCTOBER  1998   REAP    TDL   MOS-2000 
+C        AUGUST   1999   HUGHES  MODIFIED TO HANDLE CONDITIONAL
+C                                SEVERE WEATHER
+C        NOVEMBER 1999   HUGHES  MODIFIED TO INCLUDE 1-FLASH IN 
+C                                THUNDERSTORM CASES
+C        JANUARY  2000   HUGHES  MODIFIED TO USE OCCURRENCE OF
+C                                A THUNDERSTORM INSTEAD OF LIGHTNING
+C                                STRIKES TO CREATE CONDITIONAL SEVERE WX 
+C        NOVEMBER 2000   RUDACK  MODIFIED CODE TO CONFORM WITH MDL 
+C                                FORMAT SPECIFICATIONS
+C        DECEMBER 2002   WEISS   CHANGED ND5 TO ND2X3
+C        MAY      2003   GLAHN   CHANGED 'AND' TO 'OR' AT 110; TESTED
+C                                FOR ERRORS AND NWORDS = NSTA AFTER
+C                                CALLS TO GFETCH; MADE CSVRWX( ),
+C                                SFDTSTM( ) SAVWX( ) NON AUTOMATIC;
+C                                ELIMINATED SFDWX( ); REARRANGED TYPE
+C                                STATEMENTS; INDENTION; WHITE SPACE
+C        JUNE     2003   GLAHN   MODIFIED TO ACCEPT FFF = 200 AT 110
+C        OCTOBER  2003   SMB     MODIFIED STATEMENT NUMBER 114 FOR  
+C                                THE IBM
+C
+C        PURPOSE 
+C            SUBROUTINE SVRVEC RETRIEVES AND UNPACKS OBSERVED GRIDDED 
+C            PREDICTAND DATA IN TDLPACK FORMAT.  EXAMPLES OF VECTOR DATA 
+C            ARE LIGHTNING FLASHES, REPORTS OF TORNADOES, LARGE HAIL, AND
+C            DAMAGING WINDS, AND PILOT REPORTS OF CLEAR-AIR-TURBULENCE
+C            AND AIRCRAFT ICING.  SVRVEC SUMS HOURLY REPORTS OR DETERMINES 
+C            MAXIMUM VALUES OF REPORTS FOR EACH GRID BLOCK FOR AN INTERVAL
+C            (HOURS) DESIGNATED BY THE PREDICTAND ID.  INTERVALS NORMALLY 
+C            USED ARE 3, 6, 12, AND 24 HOURS.  SUMMED/MAX VALUES ARE THEN
+C            RETURNED TO THE CALLING PROGRAM (OPTION).  PREDICTAND ID'S 
+C            FOR HOURLY FIELDS ON INPUT ARCHIVE DATASET ARE SHOWN BELOW:
+C
+C            THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED
+C            WHERE X CAN TAKE THE VALUES 0, 1, 2, 3, OR 4:
+C
+C               707 20X - OCCURRENCE OF THUNDERSTORM
+C               707 30X - UNCONDITIONAL OCCURRENCE OF SEVERE WEATHER
+C               707 31X - CONDITIONAL OCCURRENCE OF SEVERE WEATHER
+C               707 32X - NUMBER OF TORNADOES IN GRID BLOCK
+C               707 33X - LARGEST F-SCALE VALUE IN GRID BLOCK
+C               707 34X - NUMBER OF HAIL REPORTS IN GRID BLOCK
+C               707 35X - LARGEST HAIL SIZE (INCHES) IN GRID BLOCK
+C               707 36X - NUMBER OF WIND REPORTS IN GRID BLOCK
+C               707 37X - HIGHEST WIND SPEED (KNOTS) IN GRID BLOCK     
+C               707 38X - TOTAL C-G LIGHTNING FLASHES IN GRID BLOCK	
+C               707 39X - C-G NEGATIVE FLASHES IN GRID BLOCK
+C               707 40X - C-G POSITIVE FLASHES IN GRID BLOCK   
+C               707 41X - MAXIMUM SIGNAL STRENGTH (KA) IN GRID BLOCK
+C               707 42X - HIGHEST NUMBER OF STROKES PER FLASH IN BLOCK
+C
+C            (PREDICTAND ID'S FOR CLEAR-AIR-TURBULENCE AND AIRCRAFT 
+C            ICING DATA MAY BE INCLUDED AT A LATER DATE) 
+C
+C            PREDICTAND ID FOR SPECIFIC HOURLY INTERVAL (1,3,6,12, 
+C            OR 24-HR) TO PROCESS DATA IS DESIGNATED IN IDPARS(2) 
+C            VARIABLE FFF WHERE:
+C            
+C               FFF = XX0 FOR 1-HR INTERVAL
+C                "  = XX1  "  3-HR     " 
+C                "  = XX2  "  6-HR     "
+C                "  = XX3  " 12-HR     "
+C                "  = XX4  " 24-HR     " 
+C
+C            NOTE: WHEN FFF = XX0, THE ORIGINAL ARCHIVED 1-H VALUES
+C            ARE RETURNED UNCHANGED TO THE CALLING PROGRAM.
+C
+C            EXAMPLES OF PREDICTAND ID'S (CCCFFF): 
+C
+C               HAIL REPORTS SUMMED OVER 1-HR PERIOD = 707340
+C               WIND REPORTS SUMMED OVER 3-HR PERIOD = 707361
+C               LARGEST HAIL SIZE OVER A 6-HR PERIOD = 707352 
+C               TORNADO REPORTS SUMMED OVER A 12-HR PERIOD = 707323
+C               NEGATIVE FLASHES SUMMED OVER A 24-HR PERIOD = 707394          
+C                 
+C        DATA SET USE 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE 
+C                       (OUTPUT). 
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS
+C                       (INPUT-OUTPUT). 
+C 
+C        VARIABLES 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                       (INPUT). 
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM 
+C                       ACCESS (INPUT-OUTPUT).
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTAND ID CORRESPONDING TO ID( ) (J=1,15)
+C                       (INPUT).
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 
+C                            LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK 
+C                            IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C               JD(J) = THE BASIC INTEGER PREDICTAND ID (J=1,4).
+C                       THIS IS THE SAME AS ID(J), EXCEPT THAT THE 
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3),
+C                       T = IDPARS(8),
+C                       I = IDPARS(13),
+C                       S = IDPARS(14),
+C                       G = IDPARS(15), AND THRESH.
+C                       JD( ) IS USED TO IDENTIFY THE BASIC MODEL 
+C                       FIELDS AS READ FROM THE ARCHIVE (INPUT).
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTAND IS NEEDED.
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR 
+C                       EACH GRID COMBINATION (M=1,NGRID), (INPUT).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                            STEREOGRAPHIC). 
+C                       L=2--GRID LENGTH IN METERS,
+C                       L=3--LATITUDE AT WHICH GRID LENGTH IS CORRECT 
+C                            *1000,
+C                       L=4--GRID ORIENTATION IN DEGREES *1000,
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *1000,
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES *1000.
+C               NSLAB = RETURNED FROM GFETCH AS THE VALUE STORED IN
+C                       LSTORE(10, ) FOR THE FIRST FIELD.  THIS IS THE
+C                       VALUE OF NSLAB RETURNED.  WHEN IER NE 0, THIS
+C                       VALUE SHOULD NOT BE USED.  SINCE THIS ROUTINE
+C                       ACCESSES "VECTOR" DATA, ALL VALUES OF NSLAB
+C                       RETURNED BY GFETCH ARE NOT MEANINGFUL AND 
+C                       NEED NOT BE CHECKED.  (OUTPUT)  
+C            IPACK(J) = WORK ARRAY (J=1,ND2X3) (INTERNAL).  
+C            IWORK(J) = WORK ARRAY (J=1,ND2X3) (INTERNAL).  
+C             DATA(J) = ARRAY TO HOLD RETURNED DATA (J=1,ND2X3) 
+C                       (OUTPUT).
+C                 ND5 = FORMER DIMENSION OF IPACK( ), IWORK( ), AND 
+C                       DATA( ) (INPUT).
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS), (INPUT-OUTPUT).
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR 
+C                              NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN 
+C                              RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE 
+C                              CHARACTERISTICS OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTAND IN THE 
+C                              SORTED LIST IN ID( ,N) (N=1,NPRED)
+C                              FOR WHICH THIS VARIABLE IS NEEDED, WHEN 
+C                              IT IS NEEDED ONLY ONCE FROM 
+C                              LSTORE( , ).  WHEN IT IS NEEDED MORE
+C                              THAN ONCE, THE VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING 
+C                              MOSTORE( , ). LATER USED AS A WAY OF 
+C                              DETERMINING WHETHER TO KEEP THIS 
+C                              VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ), (INPUT). 
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT HAVE BEEN USED IN THIS RUN (INPUT).  
+C             CORE(J) = THE ARRAY TO STORE OR RETIREVE THE DATA 
+C                       IDENTIFIED IN LSTORE( , ) (J=1,ND10). WHEN
+C                       CORE( ) IS FULL DATA ARE STORED ON DISK
+C                       (OUTPUT).
+C                ND10 = DIMENSION OF CORE( ), (INPUT).
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE (INPUT).  
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.
+C                       IT IS A RUNNING  COUNT FROM THE BEGINNING OF 
+C                       THE PROGRAM.  THIS COUNT IS MAINTAINED IN 
+C                       CASE THE USER NEEDS IT (DIAGNOSTICS, ETC.). 
+C                       NEEDS IT (DIAGNOSTICS, ETC.), (INTERNAL).  
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3)
+C                       (INTERNAL).
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+)  
+C                       (INTERNAL).
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12)
+C                       (INTERNAL).
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4)
+C                       (INTERNAL).
+C                 ND7 = DIMENSION OF IS0, IS1, IS2, AND IS4. NOT ALL
+C                       LOCATIONS ARE USED (INPUT).
+C              FD1(J) = WORK ARRAY (J=1,ND2X3). 
+C               ND2X3 = DIMENSION OF FD1( )  (INPUT).  
+C          DIR(K,J,M) = THE IX (J=1) AND JY (J=2) POSITIONS ON THE GRID
+C                       FOR THE COMBINATION OF GRID CHARACTERISTICS M
+C                       (M=1,NGRID) AND STATION K (K=1,NSTA) IN 
+C                       NGRIDC( ,M), (INPUT).
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT 
+C                       WITH.  FIRST DIMENSION OF DIR( , , ).
+C                       FIRST DIMENSION OF DIR( , , ) (INPUT).
+C            SDATA(K) = DATA TO RETURN (K=1,NSTA) (OUTPUT).  
+C               ISTAV = 1 SINCE THE DATA RETURNED ARE STATION DATA
+C                       (OUTPUT).
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING 
+C                       USED (EITHER 32 OR 64) (INPUT).
+C                 IER = STATUS RETURN.
+C                       0 = GOOD RETURN.
+C                       SEE GFETCH FOR VALUES. (INTERNAL-OUTPUT)
+C
+C         ADDITIONAL VARIABLES
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE, THAT 
+C                       THE RECORD HAS BEEN FETCHED. THIS IS STORED 
+C                       IN LSTORE(9, ) (INTERNAL).
+C               LD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED INTO
+C                       FD1( )  (J=1,4) (INTERNAL).
+C               MISSP = PRIMARY MISSING VALUE INDICATOR. RETURNED AS ZERO
+C                       WHEN DATA ARE NOT PACKED (INTERNAL). 
+C               MISSS = SECONDARY MISSING VALUE INDICATOR. RETURNED AS ZERO
+C                       WHEN DATA ARE NOT PACKED (INTERNAL). 
+C               NPACK = 2 FOR TDL GRIB PACKED DATA: 1 FOR NOT PACKED.
+C                       THIS IS STORED IN LSTORE(7, ) (INTERNAL). 
+C              NWORDS = NUMBER OF WORDS RETURNED IN DATA( ). (INTERNAL).
+C                 ISW = SWITCH SET DEPENDING ON VARIABLE BEING COMPUTED.
+C                       0 = TOTAL REPORTS IN A BOX.
+C                       1 = MAXIMUM VALUE IN A BOX.
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES CALLED 
+C           UPDAT, GFETCH
+C
+      IMPLICIT NONE
+C
+      INTEGER IDPARS(15),ID(4),JD(4)
+      INTEGER IPACK(ND2X3),IWORK(ND2X3)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER LSTORE(12,ND9)
+      INTEGER LD(4),LDS(4),LDL(4),ICCCFFF(2)
+      INTEGER KFILDO,KFIL10,NDATE,JDATE,NSLAB,NSLABWX,NSLABSTM,ND7,
+     2        ND2X3,ND9,LITEMS,ND10,NBLOCK,NFETCH,ND1,NSTA,ISTAV,
+     3        L3264B,IER,NTIMES,NWORDS,NPACK,J,ISW,IFF,KK,K,KHR,
+     4        MISSP,MISSS,NUMHRS 
+C
+      REAL SDATA(ND1) 
+      REAL DATA(ND2X3),CSVRWX(ND2X3),FDTSTM(ND2X3),SVRWX(ND2X3),
+     1     FDDATA(ND2X3),SFDTSTM(ND2X3),SAVWX(ND2X3)
+      REAL CORE(ND10)
+C
+      IER=0
+      ISTAV=1
+C
+C        STEP 1. INITIALIZATION
+C
+      DO 100 J=1,ND1
+        SDATA(J)=0.0 
+        CSVRWX(J)=-1.0 
+        SFDTSTM(J)=0.
+        FDDATA(J)=0.
+        SAVWX(J)=-1.
+ 100  CONTINUE
+C
+C        OCCURRENCE OF A THUNDERSTORM
+C
+      ICCCFFF(1)=707200
+C
+C        UNCONDITIONAL OCCURRENCE OF ANY KIND OF SEVERE WEATHER
+C
+      ICCCFFF(2)=707300
+C
+C        MAKE SURE THIS SUBROUTINE DEALS WITH THE PREDICTOR.
+C
+      IF((IDPARS(1).NE.707).OR.
+     1   ((IDPARS(2).LT.200).OR.(IDPARS(2).GT.424))) THEN
+        WRITE(KFILDO,105)(JD(J),J=1,4)
+ 105    FORMAT(/,' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE',
+     1           ' SEVERE WEATHER PREDICTOR.  ',I9.9,2I10.9,I4.3,
+     2           ' NOT COMPUTED IN SVRVEC.') 
+        IER=103
+        GOTO 490
+      END IF
+C
+C        CHECK PREDICTAND ID AND SET SWITCH TO EITHER 
+C        SUM REPORTS OR DETERMINE MAX VALUES FOR GRID POINTS
+C
+      IFF=MOD(IDPARS(2),10)
+      LD(1)=(IDPARS(1)*1000000)+((IDPARS(2)-IFF)*1000) 
+C
+      ISW=999
+C        ISW = SWITCH SET DEPENDING ON VARIABLE BEING COMPUTED.
+C              0 = TOTAL REPORTS IN A BOX.
+C              1 = MAXIMUM VALUE IN A BOX.
+      IF(LD(1).EQ.707200000) ISW=1  
+      IF(LD(1).EQ.707300000) ISW=1  
+      IF(LD(1).EQ.707310000) ISW=1 
+      IF(LD(1).EQ.707320000) ISW=0 
+      IF(LD(1).EQ.707330000) ISW=1 
+      IF(LD(1).EQ.707340000) ISW=0 
+      IF(LD(1).EQ.707350000) ISW=1
+      IF(LD(1).EQ.707360000) ISW=0
+      IF(LD(1).EQ.707370000) ISW=1 
+      IF(LD(1).EQ.707380000) ISW=0
+      IF(LD(1).EQ.707390000) ISW=0
+      IF(LD(1).EQ.707400000) ISW=0
+      IF(LD(1).EQ.707410000) ISW=1
+      IF(LD(1).EQ.707420000) ISW=1
+C
+      IF(ISW.EQ.999)THEN
+C           THIS TEST IS MORE SPECIFIC THAN THE ONE ON CCCFFF ABOVE.
+         WRITE(KFILDO,105) LD(1)
+         IER=103
+         GO TO 490
+      ENDIF
+C
+C        SUM THE GRID BLOCK VALUES OR SAVE MAX
+C        VALUES FOR HOURLY PERIOD SPECIFIED BY IFF
+C
+C        COMPUTE TIME INTERVAL IVAL (NUMBER OF HOURS TO PROCESS) 
+C
+      IF(IFF.EQ.0) NUMHRS=1
+      IF(IFF.EQ.1) NUMHRS=3
+      IF(IFF.EQ.2) NUMHRS=6
+      IF(IFF.EQ.3) NUMHRS=12
+      IF(IFF.EQ.4) NUMHRS=24
+C
+C        IF NUMHRS EQUALS ONE, THEN PROCESS THE CURRENT HOUR
+C        OTHERWISE, WHEN A TIME PERIOD IS INVOLVED THE CURRENT
+C        HOUR IS NOT USED.
+C
+      DO 280 KK=1,NUMHRS
+C
+         IF(NUMHRS.EQ.1)THEN
+            KHR=0
+         ELSE
+            KHR=-KK
+         ENDIF
+C
+      CALL UPDAT(NDATE,KHR,JDATE)
+C
+C        THIS SECTION IS EXCLUSIVELY FOR CONDITIONAL OCCURRENCE
+C        OF SEVERE WEATHER.
+C
+C        FETCH THE INPUT (ARCHIVE) PREDICTAND DATA.
+C
+      IF((JD(1).GE.707310000).AND.(JD(1).LE.707314000)) THEN
+C
+C          CREATE ID FOR THUNDERSTORM OCCURRENCE    
+C
+        LDL(1)=707200000
+        LDL(2)=IDPARS(7)
+        LDL(3)=IDPARS(9)*1000000+IDPARS(12)
+        LDL(4)=0
+C
+C         FETCH THUNDERSTORM OCCURRENCE
+C
+        CALL GFETCH(KFILDO,KFIL10,LDL,7777,LSTORE,ND9,LITEMS,
+     1              IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FDTSTM,ND2X3,
+     2              NWORDS,NPACK,JDATE,NTIMES,CORE,ND10,
+     3              NBLOCK,NFETCH,NSLABSTM,MISSP,MISSS,L3264B,1,
+     4              IER)
+C
+       IF(IER.NE.0)THEN
+          WRITE(KFILDO,114)(LDL(J),J=1,4),JDATE
+ 114      FORMAT(/' ****COULD NOT FETCH THUNDERSTORM RECORD ',
+     1            I9.9,2I10.9,I4.3,' FOR DATE ',I12,' IN SVRVEC.')
+          GO TO 280
+       ENDIF
+C
+       IF(NWORDS.NE.NSTA) THEN
+          IER=52
+          WRITE(KFILDO,115) NWORDS,NSTA,IER
+ 115      FORMAT(/,' ****NWORDS =',I6,'  RETURNED FROM GFETCH',
+     +             ' NOT EQUAL TO NSTA =',I6,
+     +             ' IN SVRVEC AT 115.  DATA SET TO MISSING,',
+     +             ' IER =',I4)
+          GO TO 280
+       ENDIF
+C
+C          CREATE ID FOR UNCONDITIONAL SEVERE WEATHER
+C
+        LDS(1)=707300000
+        LDS(2)=IDPARS(7)
+        LDS(3)=IDPARS(9)*1000000+IDPARS(12)
+        LDS(4)=0
+C
+C          FETCH UNCONDITIONAL SEVERE WEATHER
+C
+        CALL GFETCH(KFILDO,KFIL10,LDS,7777,LSTORE,ND9,LITEMS,
+     1              IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,SVRWX,ND2X3,
+     2              NWORDS,NPACK,JDATE,NTIMES,CORE,ND10,
+     3              NBLOCK,NFETCH,NSLABWX,MISSP,MISSS,L3264B,1,
+     4              IER)
+C         IER IS NOT CHECKED HERE BECAUSE IF THE THUNDERSTORM
+C         RECORD WAS FETCHED ABOVE, PROCESSING MUST CONTINUE.
+C
+       IF(NWORDS.NE.NSTA) THEN
+          IER=52
+          WRITE(KFILDO,135) NWORDS,NSTA,IER
+ 135      FORMAT(/,' ****NWORDS =',I6,'  RETURNED FROM GFETCH',
+     +             ' NOT EQUAL TO NSTA =',I6,
+     +             ' IN SVRVEC AT 135.  DATA SET TO MISSING,',
+     +             ' IER =',I4)
+          GO TO 280
+C            AN ERROR HERE WOULD BE HIGHLY UNUSUAL, AND DATA COULD
+C            NOT BE USED.
+       ENDIF
+C
+C          SUM HOURLY VALUES OF THUNDERSTORM OCCURRENCE AND LOOK FOR
+C          A VALUE OF 1 IN THE UNCONDITIONAL SEVERE WEATHER DATA
+C          NWORDS IS NUMBER OF GRID POINTS, WHICH IS THE SAME AS NSTA.
+C
+        DO 140 J=1,NSTA
+        IF(FDTSTM(J).EQ.9999.) GO TO 140
+        SFDTSTM(J)=SFDTSTM(J)+FDTSTM(J)  
+        IF(SVRWX(J).EQ.9999.) GO TO 140	
+C
+        IF((SFDTSTM(J).GE.1.).AND.(SVRWX(J).GT.0.)) THEN
+          CSVRWX(J)=1.
+        ELSE IF ((SFDTSTM(J).GE.1.).AND.(SVRWX(J).LT.1.)) THEN
+          CSVRWX(J)=0.
+        ELSE IF (SFDTSTM(J).LT.1.) THEN
+          CSVRWX(J)=-1.
+        ELSE
+          CSVRWX(J)=9999.
+        END IF
+C
+        IF(CSVRWX(J).GT.SAVWX(J)) SAVWX(J)=CSVRWX(J)
+C
+        IF(SAVWX(J).LT.0.) THEN
+          SDATA(J)=9999.
+        ELSE
+          SDATA(J)=SAVWX(J)
+        END IF
+C
+  140   CONTINUE
+C
+      ELSE
+C
+C          CONSTRUCT THE VARIABLE ARRAY LD FOR INPUT PREDICTAND DATA
+C          IFF=(IDPARS(2)/10)*10
+C          LD(1)=(IDPARS(1)*1000000)+(IFF*1000) 
+C
+        LD(1)=(IDPARS(1)*1000000)+((IDPARS(2)-IFF)*1000)
+        LD(2)=IDPARS(7)
+        LD(3)=IDPARS(9)*1000000+IDPARS(12)
+        LD(4)=0
+        CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1              IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FDDATA,ND2X3,
+     2              NWORDS,NPACK,JDATE,NTIMES,CORE,ND10,
+     3              NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,1,
+     4              IER)
+C
+        IF(IER.NE.0)GO TO 490
+C          IF ANY HOUR IS MISSING, DON'T PROCESS.
+C
+        IF(NWORDS.NE.NSTA) THEN
+           IER=52
+           WRITE(KFILDO,115) NWORDS,NSTA,IER
+ 155       FORMAT(/,' ****NWORDS =',I6,'  RETURNED FROM GFETCH',
+     +              ' NOT EQUAL TO NSTA =',I6,
+     +              ' IN SVRVEC AT 155.  DATA SET TO MISSING,',
+     +              ' IER =',I4)
+           GO TO 490
+C             IF ANY HOUR IS MISSING, DON'T PROCESS.
+        ENDIF
+C
+C          SUM HOURLY VALUES OR SAVE MAX VALUES IN SDATA.
+C          ISW = SWITCH SET DEPENDING ON VARIABLE BEING COMPUTED.
+C            0 = TOTAL REPORTS IN A BOX.
+C            1 = MAXIMUM VALUE IN A BOX.
+C
+        IF(ISW.EQ.1)THEN
+C
+C             LOOP FOR MAXIMUM VALUE.  SDATA( ) IS NEVER 9999.
+C
+           DO 240 J=1,NSTA
+C
+              IF(FDDATA(J).NE.9999.)THEN
+C
+                 IF(FDDATA(J).GT.SDATA(J))THEN
+                    SDATA(J)=FDDATA(J) 
+                 ENDIF
+C
+              ENDIF
+C
+ 240       CONTINUE
+C
+        ELSE       
+C
+C             LOOP FOR TOTAL OF VALUES.  SDATA( ) IS NEVER 9999.
+C           
+           DO 250 J=1,NSTA
+C
+              IF(FDDATA(J).NE.9999.)THEN
+                 SDATA(J)=SDATA(J)+FDDATA(J) 
+              ENDIF
+C
+ 250       CONTINUE
+C
+        ENDIF
+C           
+      ENDIF
+C
+  280 CONTINUE
+C
+      GO TO 500
+C
+  490 DO K=1,ND1
+        SDATA(K)=9999.
+      END DO
+C
+  500 CONTINUE
+      RETURN
+      END     

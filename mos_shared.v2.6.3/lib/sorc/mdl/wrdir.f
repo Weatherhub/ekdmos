@@ -1,0 +1,83 @@
+      SUBROUTINE WRDIR(KFILDO,KFILIO,KWRITE,CCALL,NSTA,
+     1                 NTOTBY,NTOTRC,L3264W,IER)
+C
+C        NOVEMBER  2007   GLAHN   MOS-2000
+C                                 ADAPTED FROM SKPWR2
+C        JANUARY   2008   COSGROVE   ADDED COMMA FOR IBM COMPILE
+C
+C        PURPOSE
+C           TO WRITE CALL LETTERS RECORD WHEN KWRITE NE 0.
+C
+C        DATA SET USE
+C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C            KFILIO    - UNIT NUMBER OF OUTPUT FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C              KFILIO = UNIT NUMBER OF OUTPUT FILE.  IF KFILIO = 0,
+C                       THIS IS A DO NOTHING ROUTINE.  (INPUT)
+C              KWRITE = 0 IF CALL LETTERS RECORD IS NOT TO BE WRITTEN.
+C                       NE 0 OTHERWISE.  (INPUT)
+C            CCALL(K) = 8 STATION CALL LETTERS (K=1,NSTA).
+C                       (CHARACTER*8)  (INPUT)
+C                NSTA = THE NUMBER OF CALL LETTERS IN CCALL( ).  (INPUT)
+C              NTOTBY = THE TOTAL NUMBER OF BYTES ON THE FILE.  IT IS
+C                       INITIALIZED, AND THE BYTES ARE COUNTED WHEN 
+C                       SKIPPING RECORDS AND WRITING CALL LETTERS RECORDS.
+C                       (OUTPUT)
+C              NTOTRC = THE TOTAL NUMBER OF RECORDS ON THE FILE.  IT IS
+C                       INITIALIZED, AND THE RECORDS ARE COUNTED WHEN 
+C                       SKIPPING RECORDS AND WRITING CALL LETTERS RECORDS.
+C                       (OUTPUT)
+C              L3264W = THE NUMBER OF 32-BIT "WORDS" TO CONTAIN 64 BITS.
+C                       2 FOR 32-BIT MACHINE, 1 FOR 64-BIT MACHINE.
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                       144 = ERROR WRITING CALL LETTERS RECORD.
+C                       (OUTPUT)
+C           NBYTES(L) = USED TO ACCESS DATA AS EITHER 2 WORDS FOR A 32-BIT
+C                       MACHINE OR 1 WORD FOR A 64-BIT MACHINE (L=1,2).
+C                       (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES USED 
+C            NONE
+C
+      CHARACTER*8 CCALL(NSTA)
+      DIMENSION NBYTES(2)
+C
+      IER=0
+C
+C        SET NBYTES( ) = 0 AND COUNT RECORDS.
+C
+      NBYTES(1)=0
+      NBYTES(2)=0
+C
+      WRITE(KFILDO,220)L3264W,(CCALL(J),J=1,NSTA)
+ 220  FORMAT(/' IN WRDIR--(CCALL(J),J=1,NSTA)',I6,/,10(2X,A8))
+c
+      IF(KWRITE.NE.0)THEN
+D        WRITE(KFILDO,221)KFILIO
+D221     FORMAT(' IN SKIPWR2 WRITING CALL LETTERS RECORD UNIT NO.',I4)
+C
+         NBYTES(L3264W)=NSTA*8
+         WRITE(KFILIO,IOSTAT=IOS,ERR=230)(NBYTES(J),J=1,L3264W),
+     1                  (CCALL(K),K=1,NSTA)
+         NTOTRC=NTOTRC+1
+         NTOTBY=NTOTBY+NSTA*8+8
+         WRITE(KFILDO,225)NSTA,NTOTRC,KFILIO,NTOTBY
+ 225     FORMAT(/,' WRITING CALL LETTERS RECORD IN WRDIR',/,
+     1            '    NUMBER OF STATIONS =                 ',I11,/,
+     2            '    NUMBER OF RECORDS ON FILE =          ',I11,/,
+     3            '    TOTAL BYTES IN FILE UNIT NO.',I4,'     ',I11)
+         GO TO 300
+C
+ 230     WRITE(KFILDO,231)KFILIO,IOS
+ 231     FORMAT(/,' ****ERROR WRITING CALL LETTERS RECORD IN WRDIR',
+     1            ' ON UNIT NO.',I3,' AT 230.  IOSTAT =',I5)
+         IER=144
+C
+      ENDIF
+C
+300   RETURN
+      END

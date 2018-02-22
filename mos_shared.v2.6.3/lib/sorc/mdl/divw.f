@@ -1,0 +1,358 @@
+      SUBROUTINE DIVW(KFILDO,KFIL10,IDPARS,JD,NDATE,
+     1                NGRIDC,ND11,NSLAB,IPACK,IWORK,FDDV,ND5,
+     2                LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                IS0,IS1,IS2,IS4,ND7,
+     4                FD1,FD2,FD3,FD4,FDSINS,FDMS,ND2X3,
+     5                ISTAV,L3264B,MISTOT,IER)
+C
+C        FEBRUARY 1995   GLAHN   TDL   MOS-2000
+C        AUGUST   1996   GLAHN   ADDED MISSS, MISTOT, ACCURACY TO XMESHL
+C        JUNE     1997   GLAHN   SLIGHT CHANGE TO COMMENTS, NOT CODE
+C                                D COMPILE OPTION COMMENTED OUT 
+C        OCTOBER  1998   GLAHN   REMOVED TEST FOR GRID SIZE AFTER GFETCH
+C        NOVEMBER 1998   YAN     ADDED 2 M AND SIGMA SURFACES
+C        DECEMBER 2000   RUDACK  MODIFIED CODE TO CONFORM WITH MDL
+C                                FORMAT SPECIFICATIONS
+C        NOVEMBER 2002   WEISS   CHANGED ND5 TO ND2X3
+C        APRIL    2003   GLAHN   MODIFIED LINES IN CALL;  SET
+C                                DIMENSIONS OF IPACK( ), IWORK( )
+C                                AND FDVV( ) = ND5;  MODIFIED LINES IN
+C                                CALLS TO GFETCH
+C        MAY      2003   GLAHN   REARRANGED TYPE STATEMENTS
+C
+C        PURPOSE 
+C            TO COMPUTE MASS DIVERGENCE (IN UNITS OF /SEC*100000) FROM U
+C            AND V WINDS ON AN ISOBARIC, OR A CONSTANT HEIGHT, OR A SIGMA
+C            SURFACE.  RUN TIME OFFSET RR, TAU, AND OH ARE ACCOMMODATED.
+C            SINCE THE ACTUAL GRID DIMENSIONS LX AND LY ARE NOT KNOWN
+C            UNTIL THE DATA ARE FETCHED, THE SPECIAL GRID COMPUTATIONS
+C            ARE MADE IN SUBROUTINES MAPLAT AND DIVW1.
+C
+C            THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED:
+C
+C               006 110 - MASS DIVERGENCE ON PRESSURE SFC
+C               006 111 - MASS DIVERGENCE ON HEIGHT SFC
+C               006 116 - MASS DIVERGENCE ON SIGMA SFC
+C
+C        DATA SET USE 
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS
+C                     (INPUT-OUTPUT) 
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                     (OUTPUT)
+C 
+C        VARIABLES 
+C             CORE(J) = ARRAY TO STORE OR RETRIEVE DATA IDENTIFIED IN
+C                       LSTORE( , ) (J=1,ND10).  WHEN CORE( ) IS FULL,
+C                       DATA ARE STORED ON DISK.  UPON RETURN TO THE
+C                       CALLING PROGRAM, THE ARRAY WILL BE IN THE SIZE
+C                       OF LX*LY (OUTPUT).
+C              FD1(J) = WORK ARRAY TO HOLD THE SINE OF THE LATITUDE
+C                       (J=1,ND2X3) (INTERNAL)
+C              FD2(J) = WORK ARRAY TO HOLD MAP FACTOR (J=1,ND2X3)
+C              FD3(J) = WORK ARRAY TO HOLD U WIND (J=1,ND2X3)
+C              FD4(J) = WORK ARRAY TO HOLD V WIND (J=1,ND2X3)
+C             FDDV(J) = DATA ARRAY TO HOLD WIND DIVERGENCE (S^-1)
+C                       (J=1,ND5) (OUTPUT)
+C           FDMS(I,J) = ARRAY TO SAVE THE MAP FACTOR IN SUBROUTINE
+C                       MAPLAT (I=1,LX) (J=1,LY).  IT IS ONLY USED AS A
+C                       PLACEHOLDER FOR SUBROUTINE CALLS. (INTERNAL)
+C         FDSINS(I,J) = ARRAY TO SAVE THE SINE OF THE LATITUDE IN
+C                       SUBROUTINES MAPLAT (I=1,LX) (J=1,LY).  IT IS
+C                       ONLY USED AS A PLACEHOLDER FOR SUBROUTINE CALLS.
+C                       (INTERNAL)
+C                 I,J = LOOP COUNT (INTERNAL)
+C          ICCCFFF(J) = CONTAINS IDPARS(1) AND IDPARS(2) ID FOR THE U
+C                       WIND COMPONENT BEING FETCHED IN UNITS OF M/S.
+C                       COLUMN 1 CONTAINS ID FOR ISOBARIC SURFACE,
+C                       COLUMN 2 CONTAINS ID FOR CONSTANT HEIGHT SURFACE
+C                       AND COLUMN 3 CONTAINS ID FOR SIGMA SURFACE.
+C                       (INTERNAL)
+C           IDPARS(J) = PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID CORRESPONDING TO ID(J) (J=1,15) DEFINED IN
+C                       THE CALLING PROGRAM (INPUT)
+C                       J=1 -- CCC (CLASS OF VARIABLE)
+C                       J=2 -- FFF (SUBCLASS OF VARIABLE)
+C                       J=3 -- B (BINARY INDICATOR)
+C                       J=4 -- DD (DATA SOURCE, MODEL NUMBER)
+C                       J=5 -- V (VERTICAL APPLICATION)
+C                       J=6 -- LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 
+C                              LAYER)
+C                       J=7 -- LTLTLTLT (TOP OF LAYER)
+C                       J=8 -- T (TRANSFORMATION)
+C                       J=9 -- RR (RUN TIME OFFSET -- PREVIOUS CYCLE.
+C                              IT IS ALWAYS A POSITIVE NUMBER AND
+C                              COUNTED BACKWARDS IN TIME)
+C                       J=10 -- OT (TIME APPLICATION)
+C                       J=11 -- OH (TIME PERIOD IN HOURS)
+C                       J=12 -- TAU (PROJECTION IN HOURS)
+C                       J=13 -- I (INTERPOLATION TYPE)
+C                       J=14 -- S (SMOOTHING INDICATOR)
+C                       J=15 -- G (GRID INDICATOR)
+C                 IER = STATUS RETURN
+C                         0 = GOOD RETURN
+C                       100 = GRID CHARACTERISTICS ARE DIFFERENT FOR THE
+C                             2 FIELDS.
+C                       103 = IDPARS(1) AND IDPARS(2) NOT ACCOMMODATED
+C                             IN THIS SUBROUTINE
+C                       SEE GFETCH FOR OTHER VALUES WHEN IER.NE.0 AND
+C                       DATA ARE RETURNED AS MISSING (INTERNAL-OUTPUT)
+C            IPACK(J) = WORK ARRAY (J=1,ND5) (INTERNAL)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 IDS (J=1,3) (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 IDS (J=1,22+) (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 IDS (J=1,12)
+C                       IS2(3) AND IS2(4) ARE USED BY THE CALLING
+C                       PROGRAM AS GRID DIMENSION (INTERNAL-OUTPUT)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 IDS (J=1,4) (INTERNAL)
+C                 ISO = VARIABLE TO INDICATE WHICH SURFACE TO COMPUTE
+C                       WIND DIVERGENCE ON.  (1 FOR ISOBARIC, 2 FOR
+C                       CONSTANT HEIGHT, 3 FOR SIGMA SURFACE) (INTERNAL)
+C               ISTAV = 0 -- WHEN THE DATA RETURNED ARE GRID DATA OR
+C                            DATA ARE NOT AVAILABLE FOR RETURN
+C                       1 -- WHEN THE DATA RETURNED ARE STATION DATA
+C                       (OUTPUT)
+C            IWORK(J) = WORK ARRAY (J=1,ND5) (INTERNAL)
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).  THIS IS
+C                       THE SAME AS ID(J) EXCEPT THAT THE PORTIONS
+C                       PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3)
+C                       T = IDPARS(8)
+C                       I = IDPARS(13)
+C                       S = IDPARS(14)
+C                       G = IDPARS(15)
+C                       JD( ) IS USED TO HELP IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE. (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS
+C                       (INPUT)
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE
+C                       (INPUT)
+C                       (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS DEPENDING ON THE
+C                       MACHINE BEING USED (EITHER 32 OR 64) (INPUT)
+C               LD(J) = WORK ARRAY HOLDING THE 4 ID WORDS OF U WIND
+C                       BEING FETCHED (J=1,4) (INTERNAL)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , )
+C                       THAT HAVE BEEN USED IN THIS RUN (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS) (INPUT-OUTPUT)
+C                       L=1,4-- THE 4 IDS FOR THE DATA
+C                       L=5  -- LOCATION OF STORED DATA.  WHEN IN CORE,
+C                               THIS IS THE LOCATION IN CORE( ) WHERE
+C                               THE DATA START.  WHEN ON DISK, THIS IS
+C                               MINUS THE RECORD NUMBER WHERE THE DATA
+C                               START.
+C                       L=6  -- THE NUMBER OF 4-BYTE WORDS STORED
+C                       L=7  -- 2 FOR DATA PACKED IN TDL GRIB FORMAT,
+C                               1 OTHERWISE
+C                       L=8  -- DATE/TIME OF THE DATA IN FORMAT
+C                               YYYYMMDDHH
+C                       L=9  -- NUMBER OF TIMES DATA HAVE BEEN RETRIEVED
+C                       L=10 -- NUMBER OF THE SLAB IN DIR( , ,L) AND IN
+C                               NGRIDC( ,L) DEFINING THE CHARACTERISTICS
+C                               OF THE GRID
+C                       L=11 -- NUMBER OF PREDICTORS IN THE SORTED LIST
+C                               IN IS( ,N) (N=1,NPRED) FOR WHICH THIS
+C                               VARIABLE IS NEEDED ONLY ONCE FROM
+C                               LSTORE( , ).  WHEN IT IS NEEDED MORE
+C                               THAN ONCE, THE VALUE IS SET TO 7777.
+C                       L=12 -- USED INITIALLY IN ESTABLISHING
+C                               MSTORE( , ).  LATER USED TO DETERMINE
+C                               WHETHER TO KEEP THIS VARIABLE
+C               LX,LY = DIMENSIONS OF THE GRID RETURNED FROM CALLING
+C                       GFETCH FOR U WIND (INTERNAL)
+C               MD(J) = WORK ARRAY HOLDING THE 4 ID WORDS OF V WIND
+C                       BEING FETCHED (J=1,4) (INTERNAL)
+C               MISSP = PRIMARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO
+C                       MISSING VALUE (INTERNAL)
+C               MISSS = SECONDARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       ZERO FROM CALLING GFETCH WHEN THERE IS NO
+C                       MISSING VALUE (INTERNAL)
+C              MISTOT = TOTAL NUMBER OF MISSING ITEMS ENCOUNTED IN
+C                       UNPACKING GRIDS (INPUT-OUTPUT)
+C               MX,MY = DIMENSIONS OF THE GRID RETURNED FROM CALLING
+C                       GFETCH FOR V WIND (INTERNAL)
+C              NBLOCK = BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM DISK
+C                       FILE (INPUT)
+C               ND2X3 = DIMENSION OF FD1( ), FD2( ), FD3( ), FD4( ),
+C                       FDMS( ), AND FDSINS( ) (INPUT)
+C                 ND5 = DIMENSION OF IPACK( ),IWORK( ), AND FDDV( ).
+C                       (INPUT)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED. (INPUT)
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ) (INPUT)
+C                ND10 = DIMENSION OF CORE( ) (INPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH IN THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ) (INPUT)
+C               NDATE = DATE/TIME FOR WHICH THE PREDICTOR IS NEEDED
+C                       (INPUT)
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.  IT IS
+C                       A RUNNING COUNT FROM THE BEGINNING OF THE MAIN
+C                       PROGRAM.  THIS COUNT IS MAINTAINED IN CASE THE
+C                       USER NEEDS IT FOR DIAGNOSTICS, ETC. (OUTPUT)
+C         NGRIDC(L,M) = HOLDING THE GRID CHARACTERISTICS (L=1,6) FOR
+C                       EACH GRID COMBINATION (M=1,NGRID) (INPUT-OUTPUT)
+C                       L=1 -- MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                              STEREOGRAPHIC)
+C                       L=2 -- GRID LENGTH IN METERS
+C                       L=3 -- LATITUDE AT WHICH GRID LENGTH IS CORRECT
+C                              *1000
+C                       L=4 -- GRID ORIENTATION IN DEGREES *1000
+C                       L=5 -- LATITUDE OF LL CORNER IN DEGREES *1000
+C                       L=6 -- LONGITUDE OF LL CORNER IN DEGREES *1000
+C               NPACK = 2 FOR TDL GRIB PACKED DATA; 1 FOR NOT PACKED.
+C                       THIS IS RETURNED FROM CALLING GFETCH (INTERNAL)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR( , , ) AND IN
+C                       NGRIDC( , ) DEFINING THE CHARACTERISTICS OF THE
+C                       GRID.  IT IS USED TO IDENTIFY THE DATA SOURCE,
+C                       I.E., THE MODEL. (OUTPUT)
+C              NSLABU = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH FOR
+C                       U WIND (INTERNAL)
+C              NSLABV = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH FOR
+C                       V WIND (INTERNAL)
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE, THAT
+C                       THE RECORD HAS BEEN FETCHED.  THIS IS STORED IN 
+C                       LSTORE(9, ). (INTERNAL)
+C              NWORDS = NUMBER OF WORDS RETURNED IN FD3( ) AND FD4( ). 
+C                       THIS IS RETURNED FROM CALLING GFETCH. (INTERNAL)
+C              XMESHL = GRID LENGTH IN METER AT THE LATITUDE XLAT
+C                       (INTERNAL)
+C
+C        NONSYSTEM SUBROUTINES CALLED 
+C            GFETCH, MAPLAT, DIVW1
+C
+      IMPLICIT NONE
+C
+      INTEGER JD(4),IDPARS(15)
+      INTEGER IPACK(ND5),IWORK(ND5)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER LSTORE(12,ND9)
+      INTEGER NGRIDC(6,ND11)
+      INTEGER ICCCFFF(3),LD(4),MD(4)
+      INTEGER I,IER,ISO,ISTAV,J,KFIL10,KFILDO,L3264B,LITEMS,LX,LY,MISSP,
+     1        MISSS,MISTOT,MX,MY,NBLOCK,ND2X3,ND5,ND7,ND9,ND10,ND11,
+     2        NDATE,NFETCH,NPACK,NSLAB,NSLABU,NSLABV,NTIMES,NWORDS
+C
+      REAL FDDV(ND5)
+      REAL FD1(ND2X3),FD2(ND2X3),FD3(ND2X3),FD4(ND2X3),FDMS(ND2X3),
+     1     FDSINS(ND2X3)
+      REAL CORE(ND10)
+      REAL XMESHL
+C
+      DATA (ICCCFFF(I),I=1,3) /004000,004020,004016/
+C
+      IER=0
+      ISTAV=0
+C
+C        CHECK IF THIS CODE ACCOMMODATES WIND DIVERGENCE.
+C
+      IF(IDPARS(1).NE.006.OR.(IDPARS(2).EQ.110.AND.
+     1   IDPARS(2).NE.111.AND.IDPARS(2).EQ.116))THEN
+         IER=103
+         WRITE(KFILDO,100)(JD(J),J=1,4),IER
+ 100     FORMAT(/' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE WIND ',
+     1           'DIVERGENCE.',
+     2          /'     PREDICTOR ',3(I10.9),I4.3,
+     3           ' NOT ACCOMMODATED IN DIVW.  IER=',I3)
+         GOTO 900
+      ENDIF
+C
+C        DETERMINE IF WIND DIVERGENCE IS TO BE COMPUTED ON AN ISOBARIC,
+C        OR A CONSTANT HEIGHT, OR A SIGMA SURFACE 
+C
+      IF(IDPARS(2).EQ.110)THEN
+C
+C           THIS IS DATA FOR A CONSTANT PRESSURE SURFACE.
+C
+         ISO=1
+      ELSE IF(IDPARS(2).EQ.111)THEN
+C
+C           THIS IS DATA FOR A CONSTANT HEIGHT SURFACE.
+C
+         ISO=2
+      ELSE 
+C
+C           THIS IS DATA FOR A SIGMA SURFACE.
+C
+         ISO=3
+      ENDIF
+C
+C        TO OBTAIN U WINDS IN COMPUTING DIVERGENCE,
+C        CREATE ID FOR OBTAINING U WIND
+C
+      LD(1)=ICCCFFF(ISO)*1000+IDPARS(4)
+      LD(2)=IDPARS(7)
+      LD(3)=IDPARS(9)*1000000+IDPARS(12)
+      LD(4)=0
+C
+C        CALL GFETCH TO FETCH U WIND.
+C
+      CALL GFETCH(KFILDO,KFIL10,LD,7777,LSTORE,ND9,LITEMS,
+     1        IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD3,ND2X3,
+     2        NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3        NBLOCK,NFETCH,NSLABU,MISSP,MISSS,L3264B,
+     4        1,IER)
+C
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+      IF(IER.NE.0)GOTO 900
+      LX=IS2(3)
+      LY=IS2(4)
+      NSLAB=NSLABU
+C
+C        TO OBTAIN V WINDS IN COMPUTING DIVERGENCE,
+C        CREATE ID FOR OBTAINING V WIND
+C
+      MD(1)=(ICCCFFF(ISO)+100)*1000+IDPARS(4)
+      MD(2)=IDPARS(7)
+      MD(3)=IDPARS(9)*1000000+IDPARS(12)
+      MD(4)=0
+C
+C        CALL GFETCH TO FETCH V WIND.
+C
+      CALL GFETCH(KFILDO,KFIL10,MD,7777,LSTORE,ND9,LITEMS,
+     1        IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD4,ND2X3,
+     2        NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3        NBLOCK,NFETCH,NSLABV,MISSP,MISSS,L3264B,
+     3        1,IER)
+C
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+      IF(IER.NE.0)GOTO 900
+      MX=IS2(3)
+      MY=IS2(4)
+C
+      IF(NSLABU.NE.NSLABV.OR.LX.NE.MX.OR.LY.NE.MY)THEN
+C
+C           THE GRID CHARACTERISTICS ARE NOT THE SAME.
+C
+         IER=100
+         WRITE(KFILDO,200)(LD(J),J=1,4),(NGRIDC(J,NSLABU),J=1,6),LX,LY,
+     1                    (MD(J),J=1,4),(NGRIDC(J,NSLABV),J=1,6),MX,MY,
+     2                     IER
+ 200     FORMAT(/' ****DIFFERENT GRID CHARACTERISTICS.  PREDICTOR NOT ',
+     1           'COMPUTED IN DIVW.  VALUES FROM NGRIDC( , ) AND X*Y ',
+     2           'ARE: ',2(/,2X,3I10.9,I4.3,4X,6I10,4X,I3,'*',I3),
+     3           '  IER=',I3)
+         GOTO 900
+      ENDIF
+C
+C        CALL MAPLAT TO COMPUTE SINE OF LATITUDE AND MAP FACTOR.
+C
+      CALL MAPLAT(KFILDO,JD,NGRIDC(1,NSLAB),FD1,FD2,FDSINS,FDMS,LX,LY,
+     1            IER)
+      IF(IER.NE.0)GO TO 900
+C
+C        CALL DIVW1 TO COMPUTE THE WIND DIVERGENCE.
+C
+      XMESHL=NGRIDC(2,NSLAB)/1000.
+      CALL DIVW1(KFILDO,XMESHL,FDDV,FD2,FD3,FD4,LX,LY)
+      GO TO 999
+C
+C        FILL IN THE DIVERGENCE ARRAY WITH MISSING VALUES WHEN AN ERROR
+C        HAS OCCURRED.
+C
+ 900  DO J=1,ND2X3
+         FDDV(J)=9999.
+      ENDDO
+C
+ 999  RETURN
+      END

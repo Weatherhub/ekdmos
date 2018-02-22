@@ -1,0 +1,63 @@
+      SUBROUTINE PRSID1(KFILDO,ID,IDPARS)
+C 
+C        FEBRUARY 1995   GLAHN   TDL   MOS-2000 
+C
+C        PURPOSE 
+C            TO PARSE A 4-WORD ID INTO ITS 15 INTEGER PARTS.  THIS IS
+C            USED BY COMPUTATIONAL ROUTINES BEFORE CALLING OPTN2.  IT
+C            IS ASSUMED THAT WORD 4 (PROCESSING INFORMATION) = 0.
+C
+C        DATA SET USE 
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT) 
+C 
+C        VARIABLES 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE. (INPUT) 
+C               ID(J) = THE PREDICTOR ID'S (J=1,4).  IT IS ASSUMED  THAT 
+C                       ID(4) = 0.  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID'S CORRESPONDING TO ID(J) (J=1,15).
+C                       (OUTPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C 
+C        NONSYSTEM SUBROUTINES CALLED 
+C            NONE
+C
+      DIMENSION ID(4),IDPARS(15)
+C
+C        PARSE THIS PREDICTOR ID.
+C
+      IDPARS(1)=ID(1)/1000000
+      IDPARS(2)=ID(1)/1000-IDPARS(1)*1000
+      IDPARS(3)=ID(1)/100-IDPARS(1)*10000-IDPARS(2)*10
+      IDPARS(4)=ID(1)-(ID(1)/100)*100
+C
+      IDPARS(5)=ID(2)/100000000
+      IDPARS(6)=ID(2)/10000-IDPARS(5)*10000
+      IDPARS(7)=ID(2)-(ID(2)/10000)*10000
+C
+      IDPARS(9)=ID(3)/1000000
+      IDPARS(10)=ID(3)/100000-IDPARS(9)*10
+      IDPARS(11)=ID(3)/1000-IDPARS(9)*1000-IDPARS(10)*100
+      IDPARS(12)=ID(3)-(ID(3)/1000)*1000
+      IDPARS(8)=IDPARS(9)/100
+      IDPARS(9)=IDPARS(9)-IDPARS(8)*100
+C
+      IDPARS(13)=0
+      IDPARS(14)=0
+      IDPARS(15)=0
+      RETURN
+      END

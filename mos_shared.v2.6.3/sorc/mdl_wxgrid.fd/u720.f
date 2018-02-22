@@ -1,0 +1,1193 @@
+      SUBROUTINE U720(KFILDI,KFILDO,
+     1                ICALL,CCALL,NELEV,
+     2                IWBAN,STALAT,STALON,ITIMEZ,ISDATA,SDATA,SDATA1,
+     3                L1DATA,NAME,ND1,FD1,FD2,FD3,FD4,FD5,FD6,FD7,
+     4                FDA,FDVERT,FDTIME,FDSINS,FDMS,ND2,ND3,ND2X3,
+     5                ID,IDPARS,THRESH,JD,INDEX,JP,IFIND,ISTAV,ITIME,
+     6                ISCALD,SMULT,SADD,ORIGIN,CINT,UNITS,ND4,
+     7                PLAIN,IPLAIN,L3264B,L3264W,
+     8                IPACK,DATA,IWORK,ICALLD,CCALLD,ND5,
+     9                KFILIN,NAMIN,JFOPEN,MODNUM,LDATB,LDATE,
+     A                LKHERE,MSDATE,INDEXC,ND6,
+     B                IS0,IS1,IS2,IS4,ND7,
+     C                IDATE,NWORK,ND8,
+     D                LSTORE,MSTORE,ND9,
+     E                CORE,ND10,NBLOCK,
+     F                DIR,NGRIDC,ND11,
+     G                KFILRA,RACESS,ND12)
+C
+C$$$   SUBPROGRAM DOCUMENTATION BLOCK
+C
+C SUBPROGRAM: U720
+C   PRGMMR: HUNTEMANN      ORG: W/OST22          DATE: 2012-03-20
+C
+C ABSTRACT: PROGRAM U720 IS USED TO POSTPROCESS EITHER VECTOR
+C   OR GRIDPOINT DATA.  USUALLY THE VECTOR DATA ARE FORECASTS
+C   PRODUCED BY U700 OR U900 OR GRIDDED FORECASTS OR 
+C   OBSERVATIONS PRODUCED BY U155.  THE CONSISTENCY OF SEVERAL
+C   VARIABLES CAN BE CHECKED, AND ONE OR MORE OF THEM REVISED
+C   AS DESIRED.  THE INPUT TO U720 CAN BE EITHER SEQUENTIAL
+C   OR MOS-2000 EXTERNAL RANDOM ACCESS, AND THE OUTPUT CAN ALSO
+C   BE EITHER SEQUENTIAL OR RANDOM ACCESS.  ALL INPUT AND
+C   OUTPUT, EXCEPT FOR SOME DIAGNOSTIC OUTPUT, IS IN MOS-2000
+C   TDLPACK FORMAT.  U720 SHOULD RUN ON EITHER A 32-BIT OR
+C   64-BIT INTEGER MACHINE, ALTHOUGH NO 64-BIT IS CURRENTLY
+C   USED BY MDL AND THIS CAPABILITY HAS NOT BEEN TESTED.
+C   THE ONLY DIFFERENCE IS THAT THE DRIVER IS
+C   COMPILED WITH THE PARAMETER STATEMENT:
+C      PARAMETER (L3264B=32) FOR THE 32-BIT MACHINE AND
+C      PARAMETER (L3264B=64) FOR THE 64-BIT MACHINE.
+C
+C PROGRAM HISTORY LOG:
+C   10-02-01  GLAHN
+C   10-10-01  HUNTEMANN  ADDED KFILAC, IP20
+C   11-07-01  HUNTEMANN	 ADDED IP21
+C   12-03-15  HUNTEMANN  ADDED KFILWX
+C   12-03-20  HUNTEMANN  ADDED NCEP DOCBLOCK. CHANGED CODE SO 
+C                        THAT THE DATE IS READ FROM THE NCEP 
+C                        DATE FILE WITH A CALL TO GET_NCEPDATE.
+C                        ADDED CALLS TO W3TAGB AND W3TAGE.
+C
+C USAGE:  CALLED BY DRU720
+C
+C        DATA SET USE
+C        INPUT FILES:
+C          FORT.KFILDI - UNIT NUMBER OF INPUT FILE.  (INPUT)
+C           FORT.KFILP - THE UNIT NUMBER FOR WHERE THE PREDICTOR LIST 
+C                        IS TO BE FOUND.  (INPUT)
+C       FORT.KFILIN(J) - UNIT NUMBERS FOR INPUT DATA, ALL IN TDLPACK
+C                        FORMAT.  INPUT CAN INCLUDE GRIDPOINT (FILES)
+C                        DATA, PREDICTAND (OBSERVATIONS) DATA, VARIOUS
+C                        CONSTANTS, OR MOS FORECASTS (FOR 2ND GENERATION
+C                        MOS, POSSIBLY FOR LOCAL IMPLEMENTATION 
+C                        (J=1,NUMIN).  (INPUT)
+C        OUTPUT FILES: 
+C           FORT.IP(J) - UNIT NUMBERS FOR OPTIONAL OUTPUT (SEE IP( )
+C                        UNDER "VARIABLES" BELOW.)  (J=1,25)  (OUTPUT)
+C          FORT.KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C          FORT.KFIL10 - UNIT NUMBER FOR INTERMEDIATE PREDICTOR STORAGE.
+C                        (OUTPUT)
+C          FORT.KFILVO - UNIT NUMBER OF VECTOR OUTPUT FILE.  (OUTPUT)
+C          FORT.KFILGO - UNIT NUMBER OF GRIDDED OUTPUT FILE.  (OUTPUT)
+C          FORT.KFILAC - UNIT NUMBER OF ASCII WEATHER KEY LIST OUTPUT
+C                        FILE. (OUTPUT)
+C          FORT.KFILAS - ASCII DATA FOR GMOS PLOT.  (OUTPUT)
+C       FORT.KFILRA(J) - UNIT NUMBERS OF THE EXTERNAL RANDOM ACCESS
+C                        FILES (INPUT/OUTPUT)
+C
+C        VARIABLES
+C              KFILDI = UNIT NUMBER TO READ INPUT FILE 'U720.CN'.
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  INITIALLY,
+C                       THIS IS SET BY DATA STATEMENT.  LATER, IN 
+C                       IPOPEN, IF IP(1) NE 0, KFILDO IS SET = IP(1).
+C                       THIS ALLOWS CHANGING THE "DEFAULT" PRINT FILE ON 
+C                       THE FLY.  OTHERWISE, ON SOME SYSTEMS, THE OUTPUT
+C                       FILE MIGHT HAVE THE SAME NAME AND BE OVERWRITTEN.
+C                       WHEN THE OUTPUT FILE IS NOT THE ORIGINAL DEFAULT,
+C                       THE NAME IS GENERATED AND CAN BE DIFFERENT FOR
+C                       EACH RUN.
+C              KFILAS = ASCII DATA FOR GMOS PLOT.
+C        ICALL(L,K,J) = 8 STATION CALL LETTERS AS CHARACTERS IN AN
+C                       INTEGER VARIABLE (L=1,L3264W) (K=1,NSTA) 
+C                       (J=1,6).  NOTE THAT THIS REQUIRES TWO 32-BIT
+C                       WORDS TO HOLD THE DESCRIPTION BUT ONLY ONE
+C                       64-BIT WORD.  EQUIVALENCED TO CCALL( , ).
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+C                       DATA ARE KEYED TO THIS LIST, EXCEPT POSSIBLY 
+C                       CCALLD( ).  EQUIVALENCED TO ICALL( , , ).
+C            NELEV(K) = ELEVATION OF STATIONS (K=1,NSTA).
+C            IWBAN(K) = WBAN NUMBERS OF STATIONS (K=1,NSTA).  THIS IS 
+C                       RETURNED FROM RDSTAD, BUT IS NOT NEEDED.  IT IS
+C                       EQUIVALENCED IN DRU720 TO SDATA( ).
+C           STALAT(K) = LATITUDE OF STATIONS (K=1,NSTA).
+C           STALON(K) = LONGITUDE OF STATIONS (K=1,NSTA).
+C           ITIMEZ(K) = TIME ZONE INDICATOR.  THE NUMBER OF HOURS
+C                       THE STATION IS DIFFERENT FROM UTC (K=1,NSTA).
+C           ISDATA(K) = USED IN RDSTAD TO KEEP TRACK OF THE STATIONS
+C                       FOUND IN THE DIRECTORY (K=1,NSTA).  ALSO USED IN
+C                       PRED25 AND PRED26.
+C            SDATA(K) = THE ARRAY USED BY SUBROUTINE PRED25 AND PRED26 
+C                       FOR VECTOR VALUES (K=1,NSTA).  EQUIVALENCED IN
+C                       DRU720 TO IWBAN( ).
+C           SDATA1(K) = WORK ARRAY RESERVED FOR USE IN L2D2 (K=1,NSTA).
+C                       (INTERNAL)
+C           L1DATA(K) = THE ARRAY RESERVED FOR USE BY LINEARIZATION
+C                       AND CONSTANT ROUTINES (K=1,NSTA). 
+C             NAME(K) = NAMES OF STATIONS (K=1,NSTA)  (CHARACTER*20)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT
+C                       WITH (I.E., INTERPOLATION DONE FOR).  NOTE THAT
+C                       THIS DOES NOT INCLUDE THE NUMBER OF STATIONS IN
+C                       THE DIRECTORY UNLESS, OF COURSE, THE STATION
+C                       DIRECTORY IS TO BE USED AS THE STATION LIST.
+C                       SET BY PARAMETER.
+C FD1(J), FD2(J), ETC = WORK ARRAYS (J=1,ND2X3).  THESE CAN BE USED IN 
+C                       ROUTINES AS 2-DIMENSIONAL ARRAYS, THE ONLY SIZE
+C                       RESTRICTION BEING THE TOTAL, NOT THE INDIVIDUAL
+C                       GRID DIMENSIONS.  THE DIMENSION IS THE PRODUCT
+C                       OF PARAMETERS ND2 AND ND3 JUST TO ALLOW THE USER 
+C                       TO APPRECIATE THE SIZE OF THE GRIDS THAT CAN BE 
+C                       ACCOMMODATED.  THESE ARRAYS ARE USUALLY USED FOR
+C                       GRIDS, BUT NEED NOT BE.
+C              FDA(J) = TEMPORARY STORAGE RESERVED FOR SUBROUTINES
+C                       PRED25 AND PRED26 (J=1,ND2X3).
+C           FDVERT(J) = TEMPORARY STORAGE RESERVED FOR SUBROUTINE VERTP
+C                       (J=1,ND2X3).
+C           FDTIME(J) = TEMPORARY STORAGE RESERVED FOR SUBROUTINE TEMEP
+C                       (J=1,ND2X3).
+C       FDSINS(IX,JY) = USED TO SAVE THE SIN OF THE LATITUDE IN 
+C                       SUBROUTINE PSMAPF (IX=1,NX) (JY=1,NY).  THE USER
+C                       MUST NOT USE THIS ARRAY EXCEPT IN CALLING
+C                       PSMAPF.
+C         FDMS(IX,JY) = USED TO SAVE THE MAP FACTOR IN SUBROUTINE
+C                       PSMAPF (IX=1,NX) (JY=1,NY).  THE USER MUST NOT
+C                       USE THIS ARRAY EXCEPT IN CALLING PSMAPF.
+C                 ND2 = ND2*ND3 IS THE MAXIMUM SIZE OF THE GRID THAT CAN
+C                       BE DEALT WITH.  ND2 AND ND3 ARE SET SEPARATELY
+C                       TO HIGHLIGHT THE POSSIBLE DIMENSIONS OF THE
+C                       GRID.  HOWEVER, IN THE CALLED ROUTINES, THE SIZE
+C                       IS ONLY LIMITED BY THE PRODUCT, NOT EACH 
+C                       DIMENSION INDIVIDUALLY.  NOT ACTUALLY USED
+C                       EXCEPT IN DRU720.  SET BY PARAMETER.
+C                 ND3 = ND2*ND3 IS THE MAXIMUM SIZE OF THE GRID THAT CAN
+C                       BE DEALT WITH.  SEE ND2.  SET BY PARAMETER.
+C               ND2X3 = THE DIMENSION OF SEVERAL ARRAYS.  SET BY 
+C                       PARAMETER.
+C             ID(J,N) = THE INTEGER PREDICTOR ID'S (J=1,4) (N=1,ND4).
+C         IDPARS(J,N) = THE PARSED, INDIVIDUAL COMPONENTS OF THE
+C                       PREDICTOR ID'S CORRESPONDING TO ID( ,N)
+C                       (J=1,15), (N=1,ND4).
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 
+C                            1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK 
+C                            IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C           THRESH(N) = THE BINARY THRESHOLD ASSOCIATED WITH 
+C                       IDPARS( ,N), N=1,ND4).
+C             JD(J,N) = THE BASIC INTEGER PREDICTOR ID'S (J=1,4) 
+C                       (N=1,ND4).
+C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE
+C                       PORTIONS PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3, ),
+C                       T = IDPARS(8,),
+C                       I = IDPARS(13, ),
+C                       S = IDPARS(14, ),
+C                       G = IDPARS(15, ), AND
+C                       THRESH( ).
+C                       JD( , ) IS USED TO IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE.
+C            INDEX(N) = USED IN PRED26 TO KEEP TRACK OF WHICH PREDICTORS
+C                       HAVE BEEN DEALT WITH FOR A PARTICULAR DATE.
+C             JP(J,N) = JP( ,N) INDICATES WHETHER (>0) OR NOT (=0)
+C                       PREDICTOR N WILL BE OUTPUT FOR VIEWING 
+C                       (N=1,ND4).
+C                       J=1--GRIDPOINT VALUES,
+C                       J=2--GRIDPRINT WITH CONTOURS, AND
+C                       J=3--VECTOR VALUES.
+C                       THIS ALLOWS INDIVIDUAL PREDICTOR CONTROL ON THE
+C                       PRINT PARAMETERS IP(13), IP(14), AND IP(15).
+C            IFIND(N) = 1 = WHEN THE VARIABLE CAN BE FOUND DIRECTLY
+C                           FROM GFETCH (DOESN'T HAVE TO GO THRU OPTION).
+C                       2 = WHEN ID( , ) HAS BEEN FOUND IN OPTION, BUT
+C                           GOOD DATA WERE NOT RETURNED.  THEREFORE, IT 
+C                           IS UNKNOWN WHERE THE DATA ARE TO COME FROM.
+C                       0 = WHEN ID( , ) HAS BEEN FOUND IN OPTION AND
+C                           THE DATA WILL BE COMPUTED THERE.
+C            ISTAV(N) = INDICATES FOR EACH VARIABLE (N=1,NPRED) WHETHER 
+C                       DATA ARE CURRENTLY VECTOR (=1) OR GRIDPOINT (=0).
+C            ITIME(N) = FOR EACH VARIABLE (N=1,NPRED) INDICATES WHETHER
+C                       (=1) OR NOT (=0) THE RR IS TO BE USED BY GFETCH
+C                       WHEN FETCHING DATA.  (OUTPUT)
+C           ISCALD(N) = THE DECIMAL SCALING CONSTANT TO USE WHEN PACKING
+C                       THE VECTOR DATA (N=1,ND4).  NO BINARY 
+C                       SCALING IS PROVIDED FOR.
+C            SMULT(N) = THE MULTIPLICATIVE FACTOR WHEN CONTOURING OR
+C                       GRIDPRINTING THE DATA (N=1,ND4).
+C             SADD(N) = THE ADDITIVE FACTOR WHEN CONTOURING OR
+C                       GRIDPRINTING THE DATA (N=1,ND4).
+C           ORIGIN(N) = THE CONTOUR ORIGIN, APPLIES TO THE UNITS IN
+C                       UNITS(N) (N=1,ND4).
+C             CINT(N) = THE CONTOUR INTERVAL, APPLIES TO THE UNITS IN
+C                       UNITS(N) (N=1,ND4).
+C            UNITS(N) = THE UNITS OF THE DATA THAT APPLY AFTER
+C                       MULTIPLYING BY SMULT(N) AND ADDING SADD(N) 
+C                       (N=1,ND4).  (CHARACTER*12)
+C                 ND4 = THE MAXIMUM NUMBER OF PREDICTORS FOR WHICH 
+C                       VECTOR VALUES CAN BE PROVIDED.  SET BY
+C                       PARAMETER.
+C            PLAIN(N) = THE PLAIN LANGUAGE DESCRIPTION OF THE PREDICTORS
+C                       (N=1,ND4).  EQUIVALENCED TO IPLAIN( , , ).
+C                       (CHARACTER*32)
+C       IPLAIN(L,J,N) = 32 CHARACTERS (L=1,L3264W) (J=1,4) OF PLAIN
+C                       LANGUAGE DESCRIPTION OF PREDICTORS (N=1,ND4).
+C                       NOTE THAT THIS REQUIRES TWO 32-BIT WORDS TO HOLD
+C                       THE DESCRIPTION BUT ONLY ONE 64-BIT WORD.
+C                       EQUIVALENCED TO PLAIN( ).
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  SET BY PARAMETER.
+C              L3264W = NUMBER OF WORDS IN 64 BITS (EITHER 1 OR 2).  
+C                       CALCULATED BY PARAMETER, BASED ON L3464B.
+C            IPACK(J) = WORK ARRAY (J=1,ND5).
+C             DATA(J) = WORK ARRAY (J=1,ND5).
+C            IWORK(J) = WORK ARRAY (J=1,ND5).
+C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN 
+C                       INTEGER VARIABLE (L=1,L3264W) (K=1,NSTA).  THIS
+C                       LIST IS USED IN RDSTAD TO RETAIN THE ORIGINAL
+C                       LIST IN ICALL( ).  EQUIVALENCED TO CCALLD( ).
+C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,NSTA).  THIS LIST IS
+C                       USED IN RDSTAD TO RETAIN THE ORIGINAL LIST IN 
+C                       CCALL( ).  EQUIVALENCED TO ICALLD( , ).
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), DATA( ) AND
+C                       CCALLD( ); SECOND DIMENSION OF ICALLD( , ).
+C                       THESE ARE GENERAL PURPOSE ARRAYS, SOMETIMES USED 
+C                       FOR GRIDS.  TWO SIZES OF ARRAYS (ND5 AND ND2X3) 
+C                       ARE USED IN CASE AN ARRAY NEEDS TO BE LARGER 
+C                       THAN ND2X3.  ND5 CAN BE INCREASED WITHOUT 
+C                       INCREASING THE SIZE OF ALL ARRAYS.  SHOULD BE GE 
+C                       ND2X3.  SET BY PARAMETER.
+C           KFILIN(J) = UNIT NUMBERS FOR INPUT DATA, ALL IN TDLPACK 
+C                       FORMAT.  INPUT CAN INCLUDE GRIDPOINT (FILES)
+C                       DATA, PREDICTAND (OBSERVATIONS) DATA, VARIOUS
+C                       CONSTANTS, OR MOS FORECASTS (FOR 2ND GENERATION
+C                       MOS, POSSIBLY FOR LOCAL IMPLEMENTATION 
+C                       (J=1,NUMIN).
+C            NAMIN(J) = HOLDS DATA SET NAMES FOR THE UNIT NUMBERS IN 
+C                       KFILIN(J) (J=1,NUMIN).  (CHARACTER*60)
+C           JFOPEN(J) = FOR EACH FILE IN KFILIN(J), JFOPEN(J) IS 1 WHEN
+C                       THE FILE IS OPEN, IS 0 WHEN IT HAS ALREADY BEEN
+C                       USED AND IS 2 WHEN THE FILE HAS NOT BEEN OPENED 
+C                       (J=1,NUMIN).
+C           MODNUM(J) = THE "MODEL" NUMBER CORRESPONDING TO KFILIN(J),
+C                       AND NAMIN(J) (J=1,NUMIN).  THIS MAY NOT HAVE
+C                       MEANING FOR SOME INPUTS, BUT IS NEEDED FOR THE
+C                       MODEL DATA.
+C            LDATB(J) = BEGINNING DATE NEEDED FOR THE MODEL
+C                       CORRESPONDING TO NAMIN(J), ETC. (J=1,NUMIN).
+C                       THIS IS NOT OVERALL, BUT IS VALID AT PARTICULAR 
+C                       TIMES IN THE PROGRAM.
+C            LDATE(J) = ENDING DATE NEEDED FOR THE MODEL CORRESPONDING
+C                       TO NAMIN(J), ETC. (J=1,NUMIN).  THIS IS NOT
+C                       OVERALL, BUT IS VALID AT PARTICULAR TIMES IN THE
+C                       PROGRAM.  LDATB( ) AND LDATE( ) ARE INITIALIZED
+C                       TO PLUS AND MINUS VALUES OUTSIDE THE RANGE OF 
+C                       REASONABLE DATES.
+C           LKHERE(J) = KEEPS TRACK OF WHICH FILES AN EOF HAS BEEN 
+C                       REACHED (J=1,NUMIN).  INITIALLY SET TO 1; SET
+C                       TO ZERO WHEN AN EOF HAS BEEN REACHED.
+C           MSDATE(J) = KEEPS TRACK OF WHETHER ANY DATA ARE AVAILABLE
+C                       FOR A PARTICULAR DATE ON AN INPUT FILE 
+C                       (J=1,NUMIN).  USED FOR DIAGNOSTIC PRINT.
+C               NUMIN = THE NUMBER OF VALUES IN KFILIN( ), NAMES IN
+C                       NAMIN( ), ETC.  MAXIMUM OF ND6.  THIS IS REDUCED
+C                       IF THERE IS NO VARIABLE WITH A PARTICULAR
+C                       MODEL NUMBER.
+C                 ND6 = MAXIMUM NUMBER OF MODELS THAT CAN BE DEALT WITH 
+C                       IN ONE RUN.  DIMENSION OF KFILIN( ) AND
+C                       NAMIN( ).  SET BY PARAMETER.
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,4).
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,21+).
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED.  MAXIMUM SIZE IS FOR
+C                       IS1( ) = 22 PLUS 32 CHARACTERS (ONE CHARACTER
+C                       PER WORD) OF PLAIN TEXT = 54.  SET BY PARAMETER.
+C            IDATE(J) = INITIAL DATE LIST (J=1,NDATES) WHICH MAY CONTAIN
+C                       NEGATIVE VALUES INDICATING A DATE SPAN.
+C                       THIS IS MODIFIED IN DATPRO TO CONTAIN THE
+C                       COMPLETE DATE LIST WITH THE DATES IN THE SPANS
+C                       FILLED IN (J=1,NDATES), WHERE NDATES HAS BEEN
+C                       INCREASED IF NECESSARY.  DATES ARE INPUT AS
+C                       YYMMDDHH AND MODIFIED TO YYYYMMDDHH.  ZEROS IN 
+C                       THE INPUT ARE ELIMINATED.  TERMINATOR IS 
+C                       99999999.  MAXIMUM NUMBER OF DATES IS ND8.
+C            NWORK(J) = A WORK ARRAY (J=1,ND8).
+C                 ND8 = DIMENSION OF IDATE( ) AND NWORK( ).  SET BY
+C                       PARAMETER.
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDLPACK, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE
+C                              CHARACTERISTICS OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE FIRST PREDICTOR IN THE
+C                              SORTED LIST IN ID( ,N) (N=1,NPRED) FOR
+C                              WHICH THIS VARIABLE IS NEEDED, WHEN IT
+C                              DOES NOT NEED TO BE STORED AFTER DAY 1.
+C                              WHEN THE VARIABLE MUST BE STORED (TO BE
+C                              ACCESSED THROUGH OPTION) FOR ALL DAYS,
+C                              ID(11,N) IS 7777 + THE NUMBER OF THE
+C                              FIRST PREDICTOR IN THE SORTED LIST
+C                              FOR WHICH THIS VARIABLE IS NEEDED.
+C                       L=12 --USED INITIALLY IN ESTABLISHING
+C                              MSTORE( , ).  LATER USED AS A WAY OF
+C                              DETERMINING WHETHER TO KEEP THIS
+C                              VARIABLE.
+C         MSTORE(L,J) = THE ARRAY HOLDING THE VARIABLES NEEDED AS INPUT,
+C                               AFTER DAY 1, AND ASSOCIATED INFORMATION
+C                               (L=1,7) (J=1,MITEMS).
+C                       J=1,4 --THE 4 ID'S OF THE DATA.
+C                       J=5   --THE VALUE TAKEN FROM LSTORE(11, ) WHICH
+C                               INDICATES WHETHER OR NOT TO STORE THE
+C                               VARIABLE AND THE FIRST PREDICTOR TO USE
+C                               IT FOR.
+C                       J=6   --THE CYCLE TIME FOR WHICH THIS VARIABLE
+C                               IS NEEDED FOR THE DATE BEING PROCESSED.
+C                               A VARIABLE NEEDED FOR MORE THAN ONE
+C                               CYCLE TIME WILL HAVE ONE (AND ONLY ONE)
+C                               ENTRY FOR EACH CYCLE.
+C                       J=7   --THE MAXIMUM TIME OFFSET RR (SEE
+C                               IDPARS(9, ) CORRESPONDING TO MSTORE(6, )
+C                 ND9 = MAXIMUM NUMBER OF FIELDS STORED IN LSTORE( , )
+C                       AND MSTORE( , ).  SECOND DIMENSION OF
+C                       LSTORE( , ) AND MSTORE( , ).
+C             CORE(J) = SPACE ALLOCATED FOR SAVING PACKED GRIDPOINT
+C                       FIELDS (J=1,ND10).  WHEN THIS SPACE IS
+C                       EXHAUSTED, SCRATCH DISK WILL BE USED.  THIS IS
+C                       THE SPACE USED FOR THE MOS-2000 INTERNAL RANDOM
+C                       ACCESS SYSTEM.  ND10 = THE MEMORY IN WORDS
+C                       ALLOCATED TO THE SAVING OF DATA CORE( ).  WHEN
+C                       THIS SPACE IS EXHAUSTED, SCRATCH DISK WILL BE
+C                       USED.  
+C              NBLOCK = BLOCK SIZE IN WORDS OF INTERNAL MOS-2000 DISK
+C                       STORAGE.  SET BY PARAMETER.
+C          DIR(K,J,M) = THE IX (J=1) AND JY (J=2) POSITIONS ON THE GRID
+C                       FOR THE COMBINATION OF GRID CHARACTERISTICS M
+C                       (M=1,NGRID) AND STATION K (K=1,NSTA) IN
+C                       NGRIDC( M).
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR EACH
+C                       GRID COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                            STEREOGRAPHIC). 
+C                       L=2--GRID LENGTH IN METERS,
+C                       L=3--LATITUDE AT WHICH GRID LENGTH IS CORRECT
+C                            *1000,
+C                       L=4--GRID ORIENTATION IN DEGREES *1000,
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *1000, AND
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES *1000.
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH ON THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ) AND DIR( , , ).
+C         INDEXC(K,J) = LOCATIONS OF THE STATIONS CORRESPONDING TO 
+C                       CCALL(K, ) (K=1,NSTA) FOR EACH MODEL J
+C                       (J=1,NUMIN).  FOR GRIDPOINT DATA, INDEXC( , )
+C                       WILL BE EMPTY FOR THAT MODEL J.  IF A STATION
+C                       CANNOT BE FOUND IN THE DIRECTORY, INDEXC( , )
+C                       IS SET TO 99999999.  (OUTPUT)
+C           KFILRA(J) = HOLDS THE UNIT NUMBERS FOR ACCESSING THE
+C                       MOS-2000 EXTERNAL RANDOM ACCESS FILES
+C                       (J=1,ND12).
+C           RACESS(J) = THE FILE NAMES CORRESPONDING TO KFILRA(J)
+C                       (J=1,ND12).  (CHARACTER*60)
+C                ND12 = THE NUMBER OF MOS-2000 EXTERNAL RANDOM ACCESS
+C                       FILES THAT CAN BE USED ON THIS RUN.
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT
+C                       WITH.
+C              MITEMS = THE NUMBER OF ITEMS IN MSTORE( , ).
+C               KFILP = THE UNIT NUMBER FOR WHERE THE PREDICTOR LIST
+C                       IS TO BE FOUND.
+C               IP(J) = EACH VALUE (J=1,25) INDICATES WHETHER (>1)
+C                       OR NOT (=0) CERTAIN INFORMATION WILL BE WRITTEN.
+C                       WHEN IP( ) > 0, THE VALUE INDICATES THE UNIT
+C                       NUMBER FOR OUTPUT.  THESE VALUES SHOULD NOT BE
+C                       THE SAME AS ANY KFILX VALUES EXCEPT POSSIBLY
+C                       KFILDO, WHICH IS THE DEFAULT OUTPUT FILE.  THIS
+C                       IS ASCII OUTPUT, GENERALLY FOR DIAGNOSTIC
+C                       PURPOSES.  THE FILE NAMES WILL BE 4 CHARACTERS
+C                       'U720', THEN 4 CHARACTERS FROM IPINIT, THEN
+C                       2 CHARACTERS FROM IP(J) (E.G., 'U720HRG130').
+C                       THE ARRAY IS INITIALIZED TO ZERO IN CASE LESS
+C                       THAN THE EXPECTED NUMBER OF VALUES ARE READ IN.
+C                       (OUTPUT)
+C                       (1) = ALL ERRORS AND OTHER INFORMATION NOT
+C                           SPECIFICALLY IDENTIFIED WITH OTHER IP( )
+C                           NUMBERS.  WHEN IP(1) IS READ AS NONZERO,
+C                           KFILDO, THE DEFAULT OUTPUT FILE UNIT NUMBER,
+C                           WILL BE SET TO IP(1).  WHEN IP(1) IS READ
+C                           AS ZERO, KFILDO WILL BE USED UNCHANGED.
+C                       (2) = THE INPUT DATES IN IDATE( ).  WHEN THERE
+C                           ARE ERRORS, PRINT WILL BE TO UNIT KFILDO AS 
+C                           WELL AS TO UNIT IP(2).
+C                       (3) = THE OUTPUT DATES IN IDATE( ).  WHEN THERE
+C                           ARE ERRORS, OUTPUT WILL BE TO UNIT KFILDO AS 
+C                           WELL AS TO UNIT IP(3).
+C                       (4) = THE STATION LIST (CALL LETTERS ONLY).  IF 
+C                           THERE ARE INPUT ERRORS, THE STATION LIST
+C                           WILL BE WRITTEN TO THE DEFAULT OUTPUT FILE
+C                           UNIT KFILDO AS WELL AS TO UNIT IP(4).
+C                       (5) = THE STATION DIRECTORY INFORMATION.  IF 
+C                           THERE ARE INPUT ERRORS, THE STATION LIST
+C                           WILL BE WRITTEN TO THE DEFAULT OUTPUT FILE
+C                           UNIT KFILDO AS WELL AS TO UNIT IP(5). 
+C                       (6) = THE PREDICTORS AS THEY ARE BEING READ IN.
+C                           THIS IS GOOD FOR CHECKOUT; FOR ROUTINE
+C                           OPERATION, IP(7), IP(8), AND/OR IP(9),
+C                           MAY BE BETTER.  
+C                       (7) = THE PREDICTOR LIST IN SUMMARY FORM.
+C                           IF THERE ARE ERRORS, THE PREDICTOR LIST WILL 
+C                           BE WRITTEN TO THE DEFAULT OUTPUT FILE 
+C                           UNIT KFILDO AS WELL AS TO UNIT IP(7).
+C                           THIS LIST INCLUDES THE PARSED ID'S IN
+C                           IDPARS( , ).
+C                       (8) = THE PREDICTOR LIST IN SUMMARY FORM AFTER 
+C                           REORDERING.  THIS LIST INCLUDES THE PARSED 
+C                           ID'S IN IDPARS( , ).
+C                       (9) = THE PREDICTOR LIST IN SUMMARY FORM AFTER
+C                           REORDERING.  THIS DIFFERS FROM (8) IN THAT
+C                           (9) DOES NOT INCLUDE THE PARSED ID'S IN
+C                           IDPARS( , ), BUT RATHER INCLUDES THE
+C                           INFORMATION TAKEN FROM THE PREDICTOR
+C                           CONSTANT FILE ON UNIT KFILCP.
+C                       (10) = THE PREDICTOR ID'S FOR THE FIRST DAY AS
+C                           READ FROM THE ARCHIVE FILES.
+C                       (11) = THE PREDICTOR ID'S OF THE ARCHIVED FIELDS
+C                           ACTUALLY NEEDED, IN ORDER AS THEY APPEAR ON
+C                           THE ARCHIVE FILES.
+C                       (12) = THE I,J POSITIONS OF THE STATIONS ON THE
+C                           NGRID GRIDS, TOGETHER WITH THE CALL LETTERS
+C                           AND NAMES.  ALSO USED FOR THE LIST OF
+C                           STATIONS ON THE INPUT FILES FOR VECTOR DATA.
+C                       (13) = GRIDPOINT FIELDS.  WHEN THE PREDICTOR
+C                           LIST INDICATES GRIDPOINT VALUES ARE TO BE
+C                           WRITTEN FOR VIEWING (JP(1, )>0), THEY WILL
+C                           BE WRITTEN TO UNIT IP(13). 
+C                       (14) = GRIDPOINT FIELDS.  WHEN THE PREDICTOR
+C                           LIST INDICATES GRIDPOINT VALUES ARE TO BE
+C                           CONTOURED AND WRITTEN FOR VIEWING 
+C                           (JP(2, )>0), THEY WILL BE WRITTEN TO UNIT
+C                           IP(14). 
+C                       (15) = VECTOR VALUES.  WHEN THE PREDICTOR
+C                           LIST INDICATES THE OUTPUT VECTOR DATA ARE TO
+C                           BE WRITTEN FOR VIEWING (JP(3, )>0), THEY
+C                           WILL BE WRITTEN TO UNIT IP(15).
+C                       (16) = DIAGNOSTICS FOR LINEARIZATION AND
+C                           CONSTANT ROUTINES (E.G., STATIONS IN
+C                           THRESHOLD LISTS THAT ARE NOT BEING DEALT
+C                           WITH IN THIS RUN).
+C                       (17) = VALUES OF IFIND( ), ISTAV( ), AND
+C                           ITIME( ) WRITTEN FOR EACH VARIABLE AFTER
+C                           DAY 1.
+C                       (18) = VARIABLES ACTUALLY SAVED IN MOS-2000
+C                           INTERNAL STORAGE SYSTEM AFTER DAY 1.
+C                       (19) = GRIDDED VARIABLES WRITTEN PACKED.  THIS
+C                           CAPABILITY WAS INSERTED FOR VIEWING THE
+C                           GRIDS WITH GMOS_PLOT.  IT ALSO CONTROLS THE
+C                           WRITING OF ASCII DATA FOR THE LAST VARIABLE
+C                           DEALT WITH FOR THE LAST DAY.  IF LEFT ON,
+C                           LOTS OF DATA MIGHT BE NEEDLESSLY PACKED AND
+C                           WRITTEN.  NORMALLY, U720 WOULD BE RUN FOR
+C                           ONE VARIABLE FOR ONE DATE WHEN IP(19) NE.0.
+C                       (20) = THE WEATHER KEY LIST PRINTED WITH CORRESPONDING
+C                           INDICES FROM THE GRID. SAME AS OUTPUT IN KFILAC,
+C                           EXCEPT WITH INDICES FOR CHECKOUT.   
+C                       (21) = STATION VALUES OF WEATHER KEYS FOR STATIONS
+C                           IN STATION LIST.
+C                       (23) = INDICATES WHETHER (>0) OR NOT (=0)
+C                           STATEMENTS ABOUT EOF AND FILE OPENINGS AND
+C                           CLOSINGS WILL BE OUTPUT FOR PRINTING ON UNIT
+C                           IP(23).
+C             IUSE(J) = EACH VALUE J PERTAINS TO IP(J).  WHEN AN IP(J)
+C                       VALUE IS USED BY THE PROGRAM, IPRINT(J) = 1;
+C                       OTHERWISE, IPRINT(J) = 0.  USED BY IPRINT TO
+C                       PRINT IP( ) VALUES.
+C              KFIL10 = UNIT NUMBER FOR INTERMEDIATE PREDICTOR STORAGE.
+C              KFILVO = UNIT NUMBER OF VECTOR OUTPUT FILE.
+C              KFILGO = UNIT NUMBER OF GRIDDED OUTPUT FILE.
+C              KFILAC = UNIT NUMBER OF ASCII WEATHER KEY LIST FILE. 
+C                       (OUTPUT)
+C              ASCIFL = FILE NAME THAT CORRESPONDS TO THE UNIT NUMBER IN
+C                       KFILAC. (CHARACTER*60)  (INTERNAL)
+C               RUNID = INFORMATION INPUT TO IDENTIFY THE OUTPUT.
+C                       (CHARACTER*72)
+C               KSKIP = WHEN NONZERO, INDICATES THAT THE OUTPUT FILE
+C                       IS TO BE MOVED FORWARD UNTIL ALL DATA FOR
+C                       DATE KSKIP HAVE BEEN SKIPPED.  KSKIP IS INPUT
+C                       AS YYMMDDHH OR YYYYMMDDHH AND THEN USED AS
+C                       YYYYMMDDHH.
+C              KWRITE = 0 IF CALL LETTERS RECORD IS NOT TO BE WRITTEN.
+C                       NE 0 OTHERWISE.  THIS HAS NO EFFECT UNLESS KSKIP
+C                       NE 0.  IF DATA ARE SKIPPED, THE EXISTING
+C                       CALL LETTERS RECORD IS CHECKED WITH THE ONE
+C                       AVAILABLE FOR WRITING.  IF THEY MATCH
+C                       THE NEW ONE IS NOT WRITTEN; HOWEVER, IF THEY
+C                       DON'T MATCH, THE NEW ONE IS WRITTEN WHEN 
+C                       KWRITE = 1, BUT THE PROGRAM HALTS WITH A
+C                       DIAGNOSTIC WHEN KWRITE = 0.
+C               NSKIP = THE NUMBER OF ERRORS THAT WILL BE TOLERATED ON
+C                       DAY 1 WITHOUT THE PROGRAM HALTING.  IF THIS
+C                       NUMBER IS EXCEEDED, STOP WILL BE AFTER DAY 3.
+C               JSTOP = THE NUMBER OF ERRORS THAT WILL BE TOLERATED ON
+C                       THE TOTAL RUN BEFORE PROGRAM STOPS.
+C              INCCYL = INCREMENT IN HOURS BETWEEN DATE/TIMES THAT
+C                       ARE PUT INTO IDATE( ) BY SUBROUTINE DATPRO.
+C                 NEW = 1 WHEN NEW 8-LETTER CALL LETTERS ARE TO BE USED;
+C                       0 WHEN OLD 3-LETTER CALL LETTERS ARE TO BE USED.
+C               NALPH = 1 WHEN THE CALL LETTERS USED ARE TO BE
+C                         ALPHABETIZED (MORE EXACTLY, PUT IN THE ORDER 
+C                         THEY EXIST IN THE STATION DIRECTORY.
+C                       0 WHEN THE ORDER READ IN IS TO BE PRESERVED.
+C              NTOTBV = THE TOTAL NUMBER OF BYTES IN THE SEQUENTIAL
+C                       VECTOR FILE ASSOCIATED WITH UNIT NO. KFILVO.
+C                       IT IS UPDATED WHEN THE DATA IN IPACK( ) ARE
+C                       WRITTEN.
+C              NTOTRV = THE TOTAL NUMBER OF RECORDS IN THE SEQUENTIAL
+C                       VECTOR FILE ASSOCIATED WITH UNIT NO. KFILVO. 
+C                       IT IS UPDATED AS NEEDED IN WRITEP.
+C              NTOTBG = THE TOTAL NUMBER OF BYTES IN THE SEQUENTIAL
+C                       GRIDDED FILE ASSOCIATED WITH UNIT NO. KFILGO.
+C                       IT IS UPDATED WHEN THE DATA IN PACKG( ) ARE
+C                       WRITTEN.
+C              NTOTRG = THE TOTAL NUMBER OF RECORDS IN THE SEQUENTIAL
+C                       GRIDDED FILE ASSOCIATED WITH UNIT NO. KFILGO.
+C                       IT IS UPDATED AS NEEDED IN PACKG.
+C              LTOTBV = THE TOTAL NUMBER OF BYTES OF VECTOR DATA WRITTEN
+C                       TO THE EXTERNAL RANDOM ACCESS FILE, UNIT NO. 49.
+C              LTOTRV = THE TOTAL NUMBER OF RECORDS OF VECTOR DATA
+C                       WRITTEN TO THE EXTERNAL RANDOM ACCESS FILE, UNIT
+C                       NO. 49.
+C              LTOTBG = THE TOTAL NUMBER OF BYTES OF GRIDDED DATA
+C                       WRITTEN TO THE EXTERNAL RANDOM ACCESS FILE, UNIT
+C                       NO. 42 OR 43.
+C              LTOTRG = THE TOTAL NUMBER OF RECORDS OF GRIDDED DATA
+C                       WRITTEN TO THE EXTERNAL RANDOM ACCESS FILE, UNIT
+C                       NO. 42 OR 43.  (INPUT-OUTPUT)
+C              RAFILG = THE NAME OF THE GRIDDEDR FILE WRITTEN TO FOR
+C                       UNIT NO. 43.  (CHARACTER*60)  (OUTPUT)
+C              N19TBY = TOTAL BYTES WRITTEN TO IP(19). 
+C              N19TRC = TOTAL RECORDS WRITTEN TO IP(19).
+C               FLNAM = THE NAME OF THE FILE FOR IP(19).  (CHARACTER*16)
+C              NDATES = NUMBER OF VALUES IN IDATE( ).  MODIFIED AS
+C                       NECESSARY IN DATPRO.
+C              IPINIT = 4 CHARACTERS, USUALLY A USER'S INITIALS PLUS
+C                       A RUN NUMBER, TO APPEND TO 'U720' TO 
+C                       IDENTIFY A PARTICULAR SEGMENT OF OUTPUT
+C                       INDICATED BY A SUFFIX IP(J).  THE RUN NUMBER
+C                       ALLOWS MULTIPLE RUNS OF U720 AND WRITING OF
+C                       UNIQUELY NAMED FILES, PROVIDED THE USER USES
+C                       A DIFFERENT RUN NUMBER FOR EACH RUN.
+C              OUTNMV = NAME OF DATA SET FOR VECTOR OUTPUT.
+C                       (CHARACTER*60)
+C               NGRID = THE NUMBER OF GRID COMBINATIONS IN NGRIDC( , ),
+C                       MAXIMUM OF ND11.
+C               NPRED = THE NUMBER OF PREDICTORS ACTUALLY NEEDED AND
+C                       IDENTIFIED IN ID( , ), ETC.
+C              LITEMS = THE NUMBER OF ITEMS IN LSTORE( , ).
+C             IDUM(J) = SCRATCH ARRAY (J=1,2).
+C                 IER = STATUS RETURN.
+C                       0 = GOOD RETURN.  SEE CALLED ROUTINES FOR OTHER
+C                       VALUES.
+C                       OTHER VALUES RETURNED FROM SUBROUTINES.
+C              NFIRST = TAKES ON ONE OF THREE VALUES, 1, 2, OR 3,
+C                       CORRESPONDING RESPECTIVELY TO PROCESSING OF THE
+C                       FIRST DATE (ACTUALLY, CYCLE), THE SECOND DATE,
+C                       AND ALL OTHER DATES.
+C               STATE = VARIABLE SET TO STATEMENT NUMBER TO INDICATE
+C                       WHERE AN ERROR OCCURRED.  (CHARACTER*4)
+C               BLANK = 8 BLANKS.  (CHARACTER*8)  (INTERNAL)
+C               LASTL = THE LAST LOCATION IN CORE( ) USED FOR MOS-2000
+C                       INTERNAL STORAGE.  INITIALIZED TO 0 ON FIRST
+C                       ENTRY TO GSTORE.  ALSO INITIALIZED IN U720 IN
+C                       CASE GSTORE IS NOT ENTERED.
+C               LASTD = TOTAL NUMBER OF PHYSICAL RECORDS ON DISK FOR
+C                       MOS-2000 INTERNAL STORAGE.
+C              NSTORE = THE NUMBER OF TIMES GSTORE HAS BEEN ENTERED.
+C                       GSTORE KEEPS TRACK OF THIS AND RETURNS THE
+C                       VALUE.
+C              NFETCH = THE NUMBER OF TIMES GFETCH HAS BEEN ENTERED.
+C                       GFETCH KEEPS TRACK OF THIS AND RETURNS THE
+C                       VALUE.
+C               MINPK = MINIMUM GROUP SIZE WHEN PACKING THE DATA.
+C                       SET IN DATA STATEMENT.
+C              PXMISS = THE VALUE OF A SECONDARY MISSING VALUE TO INSERT
+C                       WHEN THE SECONDARY MISSING VALUE IS 9997.
+C                       THIS ALLOWS MAINTAINING A 9997, TREATING IT AS 
+C                       ZERO, AS 9999, OR AS SOME OTHER VALUE.  (INPUT)
+C            ITEMP(J) = WORK ARRAY (J=1,14).
+C              MISTOT = TOTAL NUMBER OF TIMES A MISSING INDICATOR
+C                       HAS BEEN ENCOUNTERED IN UNPACKING GRIDS WHEN
+C                       COMPUTING VARIABLES.
+C            ISTOP(J) = FOR J=1, ISTOP( ) IS INCREMENTED BY 1 EACH TIME
+C                       AN ERROR OCCURS THAT MAY BE FATAL.
+C                       FOR J=2, ISTOP( ) IS INCREMENTED BY 1 WHENEVER
+C                       AN INPUT DATA RECORD IS NOT FOUND.
+C              KCHECK = 1 TO INDICATE ANY CALL LETTERS EXISTING ON THE
+C                       OUTPUT FILE WILL BE CHECKED WITH THOSE INPUT IN
+C                       CALL( ).  IF THERE IS A PROBLEM, THE PROGRAM 
+C                       STOPS.
+C           THRPHS(I) = REAL VECTOR OF LENGTH (4) CONTAINING THE PHASE
+C                       THRESHOLDS, EXPRESSED IN PERCENT, OF THE FOUR 
+C                       PERMITTED CATEGORICAL PROBABILITY FORECASTS 
+C                       (INTERNAL).  ELEMENTS WITHIN THRPHS MUST BE 
+C                       BETWEEN 0 AND 100 PERCENT, INCLUSIVE, AND BE 
+C                       MONOTONICALLY INCREASING. (I=1,4)
+C           THRQPF(I) = REAL VECTOR OF LENGTH (2) CONTAINING THE QPF6 
+C                       THRESHOLDS, EXPRESSED IN PERCENT, OF THE TWO 
+C                       PERMITTED CATEGORICAL PROBABILITY FORECASTS. 
+C                       ELEMENTS WITHIN THRQPF MUST BE BETWEEN 
+C                       0 AND 100 PERCENT, INCLUSIVE, AND BE 
+C                       MONOTONICALLY INCREASING. (INTERNAL)  (I=1,2)
+C           THRTRW(I) = REAL VECTOR OF LENGTH (4) CONTAINING THE THUNDER
+C                       THRESHOLDS, EXPRESSED IN PERCENT, OF THE FOUR 
+C                       PERMITTED CATEGORICAL PROBABILITY FORECASTS 
+C                       (INTERNAL).  ELEMENTS WITHIN THRTRW MUST BE 
+C                       BETWEEN 0 AND 100 PERCENT, INCLUSIVE, AND BE 
+C                       MONOTONICALLY INCREASING. (I=1,4)
+C           THRSVR(I) = REAL VECTOR OF LENGTH (4) CONTAINING THE SEVERE 
+C                       THRESHOLDS, EXPRESSED IN PERCENT, OF THE FOUR 
+C                       PERMITTED CATEGORICAL PROBABILITY FORECASTS 
+C                       (INTERNAL).  ELEMENTS WITHIN THRSVR MUST BE 
+C                       BETWEEN 0 AND 100 PERCENT, INCLUSIVE, AND BE 
+C                       MONOTONICALLY INCREASING. (I=1,4)
+C              PHSTMP = PRECIPITATION PHASE CUTOVER TEMPERATURE
+C                       THRESHOLD TO LIQUID.  IF THE MOS FORECAST
+C                       TEMPERATURE IS AT OR ABOVE PHSTMP, THE 
+C                       PRECIPITATION PHASE IS INITIALIZED TO 
+C                       LIQUID. (INTERNAL)
+C              IPHSBC = FLAG FOR USING CONDITIONAL PRECIPITATION TYPE
+C                       BEST CATEGORY THRESHOLDS:
+C                       1 = USE THRESHOLDS
+C                       ELSE = DON'T USE THRESHOLDS
+C                       (INTERNAL) 
+C             NSVRLOC = FLAG TO DETERMINE ORDER OF ASCII WEATHER SUBKEYS.
+C                       1 = SEVERE ALWAYS FIRST
+C                       2 = SCT,NUM,DEF SEVERE ALWAYS FIRST
+C                       3 = SHOW LESS SEVERE AT LATER PROJECTIONS
+C                       (INTERNAL) 
+C                  NX = NUMBER OF GRIDPOINTS IN X DIRECTION. (INTERNAL)
+C                  NY = NUMBER OF GRIDPOINTS IN Y DIRECTION. (INTERNAL)
+C 
+C        SUBPROGRAMS CALLED: IPOPEN, GET_NCEPDATE, RDSNAM, RDSTAD, 
+C            RDSTAL, RDPRED, RDSTR2, PRED25, PRED26, PACK1D, IERX,
+C            W3TAGB, W3TAGE
+C          UNIQUE: - NONE  
+C          LIBRARY:
+C           MOSLIB - IOPEN, GET_NCEPDATE, RDSNAM, RDSTAD, RDSTAL,
+C                    RDPRED, RDSTR2, PRED25, PRED26, PACK1D, IERX
+C            W3LIB - W3TAGB, W3TAGE
+C
+C        EXIT STATES:
+C          COND =    0 - SUCCESSFUL RUN
+C                  147 - ERROR IN ROUTINE SKIPWR
+C                  149 - STATION NOT IN DIRECTORY
+C                  160 - FATAL ERROR IN RDSTR2
+C                  238 - NUMBER OF ERRORS EXCEEDS JSTOP
+C                  299 - NUMBER OF ERRORS EXCEEDS NSKIP
+C                 1462 - INCONSISTENCY IN INPUT UNIT NUMBERS IN KFILIN() WITH
+C                        EITHER KFILDT, KFILRA(), KFILIO, KFILD(), KFILP, OR KFILCP  
+C                 1463 - INCONSISTENCY IN INPUT UNIT NUMBERS IN KFILIN() WITH 
+C                        KFILRA() 
+C                 1465 - INCONSISTENCY IN INPUT UNIT NUMBER IN KFILDI WITH EITHER
+C                        KFILDO, KFIL10, KFILAC, OR KFILIO
+C                 1466 - INCONSISTENCY IN INPUT UNIT NUMBER IN KFILP WITH
+C                        EITHER KFILDO, KFIL10, KFILAC, OR KFILIO
+C                 1467 - INCONSISTENCY IN INPUT UNIT NUMBER IN KFILCP WITH
+C                        EITHER KFILDO, KFIL10, KFILAC, OR KFILIO
+C                 1468 - INCONSISTENCY IN INPUT UNIT NUMBER IN IP() WITH
+C                        EITHER KFILDI, KFILP, KFILCP, KFILAC, OR KFILD()
+C                 9999 - ERROR WITH EITHER AN OPEN OR WRITE STATEMENT 
+C
+C REMARKS:  NONE 
+C                                                                       
+C ATTRIBUTES:                                                           
+C   LANGUAGE:  FORTRAN 90 (xlf90 compiler) 
+C   MACHINE:  IBM SP
+C
+C$$$               
+C
+      CHARACTER*4 STATE,IPINIT
+      CHARACTER*8 CCALL(ND1,6),BLANK
+      CHARACTER*8 CCALLD(ND5)
+      CHARACTER*16 FLNAM
+      CHARACTER*12 UNITS(ND4)
+      CHARACTER*20 NAME(ND1)
+      CHARACTER*32 PLAIN(ND4)
+      CHARACTER*60 NAMIN(ND6),RACESS(ND12)
+      CHARACTER*60 OUTNMV,OUTNMG,RAFILV,RAFILG,ASCIFL
+      CHARACTER*72 RUNID/' '/
+C
+      DIMENSION ICALL(L3264W,ND1,6),
+     1          NELEV(ND1),IWBAN(ND1),STALAT(ND1),STALON(ND1),
+     2          ITIMEZ(ND1),ISDATA(ND1),SDATA(ND1),SDATA1(ND1),
+     3          L1DATA(ND1)
+      DIMENSION FD1(ND2X3),FD2(ND2X3),FD3(ND2X3),FD4(ND2X3),
+     1          FD5(ND2X3),FD6(ND2X3),FD7(ND2X3),FDA(ND2X3),
+     2          FDVERT(ND2X3),FDTIME(ND2X3),FDSINS(ND2X3),FDMS(ND2X3)
+      DIMENSION ID(4,ND4),IDPARS(15,ND4),THRESH(ND4),JD(4,ND4),
+     1          INDEX(ND4),JP(3,ND4),IFIND(ND4),ISTAV(ND4),ITIME(ND4),
+     2          ISCALD(ND4),SMULT(ND4),SADD(ND4),ORIGIN(ND4),CINT(ND4)
+      DIMENSION IPLAIN(L3264W,4,ND4)
+      DIMENSION IPACK(ND5),DATA(ND5),IWORK(ND5),ICALLD(L3264W,ND5)
+      DIMENSION KFILIN(ND6),MODNUM(ND6),LDATB(ND6),LDATE(ND6),
+     1          JFOPEN(ND6),LKHERE(ND6),MSDATE(ND6)
+      DIMENSION INDEXC(ND1,ND6)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION IDATE(ND8),NWORK(ND8)
+      DIMENSION LSTORE(12,ND9),MSTORE(7,ND9)
+      DIMENSION CORE(ND10)
+      DIMENSION DIR(ND1,2,ND11),NGRIDC(6,ND11)
+      DIMENSION KFILRA(ND12)
+      DIMENSION ITEMP(14),IP(25),IUSE(25),IDUM(2),ISTOP(2)
+      DIMENSION THRPHS(4),THRTRW(4),THRQPF(2),THRSVR(4)
+C
+      DATA KFIL10/99/
+      DATA KFILAS/98/
+      DATA ISTOP/0,0/
+      DATA MINPK/42/
+C        MINPK SET GT THE USUAL 14 BECAUSE OF LARGE GRIDS.
+      DATA NGRID/0/
+      DATA BLANK/' '/
+      DATA LASTL/0/,
+     1     LASTD/0/
+      DATA IP/25*0/
+      DATA KSKIP,NSKIP,JSTOP,INCCYL/4*0/
+      DATA NSTORE/0/,
+     1     NFETCH/0/
+      DATA NTOTBV/0/,
+     1     NTOTRV/0/,
+     2     NTOTBG/0/,
+     3     NTOTRG/0/,
+C    
+     4     LTOTBV/0/,
+     5     LTOTRV/0/,
+     6     LTOTBG/0/,
+     7     LTOTRG/0/,
+C    
+     8     N19TBY/0/,
+     9     N19TRC/0/
+      DATA MISTOT/0/
+      DATA RAFILV/' '/,
+     1     RAFILG/' '/
+C
+      CALL W3TAGB('U720',2012,0130,0050,'OST22')
+C
+C        INITIALZE.
+C
+      CALL INT720(KFILDI,KFILDO,KFIL10,KFILAS,KFILVO,KFILGO,IP,
+     1            KFILAC,ASCIFL,
+     2            KFILRA,RACESS,NUMRA,ND12,FLNAM,
+     3            ICALL,CCALL,NAME,NELEV,
+     4            IWBAN,STALAT,STALON,ITIMEZ,ISDATA,NSTA,ND1,
+     5            ID,IDPARS,THRESH,JD,JP,
+     6            ISCALD,SMULT,SADD,ORIGIN,CINT,UNITS,
+     7            PLAIN,IPLAIN,NPRED,ND4,
+     8            IPACK,DATA,IWORK,ICALLD,CCALLD,ND5,
+     9            KFILIN,NAMIN,JFOPEN,MODNUM,NUMIN,ND6,
+     A            IDATE,NWORK,NDATES,ND8,INCCYL,
+     B            NEW,NALPH,PXMISS,
+     C            NSKIP,KSKIP,KWRITE,LTOTBV,LTOTRV,
+     D            OUTNMV,OUTNMG,
+     E            L3264B,L3264W,MINPK,JSTOP,ISTOP,
+     F            THRPHS,THRQPF,THRTRW,THRSVR,
+     G            IPHSBC,PHSTMP,NSVRLOC,NX,NY,IER)
+C
+C        COMPUTE AND INTERPOLATE FOR ALL NDATE CYCLES.  NOTE THAT, WHILE
+C        CYCLES OF A MODEL ARE USUALLY DEALT WITH SEPARATELY, THE DATES
+C        CONTAIN THE CYCLE (RUN) TIME, AND NDATE REFERS TO THE TOTAL
+C        NUMBER OF CYCLES, NOT JUST DAYS.
+C
+ 150  DO 300 ND=1,NDATES
+      NFIRST=MIN(ND,3)
+C        NFIRST WILL TAKE ON ONLY THE VALUES 1, 2, OR 3.
+      IF(NFIRST.NE.1)GO TO 230
+C
+C        READ AND STORE ALL FIELDS FROM ALL MODELS THAT MAY BE NEEDED
+C        FOR DAY 1.  SINCE IT IS NOT KNOWN AT THIS POINT WHICH FIELDS
+C        ARE NEEDED, ALL MUST BE SAVED WITH THE IDENTIFYING INFORMATION
+C        IN PACKED FORMAT.  ALSO, THE GRID LOCATIONS OF THE STATIONS
+C        ARE COMPUTED FOR ALL COMBINATIONS OF GRIDS ENCOUNTERED.
+C
+      STATE='170 '
+      CALL RDSTR2(KFILDO,KFIL10,KFILIN,MODNUM,NAMIN,JFOPEN,
+     1            LDATB,LDATE,LKHERE,ND6,NUMIN,IDATE(1),
+     2            ID,IDPARS,ITIME,NPRED,ND4,
+     3            IPACK,IWORK,DATA,CCALLD,ND5,
+     4            IS0,IS1,IS2,IS4,ND7,
+     5            LSTORE,LITEMS,ND9,NBLOCK,CORE,ND10,
+     6            LASTL,LASTD,NSTORE,NGRIDC,ND11,NGRID,IP(10),
+     7            CCALL,NAME,STALAT,STALON,SDATA,DIR,
+     8            INDEXC,ND1,NSTA,
+     9            PXMISS,IP(12),IP(23),L3264B,L3264W,ISTOP(1),IER)
+C
+C        IER = 56 MEANS THAT NO FIELDS WERE FOUND FOR DAY 1.  WHILE
+C        UNLIKELY, IT IS POSSIBLE THIS RUN DOES NOT REQUIRE MODEL DATA,
+C        SO LET IT CONTINUE.
+C
+      IF(IER.EQ.53.OR.IER.EQ.60.OR.IER.EQ.50.OR.IER.EQ.58)THEN
+         WRITE(KFILDO,160)
+ 160     FORMAT(' ****FATAL ERROR, STOP IN U720 AT 160')
+         CALL W3TAGE('U720')
+         STOP 160
+      ENDIF
+C
+C        COMPUTE AND INTERPOLATE ALL PREDICTORS IN THE LIST IN ID( , )
+C        FOR THE FIRST DAY; WRITE THEM TO KFILVO UNLESS KFILVO = 0.
+C
+      CALL PRED25(KFILDO,KFIL10,KFILVO,KFILGO,NFIRST,
+     1            ID,IDPARS,THRESH,JD,JP,IFIND,ISTAV,ITIME,ISCALD,
+     2            SMULT,SADD,ORIGIN,CINT,IPLAIN,PLAIN,UNITS,NPRED,
+     3            IDATE(ND),KFILRA,RACESS,NUMRA,
+     4            ICALL,CCALL,ICALLD,CCALLD,NAME,NSTA,NGRID,DIR,
+     5            NGRIDC,ISDATA,SDATA,SDATA1,L1DATA,
+     6            NELEV,STALAT,STALON,ITIMEZ,ND1,ND11,
+     7            IPACK,IWORK,DATA,ND5,MINPK,
+     8            LSTORE,MSTORE,ND9,LITEMS,MITEMS,CORE,ND10,LASTL,
+     9            NBLOCK,LASTD,NSTORE,NFETCH,
+     A            IS0,IS1,IS2,IS4,ND7,
+     B            FD1,FD2,FD3,FD4,FD5,FD6,FD7,
+     C            FDA,FDVERT,FDTIME,FDSINS,FDMS,ND2X3,
+     D            KFILAC,ASCIFL,
+     E            IP(12),IP(13),IP(14),IP(15),IP(16),IP(19),IP(20),
+     F            IP(21),NTOTBV,NTOTRV,NTOTBG,NTOTRG,
+     G            LTOTBV,LTOTRV,LTOTBG,LTOTRG,RAFILV,RAFILG,
+     H            N19TBY,N19TRC,
+     I            L3264B,L3264W,MISTOT,ISTOP,
+     J            THRPHS,THRQPF,THRTRW,THRSVR,
+     K            IPHSBC,PHSTMP,NSVRLOC,NX,NY,IER)
+C
+D     WRITE(KFILDO,200)((LSTORE(L,M),L=1,12),M=1,LITEMS)
+D200  FORMAT(/,' LSTORE IN U720 AFTER PRED25 BEFORE LMSTR1',/,
+D    1      (' ',3I10,I11,2I8,I3,I12,2I3,I5,I12))
+C
+C        PRINT VALUES FOR IFIND( ), ISTAV( ), AND ITIME( ) TO IP(17).
+C
+      IF(IP(17).NE.0)THEN
+         WRITE(IP(17),208)
+ 208     FORMAT( )
+         WRITE(IP(17),209)
+ 209     FORMAT(' VALUES OF IFIND, ISTAV, AND ITIME FOR EACH VARIABLE',
+     1          '      IFIND               = 1 WHEN FOUND DIRECTLY;',
+     2          ' 0 FROM OPTION; 2 UNKNOWN',
+     3          /,56X,'         ISTAV        = 1 WHEN INPUT DATA WERE',
+     4              ' VECTOR; 0 GRIDPT; 2 UNKNOWN',
+     5          /,56X,'                ITIME = 1 WHEN RR IS TO BE',
+     6              ' OPERATIVE; 0 OTHERWISE')
+C
+         DO 2094 N=1,NPRED
+C
+            IF(IDPARS(1,N).EQ.409.AND.IDPARS(4,N).EQ.0)THEN
+               CALL GLOOK(KFILDO,ID(1,N),LSTORE,ND9,LITEMS,
+     1                 0,0,IER)
+C           
+               IF(IER.EQ.0)THEN
+                  WRITE(IP(17),2090)N,(ID(J,N),J=1,4),IFIND(N),ISTAV(N),
+     1                              ITIME(N)
+ 2090             FORMAT(' ',I4,4I12,1X,3I7,'     WILL BE RETRIEVED',
+     1                   ' FROM INTERNAL STORAGE AS A VECTOR')
+               ELSE
+                  WRITE(IP(17),2091)N,(ID(J,N),J=1,4),IFIND(N),ISTAV(N),
+     1                              ITIME(N)
+ 2091             FORMAT(' ',I4,4I12,1X,3I7,'     MISSING CONSTANT')
+               ENDIF
+C
+            ELSE
+               WRITE(IP(17),2092)N,(ID(J,N),J=1,4),IFIND(N),ISTAV(N),
+     1                           ITIME(N)
+ 2092          FORMAT(' ',I4,4I12,1X,3I7)
+            ENDIF
+C
+ 2094    CONTINUE
+C
+      ENDIF
+C
+      IF(ND.EQ.NDATES)GO TO 237
+C
+C        ELIMINATE THE ENTRIES IN LSTORE( , ) NOT NEEDED AND
+C        INITIALIZES MSTORE( , ).  DON'T NEED TO DO FOR LAST DATE.
+C
+      CALL LMSTR1(KFILDO,IDATE(ND),IDATE(ND+1),LSTORE,LITEMS,
+     1            MSTORE,MITEMS,ND9,INCCYL,IER)
+C
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+C
+      CALL GCPAC(KFILDO,KFIL10,LSTORE,ND9,LITEMS,CORE,ND10,
+     1           LASTL,LASTD,IWORK,ND5,NBLOCK,IER)
+      IF(IER.NE.0)ISTOP(1)=ISTOP(1)+1
+C
+      IF(IP(18).NE.0.AND.LITEMS.NE.0)THEN
+         WRITE(KFILDO,2095)ND,((LSTORE(L,M),L=1,12),M=1,LITEMS)
+ 2095    FORMAT(/,' SAVED VARIABLES IN LSTORE AFTER DAY ',I3,//
+     1          (' ',3I10,I11,2I8,I3,I12,2I3,I5,I12))
+      ENDIF
+C      
+      IF(MITEMS.EQ.0)GO TO 215
+C
+      IF(IP(11).NE.0)WRITE(IP(11),210)((MSTORE(L,K),L=1,7),K=1,MITEMS)
+ 210  FORMAT(/,' MSTORE( , ) AFTER DAY 1, VARIABLES NEEDED',
+     1        ' FROM INPUT',/,
+     2        45X,'USE/STORE   CYCLE  HRS TO KEEP'/
+     3       (' ',3I10,I11,I10,I8,I10))
+ 215  IF(ISTOP(1).NE.0)WRITE(KFILDO,216)ISTOP(1)
+ 216  FORMAT(/,' AT LEAST ISTOP(1) =',I6,' ERRORS OCCURRED ON DAY 1.')
+      IF(ISTOP(2).NE.0.AND.ISTOP(1).EQ.0)WRITE(KFILDO,2165)ISTOP(2)
+ 2165 FORMAT(/,' AT LEAST ISTOP(2) =',I6,' VARIABLES MISSING ON DAY 1.')
+      IF(ISTOP(2).NE.0.AND.ISTOP(1).NE.0)WRITE(KFILDO,2166)ISTOP(2)
+ 2166 FORMAT(' AT LEAST ISTOP(2) =',I6,' VARIABLES MISSING ON DAY 1.')
+      IF(ISTOP(1).EQ.0.AND.ISTOP(2).EQ.0)WRITE(KFILDO,217)
+ 217  FORMAT(/,' NO ERRORS OCCURRED AND ALL NEEDED DATA WERE FOUND',
+     1        ' FOR DAY 1.')
+      WRITE(KFILDO,218)NSTORE
+ 218  FORMAT(/,' AT THE END OF DAY 1, THE MOS-2000 INTERNAL FILE',
+     1        ' HAS BEEN ACCESSED BY GSTORE',I11,' TIMES.')
+      WRITE(KFILDO,219)NFETCH
+ 219  FORMAT(' AT THE END OF DAY 1, THE MOS-2000 INTERNAL FILE',
+     1          ' HAS BEEN ACCESSED BY GFETCH',I11,' TIMES.')
+      GO TO 240
+C
+ 230  CALL PRED26(KFILDO,KFIL10,KFILVO,KFILGO,KFILIN,NAMIN,
+     1            JFOPEN,NFIRST,ID,IDPARS,THRESH,JD,INDEX,JP,
+     2            IFIND,ISTAV,ITIME,ISCALD,
+     2            SMULT,SADD,ORIGIN,CINT,IPLAIN,PLAIN,UNITS,
+     4            NPRED,MODNUM,ND6,NUMIN,
+     5            LDATB,LDATE,LKHERE,MSDATE,
+     6            IDATE(ND),KFILRA,RACESS,NUMRA,
+     7            ICALL,CCALL,ICALLD,CCALLD,NAME,NSTA,NGRID,DIR,
+     8            NGRIDC,ISDATA,SDATA,SDATA1,L1DATA,
+     9            NELEV,STALAT,STALON,ITIMEZ,INDEXC,ND1,ND11,
+     A            IPACK,IWORK,DATA,ND5,MINPK,
+     B            LSTORE,MSTORE,ND9,LITEMS,MITEMS,CORE,ND10,LASTL,
+     C            NBLOCK,LASTD,NSTORE,NFETCH,
+     D            IS0,IS1,IS2,IS4,ND7,
+     E            FD1,FD2,FD3,FD4,FD5,FD6,FD7,
+     F            FDA,FDVERT,FDTIME,FDSINS,FDMS,ND2X3,
+     G            KFILAC,ASCIFL,
+     H            IP(12),IP(13),IP(14),IP(15),IP(16),IP(19),IP(20),
+     I            IP(21),IP(23),NTOTBV,NTOTRV,NTOTBG,NTOTRG,
+     J            LTOTBV,LTOTRV,LTOTWG,LTOTRG,
+     K            N19TBY,N19TRC,
+     L            PXMISS,L3264B,L3264W,MISTOT,ISTOP,
+     M            THRPHS,THRQPF,THRTRW,THRSVR,
+     N            IPHSBC,PHSTMP,NSVRLOC,NX,NY,IER)
+      IF(IER.EQ.53.OR.IER.EQ.60.OR.IER.EQ.127)GO TO 304
+C        IER EQ 53 OR 60 IS FATAL ERROR IN GRCOMB.
+C        IER EQ 127 MEANS ALL DATA AVAILABLE HAVE BEEN USED.
+C        IER EQ 31, 38, OR 138 WILL BE TOLERATED FOR NOW;
+C        ISTOP(1) WILL HALT PROGRAM EVENTUALLY.
+C
+C***D     WRITE(KFILDO,2305)((LSTORE(L,M),L=1,12),M=1,LITEMS)
+C***D2305 FORMAT(/,' LSTORE IN U720 AFTER PRED26',/
+C***D    1      (' ',3I10,I11,2I8,I3,I12,2I3,I5,I12))
+C
+      IF(ND.EQ.NDATES)GO TO 237
+C
+C        THE FOLLOWING PRINT FOR IFIND( ), ISTAV( ), AND ITIME( )
+C        TO IP(17) IS ONLY DONE ONCE, FOR DAY 2.  SOME OF THESE
+C        VALUES COULD CHANGE FROM DAY 1 DEPENDING ON AVAILABILITY
+C        OF DATA.
+C
+D     IF(IP(17).NE.0.AND.ND.EQ.2)THEN
+D        WRITE(IP(17),231)
+D231     FORMAT(/,' AT THE END OF DAY 2:')
+D        WRITE(IP(17),209)
+C
+D        DO 232 N=1,NPRED
+D           WRITE(IP(17),2092)N,(ID(J,N),J=1,4),
+D    1                        IFIND(N),ISTAV(N),ITIME(N)
+D232     CONTINUE
+C
+D     ENDIF
+C
+C        ELIMINATE THE ENTRIES IN LSTORE( , ) NOT NEEDED.
+C
+      CALL LMSTR2(KFILDO,IDATE(ND+1),LSTORE,LITEMS,ND9)
+      CALL GCPAC(KFILDO,KFIL10,LSTORE,ND9,LITEMS,CORE,ND10,
+     1           LASTL,LASTD,IWORK,ND5,NBLOCK,IER)
+C
+      IF(IER.EQ.0)GO TO 237
+      ISTOP(1)=ISTOP(1)+1
+C        AN ERROR IN GCPAC IS FATAL.
+      WRITE(KFILDO,236)IDATE(ND)
+ 236  FORMAT(/,' ****FATAL ERROR IN GCPAC PROCESSING DATE',I11)
+      GO TO 304
+C
+ 237  IF(ND.LE.5.AND.ND.LT.NDATES.AND.
+     1            IP(18).NE.0.AND.LITEMS.NE.0)THEN
+         WRITE(KFILDO,2095)ND,((LSTORE(L,M),L=1,12),M=1,LITEMS)
+      ENDIF
+C
+      IF(ND.LT.3.OR.ISTOP(1).LE.JSTOP)GO TO 240
+C 
+C        TOTAL ERRORS ALLOWED HAVE BEEN EXCEEDED. PRINT AND STOP.
+C
+      WRITE(KFILDO,238)ISTOP(1),IDATE(ND)
+ 238  FORMAT(/,' NUMBER OF ERRORS =',I6,' AFTER DATE',I11,
+     1        ' EXCEEDS JSTOP.  STOP IN U720 AT 238.')   
+      WRITE(KFILDO,306)NSTORE
+      WRITE(KFILDO,307)NFETCH
+      CALL W3TAGE('U720')
+      STOP 238
+C
+ 240  IF(ND.EQ.1)LSTOP=ISTOP(1)
+C        THE NUMBER OF ERRORS, ISTOP(1), ON DAY 1 IS SAVED IN LSTOP.
+C        AFTER DAY THREE, IF LSTOP IS GT NSKIP, U720 HALTS.
+C
+C        WRITE VECTOR DATA FROM THE GRID IN ASCII FOR
+C        GMOS_PLOT WHEN IP(19) NE 0, THIS IS THE LAST VARIABLE,
+C        AND THE LAST DATE.  ONLY ONE SET OF DATA ARE RETAINED.
+C        PRED25 AND PRED26 RETURNS THE LAST COMPUTATION IN SDATA( ).
+C        (IP(19) CONTROLS THE PRINTING HERE AND THE WRITING OF THE
+C        GRIDDED DATA IN PRED25 AND PRED26.
+C
+      IF(IP(19).NE.0.AND.ND.EQ.NDATES)THEN
+C
+         REWIND KFILAS
+C           ONLY ONE RECORD CAN BE PROCESSED.  THIS WILL MAKE
+C           AVAILABLE THE LAST ONE ANALYZED.
+C
+         IF(IDPARS(1,NPRED).EQ.002)THEN
+            CALL SCALX2(KFILDO,SDATA,SDATA,NSTA,1.8,-459.67,0,IER)
+C              THIS SCALES TEMPERATURE IN KELVIN TO F.  THIS IS 
+C              THE LAST USE OF SDATA( ), SO THE SCALED VALUE
+C              FOR OUTPUT CAN BE IN THE SAME ARRAY.
+C
+         ELSEIF((IDPARS(1,NPRED).EQ.008).AND.
+     1          (IDPARS(2,NPRED).EQ.000.OR.
+     2           IDPARS(2,NPRED).EQ.100.OR.
+     3           IDPARS(2,NPRED).EQ.070.OR.
+     4           IDPARS(2,NPRED).EQ.130))THEN
+            CALL SCALX2(KFILDO,SDATA,SDATA,NSTA,1.,0.,3,IER)
+C              THIS SCALES ENGLISH UNITS CEILING HEIGHT OR VISIBILITY
+C              PROBABILITIES TO 10**3.  THIS IS THE LAST USE OF
+C              SDATA( ), SO THE SCALED VALUE FOR OUTPUT CAN BE IN THE
+C              SAME ARRAY.
+         ENDIF
+C
+         DO 250 K=1,NSTA
+C
+C           WRITE THE LONGITUDE AS NEGATIVE, LATITUDE, ASCII
+C           DATA TO PLOT, AND THE CALL LETTERS AND NAME.  THE
+C           LATTER TWO ARE ONLY TO IDENTIFY THE DATA FOR 
+C           HUMAN READING.
+C
+C              WRITE FOR NON-VECTOR (WIND) DATA.
+C
+         IF(SDATA(K).LT.9998.9)THEN 
+C               MISSING DATA ARE NOT WRITTEN.
+             WRITE(KFILAS,248)-STALON(K),STALAT(K),
+     1                        NINT(SDATA(K))
+ 248         FORMAT(2F10.4,I6)
+         ENDIF
+C
+ 250     CONTINUE
+C
+      ENDIF
+C
+      IF(ND.NE.3.OR.LSTOP.LE.NSKIP)GO TO 300
+C
+      WRITE(KFILDO,299)LSTOP,ISTOP(1)
+ 299  FORMAT(/,' NUMBER OF ERRORS ON DAY 1 =',I3,' EXCEEDS NSKIP.',
+     1        '  STOP AT END OF DAY 3, ISTOP(1) TOTAL ERRORS =',I3,
+     2        '.  STOP IN U720 AT 299.')
+      WRITE(KFILDO,306)NSTORE
+      WRITE(KFILDO,307)NFETCH
+      CALL W3TAGE('U720')
+      STOP 299
+C
+ 300  CONTINUE
+C
+C        WRITE TRAILER RECORD AND EOF TO SEQUENTIAL VECTOR FILE,
+C        UNLESS KFILVO = 0.  IF THERE IS AN ERROR, TRAIL WILL
+C        PRODUCE A DIAGNOSTIC.
+C
+ 304  IF(KFILVO.NE.0)THEN
+         CALL TRAIL(KFILDO,KFILVO,L3264B,L3264W,LTOTBV,LTOTRV,IER)
+         ENDFILE KFILVO
+      ENDIF
+C
+C        CLOSE ANY RANDOM ACCESS FILE THAT HAS POSSIBLY BEEN USED.
+C
+      DO 305 J=1,NUMRA
+      CALL CLFILM(KFILDO,KFILRA(J),IER)
+ 305  CONTINUE
+
+      WRITE(KFILDO,306)NSTORE
+ 306  FORMAT(/,' THE MOS-2000 INTERNAL FILE HAS BEEN ACCESSED BY',
+     1        ' GSTORE',I11,' TIMES.')
+      WRITE(KFILDO,307)NFETCH
+ 307  FORMAT(' THE MOS-2000 INTERNAL FILE HAS BEEN ACCESSED BY',
+     1       ' GFETCH',I11,' TIMES.')
+      IF(MISTOT.NE.0)WRITE(KFILDO,308)MISTOT
+ 308  FORMAT(/,' A PRIMARY MISSING INDICATOR HAS BEEN FOUND',I7,
+     1        ' TIMES WHEN UNPACKING GRIDS.',/,
+     2        ' NO ALLOWANCE FOR MISSING VALUES HAS BEEN MADE',
+     3        ' WHEN MAKING CALCULATIONS.')
+C
+      IF(KFILVO.NE.0)THEN
+         WRITE(KFILDO,309)LTOTBV,LTOTRV,OUTNMV
+ 309     FORMAT(/,' A TOTAL OF ',I11,' BYTES IN ',I7,' RECORDS NOW',
+     1           ' EXIST ON VECTOR  SEQUENTIAL    FILE ',A60)
+      ENDIF
+C
+      IF(KFILGO.NE.0)THEN
+         WRITE(KFILDO,3092)LTOTBG,LTOTRG,OUTNMG
+ 3092    FORMAT(/,' A TOTAL OF ',I11,' BYTES IN ',I7,' RECORDS NOW',
+     1           ' EXIST ON GRIDDED SEQUENTIAL    FILE ',A60)
+      ENDIF
+C
+      IF(IP(19).NE.0)THEN
+         WRITE(KFILDO,3095)N19TBY,N19TRC,FLNAM
+ 3095    FORMAT(/,' A TOTAL OF ',I11,' BYTES IN ',I7,' RECORDS NOW',
+     1           ' EXIST ON GRIDDED SEQUENTIAL    FILE ',A16)
+      ENDIF
+C
+      IF(NTOTRV.GT.0)THEN
+         WRITE(KFILDO,3097)NTOTBV,NTOTRV,RAFILV
+ 3097    FORMAT(/,' A TOTAL OF ',I11,' BYTES IN ',I7,' RECORDS NOW',
+     1           ' EXIST ON VECTOR  RANDOM ACCESS FILE ',A60)
+      ENDIF
+C
+      IF(NTOTRG.GT.0)THEN
+         WRITE(KFILDO,3098)NTOTBG,NTOTRG,RAFILG
+ 3098    FORMAT(/,' A TOTAL OF ',I11,' BYTES IN ',I7,' RECORDS NOW',
+     1           ' EXIST ON GRIDDED RANDOM ACCESS FILE ',A60)
+      ENDIF
+c
+ 310  IF(ISTOP(1).NE.0)WRITE(KFILDO,311)ISTOP(1)
+ 311  FORMAT(/,' AT LEAST ISTOP(1) =',I6,
+     1        ' ERRORS HAVE OCCURRED ON THIS RUN.')
+C
+      IF(ISTOP(2).NE.0.AND.ISTOP(1).EQ.0)WRITE(KFILDO,312)ISTOP(2)
+ 312  FORMAT(/,' AT LEAST ISTOP(2) =',I6,
+     1        ' DATA RECORDS NOT FOUND ON THIS RUN.')
+C
+      IF(ISTOP(2).NE.0.AND.ISTOP(1).NE.0)WRITE(KFILDO,313)ISTOP(2)
+ 313  FORMAT(' AT LEAST ISTOP(2) =',I6,
+     1       ' DATA RECORDS NOT FOUND ON THIS RUN.')
+      IF(ISTOP(1).EQ.0.AND.ISTOP(2).EQ.0)WRITE(KFILDO,314)
+ 314  FORMAT(/,' NO ERRORS HAVE BEEN DETECTED ON THIS RUN.')
+C
+      WRITE(KFILDO,315)
+ 315  FORMAT(' ')
+      RETURN
+C 
+C        ERROR STOP BELOW IS FOR ERRORS OF CONTROL INFORMATION INPUT.
+C
+ 900  CALL IERX(KFILDO,KFILDO,IOS,'U720  ',STATE)
+      CALL W3TAGE('U720')
+      STOP 9999
+      END

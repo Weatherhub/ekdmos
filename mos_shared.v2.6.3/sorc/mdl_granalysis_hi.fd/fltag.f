@@ -1,0 +1,92 @@
+      SUBROUTINE FLTAG(KFILDO,DATA,XP,YP,LTAG,NSTA,NX,NY,RMAX)
+C
+C        AUGUST    2000   GLAHN   LAMP-2000
+C        NOVEMBER  2001   GLAHN   REMOVED CONSIDERING 9997 AS A 
+C                                 MISSING
+C        DECEMBER  2002   RUDACK  MODIFIED FORMAT STATEMENTS TO ADHERE
+C                                 TO THE F90 COMPILER STANDARDS FOUND ON 
+C                                 THE IBM SYSTEM
+C
+C        PURPOSE
+C            TO SET LTAG( ) FOR BCD ROUTINE.  LTAG(K) IS SET TO 0
+C            IF DATUM DATA(K) MAY BE USED FOR STATION K, OR A
+C            NON-ZERO VALUE IF STATION K IS OUTSIDE THE GRID.
+C            NOTE THAT THIS WILL PERTAIN TO REDUCED GRIDLENGTHS,
+C            BECAUSE ALL GRIDS COVER THE SAME AREA.
+C
+C        DATA SET USE
+C            KFILDO    - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C             DATA(K) = DATUM FOR STATION K (K=1,NSTA).
+C                       9999 SIGNIFIES MISSING.  (INPUT)
+C               XP(K) = HORIZONTAL GRID POSITION OF DATUM DATA(K)
+C                       (K=1,NSTA)  (INPUT)
+C               YP(K) = VERTICAL GRID POSITION OF DATUM DATA(K)
+C                       (K=1,NSTA)  (INPUT)
+C             LTAG(K) = DENOTES USE OF DATA IN DATA(K) FOR STATION K
+C                       (K=1,NSTA).
+C                       0 = USE DATA.
+C                       1 = STATION OUTSIDE RADIUS OF INFLUENCE FOR
+C                           AREA BEING ANALYZED OR MISSING DATUM.
+C                       2 = STATION LOCATION UNKNOWN.
+C                       (OUTPUT)
+C                NSTA = NUMBER OF ENTRIES IN DATA( ).  (INPUT)
+C                  NX = NUMBER OF GRIDPOINTS IN THE XI (LEFT TO RIGHT)
+C                       DIRECTION.  (INPUT)
+C                  NY = NUMBER OF GRIDPOINTS IN THE YJ (BOTTOM TO TOP)
+C                       DIRECTION.  (INPUT)
+C                RMAX = THE MAXIMUM DISTANCE IN TERMS OF GRIDLENGTHS
+C                       DATUM OUTSIDE THE GRID WILL BE USED.  NOTE
+C                       THE ACTUAL DISTANCE DOES DEPEND ON THE
+C                       GRIDLENGTH.  RMAX = R*RSTAR FOR THIS PASS
+C                       IN THE CALLING PROGRAM.
+C               RMAXX = MAXIMUM XI GRID POSITION OF STATIONS TO BE
+C                       USED ON THIS PASS.  (INTERNAL)
+C               RMAXY = MAXIMUM YJ GRID POSITION OF STATIONS TO BE
+C                       USED ON THIS PASS.  (INTERNAL)
+C              RMINXY = MINIMUM XI AND YJ GRID POSITION OF STATIONS
+C                       TO BE USED ON PASS ANALYSIS.  (INTERNAL)
+C
+C        NONSYSTEM SUBROUTINES CALLED
+C            NONE
+C
+      DIMENSION DATA(NSTA),LTAG(NSTA),XP(NSTA),YP(NSTA)
+C
+C***D        WRITE(KFILDO,100)(DATA(J),XP(J),YP(J),J=1,NSTA)
+C***D100     FORMAT(/' IN FLTAG AT 100--DATA(J),XP(J),YP(J),J=1,NSTA'/
+C***D    1         (' ',3F8.2))
+C
+      RMINXY=1.-RMAX
+      RMAXX=NX+RMAX
+      RMAXY=NY+RMAX
+C
+      DO 150 K=1,NSTA
+C
+         LTAG(K)=0
+C
+         IF(DATA(K).EQ.9999.)THEN
+C              DATUM MISSING.
+            LTAG(K)=1
+         ELSEIF(XP(K).EQ.9999.)THEN
+C              STATION POSITION MISSING.
+            LTAG(K)=2
+         ELSE
+	    IF((XP(K).LT.RMINXY).OR.
+     1         (XP(K).GT.RMAXX).OR.
+     2         (YP(K).LT.RMINXY).OR.
+     3         (YP(K).GT.RMAXY))THEN
+               LTAG(K)=1
+            ENDIF
+         ENDIF
+C
+C***D      WRITE(KFILDO,140)K,RMAX,RMINXY,RMAXX,RMAXY,
+C***D    1                 XP(K),YP(K),DATA(K),LTAG(K)
+C***D140  FORMAT(' K,RMAX,RMINXY,RMAXX,RMAXY,',
+C***D    1       'XP,YP,DATA,LTAG',I5,7F8.2,I3)
+ 150  CONTINUE
+C
+      RETURN
+      END

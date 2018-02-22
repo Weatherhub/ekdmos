@@ -1,0 +1,103 @@
+      SUBROUTINE LIST(KFILDO,CCALL,DATA,XP,YP,KK,NSTA,P,NX,NY,RAD,MESH)
+C  
+C        MARCH 2001   GLAHN   TDL   LAMP-2000
+C
+C        PURPOSE
+C            TO LIST WITHIN A GRID UNIT RADIUS OF RAD THE DATA IN
+C            DATA( ), THE INTERPOLATED VALUES FROM P( , ), ETC.
+C            BIQUADRATIC INTERPOLATION IS USED TO GET THE INTERPOLATED
+C            VALUES WITHIN GRID EXCEPT BILINEAR IS USED IN OUTSIDE
+C            BORDER.  LINEAR EXTRAPOLATION IS USED FOR POINTS
+C            OUTSIDE THE GRID.  A MAXIMUM OF 15 STATIONS WILL BE
+C            LISTED.
+C
+C        DATA SET USE
+C            KFILDO   - UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                       DIAGNOSTICS.  (INPUT)
+C            CCALL(K) = THE CALL LETTERS OF THE STATIONS (K=1,NSTA).
+C                       (CHARACTER*8)  (INPUT)
+C             DATA(K) = THE DATA VALUES BEING ANALYZED (K=1,NSTA).
+C                      (INPUT)
+C               XP(K) = THE IX GRID LOCATIONS OF THE STATIONS
+C                       (K=1,NSTA).  (INPUT)
+C               YP(K) = THE JY GRID LOCATIONS OF THE STATIONS
+C                       (K=1,NSTA).  (INPUT)
+C                  KK = THE LOCATION OF THE STATION UNDER CONSIDERATION
+C                       IN THE ARRAYS CCALL( ), XP( ) AND YP( ).
+C                       (INPUT)
+C                NSTA = THE NUMBER OF VALUES IN DATA( ), XP( ), AND
+C                       YP( ).  (INPUT)
+C            P(IX,JY) = THE ANALYSIS FIELD (IX=1,NX) (JY=1,NY).
+C                       (INPUT)
+C                  NX = THE IX EXTENT OF P( , ).  (INPUT)
+C                  NY = THE JY EXTENT OF P( , ).  (INPUT)
+C                 RAD = THE MAXIMUM DISTANCE FROM THE STATION TO A
+C                       NEIGHBOR FOR THE LISTING.  (INPUT)
+C                MESH = THE NOMINAL MESH LENGTH OF THE CURRENT GRID.
+C                       (INPUT)
+C             DIST(K) = THE DISTANCE FROM STATION KK TO STATION K
+C                       FOR THE STATIONS LISTED (K=1,NLIST).
+C                       (AUTOMATIC)  (INTERNAL)
+C            INDEX(K) = THE INDICES OF WHERE IN THE ORIGINAL LIST
+C                       THE NLIST STATONS ARE.  (AUTOMATIC)
+C                       (INTERNAL)
+C               NLIST = THE NUMBER OF STATIONS LISTED.  (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES CALLED
+C            ITRP
+C
+      CHARACTER*8 CCALL(NSTA)
+C
+      DIMENSION P(NX,NY)
+      DIMENSION DATA(NSTA),XP(NSTA),YP(NSTA)
+      DIMENSION DIST(NSTA),INDEX(NSTA),DIF(NSTA),BB(NSTA)
+C        DIST( ),DIF( ),BB( ), AND INDEX( ) ARE AUTOMATIC ARRAYS.
+C 
+      IF(RAD.EQ.0.)GO TO 160
+      NLIST=0
+      RADSQ=RAD*RAD
+C
+      DO 145 K=1,NSTA
+         DISTSQ=(XP(KK)-XP(K))**2+(YP(KK)-YP(K))**2
+C
+         IF(DISTSQ.LE.RADSQ.AND.
+     1         DATA(K).NE.9999.)THEN
+            NLIST=NLIST+1
+            CALL ITRP(P,NX,NY,XP(K),YP(K),BB(K))
+            DIF(K)=DATA(K)-BB(K)
+            DIST(NLIST)=SQRT(DISTSQ)
+            INDEX(NLIST)=K
+         ENDIF
+C
+ 145  CONTINUE
+C
+C        AT THIS POINT, THERE ARE NLIST STATION DISTANCES IN DIST( )
+C        AND THEIR INDICES TO THE ORIGINAL LIST IN INDEX( ).
+C        SORT THE DISTANCES AND THE INDICES.
+C
+      CALL SORTBG(KFILDO,DIST,INDEX,NLIST)
+C
+C        NOW WRITE THE DATA.
+C
+      WRITE(KFILDO,150)CCALL(KK),RAD,MESH
+ 150  FORMAT(/'   ',A8,' IN QUESTION.  LE 15 STATIONS WITHIN',F4.0,
+     1        ' GRID UNITS ARE LISTED.  DISTANCES ARE',
+     2        ' GRID UNITS AT NOMINAL MESH LENGTH',I4,' KM.')
+      WRITE(KFILDO,155)MESH
+ 155  FORMAT(/'   STATION  DISTANCE    XPOS   YPOS     DATA  ANALYSIS',
+     1        '   DIFF                --X AND Y POSITIONS ARE AT',
+     2        ' NOMINAL MESH LENGTH',I4,' KM.')
+C
+      DO 180 K=1,MIN(NLIST,15)
+         WRITE(KFILDO,170)CCALL(INDEX(K)),DIST(K),XP(INDEX(K)),
+     1                    YP(INDEX(K)),DATA(INDEX(K)),BB(INDEX(K)),
+     2                    DIF(INDEX(K))
+ 170     FORMAT('   ',A8,F9.1,F8.1,F7.1,F9.1,F10.1,F7.1)
+ 180  CONTINUE
+C
+ 160  RETURN
+      END

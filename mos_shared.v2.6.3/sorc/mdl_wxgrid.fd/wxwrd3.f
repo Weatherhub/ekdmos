@@ -1,0 +1,106 @@
+      SUBROUTINE WXWRD3(IDPARS12,IDO,IDP,LD,IER_WORD3)
+C
+C        FEBRUARY  2012   HUNTEMANN   MDL   MOS-2000
+C        MARCH     2013   HUNTEMANN   MDL   ADDED IMPLICIT NONE
+C
+C        PURPOSE
+C           SUBROUTINE WXWRD3 IS USED FOR MOS WEATHER GRID TO DETERMINE
+C           WORD 3 OF THE 3-HOURLY, 6-HOURLY, AND 12-HOURLY FORECASTS
+C           USED TO CALCULATE POTENTIAL INDICES.  CALLED BY WXPCAT, 
+C           WXTSTM, AND WXTSVR.
+C
+C        DATA SET USE
+C           NONE
+C
+C        VARIABLES
+C            IDPARS12 = TAU (PROJECTION IN HOURS) COMPONENT OF THE 
+C                       PREDICTOR ID. (INPUT)
+C                 IDO = 4-WORD MOS ID USED TO OBTAIN 3-HOURLY 
+C                       FORECASTS. (K=1,4) (M=1,4) (OUTPUT)
+C                 IDP = 4-WORD MOS ID USED TO OBTAIN 6-HOURLY
+C                       FORECASTS. (K=1,2) (M=1,4) (OUTPUT)
+C                  LD = 4-WORD MOS ID USED TO OBTAIN 12-HOURLY 
+C                       FORECASTS. (M=1,4)(OUTPUT)
+C           IER_WORD3 = INTEGER ERROR FLAG (OUTPUT).  IF TAU IS NOT
+C                       DIVISIBLE BY 3, WORD 3 OF THE ID CANNOT
+C                       BE DETERMINED AND IER_WORD3 IS SET TO 1.
+C
+C        NONSYSTEM ROUTINES CALLED 
+C           NONE
+C
+C**********************************************************************
+C
+      IMPLICIT NONE
+C
+      INTEGER IDO(4),IDP(2),KFILDO,J,IDPARS12,IER_WORD3,LD
+      IDO=0
+      IDP=0
+      LD=0
+      IER_WORD3=0
+C
+C**********************************************************************
+C
+C        SUBROUTINE WXWRD3 BEGINS HERE.
+C
+C***D WRITE(KFILDO,100)(ID(J),J=1,4)
+ 100  FORMAT(' *********** IN WXWRD3 *************'/' ',4I10)
+C
+C        SET UP THE THIRD WORD OF THE IDS TO BE FETCHED.
+C        IF TAU IS THE FIRST PROJECTION IN THE FORECAST PERIOD...
+      IF(MOD(IDPARS12,12).EQ.3)THEN
+         IDO(1)=IDPARS12
+         IDO(2)=IDPARS12+3
+         IDO(3)=IDPARS12+6
+         IDO(4)=IDPARS12+9
+C
+         IDP(1)=IDPARS12+3
+         IDP(2)=IDPARS12+9
+C
+         LD=IDPARS12+9
+C
+C        IF TAU IS THE SECOND PROJECTION IN THE FORECAST PERIOD...
+      ELSEIF(MOD(IDPARS12,12).EQ.6)THEN
+         IDO(1)=IDPARS12-3
+         IDO(2)=IDPARS12
+         IDO(3)=IDPARS12+3
+         IDO(4)=IDPARS12+6
+C
+         IDP(1)=IDPARS12
+         IDP(2)=IDPARS12+6
+C
+         LD=IDPARS12+6
+C
+C        IF TAU IS THE THIRD PROJECTION IN THE FORECAST PERIOD...
+      ELSEIF(MOD(IDPARS12,12).EQ.9)THEN
+         IDO(1)=IDPARS12-6
+         IDO(2)=IDPARS12-3
+         IDO(3)=IDPARS12
+         IDO(4)=IDPARS12+3
+C
+         IDP(1)=IDPARS12-3
+         IDP(2)=IDPARS12+3
+C
+         LD=IDPARS12+3
+C
+C        IF TAU IS THE FINAL PROJECTION IN THE FORECAST PERIOD...
+      ELSEIF(MOD(IDPARS12,12).EQ.0)THEN
+         IDO(1)=IDPARS12-9
+         IDO(2)=IDPARS12-6
+         IDO(3)=IDPARS12-3
+         IDO(4)=IDPARS12
+C
+         IDP(1)=IDPARS12-6
+         IDP(2)=IDPARS12
+C
+         LD=IDPARS12
+C
+      ELSE
+C
+C        IF TAU IS NOT 3-HOURLY...
+         IER_WORD3=1
+      ENDIF
+C
+C        ALL DONE!  RETURN TO CALLING ROUTINE:
+C
+      RETURN
+      END      

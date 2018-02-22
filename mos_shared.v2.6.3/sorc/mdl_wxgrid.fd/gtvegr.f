@@ -1,0 +1,390 @@
+      SUBROUTINE GTVEGR(KFILDO,KFIL10,IP12,
+     1                  ID,IDPARS,JD,NDATE,
+     2                  KFILRA,RACESS,NUMRA,
+     3                  CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4                  ISDATA,SDATA,DIR,ND1,NSTA,NWORDS,
+     5                  NGRIDC,NGRID,ND11,NSLAB,
+     6                  IPACK,IWORK,DATA,ND5,
+     7                  LSTORE,ND9,LITEMS,LOCPRD,CORE,ND10,LASTL,
+     8                  NBLOCK,LASTD,NSTORE,NFETCH,
+     9                  IS0,IS1,IS2,IS4,ND7,
+     A                  ISTAV,L3264B,L3264W,IER)
+C
+C        FEBRUARY  2010  GLAHN   MOS-2000
+C                                PATTERNED AFTER RETVEC
+C
+C        PURPOSE
+C           TO OBTAIN FOR SUBROUTINES THAT MAY BE USED IN BOTH
+C           U720 AND U201 DATA THAT MAY BE IN EITHER THE INTERNAL
+C           OR EXTERNAL MOS-2000 FILE SYSTEMS.  THE INTERNAL FILE
+C           IS ACCESSED FIRST THROUGH GFETCH, THEN IF THE DATA
+C           ARE NOT FOUND, THE EXTERNAL FILE IS ACCESSED THROUGH
+C           CONST OR CONSTG, THE LATTER VIA CONST1.
+C
+C           VECTOR  DATA HAVE IVECT = 1 AND ARE RETURNED IN SDATA( ).
+C           GRIDDED DATA HAVE IVECT = 0 AND ARE RETURNED IN  DATA( ).
+C   
+C        DATA SET USE 
+C            KFILDO - DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.  (OUTPUT) 
+C            KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                     (INPUT-OUTPUT) 
+C            IP12   - INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                     STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                     THE FILE WHOSE UNIT NUMBER IS IP12.
+C 
+C        VARIABLES 
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE. (INPUT) 
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT)
+C                IP12 = INDICATES WHETHER (>0) OR NOT (=0) THE LIST OF
+C                       STATIONS ON THE EXTERNAL RANDOM ACCESS FILES
+C                       WILL BE LISTED TO UNIT IP12.  (INPUT)
+C               ID(J) = THE PREDICTOR ID (J=1,4).  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE PREDICTOR
+C                       ID CORRESPONDING TO ID( ) (J=1,15).  (INPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C             JD(J,N) = THE BASIC INTEGER VARIABLE ID (J=1,4) (N=1,NPRED).
+C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE PORTIONS
+C                       PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3, ),
+C                       T = IDPARS(8, ),
+C                       I = IDPARS(13, ),
+C                       S = IDPARS(14, ),
+C                       G = IDPARS(15, ), AND
+C                       THRESH( ).
+C                       JD( , ) IS USED TO FOR INPUT TO CONSTG, BECAUSE
+C                       INTERPOLATION INTO THE GRID MAY BE REQUIRED,
+C                       BUT IS NOT PART OF THE BASIC ID.  (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED.  (INPUT)
+C           KFILRA(J) = THE UNIT NUMBERS FOR WHICH RANDOM ACCESS FILES
+C                       ARE AVAILABLE (J=1,NUMRA).  (INPUT)
+C           RACESS(J) = THE FILE NAMES ASSOCIATED WITH KFILRA(J) (J=1,NUMRA).
+C                       (CHARACTER*60)  (INPUT)
+C               NUMRA = THE NUMBER OF VALUES IN KFILRA( ) AND RACESS( ).
+C                       (INPUT)
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+C                       DATA ARE KEYED TO THIS LIST, EXCEPT POSSIBLY 
+C                       CCALLD( ).  EQUIVALENCED TO ICALL( , , ). 
+C                       (CHARACTER*8)  (INPUT)
+C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN INTEGER
+C                       VARIABLE (L=1,L3264W) (K=1,ND5).  THIS ARRAY IS USED 
+C                       TO READ THE STATION DIRECTORY FROM A MOS-2000
+C                       EXTERNAL FILE.  EQUIVALENCED TO CCALLD( ). 
+C                       (CHARACTER*8)  (INTERNAL)
+C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,ND5).  THIS ARRAY IS USED 
+C                       IN CONST TO READ THE STATION DIRECTORY.  EQUIVALENCED 
+C                       TO ICALLD( , ).  (CHARACTER*8)  (INTERNAL)
+C             NAME(K) = NAMES OF STATIONS (K=1,NSTA).  USED FOR PRINTOUT
+C                       ONLY.  (CHARACTER*20)  (INPUT)
+C           STALAT(K) = LATITUDE OF STATIONS (K=1,NSTA).  (INPUT/OUTPUT)
+C           STALON(K) = LONGITUDE OF STATIONS (K=1,NSTA).  (INPUT/OUTPUT)
+C           ISDATA(K) = WORK ARRAY (K=1,ND1).  (INTERNAL)
+C            SDATA(K) = DATA RETURNED WHEN DATA ARE VECTOR (K=1,NSTA).
+c                       (OUTPUT)
+C          DIR(K,J,M) = THE IX (J=1) AND JY (J=2) POSITIONS ON THE GRID
+C                       FOR THE COMBINATION OF GRID CHARACTERISTICS M
+C                       (M=1,NGRID) AND STATION K (K=1,NSTA) IN NGRIDC( ,M).
+C                       (INPUT/OUTPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+C                       DIMENSION OF SEVERAL VARIABLES.  (INPUT)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT WITH.
+C                       (INPUT)
+C              NWORDS = THE NUMBER OF WORDS OF DATA RETURNED, WHETHER 
+C                       VECTOR OR GRIDDED.  (OUTPUT)
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR EACH GRID
+C                       COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                            STEREOGRAPHIC). 
+C                       L=2--GRID LENGTH IN MILLIMETERS,
+C                       L=3--LATITUDE AT WHICH GRID LENGTH IS CORRECT *10000,
+C                       L=4--GRID ORIENTATION IN DEGREES *10000,
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *10000,
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES *10000.
+C                       (INPUT/OUTPUT)
+C               NGRID = THE NUMBER OF GRID COMBINATIONS IN DIR( , , ),
+C                       MAXIMUM OF ND11.  (INPUT/OUTPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH ON THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ) AND DIR( , , ).  (INPUT)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR( , , ) AND
+C                       IN NGRIDC( , ) DEFINING THE CHARACTERISTICS
+C                       OF THIS GRID.  SEE LSTORE(10, ).  FOR THE
+C                       COMPUTATION ROUTINES RETURNING A GRID, THIS
+C                       VALUE MUST BE OUTPUT BY GFETCH.
+C                       NSLAB = 0 FOR VECTOR DATA (AND FOR NO DATA
+C                       RETURNED AND NWORDS = 0), AS STORED BY GSTORE;
+C                       OTHERWISE, GRIDDED DATA ARE INDICATED.  (OUTPUT) 
+C            IPACK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C             DATA(J) = ARRAY TO HOLD RETURNED DATA WHEN THE DATA ARE
+C                       AT GRIDPOINTS. (J=1,ND5).  (OUTPUT)
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), DATA( ) AND
+C                       CCALLD( ).  (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE CHARACTERISTICS
+C                              OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE SORTED
+C                              LIST IN ID( ,N) (N=1,NPRED) FOR WHICH THIS
+C                              VARIABLE IS NEEDED, WHEN IT IS NEEDED ONLY
+C                              ONCE FROM LSTORE( , ).  WHEN IT IS NEEDED
+C                              MORE THAN ONCE, THE VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING MSTORE( , ).
+C                              LATER USED AS A WAY OF DETERMINING WHETHER
+C                              TO KEEP THIS VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , ) THAT 
+C                       HAVE BEEN USED IN THIS RUN.
+C              LOCPRD = THE VALUE TO FURNISH GFETCH, WHICH IS WHAT WILL
+C                       BE USED TO STORE IN LSTORE(11, ).  FROM PRED25,
+C                       FOR INSTANCE, THIS WOULD BE THE PREDICTOR NUMBER
+C                       IN THE LIST, BUT COMPUTATION ROUTINES SHOULD FURNISH
+C                       7777, INDICATING THE VARIBLE NEEDS TO BE STORED.
+C                       (INPUT)
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA IDENTIFIED IN
+C                       LSTORE( , ) (J=1,ND10).  WHEN CORE( ) IS FULL
+C                       DATA ARE STORED ON DISK.  (OUTPUT)
+C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+C               LASTL = THE LAST LOCATION IN CORE( ) USED FOR MOS-2000 INTERNAL
+C                       STORAGE.  INITIALIZED TO 0 ON FIRST ENTRY TO GSTORE.
+C                       ALSO INITIALIZED IN U201 IN CASE GSTORE IS NOT ENTERED.
+C                       MUST BE CARRIED WHENEVER GSTORE IS TO BE CALLED.
+C                       (INPUT/OUTPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE.  (INPUT)
+C               LASTD = TOTAL NUMBER OF PHYSICAL RECORDS ON DISK FOR MOS-2000
+C                       INTERNAL STORAGE.  MUST BE CARRIED WHENEVER GSTORE
+C                       IS TO BE CALLED.  (INPUT)
+C              NSTORE = THE NUMBER OF TIMES GSTORE HAS BEEN ENTERED.  GSTORE
+C                       KEEPS TRACK OF THIS AND RETURNS THE VALUE.  (OUTPUT)
+C              NFETCH = THE NUMBER OF TIMES GFETCH HAS BEEN ENTERED.  GFETCH
+C                       KEEPS TRACK OF THIS AND RETURNS THE VALUE.  (OUTPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).  (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).  (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).  (INTERNAL)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).  (INTERNAL)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED.  (INPUT)
+C               ISTAV = 1 WHEN THE DATA RETURNED ARE VECTOR (STATION)
+C                         DATA.  
+C                       0 WHEN THE DATA RETURNED ARE GRID DATA.
+C                         THIS ESSENTIALLY TELLS U201 (PRED21/PRED22)
+C                         HOW TO TREAT THE DATA, EVEN IF MISSING (9999)
+C                        (OUTPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C              L3264W = NUMBER OF WORDS IN 64 BITS, EITHER 1 OR 2.
+C                       (INPUT)
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                       SEE CALLED ROUTINES FOR OTHER VALUES.
+C                       (INTERNAL-OUTPUT)
+C               NPACK = RETURNED FROM GFETCH.  NOT NEEDED.
+C               NSLAB = RETURNED FROM GFETCH.  NOT NEEDED.
+C              NTIMES = RETURNED FROM GFETCH.  NOT NEEDED.
+C        1         2         3         4         5         6         7 X
+C 
+C        NONSYSTEM SUBROUTINES USED 
+C            TIMPR, GFETCH, CONST1
+C
+      CHARACTER*8 CCALL(ND1,6),
+     1            CCALLD(ND5)
+      CHARACTER*20 NAME(ND1)
+      CHARACTER*60 RACESS(NUMRA)
+C
+      DIMENSION ISDATA(ND1),SDATA(ND1),STALAT(ND1),STALON(ND1)
+      DIMENSION DIR(ND1,2,ND11),NGRIDC(6,ND11)
+      DIMENSION ID(4),IDPARS(15),JD(4)
+      DIMENSION IPACK(ND5),IWORK(ND5),DATA(ND5),ICALLD(L3264W,ND5)
+      DIMENSION IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      DIMENSION LSTORE(12,ND9)
+      DIMENSION CORE(ND10)
+      DIMENSION KFILRA(NUMRA)
+C
+D     CALL TIMPR(KFILDO,KFILDO,'START GTVEGR        ')
+      IER=0
+C
+D     WRITE(KFILDO,105)(ID(J),J=1,4)
+D105  FORMAT(' IN GTVEGR, LOOKING FOR VRBL ',
+D    1       3(1X,I9.9),1X,I10.3)
+C
+C        SET ITIME.
+C
+      ITIME=0
+C        NO ADJUSTMENT TO NDATE IS TO BE MADE IN GFETCH.
+C
+C        TRY TO FIND VARIABLE IN THE MOS-2000 INTERNAL RANDOM
+C        ACCESS FILE.
+C
+      CALL GFETCH(KFILDO,KFIL10,ID,LOCPRD,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,DATA,ND5,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3            NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,ITIME,
+     4            IER)
+C        NPACK, NTIMES, MISSP, AND MISSS ARE RETURNED FROM
+C        GFETCH AND ARE NOT NEEDED.  NWORDS IS THE NUMBER OF
+C        WORDS RETURNED, WHETHER VECTOR OR GRIDDED.  NSLAB
+C        IS ZERO FOR VECTOR DATA AND WHEN NO DATA ARE RETURNED
+C        (NWORDS = 0) AND NON ZERO FOR GRIDDED DATA.
+C
+D     WRITE(KFILDO,124)IER,NSLAB,NWORDS,NSTA,(IS1(L),L=9,12)
+D124  FORMAT(/' AT 124--IER,NSLAB,NWORDS,NSTA,(IS1(L),L=9,12)',
+D    1        8I10)
+C     
+      IF(IER.NE.0)THEN
+D        WRITE(KFILDO,125)(ID(L),L=1,4)
+D125     FORMAT(' ****VARIABLE NOT RETRIEVED BY GFETCH IN GTVEGR',
+D    1           2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3)
+         GO TO 200
+      ELSE
+C
+C           NSLAB HAS BEEN STORED BY GSTORE/RESTR2 AS ZERO FOR
+C           VECTOR DATA AND NON-ZERO FOR GRIDDED DATA.  ISTAV
+C           IS RETURNED BY GFETCH AS ZERO IF DATA ARE NOT RETURNED.
+C
+         IF(NSLAB.EQ.0)THEN
+C               NSLAB = 0 INDICATES VECTOR DATA WHEN NWORDS GT 0.
+C               OTHERWISE, NSLAB INDICATES GRIDDED DATA.
+            ISTAV=1
+C 
+            IF(NWORDS.EQ.NSTA)THEN
+C
+C                 THESE VECTOR DATA IN DATA( ) MUST BE PUT INTO
+C                 SDATA( ) FOR RETURN.
+C
+D              WRITE(KFILDO,1255)
+D1255          FORMAT(/' TRANSFERRING VECTOR DATA FROM DATA( ) TO',
+D    1                 ' SDATA( ).')
+C
+               DO 126 K=1,NSTA
+               SDATA(K)=DATA(K)
+ 126           CONTINUE
+C
+               GO TO 240
+C                 THIS IS A GOOD VECTOR READ.
+            ELSE
+               WRITE(KFILDO,127)(ID(L),L=1,4),NDATE
+ 127           FORMAT(/' ****ERROR RETRIEVING DATA BY GFETCH',
+     1                 ' IN GTVEGR FOR ',3(1X,I9.9),1X,I10.3,
+     2                 ' FOR NDATE = ',I12,'.',/,
+     3                 '     WORDS RETURNED DO NOT MATCH NSTA',
+     4                 '.  TRYING CONST1.')
+               GO TO 200
+C                 THE WORDS RETURNED DO NOT MATCH NSTA.  THIS
+C                 SHOULD NOT HAPPEN.  TRY CONST1.
+            ENDIF
+C
+         ELSE
+            ISTAV=0
+C
+            IF(NWORDS.EQ.IS2(3)*IS2(4))THEN
+               GO TO 240
+C                 THIS IS A GOOD GRIDPOINT READ.           
+            ELSE
+               WRITE(KFILDO,128)(ID(L),L=1,4),NDATE
+ 128           FORMAT(/' ****ERROR RETRIEVING DATA BY GFETCH',
+     1                 ' IN GTVEGR FOR ',3(1X,I9.9),1X,I10.3,
+     2                 ' FOR NDATE = ',I12,'.',/,
+     3                 '     WORDS RETURNED DO NOT MATCH IS2(3)*IS2(4)',
+     4                 '.  TRYING CONST1.')
+               GO TO 200
+C                 THE WORDS RETURNED DO NOT MATCH IS2( ).  THIS
+C                 SHOULD NOT HAPPEN.  TRY CONST1.
+            ENDIF
+C
+         ENDIF
+C
+      ENDIF
+C
+C        LOOK FOR DATA TO BE PROVIDED IN THE MOS-2000 EXTERNAL
+C        RANDOM ACCESS FILES.  CONST1 WILL USE CONST TO GET
+C        VECTOR DATA OR CONSTG TO GET GRIDDED DATA.
+C
+ 200  CALL CONST1(KFILDO,KFIL10,IP12,
+     1            ID,IDPARS,JD,NDATE,
+     2            KFILRA,RACESS,NUMRA,
+     3            CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4            ISDATA,SDATA,DIR,ND1,NSTA,
+     5            NGRIDC,NGRID,ND11,NSLAB,
+     6            IPACK,IWORK,DATA,ND5,
+     7            LSTORE,ND9,LITEMS,CORE,ND10,LASTL,
+     8            NBLOCK,LASTD,NSTORE,NFETCH,
+     9            IS0,IS1,IS2,IS4,ND7,
+     A            ISTAV,L3264B,L3264W,IER)
+C
+      IF(IER.EQ.0.OR.IER.EQ.120)THEN
+C           THE IER = 120 TEST IS NECESSARY, BECAUSE FINDST,
+C           WHEN CALLED, WILL RETURN 120 WHEN A STATION CANNOT BE
+C           FOUND IN THE DIRECTORY.  THIS IS NOT FATAL, AND IER
+C           IS CHANGED TO 0.
+         IER=0
+C
+         IF(ISTAV.EQ.1)THEN
+            NWORDS=NSTA
+C
+D           WRITE(KFILDO,202)NWORDS,(SDATA(J),J=1,NWORDS)
+D202        FORMAT(' AT 202 IN GTVEGR--NWORDS,(SDATA(J),J=1,NWORDS)',
+D    1              I10,(10F10.2))           
+         ELSE
+            NWORDS=IS2(3)*IS2(4)
+C
+D           WRITE(KFILDO,203)NWORDS,(DATA(J),J=1,30)
+D203        FORMAT(' AT 203 IN GTVEGR--NWORDS,(DATA(J),J=1,30)',I10,
+D    1              (10F10.2))           
+         ENDIF
+C
+D        WRITE(KFILDO,205)ID(1),IER,NSTA,NSLAB,ISTAV,NWORDS
+D205     FORMAT(/' AT 205 IN GTVEGR--',
+D    1            'ID(1),IER,NSTA,NSLAB,ISTAV,NWORDS',I11,5I8)
+C
+C           AT THIS POINT, THE VARIABLE EXISTS IN SDATA( )
+C           WHEN VECTOR (ISTAV = 1) OR DATA( ) WHEN GRIDDED
+C           ISTAV = 0).  THE FULL IDENTIFICATION OF THE DATA
+C           IS IN IS1( ), IS2( ), AND IS4( ).
+         GO TO 240
+      ELSE
+         IER=47
+C           ANY NON ZERO IER SET TO 47 TO BE COMPATIBLE WITH GFETCH.
+D        WRITE(KFILDO,225)ID(1),IER,NSTA,NSLAB,ISTAV,NWORDS
+D225     FORMAT(/' AT 225 IN GTVEGR--',
+D    1            'ID(1),IER,NSTA,NSLAB,ISTAV,NWORDS',I11,5I8)
+      ENDIF
+C
+D     WRITE(KFILDO,231)(ID(J),J=1,4),NDATE
+D231     FORMAT(' ****CANNOT OBTAIN VARIABLE       ',
+D    1           I9.9,1X,I9.9,1X,I9.9,1X,I10.3,' FOR DATE ',I11,
+D    2          ' IN GTVEGR.')
+ 240  RETURN
+      END
+

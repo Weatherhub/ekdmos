@@ -1,0 +1,1164 @@
+      SUBROUTINE WXPPHS(KFILDO,KFIL10,IP12,KFILRA,
+     1                  RACESS,NUMRA,ID,IDPARS,JD,NDATE,
+     2                  CCALL,NAME,STALAT,STALON,
+     3                  ISDATA,SDATA,DIR,ND1,NSTA,
+     4                  ND2X3,ICALLD,CCALLD,IPACK,IWORK,ND5,
+     5                  NGRIDC,NGRID,ND11,NSLAB,
+     6                  LSTORE,ND9,LITEMS,CORE,ND10,
+     7                  NBLOCK,NFETCH,LASTL,LASTD,NSTORE,
+     8                  IS0,IS1,IS2,IS4,ND7,L3264B,L3264W,
+     9                  ISTAV,IPHSBC,PHSTMP,THRPHS,NX,NY,JSTA,
+     A                  GPPI,NPCAT,NPPHS,PPHASE,
+     B                  RRMIS,MISSEL,IER)
+C
+C        AUGUST    2011   HUNTEMANN   MDL   MOS-2000
+C        NOVEMBER  2012   HUNTEMANN   MDL   ADDED CHECKS ON GRID SPECS
+C                                           AFTER CALLING GTVEGR
+C        MARCH     2013   HUNTEMANN   MDL   UPDATED DOCUMENTATION,
+C                                           ADDED IMPLICIT NONE,
+C                                           ADDED JSTA TO CALL AND 
+C                                           REMOVED JSTA CALCULATION
+C                                           FROM THIS ROUTINE.
+C
+C        PURPOSE
+C           SUBROUTINE WXPPHS ASSIGNS FREEZING POTENTIAL INDEX, FROZEN
+C           POTENTIAL INDEX, AND LIQUID POTENTIAL INDEX. THESE 
+C           POTENTIAL INDICES ARE THEN USED TO ASSIGN UP TO THREE 
+C           PRECIPITATION PHASES (ANY COMBINATION OF ZR, IP, S, OR R) 
+C           AND CORRESPONDING PROBABILITY CATEGORIES (SCHC, CHC, LKLY, 
+C           DEF).  
+C
+C           PRECIPITATION PHASE POTENTIAL INDICES ARE DETERMINED 
+C           BY COORDINATING THE CONDITIONAL PRECIPITATION TYPE 
+C           PROBABILITIES (OPTIONAL: AND BEST CATEGORY THRESHOLDS) WITH 
+C           THE PRECIPIATION POTENTIAL INDEX (PPI). DETAILS OF THIS 
+C           METHOD ARE GIVEN IN THE CODE BELOW.
+C
+C           REGARDLESS OF THE FORECAST PHASE POTENTIALS, SHOULD THE
+C           GRIDDED MOS TEMPERATURE AT A GRIDPOINT EXCEED THE CUTOVER
+C           THRESHOLD PHSTMP, LIQUID PRECIPITATION PHASE IS INITIALIZED
+C           AT THAT GRIDPOINT.
+C
+C           THIS ROUTINE IS FOR GRIDPOINT DATA.  GRIDPOINT DATA ARE 
+C           RETURNED IN PPHASE( ), NPCAT( ), AND NPPHS( ).
+C
+C        DATA SET USE
+C           KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C           KFIL10 - UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                    (INPUT-OUTPUT) 
+C           IP12   - INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                    STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                    THE FILE WHOSE UNIT NUMBER IS IP12.  (OUTPUT)
+C         
+C        VARIABLES
+C           MOS2K SYSTEM VARIABLES
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) 
+C                       FILE. (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT-OUTPUT) 
+C                IP12 = INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+C                       STATIONS ON THE INPUT FILES WILL BE PRINTED TO 
+C                       THE FILE WHOSE UNIT NUMBER IS IP12.
+C           KFILRA(J) = THE UNIT NUMBERS FOR WHICH RANDOM ACCESS FILES
+C                       ARE AVAILABLE (J=1,NUMRA).  (INPUT)
+C           RACESS(J) = THE FILE NAMES ASSOCIATED WITH KFILRA(J)
+C                       (J=1,NUMRA).(CHARACTER*60)  (INPUT)
+C               NUMRA = THE NUMBER OF VALUES IN KFILRA( ) AND RACESS( ).
+C                       (INPUT)
+C               ID(J) = THE PREDICTOR ID (J=1,4).  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTORID CORRESPONDING TO ID( ) 
+C                       (J=1,15).  (INPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C             JD(J,N) = THE BASIC INTEGER VARIABLE ID (J=1,4) (N=1,NPRED).
+C                       THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE PORTIONS
+C                       PERTAINING TO PROCESSING ARE OMITTED:
+C                       B = IDPARS(3, ),
+C                       T = IDPARS(8, ),
+C                       I = IDPARS(13, ),
+C                       S = IDPARS(14, ),
+C                       G = IDPARS(15, ), AND
+C                       THRESH( ).
+C                       JD( , ) IS USED TO FOR INPUT TO CONSTG, BECAUSE
+C                       INTERPOLATION INTO THE GRID MAY BE REQUIRED,
+C                       BUT IS NOT PART OF THE BASIC ID.  (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED.  (INPUT)
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+C                       DATA ARE KEYED TO THIS LIST, EXCEPT POSSIBLY 
+C                       CCALLD( ).  EQUIVALENCED TO ICALL( , , ). 
+C                       (CHARACTER*8)  (INPUT)
+C             NAME(K) = NAMES OF STATIONS (K=1,NSTA).  USED FOR PRINTOUT
+C                       ONLY.  (CHARACTER*20)  (INPUT)
+C           STALAT(K) = LATITUDE OF STATIONS (K=1,NSTA).  (INPUT/OUTPUT)
+C           STALON(K) = LONGITUDE OF STATIONS (K=1,NSTA).  (INPUT/OUTPUT)
+C           ISDATA(K) = WORK ARRAY (K=1,ND1).  (INTERNAL)
+C            SDATA(K) = DATA RETURNED WHEN DATA ARE VECTOR (K=1,NSTA).
+C                       (OUTPUT)
+C          DIR(K,J,M) = THE IX (J=1) AND JY (J=2) POSITIONS ON THE GRID
+C                       FOR THE COMBINATION OF GRID CHARACTERISTICS M
+C                       (M=1,NGRID) AND STATION K (K=1,NSTA) IN NGRIDC( ,M).
+C                       (INPUT/OUTPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+C                       DIMENSION OF SEVERAL VARIABLES.  (INPUT)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT WITH.
+C                       (INPUT)
+C               ND2X3 = DIMENSION OF GRIDDED VARIABLES.  MUST BE
+C                       AT LEAST AS LARGE AS THE LARGEST GRID AND AS
+C                       LARGE AS NSTA.  (INPUT)
+C         ICALLD(L,K) = 8 STATION CALL LETTERS AS CHARACTERS IN AN INTEGER
+C                       VARIABLE (L=1,L3264W) (K=1,ND5).  THIS ARRAY IS USED 
+C                       TO READ THE STATION DIRECTORY FROM A MOS-2000
+C                       EXTERNAL FILE.  EQUIVALENCED TO CCALLD( ). 
+C                       (CHARACTER*8)  (INTERNAL)
+C           CCALLD(K) = 8 STATION CALL LETTERS (K=1,ND5).  THIS ARRAY IS USED 
+C                       IN CONST TO READ THE STATION DIRECTORY.  EQUIVALENCED 
+C                       TO ICALLD( , ).  (CHARACTER*8)  (INTERNAL)
+C            IPACK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C            IWORK(J) = WORK ARRAY (J=1,ND5).  (INTERNAL)
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ), DATA( ) AND
+C                       CCALLD( ); SECOND DIMENSION OF ICALLD( , ).
+C                       THESE ARE GENERAL PURPOSE ARRAYS, SOMETIMES USED
+C                       FOR GRIDS.  
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR EACH GRID
+C                       COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=POLAR
+C                            STEREOGRAPHIC). 
+C                       L=2--GRID LENGTH IN MILLIMETERS,
+C                       L=3--LATITUDE AT WHICH GRID LENGTH IS CORRECT *10000,
+C                       L=4--GRID ORIENTATION IN DEGREES *10000,
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *10000,
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES *10000.
+C                       (INPUT/OUTPUT)
+C               NGRID = THE NUMBER OF GRID COMBINATIONS IN DIR( , , ),
+C                       MAXIMUM OF ND11.  (INPUT/OUTPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN BE
+C                       DEALT WITH ON THIS RUN.  LAST DIMENSION OF
+C                       NGRIDC( , ) AND DIR( , , ).  (INPUT)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR( , , ) AND
+C                       IN GRIDC( , ) DEFINING THE CHARACTERISTICS
+C                       OF THIS GRID.  SEE LSTORE(10, ).  FOR THE
+C                       COMPUTATION ROUTINES RETURNING A GRID, THIS
+C                       VALUE MUST BE OUTPUT BY GFETCH.
+C                       NSLAB = 0 FOR VECTOR DATA (AND FOR NO DATA
+C                       RETURNED AND NWORDS = 0), AS STORED BY GSTORE;
+C                       OTHERWISE, GRIDDED DATA ARE INDICATED.  (OUTPUT) 
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE DATA 
+C                       STORED (L=1,12) (J=1,LITEMS).  (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE( ) WHERE
+C                              THE DATA START.  WHEN ON DISK, 
+C                              THIS IS MINUS THE RECORD NUMBER WHERE 
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR( , ,L) AND
+C                              IN NGRIDC( ,L) DEFINING THE CHARACTERISTICS
+C                              OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE SORTED
+C                              LIST IN ID( ,N) (N=1,NPRED) FOR WHICH THIS
+C                              VARIABLE IS NEEDED, WHEN IT IS NEEDED ONLY
+C                              ONCE FROM LSTORE( , ).  WHEN IT IS NEEDED
+C                              MORE THAN ONCE, THE VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING MSTORE( , ).
+C                              LATER USED AS A WAY OF DETERMINING WHETHER
+C                              TO KEEP THIS VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE( , ).  (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE( , ) THAT 
+C                       HAVE BEEN USED IN THIS RUN.
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA IDENTIFIED IN
+C                       LSTORE( , ) (J=1,ND10).  WHEN CORE( ) IS FULL
+C                       DATA ARE STORED ON DISK.  (OUTPUT)
+C                ND10 = DIMENSION OF CORE( ).  (INPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE.  (INPUT)
+C              NFETCH = THE NUMBER OF TIMES GFETCH HAS BEEN ENTERED.  GFETCH
+C                       KEEPS TRACK OF THIS AND RETURNS THE VALUE.  (OUTPUT)
+C               LASTL = THE LAST LOCATION IN CORE( ) USED FOR MOS-2000 INTERNAL
+C                       STORAGE.  INITIALIZED TO 0 ON FIRST ENTRY TO GSTORE.
+C                       ALSO INITIALIZED IN U720 IN CASE GSTORE IS NOT ENTERED.
+C                       MUST BE CARRIED WHENEVER GSTORE IS TO BE CALLED.
+C                       (INPUT/OUTPUT)
+C               LASTD = TOTAL NUMBER OF PHYSICAL RECORDS ON DISK FOR MOS-2000
+C                       INTERNAL STORAGE.  MUST BE CARRIED WHENEVER GSTORE
+C                       IS TO BE CALLED.  (INPUT)
+C              NSTORE = THE NUMBER OF TIMES GSTORE HAS BEEN ENTERED.  GSTORE
+C                       KEEPS TRACK OF THIS AND RETURNS THE VALUE.  (OUTPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).  (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).  (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).  (INTERNAL)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).  (INTERNAL)
+C                 ND7 = DIMENSION OF IS0( ), IS1( ), IS2( ), AND IS4( ).
+C                       NOT ALL LOCATIONS ARE USED.  (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+C                       USED (EITHER 32 OR 64).  (INPUT)
+C              L3264W = NUMBER OF WORDS IN 64 BITS, EITHER 1 OR 2.
+C                       (INPUT)
+C               ISTAV = 1 WHEN THE DATA RETURNED ARE VECTOR (STATION)
+C                         DATA.  
+C                       0 WHEN THE DATA RETURNED ARE GRID DATA.
+C                         THIS ESSENTIALLY TELLS U720 (PRED25/PRED26)
+C                         HOW TO TREAT THE DATA, EVEN IF MISSING (9999)
+C                        (OUTPUT)
+C
+C           WEATHER GRID INPUT/OUTPUT VARIABLES:
+C                  NX = NUMBER OF GRIDPOINTS IN X DIRECTION. (INPUT)
+C                  NY = NUMBER OF GRIDPOINTS IN Y DIRECTION. (INPUT)
+C              IPHSBC = FLAG FOR USING CONDITIONAL PRECIPITATION TYPE
+C                       BEST CATEGORY THRESHOLDS:
+C                          1 - USE THRESHOLDS
+C                       ELSE - DON'T USE THRESHOLDS
+C                       (INPUT)
+C              PHSTMP = PRECIPITATION PHASE CUTOVER TEMPERATURE
+C                       THRESHOLD TO LIQUID.  IF THE MOS FORECAST
+C                       TEMPERATURE IS AT OR ABOVE PHSTMP, THE 
+C                       PRECIPITATION PHASE IS INITIALIZED TO 
+C                       LIQUID. (INPUT)
+C           THRPHS(I) = PRECIPITATION PHASE POTENTIAL THRESHOLDS, 
+C                       EXPRESSED IN PERCENT, OF THE FOUR PERMITTED 
+C                       CATEGORICAL PROBABILITY FORECASTS. ELEMENTS 
+C                       WITHIN THRPHS MUST BE BETWEEN 0 AND 100 PERCENT, 
+C                       INCLUSIVE, AND BE MONOTONICALLY INCREASING.
+C                       (I=1,4) (INPUT)
+C             JSTA(K) = THE GRIDPOINT LOCATIONS OF THE STATIONS 
+C                       IN THE STATION LIST. (K=1,NSTA) (INPUT)
+C             GPPI(J) = PRECIPITATION POTENTIAL INDEX GRIDPOINT 
+C                       FORECASTS. (J=1,ND2X3) (INPUT)
+C          NPCAT(I,J) = PRECIPITATION CATEGORY GRIDPOINT FORECASTS 
+c                       FOR EACH COMPONENT OF THE WEATHER KEY. VALUES:
+C                       MISSEL - MISSING
+C                            5 - DEFINITE
+C                            3 - LIKELY
+C                            2 - CHANCE
+C                            1 - SLIGHT CHANCE
+C                            0 - NO COVERAGE/PROBABILITY
+C                       (I=1,3)(J=1,ND2X3) (OUTPUT)
+C          NPPHS(I,J) = PRECIPITATION PHASE (ZR, IP, S, R) FOR EACH 
+C                       COMPONENT OF THE WEATHER KEY. 
+C                            0 - NO WEATHER
+C                           10 - RAIN (R)
+C                           20 - FREEZING RAIN (ZR)
+C                           21 - SLEET (IP)
+C                           30 - SNOW (S)
+C                       (I=1,3)(J=1,ND2X3) (OUTPUT)
+C         PPHASE(I,J) = POTENTIAL INDEX GRIDPOINT FORECASTS FOR EACH
+C                       PRECIPITATION PHASE.
+C                       PPHASE(1,J) = FREEZING POTENTIAL INDEX
+C                       PPHASE(2,J) = FROZEN POTENTIAL INDEX
+C                       PPHASE(3,J) = LIQUID POTENTIAL INDEX
+C                       (I=1,3) (J=1,ND2X3) (OUTPUT)
+C               RRMIS = MISSING DATA FLAG. (INPUT)
+C              MISSEL = INTEGER VALUE DENOTING AN ELEMENT NOT FETCHED .
+C                       (INPUT)
+C                 IER = STATUS RETURN.
+C                         0 = GOOD RETURN.
+C                       103 = IDPARS(1) AND IDPARS(2) NOT ACCOMMODATED IN
+C                             THIS ROUTINE.
+C                       SEE CALLED ROUTINES FOR OTHER VALUES.
+C                       (INTERNAL-OUTPUT)
+C
+C           INTERNAL VARIABLES
+C           ITABLE(I) = CCCFFF OF WX (I=1), TEMPERATURE (I=2), 
+C                       DEW POINT (I=3), CONDITIONAL PRECIPITATION 
+C                       TYPE PROBABILITIES (I=4) AND PRECIPITATION 
+C                       TYPE THRESHOLDS (I=5). (INTERNAL)
+C             LD(N,J) = 4-WORD MOS ID USED TO OBTAIN PRECIPITATION TYPE
+C                       PROBABILITIES AND THRESHOLDS. (N=1,6) (J=1,4) 
+C                       (INTERNAL)
+C             MD(N,J) = 4-WORD MOS ID USED TO OBTAIN TEMPERATURE AND
+C                       DEW POINT FORECASTS. (N=1,2) (J=1,2) (INTERNAL)
+C     PMX_THRESH(N,J) = THRESHOLDS FOR FREEZING (N=1) AND FROZEN (N=1)
+C                       PRECIPITATION TYPES (N=1,2). (J=1,ND2X3) 
+C                       (INTERNAL)
+C          IER_THRPHS = INTEGER ERROR FLAG.  IF THE ELEMENTS IN 
+C                       INPUT VECTOR THRPHS ARE OUTSIDE THE RANGE 
+C                       0 TO 100 PERCENT, INCLUSIVE, OR IF THE ORDER OF 
+C                       THRPHS IS NOT MONOTONICALLY INCREASING, 
+C                       IER_THRPHS, NOMINALLY 0, IS SET TO 1, AND 
+C                       DEFAULT THRESHOLDS ARE USED INSTEAD.
+C            GTEMP(J) = GMOS TEMPERATURES. (J=1,ND2X3) (INTERNAL)
+C            GDWPT(J) = GMOS DEW POINT TEMPERATURES. (J=1,ND2X3) 
+C                       (INTERNAL)
+C            GPOZR(J) = GMOS FREEZING P-TYPE PROBABILITY. (J=1,ND2X3) 
+C                       (INTERNAL)
+C            GPOFR(J) = GMOS FROZEN P-TYPE PROBABILITY. (J=1,ND2X3) 
+C                       (INTERNAL)
+C            GPORA(J) = GMOS LIQUID P-TYPE PROBABILITY. (J=1,ND2X3) 
+C                       (INTERNAL)
+C            GBEST(J) = GMOS P-TYPE BEST CATEGORY. (J=1,ND2X3) 
+C                       (INTERNAL)
+C               IPPHS = FLAG FOR METHOD TO DETERMINE PRECIPITATION PHASE.
+C                       1 - P-TYPES NOT AVAILABLE, JUST USE TEMPERATURES
+C                       2 - P-TYPES AVAILABLE AND USE BC THRESHOLDS
+C                       3 - P-TYPES AVAILABLE BUT DON'T USE BC THRESHOLDS
+C                       (INTERNAL)
+C
+C           TEMPORARY VARIABLES
+C             THRESH1 = FREEZING THRESHOLD.
+C             THRESH2 = FROZEN THRESHOLD.
+C                 ZPI = FREEZING POTENTIAL INDEX USED TO 
+C                       DETERMINE FREEZING CATEGORY.
+C                 FPI = FROZEN POTENTIAL INDEX USED TO 
+C                       DETERMINE FROZEN CATEGORY.
+C                 RPI = LIQUID POTENTIAL INDEX USED
+C                       TO DETERMINE LIQUID CATEGORY.
+C           DMAXPHASE = MAXIMUM PRECIPITATION TYPE CATEGORY.
+C              NZRCAT = FREEZING PRECIPITATION PHASE CATEGORY.
+C              NFRCAT = FROZEN PRECIPITATION PHASE CATEGORY.
+C              NRACAT = LIQUID PRECIPITATION PHASE CATEGORY.
+C              FLAGZR = FLAG TO INDICATE WHICH FREEZING ELEMENT(S) TO
+C                       SELECT:
+C                        2 - BOTH ZR AND IP  
+C                       20 - ZR
+C                       21 - IP
+C
+C        NONSYSTEM SUBROUTINES USED
+C            PRSID1, GTVEGR, WXVCAT, SCALX 
+C
+C***********************************************************************
+C
+      IMPLICIT NONE
+C
+C        DECLARE MOS2K SYSTEM VARIABLES:
+C
+      CHARACTER*8 CCALL(ND1,6)
+      CHARACTER*8 CCALLD(ND5)
+      CHARACTER*20 NAME(ND1)
+      CHARACTER*60 RACESS(5)
+C
+      INTEGER KFILDO,KFIL10,IP12,KFILRA(5),
+     1        NUMRA,ID(4),IDPARS(15),JD(4),NDATE,
+     2        ISDATA(ND1),ND1,NSTA,
+     3        ND2X3,ICALLD(L3264W,ND5),IPACK(ND5),IWORK(ND5),
+     4        ND5,NGRIDC(6,ND11),NGRID,ND11,
+     5        NSLAB,LSTORE(12,ND9),ND9,LITEMS,ND10,
+     6        NBLOCK,NFETCH,LASTL,LASTD,NSTORE,
+     7        IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7),ND7,
+     8        L3264B,L3264W,ISTAV,IER
+C
+      REAL    STALAT(ND1),STALON(ND1),SDATA(ND1),
+     1        DIR(ND1,2,ND11),CORE(ND10)
+C
+C        DECLARE WEATHER GRID VARIABLES (INPUT/OUTPUT):
+C
+      INTEGER NPCAT(3,ND2X3),NPPHS(3,ND2X3),
+     1        IPHSBC,JSTA(NSTA),NX,NY,MISSEL
+C
+      REAL    GPPI(ND2X3),PPHASE(3,ND2X3),PHSTMP,THRPHS(4),RRMIS
+C
+C        DECLARE WEATHER GRID VARIABLES (INTERNAL):
+C
+      INTEGER LDPARS(15),MDPARS(15),NDPARS(15),LD(6,4),MD(2,4),ND(4),
+     1        NZRCAT,NFRCAT,NRACAT,NSIZE,
+     2        NHOUR,ITHR1,ITHR2,IPOZR,IPOFR,IPORA,
+     3        ITEMP,IDWPT,IPPHS,IER_THRPHS,J,K,L,M,N
+C
+      REAL    GTEMP(ND2X3),GDWPT(ND2X3),GBEST(ND2X3),
+     1        GPOFR(ND2X3),GPOZR(ND2X3),GPORA(ND2X3),
+     2        ZPI,FPI,RPI,FLAGZR,THRESH1,THRESH2,
+     3        RATIO,DMAXPHASE,PMX_THRESH(2,ND2X3)
+C
+      INTEGER ITABLE(5) / 228500,222030,223030,228545,828545 /
+C                         WX     TEMP   DWPT   P-TYPE THRESH       
+C
+C        INITIALIZE VARIABLES.
+C
+      IER=0
+C
+C***********************************************************************
+C
+C***D WRITE(KFILDO,100)(ID(J),J=1,4)
+ 100  FORMAT(' *********** IN WXPPHS *************'/' ',4I10)
+C
+C        VERIFY THE PROCESSING INDICATOR, IDPARS(1) AND IDPARS(2).
+C
+      IF(ITABLE(1).EQ.IDPARS(1)*1000+IDPARS(2).AND.
+     1  (IDPARS(7).EQ.0.OR.IDPARS(7).EQ.1.OR.
+     2   IDPARS(7).EQ.2.OR.IDPARS(7).EQ.3.OR.
+     3   IDPARS(7).EQ.4.OR.IDPARS(7).EQ.5.OR.
+     4   IDPARS(7).EQ.6.OR.IDPARS(7).EQ.7.OR.
+     5   IDPARS(7).EQ.8))GO TO 108 
+C
+      WRITE(KFILDO,102)(ID(L),L=1,4)
+  102 FORMAT(/,' ****WXPPHS ENTERED FOR VARIABLE',
+     1        2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+     2        ' NOT ACCOMMODATED.')
+      IER=103
+      GO TO 340
+C  
+  108 CONTINUE
+C
+C        SET UP THE THE IDS TO BE FETCHED.
+      DO N=1,3
+         LD(N,1)=ITABLE(N+1)*1000+IDPARS(3)*100+IDPARS(4)
+      ENDDO
+C
+      LD(1:3,2)=0
+      LD(1:3,3)=IDPARS(12)
+      LD(1:3,4)=0
+C
+      LD(4:6,1)=ITABLE(4)*1000+300+IDPARS(3)*100+IDPARS(4)
+      LD(4:6,2)=0
+      LD(4:6,3)=IDPARS(12)
+      LD(4,4)=450001000 ! FROZEN
+      LD(5,4)=350001000 ! FREEZING
+      LD(6,4)=999905000 ! LIQUID
+C
+      MD(1:2,1)=ITABLE(5)*1000+300+IDPARS(3)*100+IDPARS(4)
+      NHOUR=MOD(NDATE,100)
+      MD(1:2,2)=NHOUR*1000000+190000
+C
+      MD(1:2,3)=IDPARS(12)
+      MD(1,4)=350001000 ! THRESH1 FOR FREEZING
+      MD(2,4)=450001000 ! THRESH2 FOR FROZEN
+C
+      ND(1)=228546008
+      ND(2)=0
+      ND(3)=IDPARS(12)
+      ND(4)=0
+C
+C***********************************************************************
+C
+C        NOW THAT THE IDS ARE SET UP FOR TEMPERATURE, DEW POINT, 
+C        PRECIPITATION TYPE, AND PROBABILITIES OF FREEZING, FROZEN, 
+C        AND LIQUID, GET THE FORECASTS.
+C
+C        GET THE P-TYPE BEST CATEGORY
+C 
+C***  CALL PRSID1(KFILDO,ND,NDPARS)
+C***  JD=ND
+C***  IPBC1=1
+C        IPBC1 = 1 SIGNIFIES DATA ARE CORRECT. IF NOT, IT
+C        WILL BE SET TO MISSEL.
+C***  CALL GTVEGR(KFILDO,KFIL10,IP12,
+C*** 1            ND,NDPARS,JD,NDATE,
+C*** 2            KFILRA,RACESS,NUMRA,
+C*** 3            CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+C*** 4            ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+C*** 5            NGRIDC,NGRID,ND11,NSLAB,
+C*** 6            IPACK,IWORK,GBEST,ND2X3,
+C*** 7            LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+C*** 8            NBLOCK,LASTD,NSTORE,NFETCH,
+C*** 9            IS0,IS1,IS2,IS4,ND7,
+C*** A            ISTAV,L3264B,L3264W,IER)
+C
+C***  IF(IER.NE.0)THEN
+C***     WRITE(KFILDO,127)(ND(M),M=1,4)
+C***     IPBC1=MISSEL
+C***     GBEST(1:ND2X3)=RRMIS
+C***  ELSEIF(ISTAV.NE.0)THEN
+C***     WRITE(KFILDO,128)(ND(M),M=1,4)
+C***     GBEST(1:ND2X3)=RRMIS
+C***     IPBC1=MISSEL
+C***  ENDIF
+C
+C     IF FLAG IS SET TO USE THE CONDITIONAL P-TYPE BEST
+C     CATEGORY THRESHOLDS, FETCH THEM. NOTE: THRESHOLDS
+C     ARE FETCHED FROM VECTOR DATA.
+C
+      IF(IPHSBC.EQ.1)THEN
+C
+C        GET THE FIRST THRESHOLD FOR FREEZING
+C 
+         CALL PRSID1(KFILDO,MD(1,1:4),MDPARS)
+         JD=MD(1,1:4)
+         ITHR1=1
+C        ITHR1 = 1 SIGNIFIES DATA ARE CORRECT. IF NOT, IT
+C        WILL BE SET TO MISSEL.
+         CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1               MD(1,1:4),MDPARS,JD,NDATE,
+     2               KFILRA,RACESS,NUMRA,
+     3               CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4               ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5               NGRIDC,NGRID,ND11,NSLAB,
+     6               IPACK,IWORK,PMX_THRESH(1,1:ND2X3),ND2X3,
+     7               LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8               NBLOCK,LASTD,NSTORE,NFETCH,
+     9               IS0,IS1,IS2,IS4,ND7,
+     A               ISTAV,L3264B,L3264W,IER)
+C
+         IF(IER.NE.0)THEN
+            WRITE(KFILDO,127)(MD(1,M),M=1,4)
+  127       FORMAT(/' ####VARIABLE = ',3I10.9,I11.3,
+     1              ' NOT RETRIEVED BY GTVEGR IN WXPPHS.')
+            ITHR1=MISSEL
+            PMX_THRESH(1,1:ND2X3)=RRMIS
+         ENDIF 
+C
+C        GET THE SECOND THRESHOLD FOR FROZEN
+C 
+         CALL PRSID1(KFILDO,MD(2,1:4),MDPARS)
+         JD=MD(2,1:4)
+         ITHR2=1
+C        ITHR2 = 1 SIGNIFIES DATA ARE CORRECT. IF NOT, IT
+C        WILL BE SET TO MISSEL.
+         CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1               MD(2,1:4),MDPARS,JD,NDATE,
+     2               KFILRA,RACESS,NUMRA,
+     3               CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4               ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5               NGRIDC,NGRID,ND11,NSLAB,
+     6               IPACK,IWORK,PMX_THRESH(2,1:ND2X3),ND2X3,
+     7               LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8               NBLOCK,LASTD,NSTORE,NFETCH,
+     9               IS0,IS1,IS2,IS4,ND7,
+     A               ISTAV,L3264B,L3264W,IER)
+C
+         IF(IER.NE.0)THEN
+            WRITE(KFILDO,127)(MD(2,M),M=1,4)
+            ITHR2=MISSEL
+            PMX_THRESH(2,1:ND2X3)=RRMIS
+         ENDIF 
+      ELSE
+         PMX_THRESH(1,1:ND2X3)=RRMIS
+         PMX_THRESH(2,1:ND2X3)=RRMIS
+      ENDIF
+C
+C        GET THE PROBABILITY OF FREEZING PRECIP FORECAST
+C 
+      CALL PRSID1(KFILDO,LD(5,1:4),LDPARS)
+      JD=LD(5,1:4)
+      IPOZR=1
+C        IPOZR = 1 SIGNIFIES DATA ARE CORRECT. IF NOT, IT
+C        WILL BE SET TO MISSEL.
+      CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1            LD(5,1:4),LDPARS,JD,NDATE,
+     2            KFILRA,RACESS,NUMRA,
+     3            CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4            ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5            NGRIDC,NGRID,ND11,NSLAB,
+     6            IPACK,IWORK,GPOZR,ND2X3,
+     7            LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8            NBLOCK,LASTD,NSTORE,NFETCH,
+     9            IS0,IS1,IS2,IS4,ND7,
+     A            ISTAV,L3264B,L3264W,IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,127)(LD(5,M),M=1,4)
+         IPOZR=MISSEL
+         GPOZR=RRMIS
+      ELSEIF(ISTAV.NE.0)THEN
+         WRITE(KFILDO,129)(LD(5,M),M=1,4)
+  129       FORMAT(/' ****RECORD RETURNED FROM GTVEGR FOR VARIABLE',
+     1                I9.9,1X,I9.9,1X,I9.9,1X,I10.3,/,
+     2              '     SHOULD BE GRIDPOINT, BUT IS INDICATED AS',
+     3              ' VECTOR.  NOT USED.')
+         IPOZR=MISSEL
+         GPOZR=RRMIS
+      ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+         WRITE(KFILDO,130)(LD(5,M),M=1,4),IS2(3),NX,IS2(4),NY
+  130    FORMAT(/,' ****GRID CHARACTERISTICS FOR VARIABLE ',4I11,
+     1            ' DO NOT MATCH IN WXPPHS.',/,
+     2            ' IS2(3) =',I8,'    NX   = ',I10,/,
+     3            ' IS2(4) =',I8,'    NY   = ',I10,/,
+     4            ' THIS VARIABLE NOT USED.')
+         IPOZR=MISSEL
+         GPOZR=RRMIS
+      ENDIF 
+C
+C        GET THE PROBABILITY OF FROZEN PRECIP FORECAST
+C 
+      CALL PRSID1(KFILDO,LD(4,1:4),LDPARS)
+      JD=LD(4,1:4)
+      IPOFR=1
+C        IPOFR = 1 SIGNIFIES DATA ARE CORRECT. IF NOT, IT
+C        WILL BE SET TO MISSEL.
+      CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1            LD(4,1:4),LDPARS,JD,NDATE,
+     2            KFILRA,RACESS,NUMRA,
+     3            CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4            ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5            NGRIDC,NGRID,ND11,NSLAB,
+     6            IPACK,IWORK,GPOFR,ND2X3,
+     7            LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8            NBLOCK,LASTD,NSTORE,NFETCH,
+     9            IS0,IS1,IS2,IS4,ND7,
+     A            ISTAV,L3264B,L3264W,IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,127)(LD(4,M),M=1,4)
+         IPOFR=MISSEL
+         GPOFR=RRMIS
+      ELSEIF(ISTAV.NE.0)THEN
+         WRITE(KFILDO,129)(LD(4,M),M=1,4)
+         IPOFR=MISSEL
+         GPOFR=RRMIS
+      ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+         WRITE(KFILDO,130)(LD(4,M),M=1,4),IS2(3),NX,IS2(4),NY
+         IPOFR=MISSEL
+         GPOFR=RRMIS
+      ENDIF 
+C
+C        GET THE PROBABILITY OF LIQUID PRECIP FORECAST
+C 
+      CALL PRSID1(KFILDO,LD(6,1:4),LDPARS)
+      JD=LD(6,1:4)
+      IPORA=1
+C        IPORA = 1 SIGNIFIES DATA ARE CORRECT. IF NOT, IT
+C        WILL BE SET TO MISSEL.
+      CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1            LD(6,1:4),LDPARS,JD,NDATE,
+     2            KFILRA,RACESS,NUMRA,
+     3            CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4            ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5            NGRIDC,NGRID,ND11,NSLAB,
+     6            IPACK,IWORK,GPORA,ND2X3,
+     7            LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8            NBLOCK,LASTD,NSTORE,NFETCH,
+     9            IS0,IS1,IS2,IS4,ND7,
+     A            ISTAV,L3264B,L3264W,IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,127)(LD(6,M),M=1,4)
+         IPORA=MISSEL
+         GPORA=RRMIS
+      ELSEIF(ISTAV.NE.0)THEN
+         WRITE(KFILDO,129)(LD(6,M),M=1,4)
+         IPORA=MISSEL
+         GPORA=RRMIS
+      ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+         WRITE(KFILDO,130)(LD(6,M),M=1,4),IS2(3),NX,IS2(4),NY
+         IPORA=MISSEL
+         GPORA=RRMIS
+      ENDIF 
+C
+C        GET TEMPERATURE
+C
+      CALL PRSID1(KFILDO,LD(1,1:4),LDPARS)
+      JD=LD(1,1:4)
+      ITEMP=1
+C        ITEMP = 1 SIGNIFIES DATA ARE CORRECT. IF NOT, IT
+C        WILL BE SET TO MISSEL.
+      CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1            LD(1,1:4),LDPARS,JD,NDATE,
+     2            KFILRA,RACESS,NUMRA,
+     3            CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4            ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5            NGRIDC,NGRID,ND11,NSLAB,
+     6            IPACK,IWORK,GTEMP,ND2X3,
+     7            LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8            NBLOCK,LASTD,NSTORE,NFETCH,
+     9            IS0,IS1,IS2,IS4,ND7,
+     A            ISTAV,L3264B,L3264W,IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,127)(LD(1,M),M=1,4)
+         ITEMP=MISSEL
+         GTEMP=RRMIS
+      ELSEIF(ISTAV.NE.0)THEN
+         WRITE(KFILDO,129)(LD(1,M),M=1,4)
+         ITEMP=MISSEL
+         GTEMP=RRMIS
+      ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+         WRITE(KFILDO,130)(LD(1,M),M=1,4),IS2(3),NX,IS2(4),NY
+         ITEMP=MISSEL
+         GTEMP=RRMIS
+      ENDIF 
+C
+C        GET THE DEW POINT FORECAST
+C 
+      CALL PRSID1(KFILDO,LD(2,1:4),LDPARS)
+      JD=LD(2,1:4)
+      IDWPT=1
+C        IDWPT = 1 SIGNIFIES DATA ARE CORRECT. IF NOT, IT
+C        WILL BE SET TO MISSEL.
+      CALL GTVEGR(KFILDO,KFIL10,IP12,
+     1            LD(2,1:4),LDPARS,JD,NDATE,
+     2            KFILRA,RACESS,NUMRA,
+     3            CCALL,ICALLD,CCALLD,NAME,STALAT,STALON,
+     4            ISDATA,SDATA,DIR,ND1,NSTA,NSIZE,
+     5            NGRIDC,NGRID,ND11,NSLAB,
+     6            IPACK,IWORK,GDWPT,ND2X3,
+     7            LSTORE,ND9,LITEMS,7777,CORE,ND10,LASTL,
+     8            NBLOCK,LASTD,NSTORE,NFETCH,
+     9            IS0,IS1,IS2,IS4,ND7,
+     A            ISTAV,L3264B,L3264W,IER)
+C
+      IF(IER.NE.0)THEN
+         WRITE(KFILDO,127)(LD(2,M),M=1,4)
+         IDWPT=MISSEL
+         GDWPT=RRMIS
+      ELSEIF(ISTAV.NE.0)THEN
+         WRITE(KFILDO,129)(LD(2,M),M=1,4)
+         IDWPT=MISSEL
+         GDWPT=RRMIS
+      ELSEIF(IS2(3).NE.NX.OR.IS2(4).NE.NY)THEN
+         WRITE(KFILDO,130)(LD(2,M),M=1,4),IS2(3),NX,IS2(4),NY
+         IDWPT=MISSEL
+         GDWPT=RRMIS
+      ENDIF 
+C
+C        RESET VARIABLES NEEDED LATER FOR PACKING.
+C
+      IER=0
+      ISTAV=0
+      NSLAB=1
+C
+C***********************************************************************
+C
+C        NOW THAT FETCHING IS DONE, GET PRECIPITATION PHASE. 
+C
+C        IF A P-TYPE IS MISSING AND A TEMPERATURE IS MISSING, RETURN.
+C        IF P-TYPES WERE NOT FETCHED BUT TEMPERATURES WERE, PROCEED WITH
+C        TEMPERATURES.
+C        IF P-TYPES WERE FETCHED, PROCEED WITH P-TYPES.
+C
+C        IPPHS=1: P-TYPES NOT AVAILABLE, JUST USE TEMPERATURES
+C        IPPHS=2: P-TYPES AVAILABLE AND USE BC THRESHOLDS
+C        IPPHS=3: P-TYPES AVAILABLE BUT DON'T USE BC THRESHOLDS
+C
+      IF((IPOFR.EQ.MISSEL.OR.IPOZR.EQ.MISSEL.OR.IPORA.EQ.MISSEL)
+     1   .AND.(ITEMP.EQ.MISSEL.OR.IDWPT.EQ.MISSEL))THEN
+         WRITE(KFILDO,110) IDPARS(12)
+  110    FORMAT(/,' ****PRECIPTIATION TYPE AND TEMPERATURE ',
+     1            'FORECASTS ARE UNAVAILABLE. CANNOT MAKE ',
+     2            'FREEZING, FROZEN, OR LIQUID ',
+     3          /,'    POTENTIALS FOR IDPARS(12)=',I5,'.')
+         NPCAT(1:3,J)=RRMIS
+         NPPHS(1:3,J)=99
+         PPHASE(1:3,J)=RRMIS
+         IER=200
+         GO TO 340
+      ELSEIF((IPOFR.EQ.MISSEL.OR.IPOZR.EQ.MISSEL.OR.IPORA.EQ.MISSEL)
+     1   .AND.(ITEMP.NE.MISSEL.AND.IDWPT.NE.MISSEL))THEN
+         WRITE(KFILDO,115) 
+  115    FORMAT(/,' ****PRECIPITATION PHASE USING ',
+     1            'TEMPERATURE AND DEW POINT ONLY. CHECK ',
+     2            'PRECIPITATION TYPE DATA.')
+         IPPHS=1
+      ELSE
+         IF(IPHSBC.EQ.1)THEN
+            IPPHS=2
+         ELSE
+            IPPHS=3
+         ENDIF
+      ENDIF
+C
+C        VERIFY THAT THE USER-DEFINED PRECIPITATION THRESHOLDS
+C        ARE MONOTONICALLY INCREASING AND WITHIN THE RANGE 0 TO 100,
+C        INCLUSIVE:
+C
+      CALL WXVCAT(THRPHS,IER_THRPHS)
+C
+      IF(IER_THRPHS.NE.0)THEN
+         WRITE(KFILDO,105) 
+  105    FORMAT(/,' ****DEFAULT VALUES USED FOR PRECIPITATION ',
+     1            ' PHASE THRESHOLDS. CHECK VALUES OF THRPHS.')
+      ENDIF
+C
+C        INFLATE THE GMOS FORECASTS SO THAT THE INDICES 
+C        WILL RANGE FROM 0 TO 100.
+C
+      CALL SCALX(KFILDO,GPOZR,ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GPOFR,ND2X3,1.,2,IER)
+      CALL SCALX(KFILDO,GPORA,ND2X3,1.,2,IER)
+C
+C        LOOP THROUGH ALL GRIDPOINTS IN PARALLEL...
+C
+!$OMP PARALLEL DO 
+!$OMP& PRIVATE(NZRCAT,NFRCAT,NRACAT)
+!$OMP& PRIVATE(ZPI,FPI,RPI,DMAXPHASE)
+!$OMP& PRIVATE(J,THRESH1,THRESH2,FLAGZR)
+      DO 200 J=1,ND2X3
+C
+C        INITIALIZE VARIABLES
+C
+         NPCAT(1:3,J)=RRMIS
+         NPPHS(1:3,J)=99
+         PPHASE(1:3,J)=RRMIS
+C
+         ZPI=0
+         FPI=0
+         RPI=0
+         NZRCAT=0
+         NFRCAT=0
+         NRACAT=0
+         DMAXPHASE=0
+         FLAGZR=0
+C
+         IF(GPPI(J).EQ.RRMIS)THEN
+            NPCAT(1:3,J)=RRMIS
+            PPHASE(1:3,J)=RRMIS
+            GO TO 200
+         ENDIF
+C
+C        IF THE FORECAST TEMPERATURE IS AT OR ABOVE PHSTMP, ASSIGN
+C        A LIQUID PHASE (CODE 10) TO THE APPROPRIATE GRIDPOINT:
+C
+         IF(GTEMP(J).GE.PHSTMP.AND.GTEMP(J).NE.RRMIS)THEN
+            ZPI=0
+            FPI=0
+            RPI=GPPI(J)
+            GO TO 150
+         END IF
+C
+C        DO ANOTHER SANITY CHECK: IF ALL THE P-TYPE PROBABILITIES ARE
+C        MISSING AT THIS GRIDPOINT, CHECK AGAINST TEMPERATURE AND
+C        DEW POINT.
+C
+         IF(GPOZR(J).EQ.RRMIS.AND.GPOFR(J).EQ.RRMIS.AND.
+     1      GPORA(J).EQ.RRMIS)THEN
+            IF(GTEMP(J).NE.RRMIS.AND.GDWPT(J).NE.RRMIS)THEN
+               IF((GTEMP(J).LT.32.).AND.(GDWPT(J).LT.32.))THEN
+                  ZPI=0
+                  FPI=GPPI(J)
+                  RPI=0
+               ELSE
+                  ZPI=0
+                  FPI=0
+                  RPI=GPPI(J)
+               ENDIF
+            GO TO 150
+            ENDIF
+         ENDIF
+C
+         SELECT CASE (IPPHS)
+C
+C        P-TYPES WERE NOT FETCHED BUT TEMPERATURES WERE, 
+C        SO PROCEED WITH TEMPERATURES.
+            CASE(1)
+               IF((GTEMP(J).LT.32.).AND.(GDWPT(J).LT.32.))THEN
+                  ZPI=0
+                  FPI=GPPI(J)
+                  RPI=0
+               ELSE
+                  ZPI=0
+                  FPI=0
+                  RPI=GPPI(J)
+               ENDIF
+C
+C        P-TYPES ARE AVAILABLE AND WE WANT TO USE THE BEST CATEGORY THRESHOLDS.
+            CASE(2)
+C
+C        IF THRESHOLDS ARE MISSING, USE AN ASSUMED AVERAGE VALUE INSTEAD.
+C
+               IF(PMX_THRESH(1,J).NE.RRMIS)THEN
+                  THRESH1=PMX_THRESH(1,J)
+               ELSE
+                  THRESH1=0.155 ! AVERAGE
+               ENDIF
+C
+               IF(PMX_THRESH(2,J).NE.RRMIS)THEN
+                  THRESH2=PMX_THRESH(2,J)
+               ELSE
+                  THRESH2=0.456
+               ENDIF
+C
+C        DETERMINE PRECIPITATION PHASE CATEGORIES.  
+C        GET THE RATIO OF THE P-TYPE PROBABILTIES TO THEIR
+C        RESPECTIVE THRESHOLDS. 
+C
+               IF(GPOZR(J).EQ.RRMIS)THEN
+                  ZPI=0
+               ELSE
+                  ZPI=GPOZR(J)/THRESH1
+               ENDIF
+C
+               IF(GPOFR(J).EQ.RRMIS)THEN
+                  FPI=0
+               ELSE
+                  FPI=(GPOZR(J)+GPOFR(J))/THRESH2
+               ENDIF
+C
+               IF(GPORA(J).EQ.RRMIS)THEN
+                  RPI=0
+               ELSE
+                  RPI=GPORA(J)/(1-THRESH2)
+               ENDIF
+C
+C        DETERMINE THE MAXIMUM PRECIPITATION TYPE CATEGORY. 
+C        DMAXPHASE IS USED TO DETERMINE THE RATIO TO BRING
+C        P-TYPE POTENTIALS TO THE PPI SCALE. THE "LIKELIEST"
+C        P-TYPE (THE ONE THAT MOST EXCEEDED ITS THRESHOLD)
+C        WILL BE SET EQUAL TO PPI AND THE OTHER P-TYPES WILL
+C        BE SCALED ACCORDINGLY.
+C
+               DMAXPHASE=MAX(ZPI,FPI,RPI)
+C
+C        IF P-TYPES AND TEMP ARE MISSING AT THIS GRIDPOINT,
+C        ASSUME LIQUID.
+               IF(DMAXPHASE.EQ.0)THEN
+                  RPI=GPPI(J)
+               ELSE
+                  RATIO=GPPI(J)/DMAXPHASE
+C
+                  IF(ZPI.EQ.DMAXPHASE)THEN
+                     ZPI=GPPI(J)
+                  ELSE
+                     ZPI=ZPI*RATIO
+                  ENDIF
+C
+                  IF(FPI.EQ.DMAXPHASE)THEN
+                     FPI=GPPI(J)
+                  ELSE
+                     FPI=FPI*RATIO
+                  ENDIF
+C
+                  IF(RPI.EQ.DMAXPHASE)THEN
+                     RPI=GPPI(J)
+                  ELSE
+                     RPI=RPI*RATIO
+                  ENDIF
+               ENDIF
+C        
+C        P-TYPES ARE AVAILABLE AND BEST CATEGORY THRESHOLDS ARE
+C        NOT TO BE USED...
+            CASE(3)
+C
+C        DETERMINE THE MAXIMUM PRECIPITATION TYPE CATEGORY. 
+C        DMAXPHASE IS USED TO DETERMINE THE RATIO TO BRING
+C        P-TYPE POTENTIALS TO THE PPI SCALE.
+C
+               DMAXPHASE=MAX(GPOZR(J),GPOFR(J),GPORA(J))
+C
+C        IF P-TYPES ARE MISSING AT THIS GRIDPOINT, ASSUME LIQUID.
+               IF(DMAXPHASE.EQ.0.OR.DMAXPHASE.EQ.RRMIS)THEN
+                  RPI=GPPI(J)
+C
+C        ELSE, GET THE RATIO OF THE P-TYPE PROBABILTIES TO THE
+C        MAXIMUM P-TYPE PROBABILITY. MULTIPLY BY PPI
+C        TO UNCONDITIONALIZE AND BRING TO PPI SCALE.
+               ELSE
+                  IF(GPOZR(J).EQ.RRMIS)THEN
+                     ZPI=0
+                  ELSEIF(GPOZR(J).EQ.DMAXPHASE)THEN
+                     ZPI=GPPI(J)
+                  ELSE
+                     ZPI=GPOZR(J)*GPPI(J)/DMAXPHASE
+                  ENDIF
+C
+                  IF(GPOFR(J).EQ.RRMIS)THEN
+                     FPI=0
+                  ELSEIF(GPOFR(J).EQ.DMAXPHASE)THEN
+                     FPI=GPPI(J)
+                  ELSE
+                     FPI=GPOFR(J)*GPPI(J)/DMAXPHASE
+                  ENDIF
+C
+                  IF(GPORA(J).EQ.RRMIS)THEN
+                     RPI=0
+                  ELSEIF(GPORA(J).EQ.DMAXPHASE)THEN
+                     RPI=GPPI(J)
+                  ELSE
+                     RPI=GPORA(J)*GPPI(J)/DMAXPHASE
+                  ENDIF
+               ENDIF
+C
+            CASE DEFAULT
+C*****         EVERYONE IS MISSING.
+C
+         END SELECT
+C 
+ 150     CONTINUE
+C
+C        ARMED WITH OUR POTENTIAL INDICES, ASSIGN THE RESPECTIVE
+C        CATEGORIES.
+C
+C        FREEZING CATEGORY....
+         IF(ZPI.GE.THRPHS(4))THEN
+            NZRCAT=5                          ! DEFINITE
+         ELSEIF(ZPI.GE.THRPHS(3))THEN
+            NZRCAT=3                          ! LIKELY
+         ELSEIF(ZPI.GE.THRPHS(2))THEN
+            NZRCAT=2                          ! CHANCE
+         ELSEIF(ZPI.GE.THRPHS(1))THEN
+            NZRCAT=1                          ! SLIGHT CHANCE
+         ELSE
+            NZRCAT=0                          ! NO
+         ENDIF
+C
+C        FROZEN CATEGORY....
+         IF(FPI.GE.THRPHS(4))THEN
+            NFRCAT=5                          ! DEFINITE
+         ELSEIF(FPI.GE.THRPHS(3))THEN
+            NFRCAT=3                          ! LIKELY
+         ELSEIF(FPI.GE.THRPHS(2))THEN
+            NFRCAT=2                          ! CHANCE
+         ELSEIF(FPI.GE.THRPHS(1))THEN
+            NFRCAT=1                          ! SLIGHT CHANCE
+         ELSE
+            NFRCAT=0                          ! NO
+         ENDIF
+C
+C        LIQUID CATEGORY....
+         IF(RPI.GE.THRPHS(4))THEN
+            NRACAT=5                          ! DEFINITE
+         ELSEIF(RPI.GE.THRPHS(3))THEN
+            NRACAT=3                          ! LIKELY
+         ELSEIF(RPI.GE.THRPHS(2))THEN
+            NRACAT=2                          ! CHANCE
+         ELSEIF(RPI.GE.THRPHS(1))THEN
+            NRACAT=1                          ! SLIGHT CHANCE
+         ELSE
+            NRACAT=0                          ! NO
+         ENDIF
+C
+C        NOW THAT WE HAVE THE APPROPRIATE PRECIP PHASE CATEGORIES,
+C        WE WANT TO GET THEM IN THE RIGHT ORDER AND FILL THE NPCAT ARRAY.
+C        THE CATEGORY WITH THE HIGHEST CATEGORY WILL GO FIRST, ETC.
+C
+C        RESET DMAXPHASE TO GET OUR STRINGS IN ORDER...
+C 
+         DMAXPHASE=MAX(ZPI,FPI,RPI)
+C
+C        DETERMINE FREEZING PRECIPITATION PHASE -- 
+C        FREEZING RAIN (ZR) OR ICE PELLETS (IP).
+C        10 IS AN ARBITRARY THRESHOLD.
+C
+         IF(ZPI.GT.FPI+10.)THEN
+            FLAGZR=20! ZR
+         ELSEIF(ZPI.LT.FPI-10.)THEN
+            FLAGZR=21! IP
+         ELSE
+            IF(NZRCAT.NE.0.AND.NFRCAT.NE.0.AND.NRACAT.NE.0)THEN
+               IF(ZPI.GE.FPI)THEN
+                  FLAGZR=20 ! WHEN ALL 3 PHASES ARE PRESENT,
+               ELSE         ! WE ARE FORCED TO CHOOSE THE BEST
+                  FLAGZR=21 ! FREEZING PRECIP WE CAN. 
+               ENDIF        !
+            ELSE            ! BUT WHEN 2 OR LESS PHASES ARE 
+               FLAGZR=2     ! PRESENT, WE CAN TAKE BOTH 
+            ENDIF
+         ENDIF
+C                  
+         IF(ZPI.EQ.DMAXPHASE)THEN
+            IF(FLAGZR.EQ.2)THEN
+               NPCAT(1,J)=NZRCAT
+               NPPHS(1,J)=20
+               NPCAT(2,J)=NZRCAT
+               NPPHS(2,J)=21
+               IF(FPI.GE.RPI)THEN
+                  NPCAT(3,J)=NFRCAT
+                  NPPHS(3,J)=30
+               ELSE
+                  NPCAT(3,J)=NRACAT
+                  NPPHS(3,J)=10
+               ENDIF
+            ELSE
+               NPCAT(1,J)=NZRCAT
+               NPPHS(1,J)=FLAGZR
+               IF(FPI.GE.RPI)THEN
+                  NPCAT(2,J)=NFRCAT
+                  NPPHS(2,J)=30
+                  NPCAT(3,J)=NRACAT
+                  NPPHS(3,J)=10
+               ELSE
+                  NPCAT(2,J)=NRACAT
+                  NPPHS(2,J)=10
+                  NPCAT(3,J)=NFRCAT
+                  NPPHS(3,J)=30
+               ENDIF
+            ENDIF
+         ELSEIF(FPI.EQ.DMAXPHASE)THEN
+            NPCAT(1,J)=NFRCAT
+            NPPHS(1,J)=30
+            IF(ZPI.GE.RPI)THEN
+               IF(FLAGZR.EQ.2)THEN
+                  NPCAT(2,J)=NZRCAT
+                  NPPHS(2,J)=20
+                  NPCAT(3,J)=NZRCAT
+                  NPPHS(3,J)=21
+               ELSE
+                  NPCAT(2,J)=NZRCAT
+                  NPPHS(2,J)=FLAGZR
+                  NPCAT(3,J)=NRACAT
+                  NPPHS(3,J)=10
+               ENDIF
+            ELSE
+               NPCAT(2,J)=NRACAT
+               NPPHS(2,J)=10
+               NPCAT(3,J)=NZRCAT
+               NPPHS(3,J)=FLAGZR
+            ENDIF
+         ELSE
+            NPCAT(1,J)=NRACAT
+            NPPHS(1,J)=10
+            IF(ZPI.GE.FPI)THEN
+               IF(FLAGZR.EQ.2)THEN
+                  NPCAT(2,J)=NZRCAT
+                  NPPHS(2,J)=20
+                  NPCAT(3,J)=NZRCAT
+                  NPPHS(3,J)=21
+               ELSE
+                  NPCAT(2,J)=NZRCAT
+                  NPPHS(2,J)=FLAGZR
+                  NPCAT(3,J)=NFRCAT
+                  NPPHS(3,J)=30
+               ENDIF
+            ELSE
+               NPCAT(2,J)=NFRCAT
+               NPPHS(2,J)=30
+               NPCAT(3,J)=NZRCAT
+               NPPHS(3,J)=FLAGZR
+            ENDIF
+         ENDIF
+C
+C        FOR DRY CATEGORIES, RESET THE PHASE TO NONE.
+C
+         IF(NPCAT(1,J).EQ.0)NPPHS(1,J)=0
+         IF(NPCAT(2,J).EQ.0)NPPHS(2,J)=0
+         IF(NPCAT(3,J).EQ.0)NPPHS(3,J)=0
+         PPHASE(1,J)=ZPI
+         PPHASE(2,J)=FPI
+         PPHASE(3,J)=RPI
+C
+ 200  CONTINUE
+!$OMP END PARALLEL DO
+C
+C        THIS DIAGNOSTIC OUTPUT WILL PRINT TO KFILDO THE GRIDPOINT
+C        OF EACH STATION PROVIDED IN THE STATION LIST AND THE VALUES
+C        USED TO CALCULATE THAT STATION'S PRECIPITATION PHASES.
+C
+D     WRITE(KFILDO,554)
+D 554 FORMAT(/,'CCALL',6X,'J',4X,'     PPI(J)',1X,'   TEMP(J)',1X,
+D    1         '   GPOZR(J)',1X,'   GPOFR(J)',1X,'   GPORA(J)',1X,
+D    2         'THRESH(1,J)',1X,'THRESH(2,J)',1X,'    ZPI(J) ',1X,
+D    3         '    FPI(J) ',1X,'    RPI(J) ')
+D     DO K=1,NSTA
+D 555    FORMAT(A5,3X,I8,3X,F8.3,3X,F8.1,4X,F8.3,4X,F8.3,4X,
+D    1            F8.3,4X,F8.3,4X,F8.3,3X,F8.3,4X,F8.3,4X,F8.3)
+D        IF(JSTA(K).GT.0.AND.JSTA(K).LE.ND2X3)THEN
+D           WRITE(KFILDO,555) CCALL(K,1),JSTA(K),GPPI(JSTA(K)),
+D    1      GTEMP(JSTA(K)),GPOZR(JSTA(K)),GPOFR(JSTA(K)),
+D    2      GPORA(JSTA(K)),PMX_THRESH(1:2,JSTA(K)),PPHASE(1:3,JSTA(K))
+D        ELSE
+D 556       FORMAT(A5,3X,I8,3X,A13)
+D           WRITE(KFILDO,556)CCALL(K,1),JSTA(K),"OUT OF BOUNDS"
+D        ENDIF
+D     ENDDO
+C
+      GO TO 350
+C
+C        MUST SET RETURNABLE ARRAY TO MISSING FOR SAFETY
+C        WHEN DATA CANNOT BE RETURNED.
+C
+ 340  DO 341 J=1,ND2X3
+         NPCAT(1:3,J)=RRMIS
+         NPPHS(1:3,J)=RRMIS
+         PPHASE(1:3,J)=RRMIS
+ 341  CONTINUE
+C
+ 350  RETURN
+      END

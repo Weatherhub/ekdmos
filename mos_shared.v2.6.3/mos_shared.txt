@@ -1,0 +1,29 @@
+MOS Code Version 2.6.3
+
+    Make sure gfs_mos.v5.0.8 and nam_mos.v3.3.0 are in place before testing product suite
+    Included updates:
+        fix/mdl_conststa
+        fix/mdl_station.tbl
+        compiles with updated modulefile to include G2LIB v3.1.0
+
+    Implementation instructions (NOTE: NCO SPA must be added by Scott Scallion or Eric Engle to mos-oper project in NWS Vlab):
+        Checkout release branch
+
+        svn checkout --username <LDAP_USERNAME> https://vlab.ncep.noaa.gov/svn/mos-oper/mos_shared/branches/cigcld_2017
+
+        Compile 4-byte and 8-byte mdl libraries
+
+        module use $PWD/modulefiles # Perform this at the root of the working copy
+        module load mos_shared # This will load the highest version number of mos_shared (v2.6.3)
+        cd lib/sorc/mdl
+        ./makelibmdl_intel.sh
+        mv libmdl_4_intel.a libmdl_8_intel.a ../../lib/.
+
+        Compile MDL programs (itdlp and mdl_*)
+
+        cd sorc/
+        ./make-all-mdl-programs.sh
+
+
+        NOTE: When running make-all-mdl-programs.sh, the first prompt is to set the module path which contains the module for the to-be implemented version of mos_shared. The second prompt will ask you to specify the library path that contains mdllib .a file created in Step 2. Please use full paths not relative.
+

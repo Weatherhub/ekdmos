@@ -1,0 +1,985 @@
+IBM XL Fortran for AIX, V12.1 (5724-U82) Version 12.01.0000.0001 --- /gpfs/c/nco/ops/nwpara/sorc/ekd_makecdf.fd/int915.f 03/06/12 15:10:28
+ 
+>>>>> OPTIONS SECTION <<<<<
+***   Options In Effect   ***
+  
+         ==  On / Off Options  ==
+         CCLINES         CR              DBG             ESCAPE
+         FULLPATH        I4              INLGLUE         INTLOG
+         NOLIBESSL       NOLIBPOSIX      OBJECT          SOURCE
+         STRICT          SWAPOMP         THREADED        UNWIND
+         NOZEROSIZE
+  
+         ==  Options Of Integer Type ==
+         ALIAS_SIZE(65536)     FIXED(72)             MAXMEM(-1)
+         OPTIMIZE(3)           SPILLSIZE(512)        STACKTEMP(0)
+  
+  
+         ==  Options of Integer and Character Type ==
+         SMP(OMP,SCHEDULE(RUNTIME))
+  
+         ==  Options Of Character Type  ==
+         64(LARGETYPE)         ALIAS(STD,INTPTR)     ALIGN(BINDC(POWER),STRUCT(NATURAL))
+         ARCH(PWR6)            AUTODBL(NONE)         DESCRIPTOR(V1)
+         DIRECTIVE($OMP)       ENUM()                FLAG(I,I)
+         FLOAT(RNDSNGL,MAF,FOLD,RNGCHK,SINGLE)
+         HALT(S)               IEEE(NEAR)            INITAUTO( 0      )
+         INTSIZE(4)            LANGLVL(EXTENDED)     POSITION(APPENDOLD)
+         REALSIZE(4)           SAVE(ALL)             TUNE(PWR6)
+         UNROLL(AUTO)          XFLAG()               XLF2003(NOPOLYMORPHIC,NOBOZLITARGS,NOSTOPEXCEPT,NOVOLATILE,NOAUTOREALLOC,OLDNANINF)
+         XLF77(NOLEADZERO,GEDIT77,NOBLANKPAD,OLDBOZ,INTARG,INTXOR,PERSISTENT,SOFTEOF)
+         XLF90(NOSIGNEDZERO,NOAUTODEALLOC,OLDPAD)
+  
+>>>>> SOURCE SECTION <<<<<
+          1 |      SUBROUTINE INT915(KFILDI,KFILDO,KFILIO,KFILAO,KFILCP,KFILAI,IP,
+          2 |     1                  CCALL,NELEV,IWBAN,STALAT,STALON,
+          3 |     2                  ISDATA,IPACK,NGP,KGP,NAME,NSTA,ND1,CCALLD,ND5,
+          4 |     3                  ID,IDPARS,TRESHL,TRESHU,JD,JP,NCAT,ITAU,KER,
+          5 |     4                  ISD,SD,DS,ISCALD,
+          6 |     5                  PLAIN,L3264B,L3264W,ND4,ND2,MODRUN,
+          7 |     6                  KFILRA,RACESS,NUMRA,KFILX,CFILX,
+          8 |     7                  OUTNAM,AOTNAM,IDATE,NDATES,NWORK,ND8,
+          9 |     8                  JSTOP,NREPLA,NCHECK,
+         10 |     9                  NPRINT,NVRBL,
+         11 |     B                  CDFTH,NCDFTH,ND12,
+         12 |     A                  NTOTBY,NTOTRC,IPINIT,ISTOP,IER)
+         13 |C
+         14 |C $$$   SUBPROGRAM DOCUMENTATION BLOCK
+         15 |C
+         16 |C SUBPROGRAM: INT915
+         17 |C   PRGMMR: WIEDENFELD/GLAHN          ORG: W/OSD21          DATE: 2007-11-06
+         18 |C
+         19 |C ABSTRACT: INT915 PERFORMS MUCH OF THE INITIALIZATION FOR U915.
+         20 |C
+         21 |C PROGRAM HISTORY LOG:
+         22 |C   07-03-10  GLAHN
+         23 |C   07-11-06  WIEDENFELD  OPERATIONALIZED CODE.
+         24 |C                         MERGED INT715,IN710, AND INT915
+         25 |C   10-11-29  VEENHUIS    ADDED N2 TO CALL LIST. ADDED CHECK
+         26 |C                         TO MAKE SURE NUMBER OF ENSEMBLE
+         27 |C                         MEMBERS DOES NOT EXCEED ND2.
+         28 |C   10-12-01  VEENHUIS    ADDED MODRUN TO CONTROL FILE. THIS WILL
+         29 |C                         SET THE OUTPUT DD. ADDED MODRUN TO INPUT
+         30 |C                         CALL LIST.
+         31 |C   11-02-28  VEENHUIS    ADDED ABILITY TO READ AND OPEN SPREAD-SKILL
+         32 |C                         FILE. ADDED KFILAI TO INPUT CALL LIST. ADDED
+         33 |C                         CODE TO READ AND PROCESS THE SPREAD-SKILL
+         34 |C                         INPUT ASCII FILE INFORMATION FROM THE
+         35 |C                         CONTROL FILE.
+         36 |C
+         37 |C USAGE:  CALLED BY U915
+         38 |C
+         39 |C        DATA SET USE
+         40 |C        INPUT FILES:
+         41 |C          FORT.KFILDI - UNIT NUMBER OF INPUT FILE.  (INPUT)
+         42 |C       FORT.KFILD(J)  - UNIT NUMBERS FOR WHERE THE STATION LIST (J=1)
+         43 |C                        AND THE STATION DIRECTORY (J=2) RESIDES. (INPUT)
+         44 |C          FORT.KFILDT - UNIT NUMBER FOR READING THE DATE LIST. (INPUT)
+         45 |C           FORT.KFILP - UNIT NUMBER FOR READING THE VARIABLE LIST. (INPUT)
+         46 |C          FORT.KFILCP - UNIT NUMBER FOR PREDICTOR CONSTANT FILE. (INPUT)
+         47 |C       FORT.KFILRA(J) - UNIT NUMBERS FOR EXTERNAL RANDOM ACCESS FILES
+         48 |C                        (J=1,5).  (INPUT/OUTPUT)
+         49 |C        OUTPUT FILES:
+         50 |C          FORT.KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+         51 |C          FORT.KFILIO - UNIT NUMBER OF OUTPUT TDLPACK FILE.  (OUTPUT)
+         52 |C           FORT.IP(J) - UNIT NUMBERS FOR OPTIONAL OUTPUT (J=1,25)
+         53 |C                        (SEE IP( ) UNDER "VARIABLES" BELOW.)  (OUTPUT)
+         54 |C           FORT.KFILX - UNIT NUMBER FOR WRITING FORECAST OUTPUT TO
+         55 |C                        MOS-2000 EXTERNAL RANDOM ACCESS FILE.  (OUTPUT)
+         56 |C        VARIABLES
+         57 |C               KFILDI = UNIT NUMBER TO READ INPUT FILE 'U915.CN'.
+         58 |C                        (INPUT)
+         59 |C               KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  INITIALLY,
+         60 |C                        THIS IS INPUT EQUAL TO 12.  LATER, IN IPOPEN,
+         61 |C                        IF IP(1) NE 0, KFILDO IS SET = IP(1).  THIS ALLOWS
+         62 |C                        CHANGING THE "DEFAULT" PRINT FILE ON THE FLY.
+         63 |C                        OTHERWISE, ON SOME SYSTEMS, THE OUTPUT FILE MIGHT
+         64 |C                        HAVE THE SAME NAME AND BE OVERWRITTEN.  WHEN THE
+         65 |C                        OUTPUT FILE IS NOT THE ORIGINAL DEFAULT, THE NAME
+         66 |C                        IS GENERATED AND CAN BE DIFFERENT FOR EACH RUN.
+         67 |C                        THIS ALLOWS SAVING EACH OUTPUT AND NOT HAVING IT
+         68 |C                        OVERWRITTEN.  (INPUT-OUTPUT)
+         69 |C               KFILAI = UNIT NUMBER OF SPREAD-SKILL ASCII INPUT FILE (OUTPUT)
+         70 |C               KFILIO = UNIT NUMBER OF OUTPUT TDLPACK FILE.  (OUTPUT)
+         71 |C                IP(J) = EACH VALUE (J=1,25) INDICATES WHETHER (>1)
+         72 |C                        OR NOT (=0) CERTAIN INFORMATION WILL BE WRITTEN.
+         73 |C                        WHEN IP( ) > 0, THE VALUE INDICATES THE UNIT
+         74 |C                        NUMBER FOR OUTPUT.  THESE VALUES SHOULD NOT BE THE
+         75 |C                        SAME AS ANY KFILX VALUES EXCEPT POSSIBLY
+         76 |C                        KFILDO, WHICH IS THE DEFAULT OUTPUT FILE.  THIS IS
+         77 |C                        ASCII OUTPUT, GENERALLY FOR DIAGNOSTIC PURPOSES.
+         78 |C                        THE FILE NAMES WILL BE 4 CHARACTERS 'U915',
+         79 |C                        THEN 4 CHARACTERS FROM IPINIT, THEN 2 CHARACTERS
+         80 |C                        FROM IP(J) (E.G., 'U915HRG130').  THE ARRAY IS
+         81 |C                        INITIALIZED TO ZERO IN CASE LESS THAN THE EXPECTED
+         82 |C                        NUMBER OF VALUES ARE READ IN.  EACH OUTPUT ASCII
+         83 |C                        FILE WILL BE TIME STAMPED.  NOTE THAT THE TIME
+         84 |C                        ON EACH FILE SHOULD BE VERY NEARLY THE SAME, BUT
+         85 |C                        COULD VARY BY A FRACTION OF A SECOND.  IT IS
+         86 |C                        INTENDED THAT ALL ERRORS BE INDICATED ON THE
+         87 |C                        DEFAULT, SOMETIMES IN ADDITION TO BEING INDICATED
+         88 |C                        ON A FILE WITH A SPECIFIC IP( ) NUMBER, SO THAT
+         89 |C                        THE USER WILL NOT MISS AN ERROR.
+         90 |C                        (1) = ALL ERRORS AND OTHER INFORMATION NOT
+         91 |C                            SPECIFICALLY IDENTIFIED WITH OTHER IP( )
+         92 |C                            NUMBERS.  WHEN IP(1) IS READ AS NONZERO,
+         93 |C                            KFILDO, THE DEFAULT OUTPUT FILE UNIT NUMBER,
+         94 |C                            WILL BE SET TO IP(1).  WHEN IP(1) IS READ
+         95 |C                            AS ZERO, KFILDO WILL BE USED UNCHANGED.
+         96 |C                        (2) = THE INPUT DATES IN IDATE( ).  WHEN THERE
+         97 |C                            ARE ERRORS, PRINT WILL BE TO UNIT KFILDO AS
+         98 |C                            WELL AS TO UNIT IP(2).
+         99 |C                        (3) = THE OUTPUT DATES IN IDATE( ).  WHEN THERE
+        100 |C                            ARE ERRORS, OUTPUT WILL BE TO UNIT KFILDO AS
+        101 |C                            WELL AS TO UNIT IP(3).
+        102 |C                        (4) = THE INPUT STATION LIST (CALL LETTERS ONLY).
+        103 |C                            IF THERE ARE INPUT ERRORS, THE STATION LIST
+        104 |C                            WILL BE WRITTEN TO THE DEFAULT OUTPUT FILE UNIT
+        105 |C                            KFILDO AS WELL AS TO UNIT IP(4).
+        106 |C                        (5) = THE STATIONS AND STATION DIRECTORY INFORMATION
+        107 |C                            IN THE ORDER TO BE DEALT WITH IN U915.  THE
+        108 |C                            STATIONS WILL BE IN ALPHABETICAL ORDER WITHIN
+        109 |C                            EACH GROUP PROVIDED THE DIRECTORY IS.  IF THERE
+        110 |C                            ARE INPUT ERRORS, THE STATION LIST WILL BE
+        111 |C                            WRITTEN TO THE DEFAULT OUTPUT FILE UNIT KFILDO
+        112 |C                            AS WELL AS TO UNIT IP(5).
+        113 |C                        (6) = THE VARIABLES AS THEY ARE BEING READ IN.
+        114 |C                            THIS IS GOOD FOR CHECKOUT; FOR ROUTINE
+        115 |C                            OPERATION, IP(7), IP(8), AND/OR IP(9),
+        116 |C                            MAY BE BETTER.
+        117 |C                        (7) = THE VARIABLE LIST IN SUMMARY FORM.
+        118 |C                            IF THERE ARE ERRORS, THE VARIABLE LIST WILL
+        119 |C                            BE WRITTEN TO THE DEFAULT OUTPUT FILE
+        120 |C                            UNIT KFILDO AS WELL AS TO UNIT IP(7).
+        121 |C                            THIS LIST INCLUDES THE PARSED ID'S IN IDPARS( , ).
+        122 |C                        (8) = THE VARIABLE LIST IN SUMMARY FORM.  THIS
+        123 |C                            LIST INCLUDES THE PARSED ID'S IN IDPARS( , ).
+        124 |C                        (9) = THE VARIABLE LIST IN SUMMARY FORM .  THIS
+        125 |C                            DIFFERS FROM (8) IN THAT (9) DOES NOT
+        126 |C                            INCLUDE THE PARSED ID'S IN IDPARS( , ),
+        127 |C                            BUT RATHER INCLUDES THE INFORMATION TAKEN
+        128 |C                            FROM THE PREDICTOR CONSTANT FILE ON UNIT KFILCP.
+        129 |C                        (10) = NOT USED.
+        130 |C                        (11) = NOT USED.
+        131 |C                        (12) = INDICATES WHETHER (>1) OR NOT (=0) THE LIST OF
+        132 |C                            STATIONS ON THE INPUT FILES WILL BE PRINTED TO
+        133 |C                            THE FILE WHOSE UNIT NUMBER IS IP(12).
+        134 |C                        (13) = NOT USED.
+        135 |C                        (14) = NOT USED.
+        136 |C                        (15) = INDICATES WHETHER (>0) OR NOT (=0) THE DATA
+        137 |C                            WILL BE WRITTEN TO UNIT IP(15) WHEN JP(3, ) >0.
+        138 |C                            THIS PRINT IS LIKE THAT PROVIDED BY U201, AND
+        139 |C                            IS SEPARATE FROM THE OPTIONAL LISTING PROVIDED
+        140 |C                            UNDER CONTROL OF JP(2, ) WITH THE FORMAT
+        141 |C                            PROVIDED.
+        142 |C                        (16) = INDICATES WHETHER (>0) OR NOT (=0) THE DATA
+        143 |C                            WILL BE WRITTEN TO UNIT IP(16) WHEN JP(2, ) >0.
+        144 |C                            THIS PRINT IS UNDER CONTROL OF THE FORMAT
+        145 |C                            PROVIDED WITH EACH VARIABLE.
+        146 |C                        (OUTPUT)
+        147 |C           CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+        148 |C                        LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+        149 |C                        OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+        150 |C                        CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+        151 |C                        IF THE PRIMARY (J=1) STATION CANNOT BE FOUND
+        152 |C                        IN AN INPUT DIRECTORY (K=1,NSTA).  ALL STATION
+        153 |C                        DATA ARE KEYED TO THIS LIST.  (CHARACTER*8)
+        154 |C                        (OUTPUT)
+        155 |C             NELEV(K) = ELEVATION OF STATIONS (K=1,NSTA).  (OUTPUT)
+        156 |C             IWBAN(K) = WBAN NUMBERS OF STATIONS (K=1,NSTA).  (OUTPUT)
+        157 |C            STALAT(K) = LATITUDE OF STATIONS (K=1,NSTA).  (OUTPUT)
+        158 |C            STALON(K) = LONGITUDE OF STATIONS (K=1,NSTA).  (OUTPUT)
+        159 |C            ISDATA(K) = USED BY GSTORE (K=1,NSTA).  (INTERNAL)
+        160 |C             IPACK(K) = USED IN RDSTGA TO KEEP TRACK OF THE STATIONS
+        161 |C                        FOUND BY GROUP IN THE DIRECTORY (K=1,NSTA).
+        162 |C                        ALSO USED AS WORK ARRAY IN SKIPWR.  (INTERNAL)
+        163 |C               NGP(J) = THE NUMBER OF STATIONS IN EACH GROUP (J=1,KGP).
+        164 |C                        (OUTPUT)
+        165 |C                  KGP = THE NUMBER OF GROUPS OF STATIONS TO BE PROCESSED.
+        166 |C                        MAXIMUM OF ND1.  (SEE NGP( ))
+        167 |C              NAME(K) = NAMES OF STATIONS (K=1,NSTA)  (CHARACTER*20)
+        168 |C                        (OUTPUT)
+        169 |C                 NSTA = THE NUMBER OF STATIONS BEING DEALT WITH.  THE
+        170 |C                        NUMBER OF VALUES IN CCALL( , ), ETC.  (OUTPUT)
+        171 |C                  ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+        172 |C                        (INPUT)
+        173 |C            CCALLD(K) = 8 STATION CALL LETTERS (K=1,ND5).  THIS LIST IS
+        174 |C                        USED IN RDSTGA AND RDSTGN TO RETAIN THE ORIGINAL
+        175 |C                        LIST IN CCALL( , ).  IT IS ALSO USED FOR SCRATCH IN
+        176 |C                        SKIPWR.  (CHARACTER*8)  (OUTPUT)
+        177 |C                  ND5 = DIMENSION OF IPACK AND CCALLD( ).  (INPUT)
+        178 |C              ID(J,N) = THE INTEGER VARIABLE ID'S (J=1,4) (N=1,NVRBL).
+        179 |C                        (OUTPUT)
+        180 |C          IDPARS(J,N) = THE PARSED, INDIVIDUAL COMPONENTS OF THE VARIABLE
+        181 |C                        ID'S CORRESPONDING TO ID( ,N) (J=1,15), (N=1,NVRBL).
+        182 |C                        (OUTPUT)
+        183 |C                        J=1--CCC (CLASS OF VARIABLE),
+        184 |C                        J=2--FFF (SUBCLASS OF VARIABLE),
+        185 |C                        J=3--B (BINARY INDICATOR),
+        186 |C                           0 = NOT BINARY,
+        187 |C                           1 = CUMULATIVE FROM ABOVE, VALUES GE LOWER THRESHOLD
+        188 |C                               TRESHL = 1,
+        189 |C                           2 = CUMULATIVE FROM BELOW, VALUES LT UPPER THRESHOLD
+        190 |C                               TRESHU = 1.
+        191 |C                           3 = DISCRETE BINARY.  VALUES GE LOWER THRESHOLD AND
+        192 |C                               LT UPPER THRESHOLD = 1.
+        193 |C                           5 = GRID BINARY.  VALUES GE LOWER THRESHOLD
+        194 |C                           ONLY THE VALUE OF 0, 1, OR 5 SHOULD BE USED FOR
+        195 |C                           PREDICTORS;
+        196 |C                           0, 1, 2, OR 3 CAN BE USED FOR PREDICTANDS.
+        197 |C                        J=4--DD (DATA SOURCE, MODEL NUMBER),
+        198 |C                        J=5--V (VERTICAL APPLICATION),
+        199 |C                        J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 LAYER),
+        200 |C                        J=7--LTLTLTLT (TOP OF LAYER),
+        201 |C                        J=8--T (TRANSFORMATION),
+        202 |C                        J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN TIME),
+        203 |C                        J=10--OT (TIME APPLICATION),
+        204 |C                        J=11--OH (TIME PERIOD IN HOURS),
+        205 |C                        J=12--TAU (PROJECTION IN HOURS),
+        206 |C                        J=13--I (INTERPOLATION TYPE),
+        207 |C                        J=14--S (SMOOTHING INDICATOR), AND
+        208 |C                        J=15--G (GRID INDICATOR).
+        209 |C                        (OUTPUT)
+        210 |C            TRESHL(N) = THE LOWER BINARY THRESHOLD CORRESPONDING TO IDPARS( ,N)
+        211 |C                        (N=1,ND4).  (OUTPUT)
+        212 |C            TRESHU(N) = THE UPPER BINARY THRESHOLD CORRESPONDING TO IDPARS( ,N)
+        213 |C                        (N=1,ND4).  (OUTPUT)
+        214 |C              JD(J,N) = THE BASIC INTEGER VARIABLE ID'S (J=1,4) (N=1,ND4).
+        215 |C                        THIS IS THE SAME AS ID(J,N), EXCEPT THAT THE FOLLOWING
+        216 |C                        PORTIONS ARE OMITTED:
+        217 |C                        B = IDPARS(3, ),
+        218 |C                        G = IDPARS(15, ), AND
+        219 |C                        TRESHL( ).
+        220 |C                        JD( , ) IS USED TO IDENTIFY WHICH CALCULATIONS
+        221 |C                        CAN BE MADE DIRECTLY IN U915, WHICH IS ONLY FORMING
+        222 |C                        BINARIES.  THE "G" VARIABLE HAS NO MEANING IN U915,
+        223 |C                        IT BEING ONLY FOR POSSIBLE USE IN U201.  (OUTPUT)
+        224 |C              JP(J,N) = CONTROLS THE OUTPUT BY VARIABLE (N=1,ND4).
+        225 |C                        J=1--INDICATES WHETHER (>0) OR NOT (=0) VARIABLE N
+        226 |C                             WILL BE WRITTEN TO THE BINARY OUTPUT FILE
+        227 |C                             WHEN KFILIO NE 0;
+        228 |C                        J=2--INDICATES WHETHER (>0) OR NOT (=0) VARIABLE N
+        229 |C                             WILL BE WRITTEN TO UNIT IP(16) WITH THE FORMAT
+        230 |C                             PROVIDED WITH THE VARIABLE; AND
+        231 |C                        J=3--INDICATES WHETHER (>0) OR NOT (=0) VARIABLE N
+        232 |C                             WILL BE WRITTEN TO UNIT IP(15) NOT UNDER
+        233 |C                             CONTROL OF THE FORMAT PROVIDED BUT TO THE
+        234 |C                             RESOLUTION PACKED.
+        235 |C                        (OUTPUT)
+        236 |C              NCAT(N) = A CATEGORY NUMBER FOR EACH VARIABLE (N=1,ND4).
+        237 |C                        0 = THIS VARIABLE IS IN A SERIES, NOT THE FIRST.
+        238 |C                        M = THIS VARIABLE IS THE FIRST OF A SERIES OF
+        239 |C                            M VARIABLES.
+        240 |C                        (OUTPUT)
+        241 |C              ITAU(N) = THE NUMBER OF HOURS TO ADD TO NDATE TO GET
+        242 |C                        THE VARIABLE N (N=1,ND4).  NO CURRENT REASON
+        243 |C                        (OUTPUT)
+        244 |C               KER(N) = DESIGNATES THE KERNAL TO BE USED FOR VARIABLE N
+        245 |C                        (N=1,ND4).
+        246 |C                        1 = NORMAL (GAUSIAN).
+        247 |C                       (OUTPUT)
+        248 |C               ISD(N) = DESIGNATES WHETHER THE KERNAL WIDTH FOR VARIABLE N
+        249 |C                        (N=1,ND4) IS TO BE TAKEN FROM SD( ) IN THE VARIABLE
+        250 |C                        RECORD OR FROM A PACKED INPUT RECORD.
+        251 |C                        0 = COMES FROM PACKED RECORD;
+        252 |C                        1 = USE SD( ) READ WITH THE VARIABLE.
+        253 |C                        2 = WHEN THERE ARE MULTIPLE ENSEMBLES OR
+        254 |C                            ONLY ONE ENSEMBLE AND SD( ) > 10,
+        255 |C                            CALL KERNELW; OTHERWISE, CALL KERNEL.
+        256 |C                        (OUTPUT)
+        257 |C                SD(N) = THE CONSTANT KERNAL WIDTH FOR THIS VARIABLE N
+        258 |C                        (N=1,ND4) WHEN ISD(N) = 1.  (OUTPUT)
+        259 |C                DS(N) = SCALING FACTOR FOR THIS VARIABLE (N=1,ND4).
+        260 |C                       (OUTPUT)
+        261 |C            ISCALD(N) = THE DECIMAL SCALING CONSTANT TO USE WHEN PACKING THE
+        262 |C                        OUTPUR DATA (N=1,ND4).  ISCALD COMES FROM THE VARIABLE
+        263 |C                        CONSTANT FILE.  ZERO WHEN NOT FOUND IN THE FILE.
+        264 |C                        NO BINARY SCALING IS PROVIDED FOR.  (OUTPUT)
+        265 |C             PLAIN(N) = THE PLAIN LANGUAGE DESCRIPTION OF THE VARIABLES
+        266 |C                        (N=1,ND4).  (CHARACTER*32)  (OUTPUT)
+        267 |C               L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING
+        268 |C                        USED (EITHER 32 OR 64).  (INPUT)
+        269 |C               L3264W = NUMBER OF WORDS IN 64 BITS (EITHER 1 OR 2).
+        270 |C                        (INPUT)
+        271 |C                  ND4 = MAXIMUM NUMBER OF VARIABLES THAT CAN BE DEALT WITH
+        272 |C                        IN ONE RUN.  SECOND DIMENSION OF ID( , ), IDFORC( , )
+        273 |C                        JD( , ), AND IDPARS( , ) AND DIMENSION OF TRESHL( ),
+        274 |C                        JP( ), TRESHU( ), ITAU( ), PLAIN( ).  (INPUT)
+        275 |C            KFILRA(J) = HOLDS THE UNIT NUMBERS FOR ACCESSING THE MOS-2000
+        276 |C                        EXTERNAL RANDOM ACCESS FILES (J=1,5).  (OUTPUT)
+        277 |C            RACESS(J) = FILE NAMES OF THE MOS-2000 EXTERNAL RANDOM ACCESS
+        278 |C                        FILES CORRESPONDING TO KFILRA(J) (J=1,5).
+        279 |C                        (CHARACTER*60)  (OUTPUT)
+        280 |C                NUMRA = THE NUMBER OF VALUES IN KFILRA( ), RACESS( ),
+        281 |C                        AND INDEXR( , ), MAX OF 5.  (OUTPUT)
+        282 |C                KFILX = THE UNIT NUMBER FOR THE OUTPUT RANDOM ACCESS
+        283 |C                        FILE.  (OUTPUT)
+        284 |C                CFILX = THE FILE NAME OF THE OUTPUT RANDOM ACCESS
+        285 |C                        FILE CORRESPONDING TO KFILX.  (CHARACTER*60)
+        286 |C                        (OUTPUT)
+        287 |C               OUTNAM = NAME OF DATA SET FOR PACKED VECTOR OUTPUT TO
+        288 |C                        BE WRITTEN TO UNIT KFILIO.  THIS IS A SEQUENTIAL
+        289 |C                        FILE.  (CHARACTER*60)  (OUTPUT)
+        290 |C               AOTNAM = NAME OF DATA SET FOR ASCII OUTPUT.
+        291 |C                        (CHARACTER*60)  (OUTPUT)
+        292 |C             IDATE(J) = INITIAL DATE LIST (J=1,NDATES) WHICH MAY CONTAIN
+        293 |C                        NEGATIVE VALUES INDICATING A DATE SPAN.
+        294 |C                        THIS IS MODIFIED IN DATPRO TO CONTAIN THE COMPLETE
+        295 |C                        DATE LIST WITH THE DATES IN THE SPANS FILLED IN
+        296 |C                        (J=1,NDATES), WHERE NDATES HAS BEEN INCREASED
+        297 |C                        IF NECESSARY.  DATES ARE INPUT AS YYMMDDHH AND
+        298 |C                        MODIFIED TO YYYYMMDDHH.  ZEROS IN THE INPUT ARE
+        299 |C                        ELIMINATED.  TERMINATOR IS 99999999.  MAXIMUM
+        300 |C                        NUMBER OF DATES IS ND8.  (OUTPUT)
+        301 |C               NDATES = THE NUMBER OF DATES IN IDATE( ).  (OUTPUT)
+        302 |C             NWORK(J) = WORK ARRAY (J=1,ND8).  (INTERNAL)
+        303 |C                  ND8 = MAXIMUM NUMBER OF DATES THAT CAN BE DEALT WITH.
+        304 |C                        DIMENSION OF IDATE( ) AND NWORK( ).  (INPUT)
+        305 |C                JSTOP = THE NUMBER OF ERRORS THAT WILL BE TOLERATED ON THE
+        306 |C                        TOTAL RUN BEFORE PROGRAM STOPS.  (OUTPUT)
+        307 |C               NREPLA = RECORD REPLACEMENT FLAG FOR WRITING RANDOM
+        308 |C                        ACCESS FILE.
+        309 |C                        0 = NOT REPLACING RECORD.
+        310 |C                        1 = REPLACING, ERROR IF RECORD NOT FOUND TO
+        311 |C                            REPLACE.
+        312 |C                        2 = REPLACING, WRITE NEW RECORD IF RECORD NOT
+        313 |C                            FOUND TO REPLACE.
+        314 |C                       (INPUT)
+        315 |C               NCHECK = IDENTIFICATION CHECKING FLAG FOR WRITING
+        316 |C                        RANDOM ACCESS FILE.
+        317 |C                        0 = DON'T CHECK FOR DUPLICATES.
+        318 |C                        1 = CHECK FOR DUPLICATES, ERROR IF FOUND.
+        319 |C                        (INPUT)
+        320 |C               NPRINT = THE NUMBER OF CYCLES OF DATA TO PRINT UNDER
+        321 |C                        JP(2, ) AND JP(3, ) CONTROL.  (OUTPUT)
+        322 |C                NVRBL = THE NUMBER OF VARIABLES.  (OUTPUT)
+        323 |C             CDFTH(J) = THE THRESHOLDS, OR PROBABILITY LEVELS, FOR
+        324 |C                        OUTPUTTING THE CDF FALUES (J=1,ND12).  (OUTPUT)
+        325 |C               NCDFTH = NUMBER OF VALUES IN CDFTH( ).  (OUTPUT)
+        326 |C                 ND12 = DIMENSION OF CDFTH( ).  (INPUT)
+        327 |C               NTOTBY = THE TOTAL NUMBER OF BYTES ON THE FILE ASSOCIATED
+        328 |C                        WITH UNIT NO. KFILIO (THE OUTPUT FILE).
+        329 |C                        IT IS UPDATED BY SKIPWR.
+        330 |C               NTOTRC = THE TOTAL NUMBER OF RECORDS IN THE FILE.  IT IS
+        331 |C                        UPDATED BY SKIPWR.
+        332 |C               IPINIT = 4 CHARACTERS USED TO HELP IDENTIFY OUTPUT ASSOCIATED
+        333 |C                        WITH THE IP( ) NUMBERS.  (CHARACTER*4)  (OUTPUT)
+        334 |C                ISTOP = 0 MEANS THE PROGRAM IS RUNNING OK UP TO THIS
+        335 |C                        POINT.  WHENEVER AN ERROR OCCURS THAT SHOULD
+        336 |C                        HALT THE PROGRAM AFTER INPUT DIAGNOSTICS ARE
+        337 |C                        PRINTED, ISTOP IS SET = ISTOP+1.  (INPUT-OUTPUT)
+        338 |C                  IER = STATUS RETURN.
+        339 |C                        0 = GOOD RETURN.
+        340 |C                        OTHER VALUES CAN COME FROM CALLED SUBROUTINES.
+        341 |C                        (OUTPUT)
+        342 |C               INCCYL = THE NUMBER OF HOURS BETWEEN DATES WHEN DATE SPANNING
+        343 |C                        IS USED.  (INTERNAL
+        344 |C                KSKIP = WHEN NONZERO, INDICATES THAT THE OUTPUT FILE
+        345 |C                        IS TO BE MOVED FORWARD UNTIL ALL DATA FOR
+        346 |C                        DATE KSKIP HAVE BEEN SKIPPED.  KSKIP IS INPUT
+        347 |C                        AS YYMMDDHH OR YYYYMMDDHH AND THEN USED AS
+        348 |C                        YYYYMMDDHH.  (INTERNAL)
+        349 |C                RUNID = INFORMATION INPUT TO IDENTIFY THE OUTPUT ON
+        350 |C                        KFILDO.  (CHARACTER*72)  (INTERNAL)
+        351 |C               KFILDT = UNIT NUMBER FOR READING THE DATE LIST.  (INTERNAL)
+        352 |C               DATNAM = FILE NAME FOR READING DATE LIST.  (CHARACTER*60)
+        353 |C                        (INTERNAL)
+        354 |C             KFILD(J) = THE UNIT NUMBER FOR WHERE THE STATION LIST (J=1)
+        355 |C                        AND THE STATION DIRECTORY (J=2) RESIDES.
+        356 |C                        CORRESPONDS TO DIRNAM(J).  WHEN KFILD(1) = KFILDI,
+        357 |C                        THE DEFAULT INPUT IS INDICATED, DIRNAM(1) IS NOT
+        358 |C                        USED, AND THE FILE IS NOT OPENED.  KFILD(1) CAN
+        359 |C                        EQUAL KFILD(2), IN WHICH CASE THE STATION LIST IS
+        360 |C                        TAKEN FROM THE DIRECTORY (I.E., A SEPARATE STATION
+        361 |C                        LIST IS NOT PROVIDED).  (INTERNAL)
+        362 |C            DIRNAM(J) = HOLDS NAME OF DATA SET CONTAINING THE STATION
+        363 |C                        CALL LETTERS (J=1) AND STATION DIRECTORY (J=2).
+        364 |C                        IT IS EXPECTED THAT THE STATIONS IN
+        365 |C                        THE DIRECTORY BE ORDERED ALPHABETICALLY BY CALL
+        366 |C                        LETTERS.  (CHARACTER*60)  (INTERNAL)
+        367 |C                KFILP = UNIT NUMBER FOR READING THE VARIABLE LIST.
+        368 |C                        (INTERNAL)
+        369 |C               PRENAM = HOLDS DATA SET NAME FOR THE UNIT NUMBER
+        370 |C                        IN KFILP.  (CHARACTER*60)  (INTERNAL)
+        371 |C               KFILCP = UNIT NUMBER FOR PREDICTOR CONSTANT FILE.  THIS
+        372 |C                        CONTAINS DEFAULT VALUES FOR CERTAIN CONSTANTS FOR
+        373 |C                        BASIC NMC PREDICTORS AND OTHER PREDICTORS SANS
+        374 |C                        THRESHOLDS, ETC.  THESE INCLUDE PACKING CONSTANTS,
+        375 |C                        GRIDPOINT CONSTANTS, AND NAMES.  (INTERNAL)
+        376 |C               CONNAM = HOLDS DATA SET NAME FOR THE UNIT NUMBER IN KFILCP.
+        377 |C                        (CHARACTER*60)  (INTERNAL)
+        378 |C                 IDUM = USED IN CALLING SEQUENCE TO RDSNAM.  IT IS USED
+        379 |C                        WITH THE NEXT VARIABLE BEING 1, SO THE ARRAY
+        380 |C                        IN RDSNAM WILL BE DIMENSIONED 1.  (INTERNAL)
+        381 |C             ITEMP(J) = SCRATCH ARRAY (J=1,7).  (INTERNAL)
+        382 |C                STATE = VARIABLE SET TO STATEMENT NUMBER TO INDICATE
+        383 |C                        WHERE AN ERROR OCCURRED.  (CHARACTER*4)  (INTERNAL)
+        384 |C                  NEW = 1 WHEN NEW 4-LETTER CALL LETTERS ARE TO BE USED;
+        385 |C                        0 WHEN OLD 3-LETTER CALL LETTERS ARE TO BE USED.
+        386 |C                        (INTERNAL)
+        387 |C               KWRITE = PERTAINS ONLY TO THE SEQUENTIAL BINARY OUTPUT FILE.
+        388 |C                        0 IF CALL LETTERS RECORD IS NOT TO BE WRITTEN.
+        389 |C                        NE 0 OTHERWISE.  THIS HAS NO EFFECT UNLESS KSKIP
+        390 |C                        NE 0.  IF DATA ARE SKIPPED, THE EXISTING
+        391 |C                        CALL LETTERS RECORD IS CHECKED WITH THE ONE
+        392 |C                        AVAILABLE FOR WRITING.  IF THEY MATCH
+        393 |C                        THE NEW ONE IS NOT WRITTEN; HOWEVER,IF THEY
+        394 |C                        DON'T MATCH, THE NEW ONE IS WRITTEN WHEN
+        395 |C                        KWRITE = 1, BUT THE PROGRAM HALTS WITH A
+        396 |C                        DIAGNOSTIC WHEN KWRITE = 0.  (INTERNAL)
+        397 |C                NALPH = 1 WHEN THE CALL STATIONS USED ARE TO BE
+        398 |C                        ALPHABETIZED BY GROUP (MORE EXACTLY, PUT
+        399 |C                        IN THE ORDER THEY EXIST IN THE STATION DIRECTORY.
+        400 |C                        0 WHEN THE ORDER READ IN IS TO BE PRESERVED.
+        401 |C                        (INTERNAL)
+        402 |C              IUSE(J) = EACH VALUE J PERTAINS TO IP(J).  WHEN AN IP(J)
+        403 |C                        VALUE IS USED BY THE PROGRAM, IPRINT(J) = 1;
+        404 |C                        OTHERWISE, IPRINT(J) = 0.  USED BY IPRINT TO
+        405 |C                        PRINT IP( ) VALUES.
+        406 |C
+        407 |C        SUBPROGRAMS CALLED:  IPOPEN, IERX, DATPRO, RDI, RDSNAM, RDVR79,
+        408 |C            TIMPR, SKIPWR, IPRINT, RDSTGN, RDSTGA
+        409 |C          UNIQUE - NONE
+        410 |C          LIBRARY:
+        411 |C           MOSLIB - IPOPEN, IERX, DATPRO, RDI, RDSNAM, RDVR79, TIMPR,
+        412 |C             SKIPWR, IPRINT, RDSTAL, RDSTAD
+        413 |C        EXIT STATES:
+        414 |C          COND =    0 - SUCCESSFUL RUN
+        415 |C                  134 - ERROR IN DATE LIST
+        416 |C                  135 - DATE TO BE SKIPPED IS NOT BEFORE THE FIRST DATE TO
+        417 |C                        BE WRITTEN
+        418 |C                  158 - NO VARIABLE LIST PROVIDED
+        419 |C                  159 - ERROR IN ROUTINE SKIPWR
+        420 |C                  165 - INCONSISTENCY OF INPUT UNIT NUMBERS IN KFILRA() WITH
+        421 |C                        EITHER KFILDT, KFILD(), KFILP, KFILCP, KFILIO, OR
+        422 |C                        KFILDO
+        423 |C                  175 - INCONSISTENCY OF INPUT NUMBERS IN KFILIO AND EITHER
+        424 |C                        KFILDT, KFILD(), KFILP, OR KFILCP
+        425 |C                  177 - AN IP() NUMBER CONFLICTS WITH KFILRA() NUMBER
+        426 |C                 9999 - ERROR IN CONTROL INFORMATION INPUT
+        427 |C
+        428 |C REMARKS:  NONE
+        429 |C
+        430 |C ATTRIBUTES:
+        431 |C   LANGUAGE:  FORTRAN 90 (xlf90 compiler)
+        432 |C   MACHINE:  IBM SP
+        433 |C
+        434 |C $$$
+        435 |C
+        436 |      CHARACTER*1 CFMT(ND4),HEAD(30,ND4)
+        437 |      CHARACTER*4 STATE,IPINIT
+        438 |      CHARACTER*8 CCALL(ND1,6)
+        439 |      CHARACTER*8 CCALLD(ND5)
+        440 |      CHARACTER*20 NAME(ND1)
+        441 |      CHARACTER*32 PLAIN(ND4)
+        442 |      CHARACTER*60 RACESS(5)
+        443 |      CHARACTER*60 DIRNAM(2),PRENAM,CONNAM,DATNAM,OUTNAM,CFILX,AOTNAM,
+        444 |     1             CDFNAM,CSPDNAM
+        445 |      CHARACTER*72 RUNID/' '/
+        446 |C
+        447 |      DIMENSION NELEV(ND1),IWBAN(ND1),STALAT(ND1),STALON(ND1),
+        448 |     1          ISDATA(ND1),NGP(ND1),ITIMEZ(ND1)
+        449 |      DIMENSION ID(4,ND4),IDPARS(15,ND4),TRESHL(ND4),TRESHU(ND4),
+        450 |     1          JD(4,ND4),JP(ND4),NCAT(ND4),ITAU(ND4),
+        451 |     2          KER(ND4),ISD(ND4),SD(ND4),DS(ND4),
+        452 |     3          ISCALD(ND4)
+        453 |      DIMENSION IPACK(ND5)
+        454 |      DIMENSION IDATE(ND8),NWORK(ND8)
+        455 |      DIMENSION CDFTH(ND12)
+        456 |      DIMENSION ITEMP(7),IP(25),IUSE(25),KFILD(2),KFILRA(5)
+        457 |C
+        458 |      DATA IUSE/1,1,1,1,1,1,1,1,1,0,0,1,0,0,1,1,0,0,0,0,0,0,0,0,0/
+        459 |C
+        460 |C        THE KFILDO OUTPUT HAS BEEN TIME STAMPED IN THE DRIVER.
+        461 |C        NOTE THAT THIS IS ON THE DEFAULT OUTPUT FILE KFILDO.
+        462 |C        IF IP(1) NE 0, KFILDO IS SET TO IP(1) AND IS TIME STAMPED
+        463 |C        BELOW.
+        464 |C
+        465 |      STATE='105 '
+        466 |C     OPEN(UNIT=KFILDI,FILE='U915.CN',STATUS='OLD',IOSTAT=IOS,ERR=900)
+        467 |C
+        468 |C        READ AND PROCESS THE PRINT UNIT NUMBERS.  FIRST,
+        469 |C        INITIALIZE IP( ) IN CASE NOT ALL 25 VALUES ARE READ.
+        470 |C
+        471 |      DO 105 J=1,25
+        472 |      IP(J)=0
+        473 | 105  CONTINUE
+        474 |C
+        475 |      STATE='108 '
+        476 |      READ(KFILDI,108,IOSTAT=IOS,ERR=900,END=109)IPINIT,(IP(J),J=1,25)
+        477 | 108  FORMAT(A4,25I3)
+        478 |C        LESS THAN 25 IP( ) VALUES WILL NOT BE INDICATED AS AN ERROR.
+        479 |C        SOME IP( ) VALUES ARE NOT USED; SEE IUSE( ).
+        480 |
+        481 |      CALL IPOPEN(KFILDO,'U915',IPINIT,IP,IER)
+        482 |C        WHEN IP(1) NE 0, KFILDO HAS BEEN SET TO IP(1).
+        483 |C        A FILE WILL BE OPENED FOR EVERY DIFFERENT VALUE IN IP( ).
+        484 |C        THE FILE NAMES WILL BE 4 CHARACTERS 'U915' THEN 4 CHARACTERS
+        485 |C        FROM IPINIT, THEN 2 CHARACTERS FROM IP(J).  IPINIT MIGHT BE
+        486 |C        'HRG1' INDICATING THE PERSONS INITIALS PLUS A SEQUENCE NUMBER.
+        487 |      IF(IER.NE.0)ISTOP=ISTOP+1
+        488 | 109  WRITE(KFILDO,110)IPINIT
+        489 | 110  FORMAT(/' IPINIT = ',A4)
+        490 |      CALL IPRINT(KFILDO,IP,IUSE)
+        491 |C
+        492 |C        TIME STAMP ALL ASCII OUTPUT OTHER THAN KFILDO.
+        493 |C        THIS IS NOT DONE IN IPOPEN BECAUSE SOME PROGRAMS
+        494 |C        MIGHT NOT WANT SOME FILE TO BE TIME STAMPED.
+        495 |C
+        496 |      DO 113 J=1,25
+        497 |      IF(IP(J).EQ.0.OR.IP(J).EQ.KFILDO)GO TO 113
+        498 |      IF(J.EQ.1)GO TO 112
+        499 |C
+        500 |      DO 111 I=1,J-1
+        501 |      IF(IP(J).EQ.IP(I))GO TO 113
+        502 | 111  CONTINUE
+        503 |C
+        504 | 112  CALL TIMPR(IP(J),IP(J),'START U915          ')
+        505 | 113  CONTINUE
+        506 |C
+        507 |C        READ AND PRINT THE RUN IDENTIFICATION.
+        508 |C
+        509 |      STATE='115 '
+        510 |      READ(KFILDI,115,IOSTAT=IOS,ERR=900,END=116)RUNID
+        511 | 115  FORMAT(A72)
+        512 |C        LESS THAN 72 CHARACTERS WILL NOT BE CONSIDERED AN ERROR.
+        513 | 116  WRITE(KFILDO,117)RUNID
+        514 | 117  FORMAT(/' ',A72)
+        515 |C
+        516 |C        PRINT TO MAKE SURE USER KNOWS WHAT MACHINE IS BEING USED.
+        517 |C
+        518 |      WRITE(KFILDO,119)L3264B
+        519 | 119  FORMAT(/' RUNNING ON A',I3,'-BIT MACHINE.')
+        520 |C
+        521 |C        READ AND PRINT CONTROL INFORMATION.
+        522 |C
+        523 |      STATE='125 '
+        524 |      READ(KFILDI,125,IOSTAT=IOS,ERR=900,END=1250)
+        525 |     1     KSKIP,KWRITE,JSTOP,INCCYL,NEW,NALPH,NREPLA,NCHECK,
+        526 |     2     NPRINT,MODRUN
+        527 | 125  FORMAT(8(I10/),(I10),/,(I10))
+        528 |      GO TO 1255
+        529 |C        INCOMPLETE CONTROL INFORMATION SHOULD BE CONSIDERED AN ERROR.
+        530 |C        HOWEVER, A SHORT RECORD DOES NOT CAUSE AN "END" CONDITION.
+        531 |1250  WRITE(KFILDO,1251)
+        532 |1251  FORMAT(/' ****CONTROL INFORMATION NOT COMPLETE.')
+        533 |      ISTOP=ISTOP+1
+        534 |C
+        535 |C        ACCEPT KSKIP AS YY OR YYYY FOR YEAR.  IF IT IS ZERO, NO
+        536 |C        SKIPPING IS DONE.
+        537 |C
+        538 | 1255 IF(KSKIP.EQ.0)GO TO 1257
+        539 |      IF(KSKIP/1000000.GT.1900)GO TO 1257
+        540 |      IF(KSKIP/1000000.GT.60)KSKIP=KSKIP+1900000000
+        541 |      IF(KSKIP/1000000.LE.60)KSKIP=KSKIP+2000000000
+        542 |C
+        543 | 1257 WRITE(KFILDO,127)KSKIP,KWRITE,JSTOP,INCCYL,NEW,NALPH,
+        544 |     1      NREPLA,NCHECK,NPRINT,L3264B,MODRUN
+        545 | 127  FORMAT(/' KSKIP ',I10,'   SKIP PAST THIS DATE ON OUTPUT FILE'/
+        546 |     1        ' KWRITE',I10,'   WILL DIRECTORY RECORD BE WRITTEN?',
+        547 |     X                      ' 1 = YES, 0 = NO'/
+        548 |     2        ' JSTOP ',I10,'   NUMBER OF ERRORS THAT WILL BE',
+        549 |     X                      ' TOLERATED ON TOTAL RUN BEFORE STOPPING'/
+        550 |     3        ' INCCYL',I10,'   INCREMENT IN HOURS BETWEEN DATE/TIMES'/
+        551 |     4        ' NEW   ',I10,'   NEW ICAO CALL LETTERS, 1 = YES,',
+        552 |     X                      ' 0 = NO'/
+        553 |     5        ' NALPH ',I10,'   ALPHABETIZE CALL LETTERS ACCORDING',
+        554 |     X                      ' TO DIRECTORY, 1 = YES, 0 = NO'/
+        555 |     6        ' NREPLA',I10,'   REPLACEMENT IN RANDOM ACCESS FILE,',
+        556 |     X                      ' 0 = NO, 1 = YES, IF FOUND, 2 = YES'/
+        557 |     7        ' NCHECK',I10,'   CHECK FOR DUPLICATES RANDOM ACCESS',
+        558 |     X                      ' FILE, 1 = YES, 0 = NO'/
+        559 |     8        ' NPRINT',I10,'   NUMBER OF CYCLES OF DATA TO PRINT',
+        560 |     X                      ' UNDER JP(2, ) AND JP(3, ) CONTROL'/
+        561 |     B        ' L3264B',I10,'   INTEGER WORD SIZE OF MACHINE'/
+        562 |     C        ' MODRUN',I10,'   USED TO SET OUPUT DD')
+        563 |C
+        564 |C        READ AND PROCESS UNIT NUMBER AND FILE NAME FOR READING
+        565 |C        DATE LIST.  FILE WILL BE OPENED AS 'OLD', UNLESS THE FILE
+        566 |C        IS THE DEFAULT INPUT FILE.
+        567 |C
+        568 |      CALL RDSNAM(KFILDI,KFILDO,KFILDT,DATNAM,IDUM,IDUM,1,N,'OLD',
+        569 |     1            'FORMATTED',IP,IER)
+        570 |      IF(IER.NE.0)ISTOP=ISTOP+1
+        571 |      WRITE(KFILDO,130)KFILDT
+        572 | 130  FORMAT(/,' NCEP DATE FILE UNIT NUMBER..',/,' ',I4)
+        573 |C
+        574 |C        READ AND PRINT THE DATE TO BE PROCESSED
+        575 |C
+        576 |      CALL GET_NCEPDATE(KFILDT,IYR,IMO,IDA,IHR,NDATE,IER)
+        577 |C
+        578 |      IF(IER.NE.0)THEN
+        579 |         WRITE(KFILDO,131)
+        580 | 131     FORMAT(/' ****ERROR: CAN NOT READ NCEP DATE FILE - ',
+        581 |     1           'CATASTROPHIC ERROR IN INT915. STOP AT 131.')
+        582 |         CALL W3TAGE('INT915')
+        583 |         STOP 131
+        584 |      ENDIF
+        585 |      NDATES=1
+        586 |      IDATE(1)=NDATE
+        587 |      WRITE(KFILDO,132)NDATES,(IDATE(J),J=1,NDATES)
+        588 | 132  FORMAT(/,' ',I4,' INPUT DATE AS READ',/,(1X,10I12))
+        589 |C
+        590 |C 130  FORMAT(/' DATE INPUT DATA SET, UNIT AND NAME.'/
+        591 |C     1      (' ',I4,2X,A60))
+        592 |C
+        593 |C        READ AND PRINT UNDER CONTROL OF IP(2) AND IP(3) THE
+        594 |C        DATES TO BE PROCESSED, MAX OF ND8.
+        595 |C
+        596 |C     CALL RDI(KFILDO,IP(3),KFILDT,IDATE,ND8,ITEMP,7,'(7I10)',NDATES,
+        597 |C    1         99999999,IER)
+        598 |C     IF(KFILDT.NE.KFILDI)CLOSE(UNIT=KFILDT)
+        599 |C        KFILDT IS CLOSED WHEN IT IS NOT THE SAME AS THE DEFAULT
+        600 |C        INPUT FILE.
+        601 |C     CALL DATPRO(KFILDO,IDATE,NWORK,ND8,INCCYL,NDATES,IP(2),IP(3),IER)
+        602 |C
+        603 |C     IF(IER.NE.0)THEN
+        604 |C        WRITE(KFILDO,134)
+        605 |C134     FORMAT(/' ****ERROR IN DATE LIST.  STOP IN U915 AT 134.')
+        606 |C        CALL W3TAGE('INT915')
+        607 |C        STOP 134
+        608 |C      ENDIF
+        609 |C
+        610 |C        MAKE SURE DATA WON'T BE WRITTEN WITH A DATE EQUAL TO OR LESS
+        611 |C        THAN THE DATE SKIPPED.
+        612 |      IF(KSKIP.GE.IDATE(1))THEN
+        613 |         WRITE(KFILDO,135)KSKIP,IDATE(1)
+        614 | 135     FORMAT(/' ****DATE TO BE SKIPPED ',I11,' IS NOT BEFORE THE',
+        615 |     1           ' FIRST DATE TO BE WRITTEN ',I11,
+        616 |     2           '.  STOP IN INT915 AT 135.')
+        617 |         CALL W3TAGE('INT915')
+        618 |         STOP 135
+        619 |      ENDIF
+        620 |C
+        621 |C        READ AND PROCESS THE UNIT NUMBERS AND FILE NAMES FOR THE
+        622 |C        MOS-2000 EXTERNAL RANDOM ACCESS FILEA.  FIVE ARE ALLOWED.
+        623 |C        FILE WILL NOT BE OPENED.
+        624 |C
+        625 |      CALL RDSNAM(KFILDI,KFILDO,KFILRA,RACESS,ITEMP,ITEMP,5,NUMRA,
+        626 |     1            'NOT','NOTOPENED',IP,IER)
+        627 |C        ITEMP( ) IS AN ARRAY AT LEAST 5 IN SIZE.
+        628 |      IF(IER.NE.0)ISTOP=ISTOP+1
+        629 |C
+        630 |      IF(NUMRA.NE.0)THEN
+        631 |         WRITE(KFILDO,143)NUMRA,(KFILRA(J),RACESS(J),J=1,NUMRA)
+        632 | 143     FORMAT(/' ',I2,' MOS-2000 EXTERNAL RANDOM ACCESS DATA SETS,',
+        633 |     1           ' UNITS, AND NAMES.'/(' ',I4,2X,A60))
+        634 |      ELSE
+        635 |         WRITE(KFILDO,1430)NUMRA
+        636 | 1430    FORMAT(/' ',I2,' MOS-2000 EXTERNAL RANDOM ACCESS DATA SETS.')
+        637 |C           THE ABOVE PRINT IS FOR THE EMPTY SET.
+        638 |      ENDIF
+        639 |C
+        640 |C        CHECK FOR A MOS-2000 EXTERNAL RANDOM ACCESS FILE FOR
+        641 |C        FORECASTS WITH UNIT NUMBER = 49.  THIS WILL BE THE
+        642 |C        OUTPUT FILE.  SAVE THE FILE NAME IN CFILX.  U900
+        643 |C        MUST HAVE AN OUTPUT EXTERNAL RANDOM ACCESS FILE;
+        644 |C        WRITING IS U900'S ONLY PURPOSE.
+        645 |C
+        646 |      DO 1432 J=1,NUMRA
+        647 |      IF(KFILRA(J).EQ.49)GO TO 1434
+        648 | 1432 CONTINUE
+        649 |C
+        650 |      WRITE(KFILDO,1433)
+        651 | 1433 FORMAT(/' ****NO UNIT NUMBER = 49 FOR RANDOM ACCESS FORECAST',
+        652 |     1        ' FILE.')
+        653 |      KFILX=0
+        654 |      CFILX=' '
+        655 |      GO TO 1435
+        656 |C
+        657 | 1434 KFILX=49
+        658 |      CFILX=RACESS(J)
+        659 |C
+        660 |C        READ AND PROCESS UNIT NUMBER AND FILE NAME FOR VECTOR
+        661 |C        OUTPUT.  FILE WILL BE OPENED AS 'OLD'.
+        662 |C
+        663 | 1435 CALL RDSNAM(KFILDI,KFILDO,KFILIO,OUTNAM,IDUM,IDUM,1,
+        664 |     1            IOUT,'NEW','UNFORMATTED',IP,IER)
+        665 |      IF(IER.NE.0)ISTOP=ISTOP+1
+        666 |C
+        667 |      IF(KFILIO.EQ.0)THEN
+        668 |         WRITE(KFILDO,1437)
+        669 | 1437    FORMAT(/' NO SEQUENTIAL OUTPUT DATA SET PROVIDED;',
+        670 |     1           ' PACKED DATA WILL NOT BE WRITTEN.')
+        671 |         OUTNAM=' '
+        672 |      ELSE
+        673 |         WRITE(KFILDO,144)KFILIO,OUTNAM
+        674 | 144     FORMAT(/' SEQUENTIAL OUTPUT DATA SET, UNIT AND NAME.'/
+        675 |     1         (' ',I4,2X,A60))
+        676 |      ENDIF
+        677 |C
+        678 |C        READ AND PROCESS UNIT NUMBERS AND FILE NAMES FOR STATION LIST
+        679 |C        (CALL LETTERS) AND STATION DIRECTORY WHICH HOLDS CALL LETTERS,
+        680 |C        LATITUDE, LONGITUDE, WBAN NUMBER, ELEVATION, AND NAME FOR EACH
+        681 |C        POSSIBLE STATION.  THIS CAN BE A MASTER DIRECTORY, OR BE A DIRECTORY
+        682 |C        SUPPLIED BY A USER.
+        683 |C
+        684 |      CALL RDSNAM(KFILDI,KFILDO,KFILD,DIRNAM,ITEMP,ITEMP,2,N,'OLD',
+        685 |     1            'FORMATTED',IP,IER)
+        686 |C        ITEMP( ) IS AN ARRAY AT LEAST 2 IN SIZE.
+        687 |      IF(IER.NE.0)ISTOP=ISTOP+1
+        688 |      WRITE(KFILDO,147)(KFILD(J),DIRNAM(J),J=1,2)
+        689 | 147  FORMAT(/' STATION LIST AND DIRECTORY DATA SETS, UNITS AND NAMES.'/
+        690 |     1       (' ',I4,2X,A60))
+        691 |C
+        692 |C        READ STATION LIST AND OTHER STATION INFORMATION.  THE STATION
+        693 |C        LIST CAN COME FROM THE DEFAULT INPUT FILE KFILDI, OR BE ON A
+        694 |C        SEPARATE FILE AS DETERMINED BY KFILD(1).
+        695 |C         12/2004 - CHANGED FROM USING THE GROUP STATION READERS TO THE
+        696 |C         NON-GROUP ONES.  SET KGP TO 1 AND NGP(1) TO NSTA
+        697 |C
+        698 |      NSTA=0
+        699 |C
+        700 |      IF(NALPH.EQ.0)THEN
+        701 |         CALL RDSTAL(KFILDO,IP(4),IP(5),KFILD,NEW,CCALL,
+        702 |     1               NAME,NELEV,IWBAN,STALAT,STALON,ITIMEZ,ISDATA,
+        703 |     2               ND1,NSTA,IER)
+        704 |      ELSE
+        705 |         CALL RDSTAD(KFILDO,IP(4),IP(5),KFILD,NEW,CCALL,CCALLD,
+        706 |     1               NAME,NELEV,IWBAN,STALAT,STALON,ITIMEZ,ISDATA,
+        707 |     2               ND1,NSTA,IER)
+        708 |C        CCALLD( ) IS TREATED HERE AS IF IT HAD THE SAME DIMENSIONS
+        709 |C        AS CCALL( , ).  THIS IS OK, BECAUSE ND5 IS GE ND1.
+        710 |      ENDIF
+        711 |C
+        712 |      IF(IER.NE.0)ISTOP=ISTOP+1
+        713 |C        THE DIRECTORY FILE IS READ ONLY ONCE.
+        714 |C
+        715 |C       COMMENTED THE NEXT 5 LINES OUT WHEN THE GROUP DICTIONARY READERS
+        716 |C       WERE ELIMINATED.  SET KGP TO 1 AND NGP(1) TO NSTA JUST IN CASE
+        717 |C       IT IS NEEDED LATER IN THE CODE.
+        718 |C
+        719 |C     IF(KGP.GT.1)THEN
+        720 |C        WRITE(KFILDO,1503)KGP,NSTA
+        721 |C1503    FORMAT(/' ',I3,' GROUPS OF STATIONS, TOTALING ',I4,
+        722 |C    1          ' STATIONS.')
+        723 |C     ENDIF
+        724 |C
+        725 |      KGP=1
+        726 |      NGP(1)=NSTA
+        727 |
+        728 |      IF(KFILD(1).NE.KFILDI)CLOSE(UNIT=KFILD(1))
+        729 |      CLOSE(UNIT=KFILD(2))
+        730 |C        THE FILES ARE CLOSED WHEN THEY ARE NOT THE SAME AS
+        731 |C        THE DEFAULT INPUT FILE.  THE DIRECTORY IS NEVER THE DEFAULT.
+        732 |C
+        733 |C        READ AND PROCESS UNIT NUMBER AND FILE NAME FOR READING
+        734 |C        VARIABLE LIST.
+        735 |C
+        736 |      CALL RDSNAM(KFILDI,KFILDO,KFILP,PRENAM,IDUM,IDUM,1,N,'OLD',
+        737 |     1            'FORMATTED',IP,IER)
+        738 |      IF(IER.NE.0)ISTOP=ISTOP+1
+        739 |      WRITE(KFILDO,152)KFILP,PRENAM
+        740 | 152  FORMAT(/' VARIABLE LIST DATA SET, UNIT AND NAME.'/
+        741 |     1       (' ',I4,2X,A60))
+        742 |C
+        743 |C        READ AND PROCESS UNIT NUMBER FOR THE SPREAD SKILL FILE.
+        744 |C        VEENHUIS FEBRUARY 2011.
+        745 |C
+        746 |      CALL RDSNAM(KFILDI,KFILDO,KFILAI,CSPDNAM,IDUM,IDUM,1,N,'OLD',
+        747 |     1            'FORMATTED',IP,IER)
+        748 |      IF(IER.NE.0) ISTOP=ISTOP+1
+        749 |      IF(KFILAI.NE.0)WRITE(KFILDO,154)KFILAI,CSPDNAM
+        750 | 154  FORMAT(/,' SPREAD SKILL RELATIONSHIP FILE, UNIT AND NAME.',/,
+        751 |     1        (' ',I4,2X,A60))
+        752 |C
+        753 |C        READ AND PROCESS UNIT NUMBER FOR THE PREDICTOR CONSTANTS
+        754 |C        DIRECTORY.
+        755 |C
+        756 |      CALL RDSNAM(KFILDI,KFILDO,KFILCP,CONNAM,IDUM,IDUM,1,N,'OLD',
+        757 |     1            'FORMATTED',IP,IER)
+        758 |      IF(IER.NE.0)ISTOP=ISTOP+1
+        759 |      IF(KFILCP.NE.0)WRITE(KFILDO,157)KFILCP,CONNAM
+        760 | 157  FORMAT(/' VARIABLE CONSTANT DIRECTORY, UNIT AND NAME.'/
+        761 |     1       (' ',I4,2X,A60))
+        762 |C
+        763 |C        READ AND PROCESS UNIT NUMBER FOR THE PREDICTOR CONSTANTS
+        764 |C        DIRECTORY.
+        765 |C
+        766 |      CALL RDSNAM(KFILDI,KFILDO,KFILTH,CDFNAM,IDUM,IDUM,1,N,'OLD',
+        767 |     1            'FORMATTED',IP,IER)
+        768 |      IF(IER.NE.0)ISTOP=ISTOP+1
+        769 |      IF(KFILTH.NE.0)WRITE(KFILDO,1571)KFILTH,CDFNAM
+        770 | 1571  FORMAT(/' CDF THRESHOLD LIST, UNIT AND NAME.'/
+        771 |     1       (' ',I4,2X,A60))
+        772 |C
+        773 |C        READ THE CDF THRESHOLDS.
+        774 |C
+        775 |      CALL RDF(KFILDO,IP(3),KFILTH,CDFTH,ND12,TEMP,15,'(15F8.0)',NCDFTH,
+        776 |     1         999999.,IER)
+        777 |C        TEMP( ) IS AN ARRAY AT LEAST 15 IN SIZE.
+        778 |      WRITE(KFILDO,1572)NCDFTH,(CDFTH(J),J=1,NCDFTH)
+        779 | 1572 FORMAT(/,I4,' THRESHOLDS FOR CDF FOR PACKED OUTPUT',/,(15F8.2))
+        780 |C
+        781 |C        ASSURE THAT THRESHOLDS ARE IN ASCENDING ORDER.  CODE EXPECTS
+        782 |C        THAT.
+        783 |C
+        784 |      DO 1575 J=2,NCDFTH
+        785 |      IF(CDFTH(J).GT.CDFTH(J-1))GO TO 1575
+        786 |      WRITE(KFILDO,1574)
+        787 | 1574 FORMAT(/,' ****THREHOLDS NOT ASCENDING.  STOP IN INT715 AT 1574')
+        788 |      STOP 1574
+        789 | 1575 CONTINUE
+        790 |C
+        791 |C        READ AND PRINT THE VARIABLES.
+        792 |C
+        793 |      CALL RDVR75(KFILDO,IP(6),IP(7),IP(8),IP(9),KFILP,KFILCP,
+        794 |     1            ID,IDPARS,TRESHL,TRESHU,JD,JP,PLAIN,ITAU,KER,
+        795 |     2            ISD,SD,DS,ISCALD,NCAT,ND4,
+        796 |     3            NVRBL,ISTOP,IER)
+        797 |C
+        798 |D     WRITE(KFILDO,1575)(HEAD(1:30,J),J=1,NVRBL)
+        799 |D1575 FORMAT(/' INT915, HEAD(J)'/(30A1))
+        800 |      IF(IER.EQ.42)THEN
+        801 |         WRITE(KFILDO,158)
+        802 | 158     FORMAT(/' ****NO VARIABLE LIST PROVIDED.',
+        803 |     1           '  STOP IN INT915 AT 158.')
+        804 |         CALL W3TAGE('INT915')
+        805 |         STOP 158
+        806 |C
+        807 |      ENDIF
+        808 |C
+        809 |C        LOOP THROUGHT THE VARIABLES IN ID() TO MAKE SURE THE NUMBER
+        810 |C        OF ENSEMBLE MEMBERS DOES NOT EXCEED ND2. THIS CAN CAUSE
+        811 |C        UNPREDICTABLE RESULTS IF IT OCCURS AND SHOULD BE TREATED AS
+        812 |C        FATAL. VEENHUIS NOV 2010.
+        813 |C
+        814 |      II0=1
+        815 |      NMEM=0
+        816 |      MAXNMEM=0
+        817 |      II=1
+        818 |      WRITE(KFILDO,*) NVRBL
+        819 |      DO 1581 WHILE(II .LE. NVRBL)
+        820 |        IF(ID(1,II0)/100.EQ.ID(1,II)/100.AND.
+        821 |     1   ID(2,II0).EQ.ID(2,II).AND.
+        822 |     2   IDPARS(8,II0).EQ.IDPARS(8,II).AND.
+        823 |     3   IDPARS(10,II0).EQ.IDPARS(10,II).AND.
+        824 |     4   IDPARS(11,II0).EQ.IDPARS(11,II).AND.
+        825 |     5   IDPARS(12,II0)-IDPARS(9,II0).EQ.IDPARS(12,II)-IDPARS(9,II).AND.
+        826 |     6   (ABS(ID(4,II)-ID(4,II0)).EQ.
+        827 |     7   ABS(IDPARS(15,II)-IDPARS(15,II0))))THEN
+        828 |C
+        829 |          NMEM=NMEM+1
+        830 |          II=II+1
+        831 |          IF(NMEM.GT.MAXNMEM) THEN
+        832 |            MAXNMEM=NMEM
+        833 |          ENDIF
+        834 |        ELSE
+        835 |          II0=II
+        836 |          NMEM=0
+        837 |        ENDIF
+        838 | 1581 CONTINUE
+        839 |      IF(MAXNMEM.GT.ND2) THEN
+        840 |C        ND2 WILL BE EXCEEDED
+        841 |        WRITE(KFILDO,1582) MAXNMEM
+        842 | 1582   FORMAT(/,' ****TOO MANY ENSEMBLE MEMBERS ON VARIABLE',
+        843 |     1   ' ID LIST. INCREASE THE SIZE OF ND2 TO AT LEAST ',I3)
+        844 |        STOP 159
+        845 |      ENDIF
+        846 |C
+        847 |C        SKIP RECORDS ON THE SEQUENTIAL OUTPUT FILE WHEN KSKIP NE 0.
+        848 |C        THE STATION LIST IN ICALL( ) IS CHECKED WITH THE STATION
+        849 |C        LIST AS THE FIRST RECORD IN THE FILE.  IF THEY DO NOT
+        850 |C        MATCH, THE PROGRAM RESPONDS TO KWRITE.  WHEN RECORDS
+        851 |C        ARE NOT SKIPPED, THE CALL LETTERS RECORD IS WRITTEN.
+        852 |C        WHEN KFILIO = 0, SKIPWR DOES NOTHING.
+        853 |C
+        854 |      KCHECK=1
+        855 |      CALL SKIPWR(KFILDO,KFILIO,KSKIP,KWRITE,KCHECK,
+        856 |     1            CCALL,ND1,NSTA,
+        857 |     2            CCALLD,ND5,IPACK,ND5,
+        858 |     3            NTOTBY,NTOTRC,L3264B,L3264W,IER)
+        859 |      IF(IER.EQ.0)GO TO 160
+        860 |      WRITE(KFILDO,159)KFILIO
+        861 | 159  FORMAT(/' ****PROGRAM STOP AT 159 IN INT915 BECAUSE OF ERROR IN',
+        862 |     1        ' ROUTINE SKIPWR ON UNIT NO.',I4,'.'/
+        863 |     2        '     OTHERWISE, GOOD DATA MIGHT BE OVERWRITTEN.')
+        864 |      CALL W3TAGE('INT915')
+        865 |      STOP 159
+        866 |C        STOP THE PROGRAM FOR SAFETY.  OTHERWISE, GOOD DATA MIGHT
+        867 |C        BE OVERWRITTEN.
+        868 |C
+        869 |C        CHECK POSSIBLE INCONSISTENCY OF RANDOM ACCESS UNIT
+        870 |C        NUMBERS WITH OTHERS USED BY THE PROGRAM.  THIS SHOULD
+        871 |C        PROTECT THE RANDOM ACCESS DATA SETS IN RACESS( )
+        872 |C        FROM BEING OVERWRITTEN.
+        873 |C
+        874 | 160  DO 170 J=1,NUMRA
+        875 |      IF(KFILRA(J).NE.KFILDT  .AND.
+        876 |     1   KFILRA(J).NE.KFILD(1).AND.
+        877 |     2   KFILRA(J).NE.KFILD(2).AND.
+        878 |     3   KFILRA(J).NE.KFILP   .AND.
+        879 |     4   KFILRA(J).NE.KFILCP  .AND.
+        880 |     5   KFILRA(J).NE.KFILIO  .AND.
+        881 |     6   KFILRA(J).NE.KFILDO)GO TO 170
+        882 |         WRITE(KFILDO,165)
+        883 | 165  FORMAT(/' ****INCONSISTENCY IN INPUT UNIT NUMBERS IN KFILRA( )',
+        884 |     1        ' WITH EITHER KFILDT, KFILD( ), KFILP,',
+        885 |     2        ' KFILCP, KFILIO, OR KFILDO'/'     STOP IN INT915 AT 165')
+        886 |      CALL W3TAGE('INT915')
+        887 |      STOP 165
+        888 |C
+        889 | 170  CONTINUE
+        890 |C
+        891 |C        CHECK THAT THE OUTPUT KFILIO IS NOT THE SAME AS INPUT
+        892 |C        UNIT NUMBERS.
+        893 |C
+        894 |C     IF(KFILIO.EQ.0)GO TO 180
+        895 |      IF(KFILIO.NE.KFILDT  .AND.
+        896 |     1   KFILIO.NE.KFILD(1).AND.
+        897 |     2   KFILIO.NE.KFILD(2).AND.
+        898 |     3   KFILIO.NE.KFILP   .AND.
+        899 |     4   KFILIO.NE.KFILCP)GO TO 176
+        900 |         WRITE(KFILDO,175)
+        901 | 175  FORMAT(/' ****INCONSISTENCY OF INPUT UNIT NUMBER FOR KFILIO',
+        902 |     1        ' WITH EITHER KFILDT, KFILD( ), KFILP,',
+        903 |     2        ' OR KFILCP'/'     STOP IN INT915 AT 175')
+        904 |      CALL W3TAGE('INT915')
+        905 |      STOP 175
+        906 |C
+        907 |C        CHECK IP( ) NUMBERS WITH KFILRA( ) NUMBERS.
+        908 |C
+        909 | 176  DO 179 J=1,25
+        910 |C
+        911 |      IF(IP(J).EQ.0)GO TO 179
+        912 |C
+        913 |      DO 178 L=1,5
+        914 |      IF(IP(J).NE.KFILRA(L))GO TO 178
+        915 |      WRITE(KFILDO,177)IP(J)
+        916 | 177  FORMAT(/' ****IP( ) NUMBER =',I3,
+        917 |     1        ' CONFLICTS WITH KFILRA( ) NUMBER.'/
+        918 |     2        '     STOP IN INT915 AT 177.')
+        919 |      CALL W3TAGE('INT915')
+        920 |      STOP 177
+        921 | 178  CONTINUE
+        922 | 179  CONTINUE
+        923 |      RETURN
+        924 |C
+        925 |C        ERROR STOP BELOW IS FOR ERRORS OF CONTROL INFORMATION INPUT.
+        926 | 900  CALL IERX(KFILDO,KFILDO,IOS,'INT915',STATE)
+        927 |      CALL W3TAGE('INT915')
+        928 |      STOP 9999
+        929 |      END
+** int915   === End of Compilation 1 ===
+ 
+>>>>> FILE TABLE SECTION <<<<<
+ 
+ 
+                                       FILE CREATION        FROM
+FILE NO   FILENAME                    DATE       TIME       FILE    LINE
+     0    int915.f                    12/21/11   15:09:28
+ 
+ 
+>>>>> COMPILATION EPILOGUE SECTION <<<<<
+ 
+ 
+FORTRAN Summary of Diagnosed Conditions
+ 
+TOTAL   UNRECOVERABLE  SEVERE       ERROR     WARNING    INFORMATIONAL
+               (U)       (S)         (E)        (W)          (I)
+    0           0         0           0          0            0
+ 
+ 
+    Source records read.......................................     929
+1501-510  Compilation successful for file int915.f.
+1501-543  Object file created.

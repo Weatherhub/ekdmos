@@ -1,0 +1,3744 @@
++ module use /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/modulefiles
+++ /opt/modules/3.2.6.7/bin/modulecmd bash use /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/modulefiles
++ eval
++ module load mos_shared-intel
+++ /opt/modules/3.2.6.7/bin/modulecmd bash load mos_shared-intel
++ eval COMP=ftn ';export' 'COMP;CRAY_CPU_TARGET=sandybridge' ';export' 'CRAY_CPU_TARGET;LOADEDMODULES=modules/3.2.6.7:eswrap/1.3.3-1.020200.1278.0:switch/1.0-1.0502.57058.1.58.ari:craype-network-aries:ncep/1.0:xt-lsfhpc/9.1.3:bacio-intel/2.0.1:bufr-intel/11.0.1:g2-intel/3.1.0:g2tmpl-intel/1.4.0:jasper-gnu-sandybridge/1.900.1:png-intel-sandybridge/1.2.44:w3emc-intel/2.2.0:w3nco-intel/2.0.6:zlib-intel-sandybridge/1.2.7:craype/2.3.0:intel/15.0.3.187:cray-libsci/13.0.3:udreg/2.3.2-1.0502.9889.2.20.ari:ugni/6.0-1.0502.10245.9.9.ari:pmi/5.0.6-1.0000.10439.140.2.ari:dmapp/7.0.1-1.0502.10246.8.47.ari:gni-headers/4.0-1.0502.10317.9.2.ari:xpmem/0.1-2.0502.57015.1.15.ari:dvs/2.5_0.9.0-1.0502.1958.2.55.ari:alps/5.2.3-2.0502.9295.14.14.ari:rca/1.0.0-2.0502.57212.2.56.ari:atp/1.8.1:PrgEnv-intel/5.2.56:craype-hugepages256M:iobuf/2.0.8:mos_shared-intel/2.6.3:craype-sandybridge' ';export' 'LOADEDMODULES;PE_PRODUCT_LIST=CRAYPE_SANDYBRIDGE:CRAY_RCA:CRAY_ALPS:DVS:CRAY_XPMEM:CRAY_DMAPP:CRAY_PMI:CRAY_UGNI:CRAY_UDREG:CRAY_LIBSCI:CRAYPE:INTEL:CRAY:HUGETLB256M' ';export' 'PE_PRODUCT_LIST;_LMFILES_=/opt/modulefiles/modules/3.2.6.7:/opt/modulefiles/eswrap/1.3.3-1.020200.1278.0:/opt/cray/ari/modulefiles/switch/1.0-1.0502.57058.1.58.ari:/opt/cray/craype/default/modulefiles/craype-network-aries:/opt/modulefiles/ncep/1.0:/opt/modulefiles/xt-lsfhpc/9.1.3:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/bacio-intel/2.0.1:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/bufr-intel/11.0.1:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/g2-intel/3.1.0:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/g2tmpl-intel/1.4.0:/usrx/local/prod/modulefiles/jasper-gnu-sandybridge/1.900.1:/usrx/local/prod/modulefiles/png-intel-sandybridge/1.2.44:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/w3emc-intel/2.2.0:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/w3nco-intel/2.0.6:/usrx/local/prod/modulefiles/zlib-intel-sandybridge/1.2.7:/opt/cray/alt-modulefiles/craype/2.3.0:/opt/modulefiles/intel/15.0.3.187:/opt/cray/alt-modulefiles/cray-libsci/13.0.3:/opt/cray/ari/modulefiles/udreg/2.3.2-1.0502.9889.2.20.ari:/opt/cray/ari/modulefiles/ugni/6.0-1.0502.10245.9.9.ari:/opt/cray/ari/modulefiles/pmi/5.0.6-1.0000.10439.140.2.ari:/opt/cray/ari/modulefiles/dmapp/7.0.1-1.0502.10246.8.47.ari:/opt/cray/ari/modulefiles/gni-headers/4.0-1.0502.10317.9.2.ari:/opt/cray/ari/modulefiles/xpmem/0.1-2.0502.57015.1.15.ari:/opt/cray/ari/modulefiles/dvs/2.5_0.9.0-1.0502.1958.2.55.ari:/opt/cray/ari/modulefiles/alps/5.2.3-2.0502.9295.14.14.ari:/opt/cray/ari/modulefiles/rca/1.0.0-2.0502.57212.2.56.ari:/opt/cray/alt-modulefiles/atp/1.8.1:/opt/cray/alt-modulefiles/PrgEnv-intel/5.2.56:/opt/cray/craype/default/alt-modulefiles/craype-hugepages256M:/opt/cray/alt-modulefiles/iobuf/2.0.8:/gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/modulefiles/mos_shared-intel/2.6.3:/opt/cray/craype/default/alt-modulefiles/craype-sandybridge' ';export' '_LMFILES_;'
+++ COMP=ftn
+++ export COMP
+++ CRAY_CPU_TARGET=sandybridge
+++ export CRAY_CPU_TARGET
+++ LOADEDMODULES=modules/3.2.6.7:eswrap/1.3.3-1.020200.1278.0:switch/1.0-1.0502.57058.1.58.ari:craype-network-aries:ncep/1.0:xt-lsfhpc/9.1.3:bacio-intel/2.0.1:bufr-intel/11.0.1:g2-intel/3.1.0:g2tmpl-intel/1.4.0:jasper-gnu-sandybridge/1.900.1:png-intel-sandybridge/1.2.44:w3emc-intel/2.2.0:w3nco-intel/2.0.6:zlib-intel-sandybridge/1.2.7:craype/2.3.0:intel/15.0.3.187:cray-libsci/13.0.3:udreg/2.3.2-1.0502.9889.2.20.ari:ugni/6.0-1.0502.10245.9.9.ari:pmi/5.0.6-1.0000.10439.140.2.ari:dmapp/7.0.1-1.0502.10246.8.47.ari:gni-headers/4.0-1.0502.10317.9.2.ari:xpmem/0.1-2.0502.57015.1.15.ari:dvs/2.5_0.9.0-1.0502.1958.2.55.ari:alps/5.2.3-2.0502.9295.14.14.ari:rca/1.0.0-2.0502.57212.2.56.ari:atp/1.8.1:PrgEnv-intel/5.2.56:craype-hugepages256M:iobuf/2.0.8:mos_shared-intel/2.6.3:craype-sandybridge
+++ export LOADEDMODULES
+++ PE_PRODUCT_LIST=CRAYPE_SANDYBRIDGE:CRAY_RCA:CRAY_ALPS:DVS:CRAY_XPMEM:CRAY_DMAPP:CRAY_PMI:CRAY_UGNI:CRAY_UDREG:CRAY_LIBSCI:CRAYPE:INTEL:CRAY:HUGETLB256M
+++ export PE_PRODUCT_LIST
+++ _LMFILES_=/opt/modulefiles/modules/3.2.6.7:/opt/modulefiles/eswrap/1.3.3-1.020200.1278.0:/opt/cray/ari/modulefiles/switch/1.0-1.0502.57058.1.58.ari:/opt/cray/craype/default/modulefiles/craype-network-aries:/opt/modulefiles/ncep/1.0:/opt/modulefiles/xt-lsfhpc/9.1.3:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/bacio-intel/2.0.1:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/bufr-intel/11.0.1:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/g2-intel/3.1.0:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/g2tmpl-intel/1.4.0:/usrx/local/prod/modulefiles/jasper-gnu-sandybridge/1.900.1:/usrx/local/prod/modulefiles/png-intel-sandybridge/1.2.44:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/w3emc-intel/2.2.0:/gpfs/hps/nco/ops/nwprod/lib/modulefiles/w3nco-intel/2.0.6:/usrx/local/prod/modulefiles/zlib-intel-sandybridge/1.2.7:/opt/cray/alt-modulefiles/craype/2.3.0:/opt/modulefiles/intel/15.0.3.187:/opt/cray/alt-modulefiles/cray-libsci/13.0.3:/opt/cray/ari/modulefiles/udreg/2.3.2-1.0502.9889.2.20.ari:/opt/cray/ari/modulefiles/ugni/6.0-1.0502.10245.9.9.ari:/opt/cray/ari/modulefiles/pmi/5.0.6-1.0000.10439.140.2.ari:/opt/cray/ari/modulefiles/dmapp/7.0.1-1.0502.10246.8.47.ari:/opt/cray/ari/modulefiles/gni-headers/4.0-1.0502.10317.9.2.ari:/opt/cray/ari/modulefiles/xpmem/0.1-2.0502.57015.1.15.ari:/opt/cray/ari/modulefiles/dvs/2.5_0.9.0-1.0502.1958.2.55.ari:/opt/cray/ari/modulefiles/alps/5.2.3-2.0502.9295.14.14.ari:/opt/cray/ari/modulefiles/rca/1.0.0-2.0502.57212.2.56.ari:/opt/cray/alt-modulefiles/atp/1.8.1:/opt/cray/alt-modulefiles/PrgEnv-intel/5.2.56:/opt/cray/craype/default/alt-modulefiles/craype-hugepages256M:/opt/cray/alt-modulefiles/iobuf/2.0.8:/gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/modulefiles/mos_shared-intel/2.6.3:/opt/cray/craype/default/alt-modulefiles/craype-sandybridge
+++ export _LMFILES_
++ module list
+++ /opt/modules/3.2.6.7/bin/modulecmd bash list
+Currently Loaded Modulefiles:
+  1) modules/3.2.6.7
+  2) eswrap/1.3.3-1.020200.1278.0
+  3) switch/1.0-1.0502.57058.1.58.ari
+  4) /opt/cray/craype/default/modulefiles/craype-network-aries
+  5) ncep/1.0
+  6) xt-lsfhpc/9.1.3
+  7) bacio-intel/2.0.1
+  8) bufr-intel/11.0.1
+  9) g2-intel/3.1.0
+ 10) g2tmpl-intel/1.4.0
+ 11) jasper-gnu-sandybridge/1.900.1
+ 12) png-intel-sandybridge/1.2.44
+ 13) w3emc-intel/2.2.0
+ 14) w3nco-intel/2.0.6
+ 15) zlib-intel-sandybridge/1.2.7
+ 16) craype/2.3.0
+ 17) intel/15.0.3.187
+ 18) cray-libsci/13.0.3
+ 19) udreg/2.3.2-1.0502.9889.2.20.ari
+ 20) ugni/6.0-1.0502.10245.9.9.ari
+ 21) pmi/5.0.6-1.0000.10439.140.2.ari
+ 22) dmapp/7.0.1-1.0502.10246.8.47.ari
+ 23) gni-headers/4.0-1.0502.10317.9.2.ari
+ 24) xpmem/0.1-2.0502.57015.1.15.ari
+ 25) dvs/2.5_0.9.0-1.0502.1958.2.55.ari
+ 26) alps/5.2.3-2.0502.9295.14.14.ari
+ 27) rca/1.0.0-2.0502.57212.2.56.ari
+ 28) atp/1.8.1
+ 29) PrgEnv-intel/5.2.56
+ 30) craype-hugepages256M
+ 31) iobuf/2.0.8
+ 32) mos_shared-intel/2.6.3
+ 33) craype-sandybridge
++ eval
++ echo
+
++ date
+Thu Nov  9 14:58:21 UTC 2017
++ echo
+
++ cd lib/sorc/mdl
++ ./makelibmdl_intel.sh
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 achang.f
+ar -rvu libmdl_4_intel.a achang.o
+ar: creating libmdl_4_intel.a
+a - achang.o
+rm -f achang.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 actnom.f
+ar -rvu libmdl_4_intel.a actnom.o
+a - actnom.o
+rm -f actnom.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 actual.f
+ar -rvu libmdl_4_intel.a actual.o
+a - actual.o
+rm -f actual.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 adjexpqpf.f
+ar -rvu libmdl_4_intel.a adjexpqpf.o
+a - adjexpqpf.o
+rm -f adjexpqpf.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 adjspd.f
+ar -rvu libmdl_4_intel.a adjspd.o
+a - adjspd.o
+rm -f adjspd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 adjtmp.f
+ar -rvu libmdl_4_intel.a adjtmp.o
+a - adjtmp.o
+rm -f adjtmp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 adjuv.f
+ar -rvu libmdl_4_intel.a adjuv.o
+a - adjuv.o
+rm -f adjuv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 adtemp.f
+adtemp.f(1): (col. 19) remark: adtemp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a adtemp.o
+a - adtemp.o
+rm -f adtemp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 advctw1.f
+ar -rvu libmdl_4_intel.a advctw1.o
+a - advctw1.o
+rm -f advctw1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 advctw.f
+ar -rvu libmdl_4_intel.a advctw.o
+a - advctw.o
+rm -f advctw.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 apptmp.f
+ar -rvu libmdl_4_intel.a apptmp.o
+a - apptmp.o
+rm -f apptmp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 arinit.f
+ar -rvu libmdl_4_intel.a arinit.o
+a - arinit.o
+rm -f arinit.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 avhrly.f
+ar -rvu libmdl_4_intel.a avhrly.o
+a - avhrly.o
+rm -f avhrly.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 basicp.f
+ar -rvu libmdl_4_intel.a basicp.o
+a - basicp.o
+rm -f basicp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 besel.f
+ar -rvu libmdl_4_intel.a besel.o
+a - besel.o
+rm -f besel.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 binary.f
+ar -rvu libmdl_4_intel.a binary.o
+a - binary.o
+rm -f binary.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 binful.f
+ar -rvu libmdl_4_intel.a binful.o
+a - binful.o
+rm -f binful.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 bkcat.f
+ar -rvu libmdl_4_intel.a bkcat.o
+a - bkcat.o
+rm -f bkcat.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 bswap.f
+ar -rvu libmdl_4_intel.a bswap.o
+a - bswap.o
+rm -f bswap.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 bulkrn.f
+bulkrn.f(1): (col. 18) remark: bulkrn_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a bulkrn.o
+a - bulkrn.o
+rm -f bulkrn.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cat1.f
+ar -rvu libmdl_4_intel.a cat1.o
+a - cat1.o
+rm -f cat1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cat2.f
+ar -rvu libmdl_4_intel.a cat2.o
+a - cat2.o
+rm -f cat2.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 catgr1.f
+ar -rvu libmdl_4_intel.a catgr1.o
+a - catgr1.o
+rm -f catgr1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 chngdate.f
+ar -rvu libmdl_4_intel.a chngdate.o
+a - chngdate.o
+rm -f chngdate.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckbounds.f
+ar -rvu libmdl_4_intel.a ckbounds.o
+a - ckbounds.o
+rm -f ckbounds.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckfilend.f
+ar -rvu libmdl_4_intel.a ckfilend.o
+a - ckfilend.o
+rm -f ckfilend.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckgrid.f
+ar -rvu libmdl_4_intel.a ckgrid.o
+a - ckgrid.o
+rm -f ckgrid.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckids1.f
+ar -rvu libmdl_4_intel.a ckids1.o
+a - ckids1.o
+rm -f ckids1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckids.f
+ar -rvu libmdl_4_intel.a ckids.o
+a - ckids.o
+rm -f ckids.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckraend.f
+ar -rvu libmdl_4_intel.a ckraend.o
+a - ckraend.o
+rm -f ckraend.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cksysend.f
+ar -rvu libmdl_4_intel.a cksysend.o
+a - cksysend.o
+rm -f cksysend.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cktmpdp.f
+ar -rvu libmdl_4_intel.a cktmpdp.o
+a - cktmpdp.o
+rm -f cktmpdp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 clfilm.f
+ar -rvu libmdl_4_intel.a clfilm.o
+a - clfilm.o
+rm -f clfilm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 clfm.f
+ar -rvu libmdl_4_intel.a clfm.o
+a - clfm.o
+rm -f clfm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 clos.f
+ar -rvu libmdl_4_intel.a clos.o
+a - clos.o
+rm -f clos.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cm2dsc.f
+ar -rvu libmdl_4_intel.a cm2dsc.o
+a - cm2dsc.o
+rm -f cm2dsc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cmbwndg.f
+ar -rvu libmdl_4_intel.a cmbwndg.o
+a - cmbwndg.o
+rm -f cmbwndg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cmpdpgr.f
+ar -rvu libmdl_4_intel.a cmpdpgr.o
+a - cmpdpgr.o
+rm -f cmpdpgr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cmpprb.f
+ar -rvu libmdl_4_intel.a cmpprb.o
+a - cmpprb.o
+rm -f cmpprb.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cmprhgr.f
+ar -rvu libmdl_4_intel.a cmprhgr.o
+a - cmprhgr.o
+rm -f cmprhgr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 combin.f
+combin.f(1): (col. 18) remark: combin_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a combin.o
+a - combin.o
+rm -f combin.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 compid.f
+ar -rvu libmdl_4_intel.a compid.o
+a - compid.o
+rm -f compid.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 const1.f
+ar -rvu libmdl_4_intel.a const1.o
+a - const1.o
+rm -f const1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 const.f
+const.f(1): (col. 18) remark: const_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a const.o
+a - const.o
+rm -f const.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 constg.f
+ar -rvu libmdl_4_intel.a constg.o
+a - constg.o
+rm -f constg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 constx.f
+constx.f(1): (col. 18) remark: constx_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a constx.o
+a - constx.o
+rm -f constx.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 convqpf.f
+ar -rvu libmdl_4_intel.a convqpf.o
+a - convqpf.o
+rm -f convqpf.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cordp.f
+ar -rvu libmdl_4_intel.a cordp.o
+a - cordp.o
+rm -f cordp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 datefour.f
+ar -rvu libmdl_4_intel.a datefour.o
+a - datefour.o
+rm -f datefour.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 datgen.f
+ar -rvu libmdl_4_intel.a datgen.o
+a - datgen.o
+rm -f datgen.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 datpro.f
+ar -rvu libmdl_4_intel.a datpro.o
+a - datpro.o
+rm -f datpro.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 datprs.f
+ar -rvu libmdl_4_intel.a datprs.o
+a - datprs.o
+rm -f datprs.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 denser.f
+denser.f(1): (col. 18) remark: denser_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a denser.o
+a - denser.o
+rm -f denser.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 densrm.f
+ar -rvu libmdl_4_intel.a densrm.o
+a - densrm.o
+rm -f densrm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 densrq.f
+ar -rvu libmdl_4_intel.a densrq.o
+a - densrq.o
+rm -f densrq.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dewpcorr.f
+dewpcorr.f(1): (col. 18) remark: dewpcorr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a dewpcorr.o
+a - dewpcorr.o
+rm -f dewpcorr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dewpt.f
+dewpt.f(1): (col. 18) remark: dewpt_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a dewpt.o
+a - dewpt.o
+rm -f dewpt.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 diffv.f
+ar -rvu libmdl_4_intel.a diffv.o
+a - diffv.o
+rm -f diffv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dimens.f
+ar -rvu libmdl_4_intel.a dimens.o
+a - dimens.o
+rm -f dimens.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dir2uv.f
+ar -rvu libmdl_4_intel.a dir2uv.o
+a - dir2uv.o
+rm -f dir2uv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dircalm.f
+dircalm.f(1): (col. 18) remark: dircalm_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a dircalm.o
+a - dircalm.o
+rm -f dircalm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dircmp.f
+ar -rvu libmdl_4_intel.a dircmp.o
+a - dircmp.o
+rm -f dircmp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dirfuv.f
+ar -rvu libmdl_4_intel.a dirfuv.o
+a - dirfuv.o
+rm -f dirfuv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 divw1.f
+divw1.f(1): (col. 18) remark: divw1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a divw1.o
+a - divw1.o
+rm -f divw1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 divw.f
+ar -rvu libmdl_4_intel.a divw.o
+a - divw.o
+rm -f divw.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 doy.f
+ar -rvu libmdl_4_intel.a doy.o
+a - doy.o
+rm -f doy.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dpcamt.f
+dpcamt.f(1): (col. 18) remark: dpcamt_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a dpcamt.o
+a - dpcamt.o
+rm -f dpcamt.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dpdep.f
+ar -rvu libmdl_4_intel.a dpdep.o
+a - dpdep.o
+rm -f dpdep.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dpdprs.f
+ar -rvu libmdl_4_intel.a dpdprs.o
+a - dpdprs.o
+rm -f dpdprs.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dptdpr.f
+ar -rvu libmdl_4_intel.a dptdpr.o
+a - dptdpr.o
+rm -f dptdpr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 elimds.f
+ar -rvu libmdl_4_intel.a elimds.o
+a - elimds.o
+rm -f elimds.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ensmean.f
+ar -rvu libmdl_4_intel.a ensmean.o
+a - ensmean.o
+rm -f ensmean.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 eouwnd.f
+eouwnd.f(1): (col. 18) remark: eouwnd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a eouwnd.o
+a - eouwnd.o
+rm -f eouwnd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 eovwnd.f
+eovwnd.f(1): (col. 18) remark: eovwnd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a eovwnd.o
+a - eovwnd.o
+rm -f eovwnd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 eownd.f
+eownd.f(1): (col. 18) remark: eownd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a eownd.o
+a - eownd.o
+rm -f eownd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 expval.f
+ar -rvu libmdl_4_intel.a expval.o
+a - expval.o
+rm -f expval.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 extrap.f
+extrap.f(1): (col. 18) remark: extrap_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a extrap.o
+a - extrap.o
+rm -f extrap.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 exvalu.f
+ar -rvu libmdl_4_intel.a exvalu.o
+a - exvalu.o
+rm -f exvalu.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fcstdf.f
+ar -rvu libmdl_4_intel.a fcstdf.o
+a - fcstdf.o
+rm -f fcstdf.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ffetch.f
+ar -rvu libmdl_4_intel.a ffetch.o
+a - ffetch.o
+rm -f ffetch.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 findst.f
+ar -rvu libmdl_4_intel.a findst.o
+a - findst.o
+rm -f findst.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fixcat.f
+ar -rvu libmdl_4_intel.a fixcat.o
+a - fixcat.o
+rm -f fixcat.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fixit.f
+ar -rvu libmdl_4_intel.a fixit.o
+a - fixit.o
+rm -f fixit.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fixprb.f
+ar -rvu libmdl_4_intel.a fixprb.o
+a - fixprb.o
+rm -f fixprb.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fixqpfcat.f
+ar -rvu libmdl_4_intel.a fixqpfcat.o
+a - fixqpfcat.o
+rm -f fixqpfcat.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 flopnm.f
+ar -rvu libmdl_4_intel.a flopnm.o
+a - flopnm.o
+rm -f flopnm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fltag.f
+ar -rvu libmdl_4_intel.a fltag.o
+a - fltag.o
+rm -f fltag.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fndclg.f
+ar -rvu libmdl_4_intel.a fndclg.o
+a - fndclg.o
+rm -f fndclg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 forier.f
+ar -rvu libmdl_4_intel.a forier.o
+a - forier.o
+rm -f forier.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 froot.f
+ar -rvu libmdl_4_intel.a froot.o
+a - froot.o
+rm -f froot.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 frzlvl.f
+ar -rvu libmdl_4_intel.a frzlvl.o
+a - frzlvl.o
+rm -f frzlvl.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 frzlvl_old.f
+ar -rvu libmdl_4_intel.a frzlvl_old.o
+a - frzlvl_old.o
+rm -f frzlvl_old.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ftokel.f
+ar -rvu libmdl_4_intel.a ftokel.o
+a - ftokel.o
+rm -f ftokel.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ftokgrd.f
+ar -rvu libmdl_4_intel.a ftokgrd.o
+a - ftokgrd.o
+rm -f ftokgrd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gamma.f
+ar -rvu libmdl_4_intel.a gamma.o
+a - gamma.o
+rm -f gamma.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gcpac.f
+ar -rvu libmdl_4_intel.a gcpac.o
+a - gcpac.o
+rm -f gcpac.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 getdate.f
+ar -rvu libmdl_4_intel.a getdate.o
+a - getdate.o
+rm -f getdate.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 getgrid.f
+ar -rvu libmdl_4_intel.a getgrid.o
+a - getgrid.o
+rm -f getgrid.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 get_ncepdate.f
+ar -rvu libmdl_4_intel.a get_ncepdate.o
+a - get_ncepdate.o
+rm -f get_ncepdate.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gfetch1.f
+ar -rvu libmdl_4_intel.a gfetch1.o
+a - gfetch1.o
+rm -f gfetch1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gfetch2.f
+ar -rvu libmdl_4_intel.a gfetch2.o
+a - gfetch2.o
+rm -f gfetch2.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gfetch.f
+ar -rvu libmdl_4_intel.a gfetch.o
+a - gfetch.o
+rm -f gfetch.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 glook.f
+ar -rvu libmdl_4_intel.a glook.o
+a - glook.o
+rm -f glook.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 grcomb.f
+ar -rvu libmdl_4_intel.a grcomb.o
+a - grcomb.o
+rm -f grcomb.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 grdcnst.f
+ar -rvu libmdl_4_intel.a grdcnst.o
+a - grdcnst.o
+rm -f grdcnst.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 grdcnst_win09u.f
+ar -rvu libmdl_4_intel.a grdcnst_win09u.o
+a - grdcnst_win09u.o
+rm -f grdcnst_win09u.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gridb.f
+gridb.f(1): (col. 18) remark: gridb_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a gridb.o
+a - gridb.o
+rm -f gridb.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gsitb.f
+ar -rvu libmdl_4_intel.a gsitb.o
+a - gsitb.o
+rm -f gsitb.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gstore.f
+ar -rvu libmdl_4_intel.a gstore.o
+a - gstore.o
+rm -f gstore.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gswind.f
+gswind.f(1): (col. 18) remark: gswind_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a gswind.o
+a - gswind.o
+rm -f gswind.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gtvect1.f
+ar -rvu libmdl_4_intel.a gtvect1.o
+a - gtvect1.o
+rm -f gtvect1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gtvect.f
+ar -rvu libmdl_4_intel.a gtvect.o
+a - gtvect.o
+rm -f gtvect.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gustdec.f
+ar -rvu libmdl_4_intel.a gustdec.o
+a - gustdec.o
+rm -f gustdec.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gustrat.f
+gustrat.f(1): (col. 18) remark: gustrat_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a gustrat.o
+a - gustrat.o
+rm -f gustrat.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 guwind.f
+guwind.f(1): (col. 18) remark: guwind_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a guwind.o
+a - guwind.o
+rm -f guwind.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gvwind.f
+gvwind.f(1): (col. 18) remark: gvwind_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a gvwind.o
+a - gvwind.o
+rm -f gvwind.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gwind.f
+gwind.f(1): (col. 18) remark: gwind_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a gwind.o
+a - gwind.o
+rm -f gwind.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 highlow.f
+highlow.f(1): (col. 18) remark: highlow_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a highlow.o
+a - highlow.o
+rm -f highlow.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 idswap.f
+ar -rvu libmdl_4_intel.a idswap.o
+a - idswap.o
+rm -f idswap.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ierx.f
+ar -rvu libmdl_4_intel.a ierx.o
+a - ierx.o
+rm -f ierx.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ijllps.f
+ar -rvu libmdl_4_intel.a ijllps.o
+a - ijllps.o
+rm -f ijllps.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intomm.f
+ar -rvu libmdl_4_intel.a intomm.o
+a - intomm.o
+rm -f intomm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intrpa.f
+ar -rvu libmdl_4_intel.a intrpa.o
+a - intrpa.o
+rm -f intrpa.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intrpb.f
+ar -rvu libmdl_4_intel.a intrpb.o
+a - intrpb.o
+rm -f intrpb.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intrpc.f
+ar -rvu libmdl_4_intel.a intrpc.o
+a - intrpc.o
+rm -f intrpc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intrpd.f
+intrpd.f(1): (col. 18) remark: intrpd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a intrpd.o
+a - intrpd.o
+rm -f intrpd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intrp.f
+intrp.f(1): (col. 18) remark: intrp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a intrp.o
+a - intrp.o
+rm -f intrp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ipopen.f
+ar -rvu libmdl_4_intel.a ipopen.o
+a - ipopen.o
+rm -f ipopen.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 iprint.f
+ar -rvu libmdl_4_intel.a iprint.o
+a - iprint.o
+rm -f iprint.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 itrp.f
+ar -rvu libmdl_4_intel.a itrp.o
+a - itrp.o
+rm -f itrp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 keltof.f
+ar -rvu libmdl_4_intel.a keltof.o
+a - keltof.o
+rm -f keltof.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 kindex.f
+kindex.f(1): (col. 18) remark: kindex_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a kindex.o
+a - kindex.o
+rm -f kindex.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 kinxrf2.f
+kinxrf2.f(1): (col. 18) remark: kinxrf2_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a kinxrf2.o
+a - kinxrf2.o
+rm -f kinxrf2.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 kinxrf.f
+kinxrf.f(1): (col. 18) remark: kinxrf_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a kinxrf.o
+a - kinxrf.o
+rm -f kinxrf.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 kinxrf_old.f
+kinxrf_old.f(1): (col. 18) remark: kinxrf_old_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a kinxrf_old.o
+a - kinxrf_old.o
+rm -f kinxrf_old.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ktof.f
+ar -rvu libmdl_4_intel.a ktof.o
+a - ktof.o
+rm -f ktof.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ktsmps.f
+ar -rvu libmdl_4_intel.a ktsmps.o
+a - ktsmps.o
+rm -f ktsmps.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 kwhtoj.f
+ar -rvu libmdl_4_intel.a kwhtoj.o
+a - kwhtoj.o
+rm -f kwhtoj.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l12d2.f
+ar -rvu libmdl_4_intel.a l12d2.o
+a - l12d2.o
+rm -f l12d2.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l1d1.f
+ar -rvu libmdl_4_intel.a l1d1.o
+a - l1d1.o
+rm -f l1d1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l1d3.f
+ar -rvu libmdl_4_intel.a l1d3.o
+a - l1d3.o
+rm -f l1d3.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l1d50cfff.f
+ar -rvu libmdl_4_intel.a l1d50cfff.o
+a - l1d50cfff.o
+rm -f l1d50cfff.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l1d.f
+ar -rvu libmdl_4_intel.a l1d.o
+a - l1d.o
+rm -f l1d.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l2d1.f
+ar -rvu libmdl_4_intel.a l2d1.o
+a - l2d1.o
+rm -f l2d1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l2d3.f
+ar -rvu libmdl_4_intel.a l2d3.o
+a - l2d3.o
+rm -f l2d3.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l2d600101.f
+ar -rvu libmdl_4_intel.a l2d600101.o
+a - l2d600101.o
+rm -f l2d600101.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l2d601000.f
+ar -rvu libmdl_4_intel.a l2d601000.o
+a - l2d601000.o
+rm -f l2d601000.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l2d.f
+ar -rvu libmdl_4_intel.a l2d.o
+a - l2d.o
+rm -f l2d.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lapser.f
+ar -rvu libmdl_4_intel.a lapser.o
+a - lapser.o
+rm -f lapser.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lcl.f
+ar -rvu libmdl_4_intel.a lcl.o
+a - lcl.o
+rm -f lcl.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lindex.f
+ar -rvu libmdl_4_intel.a lindex.o
+a - lindex.o
+rm -f lindex.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 list.f
+ar -rvu libmdl_4_intel.a list.o
+a - list.o
+rm -f list.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmijll.f
+ar -rvu libmdl_4_intel.a lmijll.o
+a - lmijll.o
+rm -f lmijll.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmllij.f
+ar -rvu libmdl_4_intel.a lmllij.o
+a - lmllij.o
+rm -f lmllij.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmmapf.f
+ar -rvu libmdl_4_intel.a lmmapf.o
+a - lmmapf.o
+rm -f lmmapf.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmmaps.f
+ar -rvu libmdl_4_intel.a lmmaps.o
+a - lmmaps.o
+rm -f lmmaps.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr1.f
+lmstr1.f(1): (col. 18) remark: lmstr1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a lmstr1.o
+a - lmstr1.o
+rm -f lmstr1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr2.f
+ar -rvu libmdl_4_intel.a lmstr2.o
+a - lmstr2.o
+rm -f lmstr2.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr3.f
+ar -rvu libmdl_4_intel.a lmstr3.o
+a - lmstr3.o
+rm -f lmstr3.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr4.f
+ar -rvu libmdl_4_intel.a lmstr4.o
+a - lmstr4.o
+rm -f lmstr4.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr6.f
+lmstr6.f(1): (col. 18) remark: lmstr6_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a lmstr6.o
+a - lmstr6.o
+rm -f lmstr6.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr8.f
+lmstr8.f(1): (col. 18) remark: lmstr8_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a lmstr8.o
+a - lmstr8.o
+rm -f lmstr8.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 logittrans.f
+ar -rvu libmdl_4_intel.a logittrans.o
+a - logittrans.o
+rm -f logittrans.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 maplat.f
+ar -rvu libmdl_4_intel.a maplat.o
+a - maplat.o
+rm -f maplat.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 maxminb.f
+maxminb.f(1): (col. 18) remark: maxminb_ has been targeted for automatic cpu dispatch
+maxminb.f(659): (col. 18) remark: ckabc_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a maxminb.o
+a - maxminb.o
+rm -f maxminb.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 maxmin.f
+maxmin.f(931): (col. 18) remark: ckabcd_ has been targeted for automatic cpu dispatch
+maxmin.f(1088): (col. 18) remark: ckfrmsg_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a maxmin.o
+a - maxmin.o
+rm -f maxmin.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 maxtest.f
+ar -rvu libmdl_4_intel.a maxtest.o
+a - maxtest.o
+rm -f maxtest.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 maxwnd.f
+maxwnd.f(1): (col. 18) remark: maxwnd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a maxwnd.o
+a - maxwnd.o
+rm -f maxwnd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mcijll.f
+ar -rvu libmdl_4_intel.a mcijll.o
+a - mcijll.o
+rm -f mcijll.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mcllij.f
+ar -rvu libmdl_4_intel.a mcllij.o
+a - mcllij.o
+rm -f mcllij.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mcmapf.f
+ar -rvu libmdl_4_intel.a mcmapf.o
+a - mcmapf.o
+rm -f mcmapf.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mcmaps.f
+ar -rvu libmdl_4_intel.a mcmaps.o
+a - mcmaps.o
+rm -f mcmaps.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mdiv.f
+ar -rvu libmdl_4_intel.a mdiv.o
+a - mdiv.o
+rm -f mdiv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 meanrh.f
+meanrh.f(1): (col. 18) remark: meanrh_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a meanrh.o
+a - meanrh.o
+rm -f meanrh.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mergids.f
+ar -rvu libmdl_4_intel.a mergids.o
+a - mergids.o
+rm -f mergids.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mixrat.f
+mixrat.f(1): (col. 18) remark: mixrat_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a mixrat.o
+a - mixrat.o
+rm -f mixrat.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 modelktof.f
+ar -rvu libmdl_4_intel.a modelktof.o
+a - modelktof.o
+rm -f modelktof.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 modelmxmn.f
+ar -rvu libmdl_4_intel.a modelmxmn.o
+a - modelmxmn.o
+rm -f modelmxmn.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 monprb.f
+ar -rvu libmdl_4_intel.a monprb.o
+a - monprb.o
+rm -f monprb.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mpskts.f
+ar -rvu libmdl_4_intel.a mpskts.o
+a - mpskts.o
+rm -f mpskts.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mrftest.f
+ar -rvu libmdl_4_intel.a mrftest.o
+a - mrftest.o
+rm -f mrftest.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mshxms.f
+ar -rvu libmdl_4_intel.a mshxms.o
+a - mshxms.o
+rm -f mshxms.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mxmnft.f
+ar -rvu libmdl_4_intel.a mxmnft.o
+a - mxmnft.o
+rm -f mxmnft.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 newxy1.f
+ar -rvu libmdl_4_intel.a newxy1.o
+a - newxy1.o
+rm -f newxy1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 newxy.f
+ar -rvu libmdl_4_intel.a newxy.o
+a - newxy.o
+rm -f newxy.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 nmlprb.f
+ar -rvu libmdl_4_intel.a nmlprb.o
+a - nmlprb.o
+rm -f nmlprb.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 nominl.f
+ar -rvu libmdl_4_intel.a nominl.o
+a - nominl.o
+rm -f nominl.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 noncnvp.f
+noncnvp.f(1): (col. 18) remark: noncnvp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a noncnvp.o
+a - noncnvp.o
+rm -f noncnvp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 noncnvp_old.f
+noncnvp_old.f(1): (col. 18) remark: noncnvp_old_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a noncnvp_old.o
+a - noncnvp_old.o
+rm -f noncnvp_old.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 norwnd.f
+ar -rvu libmdl_4_intel.a norwnd.o
+a - norwnd.o
+rm -f norwnd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 nwsize.f
+ar -rvu libmdl_4_intel.a nwsize.o
+a - nwsize.o
+rm -f nwsize.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obscight.f
+ar -rvu libmdl_4_intel.a obscight.o
+a - obscight.o
+rm -f obscight.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obscpcpos.f
+ar -rvu libmdl_4_intel.a obscpcpos.o
+a - obscpcpos.o
+rm -f obscpcpos.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obscpprcp.f
+ar -rvu libmdl_4_intel.a obscpprcp.o
+a - obscpprcp.o
+rm -f obscpprcp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obscpsnow.f
+ar -rvu libmdl_4_intel.a obscpsnow.o
+a - obscpsnow.o
+rm -f obscpsnow.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsdmaxt.f
+ar -rvu libmdl_4_intel.a obsdmaxt.o
+a - obsdmaxt.o
+rm -f obsdmaxt.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsdptd.f
+ar -rvu libmdl_4_intel.a obsdptd.o
+a - obsdptd.o
+rm -f obsdptd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsgust.f
+ar -rvu libmdl_4_intel.a obsgust.o
+a - obsgust.o
+rm -f obsgust.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsmrcld.f
+ar -rvu libmdl_4_intel.a obsmrcld.o
+a - obsmrcld.o
+rm -f obsmrcld.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsmrptype.f
+ar -rvu libmdl_4_intel.a obsmrptype.o
+a - obsmrptype.o
+rm -f obsmrptype.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsmrwsp.f
+obsmrwsp.f(1): (col. 18) remark: obsmrwsp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a obsmrwsp.o
+a - obsmrwsp.o
+rm -f obsmrwsp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsnmint.f
+ar -rvu libmdl_4_intel.a obsnmint.o
+a - obsnmint.o
+rm -f obsnmint.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsobvis.f
+ar -rvu libmdl_4_intel.a obsobvis.o
+a - obsobvis.o
+rm -f obsobvis.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obspopc.f
+ar -rvu libmdl_4_intel.a obspopc.o
+a - obspopc.o
+rm -f obspopc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obspopo3.f
+ar -rvu libmdl_4_intel.a obspopo3.o
+a - obspopo3.o
+rm -f obspopo3.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obspopo.f
+obspopo.f(1): (col. 18) remark: obspopo_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a obspopo.o
+a - obspopo.o
+rm -f obspopo.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsprwxbin.f
+obsprwxbin.f(1): (col. 18) remark: obsprwxbin_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a obsprwxbin.o
+a - obsprwxbin.o
+rm -f obsprwxbin.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsptype.f
+ar -rvu libmdl_4_intel.a obsptype.o
+a - obsptype.o
+rm -f obsptype.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsqcld.f
+ar -rvu libmdl_4_intel.a obsqcld.o
+a - obsqcld.o
+rm -f obsqcld.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obstcld.f
+ar -rvu libmdl_4_intel.a obstcld.o
+a - obstcld.o
+rm -f obstcld.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obstwet.f
+ar -rvu libmdl_4_intel.a obstwet.o
+a - obstwet.o
+rm -f obstwet.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 opfcst.f
+ar -rvu libmdl_4_intel.a opfcst.o
+a - opfcst.o
+rm -f opfcst.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 option.f
+ar -rvu libmdl_4_intel.a option.o
+a - option.o
+rm -f option.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 option_win09u.f
+ar -rvu libmdl_4_intel.a option_win09u.o
+a - option_win09u.o
+rm -f option_win09u.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 optn2.f
+ar -rvu libmdl_4_intel.a optn2.o
+a - optn2.o
+rm -f optn2.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 optn2_win09u.f
+ar -rvu libmdl_4_intel.a optn2_win09u.o
+a - optn2_win09u.o
+rm -f optn2_win09u.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 optx.f
+ar -rvu libmdl_4_intel.a optx.o
+a - optx.o
+rm -f optx.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pack1d.f
+ar -rvu libmdl_4_intel.a pack1d.o
+a - pack1d.o
+rm -f pack1d.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pack2d.f
+ar -rvu libmdl_4_intel.a pack2d.o
+a - pack2d.o
+rm -f pack2d.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pack.f
+ar -rvu libmdl_4_intel.a pack.o
+a - pack.o
+rm -f pack.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packg.f
+packg.f(1): (col. 18) remark: packg_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a packg.o
+a - packg.o
+rm -f packg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packgp.f
+packgp.f(1): (col. 18) remark: packgp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a packgp.o
+a - packgp.o
+rm -f packgp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packgr.f
+packgr.f(1): (col. 18) remark: packgr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a packgr.o
+a - packgr.o
+rm -f packgr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packgr_oper.f
+packgr_oper.f(1): (col. 18) remark: packgr_oper_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a packgr_oper.o
+a - packgr_oper.o
+rm -f packgr_oper.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packra.f
+ar -rvu libmdl_4_intel.a packra.o
+a - packra.o
+rm -f packra.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packv.f
+packv.f(1): (col. 18) remark: packv_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a packv.o
+a - packv.o
+rm -f packv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packvr.f
+packvr.f(1): (col. 18) remark: packvr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a packvr.o
+a - packvr.o
+rm -f packvr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packxx.f
+packxx.f(1): (col. 18) remark: packxx_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a packxx.o
+a - packxx.o
+rm -f packxx.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packyy.f
+packyy.f(1): (col. 18) remark: packyy_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a packyy.o
+a - packyy.o
+rm -f packyy.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pawgts.f
+pawgts.f(1): (col. 18) remark: pawgts_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a pawgts.o
+a - pawgts.o
+rm -f pawgts.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pawing.f
+pawing.f(1): (col. 18) remark: pawing_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a pawing.o
+a - pawing.o
+rm -f pawing.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pawlpm.f
+pawlpm.f(1): (col. 18) remark: pawlpm_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a pawlpm.o
+a - pawlpm.o
+rm -f pawlpm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pawra.f
+pawra.f(1): (col. 18) remark: pawra_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a pawra.o
+a - pawra.o
+rm -f pawra.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pawrag.f
+pawrag.f(1): (col. 18) remark: pawrag_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a pawrag.o
+a - pawrag.o
+rm -f pawrag.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pblmix.f
+ar -rvu libmdl_4_intel.a pblmix.o
+a - pblmix.o
+rm -f pblmix.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pcpeff.f
+ar -rvu libmdl_4_intel.a pcpeff.o
+a - pcpeff.o
+rm -f pcpeff.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pcpx6.f
+pcpx6.f(1): (col. 18) remark: pcpx6_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a pcpx6.o
+a - pcpx6.o
+rm -f pcpx6.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pct2dc.f
+ar -rvu libmdl_4_intel.a pct2dc.o
+a - pct2dc.o
+rm -f pct2dc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pkbg.f
+ar -rvu libmdl_4_intel.a pkbg.o
+a - pkbg.o
+rm -f pkbg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pkc4lx.f
+ar -rvu libmdl_4_intel.a pkc4lx.o
+a - pkc4lx.o
+rm -f pkc4lx.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pkms00.f
+pkms00.f(1): (col. 18) remark: pkms00_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a pkms00.o
+a - pkms00.o
+rm -f pkms00.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pkms97.f
+pkms97.f(1): (col. 18) remark: pkms97_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a pkms97.o
+a - pkms97.o
+rm -f pkms97.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pkms99.f
+pkms99.f(1): (col. 18) remark: pkms99_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a pkms99.o
+a - pkms99.o
+rm -f pkms99.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pks4lx.f
+ar -rvu libmdl_4_intel.a pks4lx.o
+a - pks4lx.o
+rm -f pks4lx.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 play.f
+ar -rvu libmdl_4_intel.a play.o
+a - play.o
+rm -f play.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 popdif.f
+ar -rvu libmdl_4_intel.a popdif.o
+a - popdif.o
+rm -f popdif.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 potemp.f
+ar -rvu libmdl_4_intel.a potemp.o
+a - potemp.o
+rm -f potemp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pred21.f
+ar -rvu libmdl_4_intel.a pred21.o
+a - pred21.o
+rm -f pred21.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pred22.f
+ar -rvu libmdl_4_intel.a pred22.o
+a - pred22.o
+rm -f pred22.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 predx1.f
+ar -rvu libmdl_4_intel.a predx1.o
+a - predx1.o
+rm -f predx1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 printv.f
+ar -rvu libmdl_4_intel.a printv.o
+a - printv.o
+rm -f printv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prmsg.f
+ar -rvu libmdl_4_intel.a prmsg.o
+a - prmsg.o
+rm -f prmsg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 probxcon.f
+ar -rvu libmdl_4_intel.a probxcon.o
+a - probxcon.o
+rm -f probxcon.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prsid1.f
+ar -rvu libmdl_4_intel.a prsid1.o
+a - prsid1.o
+rm -f prsid1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prsid2.f
+ar -rvu libmdl_4_intel.a prsid2.o
+a - prsid2.o
+rm -f prsid2.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prsid3.f
+ar -rvu libmdl_4_intel.a prsid3.o
+a - prsid3.o
+rm -f prsid3.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prsid.f
+ar -rvu libmdl_4_intel.a prsid.o
+a - prsid.o
+rm -f prsid.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prtgr.f
+ar -rvu libmdl_4_intel.a prtgr.o
+a - prtgr.o
+rm -f prtgr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pru660.f
+pru660.f(1): (col. 18) remark: pru660_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a pru660.o
+a - pru660.o
+rm -f pru660.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 psijll.f
+ar -rvu libmdl_4_intel.a psijll.o
+a - psijll.o
+rm -f psijll.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 psllij.f
+ar -rvu libmdl_4_intel.a psllij.o
+a - psllij.o
+rm -f psllij.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 psmapf.f
+psmapf.f(1): (col. 18) remark: psmapf_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a psmapf.o
+a - psmapf.o
+rm -f psmapf.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 psmaps.f
+psmaps.f(1): (col. 18) remark: psmaps_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a psmaps.o
+a - psmaps.o
+rm -f psmaps.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 putchar.f
+ar -rvu libmdl_4_intel.a putchar.o
+a - putchar.o
+rm -f putchar.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 putit.f
+ar -rvu libmdl_4_intel.a putit.o
+a - putit.o
+rm -f putit.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 putmos.f
+putmos.f(1): (col. 18) remark: putmos_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a putmos.o
+a - putmos.o
+rm -f putmos.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 putq.f
+ar -rvu libmdl_4_intel.a putq.o
+a - putq.o
+rm -f putq.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 qadv.f
+ar -rvu libmdl_4_intel.a qadv.o
+a - qadv.o
+rm -f qadv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 qpfcub.f
+ar -rvu libmdl_4_intel.a qpfcub.o
+a - qpfcub.o
+rm -f qpfcub.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdarea.f
+ar -rvu libmdl_4_intel.a rdarea.o
+a - rdarea.o
+rm -f rdarea.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdc.f
+ar -rvu libmdl_4_intel.a rdc.o
+a - rdc.o
+rm -f rdc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rddatmc.f
+ar -rvu libmdl_4_intel.a rddatmc.o
+a - rddatmc.o
+rm -f rddatmc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rddatm.f
+ar -rvu libmdl_4_intel.a rddatm.o
+a - rddatm.o
+rm -f rddatm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rddir.f
+ar -rvu libmdl_4_intel.a rddir.o
+a - rddir.o
+rm -f rddir.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rddisk.f
+ar -rvu libmdl_4_intel.a rddisk.o
+a - rddisk.o
+rm -f rddisk.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdeqn9.f
+rdeqn9.f(643): remark #8291: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+7'.
+ 138  FORMAT(' ',10(E13.7))
+---------------------^
+rdeqn9.f(1): (col. 18) remark: rdeqn9_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a rdeqn9.o
+a - rdeqn9.o
+rm -f rdeqn9.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdeqn.f
+rdeqn.f(650): remark #8291: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+7'.
+ 138  FORMAT(' ',10(E13.7))
+---------------------^
+rdeqn.f(1): (col. 18) remark: rdeqn_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a rdeqn.o
+a - rdeqn.o
+rm -f rdeqn.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdf.f
+ar -rvu libmdl_4_intel.a rdf.o
+a - rdf.o
+rm -f rdf.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdi.f
+ar -rvu libmdl_4_intel.a rdi.o
+a - rdi.o
+rm -f rdi.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdkeym.f
+ar -rvu libmdl_4_intel.a rdkeym.o
+a - rdkeym.o
+rm -f rdkeym.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdlsta.f
+ar -rvu libmdl_4_intel.a rdlsta.o
+a - rdlsta.o
+rm -f rdlsta.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdlvrb.f
+ar -rvu libmdl_4_intel.a rdlvrb.o
+a - rdlvrb.o
+rm -f rdlvrb.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdonev.f
+ar -rvu libmdl_4_intel.a rdonev.o
+a - rdonev.o
+rm -f rdonev.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdpred.f
+ar -rvu libmdl_4_intel.a rdpred.o
+a - rdpred.o
+rm -f rdpred.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdsdir.f
+ar -rvu libmdl_4_intel.a rdsdir.o
+a - rdsdir.o
+rm -f rdsdir.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdsnam.f
+ar -rvu libmdl_4_intel.a rdsnam.o
+a - rdsnam.o
+rm -f rdsnam.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstad.f
+ar -rvu libmdl_4_intel.a rdstad.o
+a - rdstad.o
+rm -f rdstad.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstal.f
+ar -rvu libmdl_4_intel.a rdstal.o
+a - rdstal.o
+rm -f rdstal.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstdd.f
+ar -rvu libmdl_4_intel.a rdstdd.o
+a - rdstdd.o
+rm -f rdstdd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstdl.f
+ar -rvu libmdl_4_intel.a rdstdl.o
+a - rdstdl.o
+rm -f rdstdl.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstdr.f
+ar -rvu libmdl_4_intel.a rdstdr.o
+a - rdstdr.o
+rm -f rdstdr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstga.f
+ar -rvu libmdl_4_intel.a rdstga.o
+a - rdstga.o
+rm -f rdstga.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstgd.f
+ar -rvu libmdl_4_intel.a rdstgd.o
+a - rdstgd.o
+rm -f rdstgd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstg.f
+ar -rvu libmdl_4_intel.a rdstg.o
+a - rdstg.o
+rm -f rdstg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstgf.f
+ar -rvu libmdl_4_intel.a rdstgf.o
+a - rdstgf.o
+rm -f rdstgf.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstgn.f
+ar -rvu libmdl_4_intel.a rdstgn.o
+a - rdstgn.o
+rm -f rdstgn.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstna.f
+ar -rvu libmdl_4_intel.a rdstna.o
+a - rdstna.o
+rm -f rdstna.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstnl.f
+ar -rvu libmdl_4_intel.a rdstnl.o
+a - rdstnl.o
+rm -f rdstnl.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstqa.f
+ar -rvu libmdl_4_intel.a rdstqa.o
+a - rdstqa.o
+rm -f rdstqa.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstqn.f
+ar -rvu libmdl_4_intel.a rdstqn.o
+a - rdstqn.o
+rm -f rdstqn.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstr2.f
+ar -rvu libmdl_4_intel.a rdstr2.o
+a - rdstr2.o
+rm -f rdstr2.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstr3.f
+ar -rvu libmdl_4_intel.a rdstr3.o
+a - rdstr3.o
+rm -f rdstr3.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstrx1.f
+rdstrx1.f(1): (col. 18) remark: rdstrx1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a rdstrx1.o
+a - rdstrx1.o
+rm -f rdstrx1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstrx.f
+rdstrx.f(1): (col. 18) remark: rdstrx_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a rdstrx.o
+a - rdstrx.o
+rm -f rdstrx.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdtdlmc.f
+ar -rvu libmdl_4_intel.a rdtdlmc.o
+a - rdtdlmc.o
+rm -f rdtdlmc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdtdlm.f
+ar -rvu libmdl_4_intel.a rdtdlm.o
+a - rdtdlm.o
+rm -f rdtdlm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdtmc.f
+ar -rvu libmdl_4_intel.a rdtmc.o
+a - rdtmc.o
+rm -f rdtmc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdtm.f
+ar -rvu libmdl_4_intel.a rdtm.o
+a - rdtm.o
+rm -f rdtm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdvect.f
+ar -rvu libmdl_4_intel.a rdvect.o
+a - rdvect.o
+rm -f rdvect.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdvr66.f
+ar -rvu libmdl_4_intel.a rdvr66.o
+a - rdvr66.o
+rm -f rdvr66.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdvr79.f
+ar -rvu libmdl_4_intel.a rdvr79.o
+a - rdvr79.o
+rm -f rdvr79.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 read_mosda.f
+read_mosda.f(1): (col. 18) remark: read_mosda_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a read_mosda.o
+a - read_mosda.o
+rm -f read_mosda.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 reduce.f
+ar -rvu libmdl_4_intel.a reduce.o
+a - reduce.o
+rm -f reduce.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 retvec.f
+ar -rvu libmdl_4_intel.a retvec.o
+a - retvec.o
+rm -f retvec.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rhnspd.f
+ar -rvu libmdl_4_intel.a rhnspd.o
+a - rhnspd.o
+rm -f rhnspd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rhumid.f
+ar -rvu libmdl_4_intel.a rhumid.o
+a - rhumid.o
+rm -f rhumid.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rhvv.f
+ar -rvu libmdl_4_intel.a rhvv.o
+a - rhvv.o
+rm -f rhvv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rstore.f
+ar -rvu libmdl_4_intel.a rstore.o
+a - rstore.o
+rm -f rstore.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 samegr.f
+ar -rvu libmdl_4_intel.a samegr.o
+a - samegr.o
+rm -f samegr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 satlevnum.f
+ar -rvu libmdl_4_intel.a satlevnum.o
+a - satlevnum.o
+rm -f satlevnum.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 satlevrh.f
+ar -rvu libmdl_4_intel.a satlevrh.o
+a - satlevrh.o
+rm -f satlevrh.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 scalx.f
+ar -rvu libmdl_4_intel.a scalx.o
+a - scalx.o
+rm -f scalx.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 scalxi.f
+ar -rvu libmdl_4_intel.a scalxi.o
+a - scalxi.o
+rm -f scalxi.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 setmis.f
+ar -rvu libmdl_4_intel.a setmis.o
+a - setmis.o
+rm -f setmis.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 setpln.f
+ar -rvu libmdl_4_intel.a setpln.o
+a - setpln.o
+rm -f setpln.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 setup.f
+ar -rvu libmdl_4_intel.a setup.o
+a - setup.o
+rm -f setup.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sfctcld.f
+ar -rvu libmdl_4_intel.a sfctcld.o
+a - sfctcld.o
+rm -f sfctcld.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 shftmxmn.f
+ar -rvu libmdl_4_intel.a shftmxmn.o
+a - shftmxmn.o
+rm -f shftmxmn.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 skipr.f
+ar -rvu libmdl_4_intel.a skipr.o
+a - skipr.o
+rm -f skipr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 skipwr.f
+ar -rvu libmdl_4_intel.a skipwr.o
+a - skipwr.o
+rm -f skipwr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 skpwr1.f
+ar -rvu libmdl_4_intel.a skpwr1.o
+a - skpwr1.o
+rm -f skpwr1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 skpwr2.f
+ar -rvu libmdl_4_intel.a skpwr2.o
+a - skpwr2.o
+rm -f skpwr2.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smothc.f
+ar -rvu libmdl_4_intel.a smothc.o
+a - smothc.o
+rm -f smothc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smoth.f
+smoth.f(1): (col. 18) remark: smoth_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a smoth.o
+a - smoth.o
+rm -f smoth.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smothn.f
+ar -rvu libmdl_4_intel.a smothn.o
+a - smothn.o
+rm -f smothn.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smth25.f
+smth25.f(1): (col. 18) remark: smth25_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a smth25.o
+a - smth25.o
+rm -f smth25.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smth2x.f
+ar -rvu libmdl_4_intel.a smth2x.o
+a - smth2x.o
+rm -f smth2x.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smth3x.f
+ar -rvu libmdl_4_intel.a smth3x.o
+a - smth3x.o
+rm -f smth3x.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smth5.f
+smth5.f(1): (col. 18) remark: smth5_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a smth5.o
+a - smth5.o
+rm -f smth5.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smth9.f
+smth9.f(1): (col. 18) remark: smth9_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a smth9.o
+a - smth9.o
+rm -f smth9.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 snoweq.f
+ar -rvu libmdl_4_intel.a snoweq.o
+a - snoweq.o
+rm -f snoweq.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 snowfl.f
+ar -rvu libmdl_4_intel.a snowfl.o
+a - snowfl.o
+rm -f snowfl.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 solamt.f
+ar -rvu libmdl_4_intel.a solamt.o
+a - solamt.o
+rm -f solamt.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 soleng.f
+ar -rvu libmdl_4_intel.a soleng.o
+a - soleng.o
+rm -f soleng.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sortbg.f
+ar -rvu libmdl_4_intel.a sortbg.o
+a - sortbg.o
+rm -f sortbg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sortem.f
+sortem.f(1): (col. 18) remark: sortem_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a sortem.o
+a - sortem.o
+rm -f sortem.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 spechum.f
+spechum.f(1): (col. 18) remark: spechum_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a spechum.o
+a - spechum.o
+rm -f spechum.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ssr.f
+ssr.f(1): (col. 18) remark: ssr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a ssr.o
+a - ssr.o
+rm -f ssr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 stddev.f
+ar -rvu libmdl_4_intel.a stddev.o
+a - stddev.o
+rm -f stddev.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 stratvar.f
+ar -rvu libmdl_4_intel.a stratvar.o
+a - stratvar.o
+rm -f stratvar.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sunamt.f
+ar -rvu libmdl_4_intel.a sunamt.o
+a - sunamt.o
+rm -f sunamt.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sunfct.f
+ar -rvu libmdl_4_intel.a sunfct.o
+a - sunfct.o
+rm -f sunfct.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sunhrs.f
+ar -rvu libmdl_4_intel.a sunhrs.o
+a - sunhrs.o
+rm -f sunhrs.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 svrvec.f
+ar -rvu libmdl_4_intel.a svrvec.o
+a - svrvec.o
+rm -f svrvec.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sweati.f
+ar -rvu libmdl_4_intel.a sweati.o
+a - sweati.o
+rm -f sweati.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 switch.f
+ar -rvu libmdl_4_intel.a switch.o
+a - switch.o
+rm -f switch.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 swtxrf.f
+swtxrf.f(1): (col. 18) remark: swtxrf_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a swtxrf.o
+a - swtxrf.o
+rm -f swtxrf.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 swtxrf_old.f
+swtxrf_old.f(1): (col. 18) remark: swtxrf_old_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a swtxrf_old.o
+a - swtxrf_old.o
+rm -f swtxrf_old.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tandid.f
+ar -rvu libmdl_4_intel.a tandid.o
+a - tandid.o
+rm -f tandid.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tdlprm.f
+ar -rvu libmdl_4_intel.a tdlprm.o
+a - tdlprm.o
+rm -f tdlprm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tdpavg.f
+ar -rvu libmdl_4_intel.a tdpavg.o
+a - tdpavg.o
+rm -f tdpavg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tempav.f
+ar -rvu libmdl_4_intel.a tempav.o
+a - tempav.o
+rm -f tempav.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tempcorr.f
+tempcorr.f(1): (col. 18) remark: tempcorr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a tempcorr.o
+a - tempcorr.o
+rm -f tempcorr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tests.f
+tests.f(1): (col. 18) remark: tests_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a tests.o
+a - tests.o
+rm -f tests.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tgintrp.f
+tgintrp.f(1): (col. 18) remark: tgintrp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a tgintrp.o
+a - tgintrp.o
+rm -f tgintrp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 thetae.f
+ar -rvu libmdl_4_intel.a thetae.o
+a - thetae.o
+rm -f thetae.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 thiner.f
+ar -rvu libmdl_4_intel.a thiner.o
+a - thiner.o
+rm -f thiner.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 thkcorr.f
+thkcorr.f(1): (col. 18) remark: thkcorr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a thkcorr.o
+a - thkcorr.o
+rm -f thkcorr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 thset.f
+ar -rvu libmdl_4_intel.a thset.o
+a - thset.o
+rm -f thset.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timep.f
+timep.f(1): (col. 18) remark: timep_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a timep.o
+a - timep.o
+rm -f timep.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timepv.f
+ar -rvu libmdl_4_intel.a timepv.o
+a - timepv.o
+rm -f timepv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timgrd.f
+timgrd.f(1): (col. 18) remark: timgrd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a timgrd.o
+a - timgrd.o
+rm -f timgrd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timpr.f
+ar -rvu libmdl_4_intel.a timpr.o
+a - timpr.o
+rm -f timpr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timtrp.f
+timtrp.f(1): (col. 18) remark: timtrp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a timtrp.o
+a - timtrp.o
+rm -f timtrp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timtrpgoe.f
+timtrpgoe.f(1): (col. 18) remark: timtrpgoe_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a timtrpgoe.o
+a - timtrpgoe.o
+rm -f timtrpgoe.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tmpadv.f
+ar -rvu libmdl_4_intel.a tmpadv.o
+a - tmpadv.o
+rm -f tmpadv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tmpcmp.f
+ar -rvu libmdl_4_intel.a tmpcmp.o
+a - tmpcmp.o
+rm -f tmpcmp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tpcp12.f
+tpcp12.f(1): (col. 18) remark: tpcp12_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a tpcp12.o
+a - tpcp12.o
+rm -f tpcp12.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tpcp24.f
+tpcp24.f(1): (col. 18) remark: tpcp24_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a tpcp24.o
+a - tpcp24.o
+rm -f tpcp24.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tpcp24_old.f
+tpcp24_old.f(1): (col. 18) remark: tpcp24_old_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a tpcp24_old.o
+a - tpcp24_old.o
+rm -f tpcp24_old.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tpcp3.f
+tpcp3.f(1): (col. 18) remark: tpcp3_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a tpcp3.o
+a - tpcp3.o
+rm -f tpcp3.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tpcp6.f
+tpcp6.f(1): (col. 18) remark: tpcp6_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a tpcp6.o
+a - tpcp6.o
+rm -f tpcp6.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 trail.f
+ar -rvu libmdl_4_intel.a trail.o
+a - trail.o
+rm -f trail.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 trans.f
+ar -rvu libmdl_4_intel.a trans.o
+a - trans.o
+rm -f trans.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 trdata.f
+ar -rvu libmdl_4_intel.a trdata.o
+a - trdata.o
+rm -f trdata.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 trnsfr.f
+ar -rvu libmdl_4_intel.a trnsfr.o
+a - trnsfr.o
+rm -f trnsfr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 trpd.f
+ar -rvu libmdl_4_intel.a trpd.o
+a - trpd.o
+rm -f trpd.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 truncp.f
+ar -rvu libmdl_4_intel.a truncp.o
+a - truncp.o
+rm -f truncp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tslcm.f
+ar -rvu libmdl_4_intel.a tslcm.o
+a - tslcm.o
+rm -f tslcm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tslop.f
+ar -rvu libmdl_4_intel.a tslop.o
+a - tslop.o
+rm -f tslop.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ttotals.f
+ar -rvu libmdl_4_intel.a ttotals.o
+a - ttotals.o
+rm -f ttotals.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpack.f
+unpack.f(1): (col. 18) remark: unpack_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a unpack.o
+a - unpack.o
+rm -f unpack.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpkbg.f
+ar -rvu libmdl_4_intel.a unpkbg.o
+a - unpkbg.o
+rm -f unpkbg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpklx.f
+ar -rvu libmdl_4_intel.a unpklx.o
+a - unpklx.o
+rm -f unpklx.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpkoo.f
+ar -rvu libmdl_4_intel.a unpkoo.o
+a - unpkoo.o
+rm -f unpkoo.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpkpo.f
+ar -rvu libmdl_4_intel.a unpkpo.o
+a - unpkpo.o
+rm -f unpkpo.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpkps.f
+ar -rvu libmdl_4_intel.a unpkps.o
+a - unpkps.o
+rm -f unpkps.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 updat.f
+ar -rvu libmdl_4_intel.a updat.o
+a - updat.o
+rm -f updat.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 upslcm.f
+ar -rvu libmdl_4_intel.a upslcm.o
+a - upslcm.o
+rm -f upslcm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 upslop.f
+ar -rvu libmdl_4_intel.a upslop.o
+a - upslop.o
+rm -f upslop.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vertp.f
+vertp.f(1): (col. 18) remark: vertp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a vertp.o
+a - vertp.o
+rm -f vertp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vertx.f
+ar -rvu libmdl_4_intel.a vertx.o
+a - vertx.o
+rm -f vertx.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vortadv.f
+ar -rvu libmdl_4_intel.a vortadv.o
+a - vortadv.o
+rm -f vortadv.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vorth1.f
+vorth1.f(1): (col. 18) remark: vorth1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a vorth1.o
+a - vorth1.o
+rm -f vorth1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vorth.f
+ar -rvu libmdl_4_intel.a vorth.o
+a - vorth.o
+rm -f vorth.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vortw1.f
+vortw1.f(1): (col. 18) remark: vortw1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a vortw1.o
+a - vortw1.o
+rm -f vortw1.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vortw.f
+ar -rvu libmdl_4_intel.a vortw.o
+a - vortw.o
+rm -f vortw.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 weibull.f
+ar -rvu libmdl_4_intel.a weibull.o
+a - weibull.o
+rm -f weibull.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wetbulbt.f
+wetbulbt.f(1): (col. 18) remark: wetbulbt_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a wetbulbt.o
+a - wetbulbt.o
+rm -f wetbulbt.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 winddr.f
+ar -rvu libmdl_4_intel.a winddr.o
+a - winddr.o
+rm -f winddr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 windsp.f
+windsp.f(1): (col. 18) remark: windsp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a windsp.o
+a - windsp.o
+rm -f windsp.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wndchl.f
+ar -rvu libmdl_4_intel.a wndchl.o
+a - wndchl.o
+rm -f wndchl.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrdatmc.f
+ar -rvu libmdl_4_intel.a wrdatmc.o
+a - wrdatmc.o
+rm -f wrdatmc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrdatm.f
+ar -rvu libmdl_4_intel.a wrdatm.o
+a - wrdatm.o
+rm -f wrdatm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrdir.f
+ar -rvu libmdl_4_intel.a wrdir.o
+a - wrdir.o
+rm -f wrdir.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrdisk.f
+ar -rvu libmdl_4_intel.a wrdisk.o
+a - wrdisk.o
+rm -f wrdisk.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrgis.f
+ar -rvu libmdl_4_intel.a wrgis.o
+a - wrgis.o
+rm -f wrgis.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 writep.f
+ar -rvu libmdl_4_intel.a writep.o
+a - writep.o
+rm -f writep.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrkeym.f
+ar -rvu libmdl_4_intel.a wrkeym.o
+a - wrkeym.o
+rm -f wrkeym.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrmsg.f
+wrmsg.f(1): (col. 18) remark: wrmsg_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a wrmsg.o
+a - wrmsg.o
+rm -f wrmsg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrtdlmc.f
+ar -rvu libmdl_4_intel.a wrtdlmc.o
+a - wrtdlmc.o
+rm -f wrtdlmc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrtdlm.f
+ar -rvu libmdl_4_intel.a wrtdlm.o
+a - wrtdlm.o
+rm -f wrtdlm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrtdlr.f
+ar -rvu libmdl_4_intel.a wrtdlr.o
+a - wrtdlr.o
+rm -f wrtdlr.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrtmc.f
+ar -rvu libmdl_4_intel.a wrtmc.o
+a - wrtmc.o
+rm -f wrtmc.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrtm.f
+ar -rvu libmdl_4_intel.a wrtm.o
+a - wrtm.o
+rm -f wrtm.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wspeed.f
+wspeed.f(1): (col. 18) remark: wspeed_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a wspeed.o
+a - wspeed.o
+rm -f wspeed.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 xchang.f
+ar -rvu libmdl_4_intel.a xchang.o
+a - xchang.o
+rm -f xchang.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 zroneg.f
+zroneg.f(1): (col. 18) remark: zroneg_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a zroneg.o
+a - zroneg.o
+rm -f zroneg.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 zrpred.f
+zrpred.f(1): (col. 18) remark: zrpred_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a zrpred.o
+a - zrpred.o
+rm -f zrpred.o
+ftn -c -O3 -nofree -integer-size 32 -real-size 32 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 zrpred_old.f
+zrpred_old.f(1): (col. 18) remark: zrpred_old_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_4_intel.a zrpred_old.o
+a - zrpred_old.o
+rm -f zrpred_old.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 achang.f
+ar -rvu libmdl_8_intel.a achang.o
+ar: creating libmdl_8_intel.a
+a - achang.o
+rm -f achang.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 actnom.f
+ar -rvu libmdl_8_intel.a actnom.o
+a - actnom.o
+rm -f actnom.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 actual.f
+ar -rvu libmdl_8_intel.a actual.o
+a - actual.o
+rm -f actual.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 adjexpqpf.f
+ar -rvu libmdl_8_intel.a adjexpqpf.o
+a - adjexpqpf.o
+rm -f adjexpqpf.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 adjspd.f
+ar -rvu libmdl_8_intel.a adjspd.o
+a - adjspd.o
+rm -f adjspd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 adjtmp.f
+ar -rvu libmdl_8_intel.a adjtmp.o
+a - adjtmp.o
+rm -f adjtmp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 adjuv.f
+ar -rvu libmdl_8_intel.a adjuv.o
+a - adjuv.o
+rm -f adjuv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 adtemp.f
+adtemp.f(1): (col. 19) remark: adtemp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a adtemp.o
+a - adtemp.o
+rm -f adtemp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 advctw1.f
+ar -rvu libmdl_8_intel.a advctw1.o
+a - advctw1.o
+rm -f advctw1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 advctw.f
+ar -rvu libmdl_8_intel.a advctw.o
+a - advctw.o
+rm -f advctw.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 apptmp.f
+ar -rvu libmdl_8_intel.a apptmp.o
+a - apptmp.o
+rm -f apptmp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 arinit.f
+ar -rvu libmdl_8_intel.a arinit.o
+a - arinit.o
+rm -f arinit.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 avhrly.f
+ar -rvu libmdl_8_intel.a avhrly.o
+a - avhrly.o
+rm -f avhrly.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 basicp.f
+ar -rvu libmdl_8_intel.a basicp.o
+a - basicp.o
+rm -f basicp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 besel.f
+ar -rvu libmdl_8_intel.a besel.o
+a - besel.o
+rm -f besel.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 binary.f
+ar -rvu libmdl_8_intel.a binary.o
+a - binary.o
+rm -f binary.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 binful.f
+ar -rvu libmdl_8_intel.a binful.o
+a - binful.o
+rm -f binful.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 bkcat.f
+ar -rvu libmdl_8_intel.a bkcat.o
+a - bkcat.o
+rm -f bkcat.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 bswap.f
+ar -rvu libmdl_8_intel.a bswap.o
+a - bswap.o
+rm -f bswap.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 bulkrn.f
+bulkrn.f(1): (col. 18) remark: bulkrn_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a bulkrn.o
+a - bulkrn.o
+rm -f bulkrn.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cat1.f
+ar -rvu libmdl_8_intel.a cat1.o
+a - cat1.o
+rm -f cat1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cat2.f
+ar -rvu libmdl_8_intel.a cat2.o
+a - cat2.o
+rm -f cat2.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 catgr1.f
+catgr1.f(1): (col. 18) remark: catgr1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a catgr1.o
+a - catgr1.o
+rm -f catgr1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 chngdate.f
+ar -rvu libmdl_8_intel.a chngdate.o
+a - chngdate.o
+rm -f chngdate.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckbounds.f
+ar -rvu libmdl_8_intel.a ckbounds.o
+a - ckbounds.o
+rm -f ckbounds.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckfilend.f
+ar -rvu libmdl_8_intel.a ckfilend.o
+a - ckfilend.o
+rm -f ckfilend.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckgrid.f
+ar -rvu libmdl_8_intel.a ckgrid.o
+a - ckgrid.o
+rm -f ckgrid.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckids1.f
+ar -rvu libmdl_8_intel.a ckids1.o
+a - ckids1.o
+rm -f ckids1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckids.f
+ar -rvu libmdl_8_intel.a ckids.o
+a - ckids.o
+rm -f ckids.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ckraend.f
+ar -rvu libmdl_8_intel.a ckraend.o
+a - ckraend.o
+rm -f ckraend.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cksysend.f
+ar -rvu libmdl_8_intel.a cksysend.o
+a - cksysend.o
+rm -f cksysend.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cktmpdp.f
+ar -rvu libmdl_8_intel.a cktmpdp.o
+a - cktmpdp.o
+rm -f cktmpdp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 clfilm.f
+ar -rvu libmdl_8_intel.a clfilm.o
+a - clfilm.o
+rm -f clfilm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 clfm.f
+ar -rvu libmdl_8_intel.a clfm.o
+a - clfm.o
+rm -f clfm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 clos.f
+ar -rvu libmdl_8_intel.a clos.o
+a - clos.o
+rm -f clos.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cm2dsc.f
+ar -rvu libmdl_8_intel.a cm2dsc.o
+a - cm2dsc.o
+rm -f cm2dsc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cmbwndg.f
+ar -rvu libmdl_8_intel.a cmbwndg.o
+a - cmbwndg.o
+rm -f cmbwndg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cmpdpgr.f
+ar -rvu libmdl_8_intel.a cmpdpgr.o
+a - cmpdpgr.o
+rm -f cmpdpgr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cmpprb.f
+ar -rvu libmdl_8_intel.a cmpprb.o
+a - cmpprb.o
+rm -f cmpprb.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cmprhgr.f
+ar -rvu libmdl_8_intel.a cmprhgr.o
+a - cmprhgr.o
+rm -f cmprhgr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 combin.f
+combin.f(1): (col. 18) remark: combin_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a combin.o
+a - combin.o
+rm -f combin.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 compid.f
+ar -rvu libmdl_8_intel.a compid.o
+a - compid.o
+rm -f compid.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 const1.f
+ar -rvu libmdl_8_intel.a const1.o
+a - const1.o
+rm -f const1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 const.f
+const.f(1): (col. 18) remark: const_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a const.o
+a - const.o
+rm -f const.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 constg.f
+ar -rvu libmdl_8_intel.a constg.o
+a - constg.o
+rm -f constg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 constx.f
+constx.f(1): (col. 18) remark: constx_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a constx.o
+a - constx.o
+rm -f constx.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 convqpf.f
+ar -rvu libmdl_8_intel.a convqpf.o
+a - convqpf.o
+rm -f convqpf.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 cordp.f
+ar -rvu libmdl_8_intel.a cordp.o
+a - cordp.o
+rm -f cordp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 datefour.f
+ar -rvu libmdl_8_intel.a datefour.o
+a - datefour.o
+rm -f datefour.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 datgen.f
+ar -rvu libmdl_8_intel.a datgen.o
+a - datgen.o
+rm -f datgen.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 datpro.f
+ar -rvu libmdl_8_intel.a datpro.o
+a - datpro.o
+rm -f datpro.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 datprs.f
+ar -rvu libmdl_8_intel.a datprs.o
+a - datprs.o
+rm -f datprs.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 denser.f
+denser.f(1): (col. 18) remark: denser_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a denser.o
+a - denser.o
+rm -f denser.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 densrm.f
+ar -rvu libmdl_8_intel.a densrm.o
+a - densrm.o
+rm -f densrm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 densrq.f
+densrq.f(1): (col. 18) remark: densrq_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a densrq.o
+a - densrq.o
+rm -f densrq.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dewpcorr.f
+dewpcorr.f(1): (col. 18) remark: dewpcorr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a dewpcorr.o
+a - dewpcorr.o
+rm -f dewpcorr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dewpt.f
+dewpt.f(1): (col. 18) remark: dewpt_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a dewpt.o
+a - dewpt.o
+rm -f dewpt.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 diffv.f
+ar -rvu libmdl_8_intel.a diffv.o
+a - diffv.o
+rm -f diffv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dimens.f
+ar -rvu libmdl_8_intel.a dimens.o
+a - dimens.o
+rm -f dimens.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dir2uv.f
+ar -rvu libmdl_8_intel.a dir2uv.o
+a - dir2uv.o
+rm -f dir2uv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dircalm.f
+dircalm.f(1): (col. 18) remark: dircalm_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a dircalm.o
+a - dircalm.o
+rm -f dircalm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dircmp.f
+ar -rvu libmdl_8_intel.a dircmp.o
+a - dircmp.o
+rm -f dircmp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dirfuv.f
+ar -rvu libmdl_8_intel.a dirfuv.o
+a - dirfuv.o
+rm -f dirfuv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 divw1.f
+divw1.f(1): (col. 18) remark: divw1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a divw1.o
+a - divw1.o
+rm -f divw1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 divw.f
+ar -rvu libmdl_8_intel.a divw.o
+a - divw.o
+rm -f divw.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 doy.f
+ar -rvu libmdl_8_intel.a doy.o
+a - doy.o
+rm -f doy.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dpcamt.f
+dpcamt.f(1): (col. 18) remark: dpcamt_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a dpcamt.o
+a - dpcamt.o
+rm -f dpcamt.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dpdep.f
+ar -rvu libmdl_8_intel.a dpdep.o
+a - dpdep.o
+rm -f dpdep.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dpdprs.f
+ar -rvu libmdl_8_intel.a dpdprs.o
+a - dpdprs.o
+rm -f dpdprs.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 dptdpr.f
+ar -rvu libmdl_8_intel.a dptdpr.o
+a - dptdpr.o
+rm -f dptdpr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 elimds.f
+ar -rvu libmdl_8_intel.a elimds.o
+a - elimds.o
+rm -f elimds.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ensmean.f
+ar -rvu libmdl_8_intel.a ensmean.o
+a - ensmean.o
+rm -f ensmean.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 eouwnd.f
+eouwnd.f(1): (col. 18) remark: eouwnd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a eouwnd.o
+a - eouwnd.o
+rm -f eouwnd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 eovwnd.f
+eovwnd.f(1): (col. 18) remark: eovwnd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a eovwnd.o
+a - eovwnd.o
+rm -f eovwnd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 eownd.f
+eownd.f(1): (col. 18) remark: eownd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a eownd.o
+a - eownd.o
+rm -f eownd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 expval.f
+ar -rvu libmdl_8_intel.a expval.o
+a - expval.o
+rm -f expval.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 extrap.f
+extrap.f(1): (col. 18) remark: extrap_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a extrap.o
+a - extrap.o
+rm -f extrap.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 exvalu.f
+ar -rvu libmdl_8_intel.a exvalu.o
+a - exvalu.o
+rm -f exvalu.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fcstdf.f
+ar -rvu libmdl_8_intel.a fcstdf.o
+a - fcstdf.o
+rm -f fcstdf.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ffetch.f
+ar -rvu libmdl_8_intel.a ffetch.o
+a - ffetch.o
+rm -f ffetch.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 findst.f
+ar -rvu libmdl_8_intel.a findst.o
+a - findst.o
+rm -f findst.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fixcat.f
+ar -rvu libmdl_8_intel.a fixcat.o
+a - fixcat.o
+rm -f fixcat.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fixit.f
+ar -rvu libmdl_8_intel.a fixit.o
+a - fixit.o
+rm -f fixit.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fixprb.f
+ar -rvu libmdl_8_intel.a fixprb.o
+a - fixprb.o
+rm -f fixprb.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fixqpfcat.f
+ar -rvu libmdl_8_intel.a fixqpfcat.o
+a - fixqpfcat.o
+rm -f fixqpfcat.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 flopnm.f
+ar -rvu libmdl_8_intel.a flopnm.o
+a - flopnm.o
+rm -f flopnm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fltag.f
+ar -rvu libmdl_8_intel.a fltag.o
+a - fltag.o
+rm -f fltag.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 fndclg.f
+ar -rvu libmdl_8_intel.a fndclg.o
+a - fndclg.o
+rm -f fndclg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 forier.f
+ar -rvu libmdl_8_intel.a forier.o
+a - forier.o
+rm -f forier.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 froot.f
+ar -rvu libmdl_8_intel.a froot.o
+a - froot.o
+rm -f froot.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 frzlvl.f
+ar -rvu libmdl_8_intel.a frzlvl.o
+a - frzlvl.o
+rm -f frzlvl.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 frzlvl_old.f
+ar -rvu libmdl_8_intel.a frzlvl_old.o
+a - frzlvl_old.o
+rm -f frzlvl_old.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ftokel.f
+ar -rvu libmdl_8_intel.a ftokel.o
+a - ftokel.o
+rm -f ftokel.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ftokgrd.f
+ar -rvu libmdl_8_intel.a ftokgrd.o
+a - ftokgrd.o
+rm -f ftokgrd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gamma.f
+ar -rvu libmdl_8_intel.a gamma.o
+a - gamma.o
+rm -f gamma.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gcpac.f
+ar -rvu libmdl_8_intel.a gcpac.o
+a - gcpac.o
+rm -f gcpac.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 getdate.f
+ar -rvu libmdl_8_intel.a getdate.o
+a - getdate.o
+rm -f getdate.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 getgrid.f
+ar -rvu libmdl_8_intel.a getgrid.o
+a - getgrid.o
+rm -f getgrid.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 get_ncepdate.f
+ar -rvu libmdl_8_intel.a get_ncepdate.o
+a - get_ncepdate.o
+rm -f get_ncepdate.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gfetch1.f
+ar -rvu libmdl_8_intel.a gfetch1.o
+a - gfetch1.o
+rm -f gfetch1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gfetch2.f
+ar -rvu libmdl_8_intel.a gfetch2.o
+a - gfetch2.o
+rm -f gfetch2.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gfetch.f
+ar -rvu libmdl_8_intel.a gfetch.o
+a - gfetch.o
+rm -f gfetch.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 glook.f
+ar -rvu libmdl_8_intel.a glook.o
+a - glook.o
+rm -f glook.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 grcomb.f
+ar -rvu libmdl_8_intel.a grcomb.o
+a - grcomb.o
+rm -f grcomb.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 grdcnst.f
+ar -rvu libmdl_8_intel.a grdcnst.o
+a - grdcnst.o
+rm -f grdcnst.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 grdcnst_win09u.f
+ar -rvu libmdl_8_intel.a grdcnst_win09u.o
+a - grdcnst_win09u.o
+rm -f grdcnst_win09u.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gridb.f
+gridb.f(1): (col. 18) remark: gridb_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a gridb.o
+a - gridb.o
+rm -f gridb.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gsitb.f
+ar -rvu libmdl_8_intel.a gsitb.o
+a - gsitb.o
+rm -f gsitb.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gstore.f
+ar -rvu libmdl_8_intel.a gstore.o
+a - gstore.o
+rm -f gstore.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gswind.f
+gswind.f(1): (col. 18) remark: gswind_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a gswind.o
+a - gswind.o
+rm -f gswind.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gtvect1.f
+ar -rvu libmdl_8_intel.a gtvect1.o
+a - gtvect1.o
+rm -f gtvect1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gtvect.f
+ar -rvu libmdl_8_intel.a gtvect.o
+a - gtvect.o
+rm -f gtvect.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gustdec.f
+ar -rvu libmdl_8_intel.a gustdec.o
+a - gustdec.o
+rm -f gustdec.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gustrat.f
+gustrat.f(1): (col. 18) remark: gustrat_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a gustrat.o
+a - gustrat.o
+rm -f gustrat.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 guwind.f
+guwind.f(1): (col. 18) remark: guwind_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a guwind.o
+a - guwind.o
+rm -f guwind.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gvwind.f
+gvwind.f(1): (col. 18) remark: gvwind_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a gvwind.o
+a - gvwind.o
+rm -f gvwind.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 gwind.f
+gwind.f(1): (col. 18) remark: gwind_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a gwind.o
+a - gwind.o
+rm -f gwind.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 highlow.f
+highlow.f(1): (col. 18) remark: highlow_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a highlow.o
+a - highlow.o
+rm -f highlow.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 idswap.f
+ar -rvu libmdl_8_intel.a idswap.o
+a - idswap.o
+rm -f idswap.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ierx.f
+ar -rvu libmdl_8_intel.a ierx.o
+a - ierx.o
+rm -f ierx.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ijllps.f
+ar -rvu libmdl_8_intel.a ijllps.o
+a - ijllps.o
+rm -f ijllps.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intomm.f
+ar -rvu libmdl_8_intel.a intomm.o
+a - intomm.o
+rm -f intomm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intrpa.f
+intrpa.f(1): (col. 18) remark: intrpa_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a intrpa.o
+a - intrpa.o
+rm -f intrpa.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intrpb.f
+ar -rvu libmdl_8_intel.a intrpb.o
+a - intrpb.o
+rm -f intrpb.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intrpc.f
+ar -rvu libmdl_8_intel.a intrpc.o
+a - intrpc.o
+rm -f intrpc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intrpd.f
+intrpd.f(1): (col. 18) remark: intrpd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a intrpd.o
+a - intrpd.o
+rm -f intrpd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 intrp.f
+intrp.f(1): (col. 18) remark: intrp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a intrp.o
+a - intrp.o
+rm -f intrp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ipopen.f
+ar -rvu libmdl_8_intel.a ipopen.o
+a - ipopen.o
+rm -f ipopen.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 iprint.f
+ar -rvu libmdl_8_intel.a iprint.o
+a - iprint.o
+rm -f iprint.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 itrp.f
+itrp.f(1): (col. 18) remark: itrp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a itrp.o
+a - itrp.o
+rm -f itrp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 keltof.f
+ar -rvu libmdl_8_intel.a keltof.o
+a - keltof.o
+rm -f keltof.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 kindex.f
+kindex.f(1): (col. 18) remark: kindex_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a kindex.o
+a - kindex.o
+rm -f kindex.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 kinxrf2.f
+kinxrf2.f(1): (col. 18) remark: kinxrf2_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a kinxrf2.o
+a - kinxrf2.o
+rm -f kinxrf2.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 kinxrf.f
+kinxrf.f(1): (col. 18) remark: kinxrf_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a kinxrf.o
+a - kinxrf.o
+rm -f kinxrf.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 kinxrf_old.f
+kinxrf_old.f(1): (col. 18) remark: kinxrf_old_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a kinxrf_old.o
+a - kinxrf_old.o
+rm -f kinxrf_old.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ktof.f
+ar -rvu libmdl_8_intel.a ktof.o
+a - ktof.o
+rm -f ktof.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ktsmps.f
+ar -rvu libmdl_8_intel.a ktsmps.o
+a - ktsmps.o
+rm -f ktsmps.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 kwhtoj.f
+ar -rvu libmdl_8_intel.a kwhtoj.o
+a - kwhtoj.o
+rm -f kwhtoj.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l12d2.f
+ar -rvu libmdl_8_intel.a l12d2.o
+a - l12d2.o
+rm -f l12d2.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l1d1.f
+ar -rvu libmdl_8_intel.a l1d1.o
+a - l1d1.o
+rm -f l1d1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l1d3.f
+ar -rvu libmdl_8_intel.a l1d3.o
+a - l1d3.o
+rm -f l1d3.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l1d50cfff.f
+ar -rvu libmdl_8_intel.a l1d50cfff.o
+a - l1d50cfff.o
+rm -f l1d50cfff.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l1d.f
+ar -rvu libmdl_8_intel.a l1d.o
+a - l1d.o
+rm -f l1d.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l2d1.f
+ar -rvu libmdl_8_intel.a l2d1.o
+a - l2d1.o
+rm -f l2d1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l2d3.f
+ar -rvu libmdl_8_intel.a l2d3.o
+a - l2d3.o
+rm -f l2d3.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l2d600101.f
+ar -rvu libmdl_8_intel.a l2d600101.o
+a - l2d600101.o
+rm -f l2d600101.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l2d601000.f
+ar -rvu libmdl_8_intel.a l2d601000.o
+a - l2d601000.o
+rm -f l2d601000.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 l2d.f
+ar -rvu libmdl_8_intel.a l2d.o
+a - l2d.o
+rm -f l2d.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lapser.f
+ar -rvu libmdl_8_intel.a lapser.o
+a - lapser.o
+rm -f lapser.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lcl.f
+ar -rvu libmdl_8_intel.a lcl.o
+a - lcl.o
+rm -f lcl.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lindex.f
+ar -rvu libmdl_8_intel.a lindex.o
+a - lindex.o
+rm -f lindex.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 list.f
+ar -rvu libmdl_8_intel.a list.o
+a - list.o
+rm -f list.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmijll.f
+ar -rvu libmdl_8_intel.a lmijll.o
+a - lmijll.o
+rm -f lmijll.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmllij.f
+ar -rvu libmdl_8_intel.a lmllij.o
+a - lmllij.o
+rm -f lmllij.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmmapf.f
+ar -rvu libmdl_8_intel.a lmmapf.o
+a - lmmapf.o
+rm -f lmmapf.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmmaps.f
+ar -rvu libmdl_8_intel.a lmmaps.o
+a - lmmaps.o
+rm -f lmmaps.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr1.f
+lmstr1.f(1): (col. 18) remark: lmstr1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a lmstr1.o
+a - lmstr1.o
+rm -f lmstr1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr2.f
+ar -rvu libmdl_8_intel.a lmstr2.o
+a - lmstr2.o
+rm -f lmstr2.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr3.f
+ar -rvu libmdl_8_intel.a lmstr3.o
+a - lmstr3.o
+rm -f lmstr3.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr4.f
+ar -rvu libmdl_8_intel.a lmstr4.o
+a - lmstr4.o
+rm -f lmstr4.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr6.f
+lmstr6.f(1): (col. 18) remark: lmstr6_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a lmstr6.o
+a - lmstr6.o
+rm -f lmstr6.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 lmstr8.f
+lmstr8.f(1): (col. 18) remark: lmstr8_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a lmstr8.o
+a - lmstr8.o
+rm -f lmstr8.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 logittrans.f
+logittrans.f(1): (col. 18) remark: logittrans_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a logittrans.o
+a - logittrans.o
+rm -f logittrans.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 maplat.f
+ar -rvu libmdl_8_intel.a maplat.o
+a - maplat.o
+rm -f maplat.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 maxminb.f
+maxminb.f(1): (col. 18) remark: maxminb_ has been targeted for automatic cpu dispatch
+maxminb.f(659): (col. 18) remark: ckabc_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a maxminb.o
+a - maxminb.o
+rm -f maxminb.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 maxmin.f
+maxmin.f(1): (col. 18) remark: maxmin_ has been targeted for automatic cpu dispatch
+maxmin.f(931): (col. 18) remark: ckabcd_ has been targeted for automatic cpu dispatch
+maxmin.f(1088): (col. 18) remark: ckfrmsg_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a maxmin.o
+a - maxmin.o
+rm -f maxmin.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 maxtest.f
+ar -rvu libmdl_8_intel.a maxtest.o
+a - maxtest.o
+rm -f maxtest.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 maxwnd.f
+maxwnd.f(1): (col. 18) remark: maxwnd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a maxwnd.o
+a - maxwnd.o
+rm -f maxwnd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mcijll.f
+ar -rvu libmdl_8_intel.a mcijll.o
+a - mcijll.o
+rm -f mcijll.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mcllij.f
+ar -rvu libmdl_8_intel.a mcllij.o
+a - mcllij.o
+rm -f mcllij.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mcmapf.f
+ar -rvu libmdl_8_intel.a mcmapf.o
+a - mcmapf.o
+rm -f mcmapf.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mcmaps.f
+ar -rvu libmdl_8_intel.a mcmaps.o
+a - mcmaps.o
+rm -f mcmaps.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mdiv.f
+ar -rvu libmdl_8_intel.a mdiv.o
+a - mdiv.o
+rm -f mdiv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 meanrh.f
+meanrh.f(1): (col. 18) remark: meanrh_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a meanrh.o
+a - meanrh.o
+rm -f meanrh.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mergids.f
+ar -rvu libmdl_8_intel.a mergids.o
+a - mergids.o
+rm -f mergids.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mixrat.f
+mixrat.f(1): (col. 18) remark: mixrat_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a mixrat.o
+a - mixrat.o
+rm -f mixrat.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 modelktof.f
+ar -rvu libmdl_8_intel.a modelktof.o
+a - modelktof.o
+rm -f modelktof.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 modelmxmn.f
+ar -rvu libmdl_8_intel.a modelmxmn.o
+a - modelmxmn.o
+rm -f modelmxmn.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 monprb.f
+ar -rvu libmdl_8_intel.a monprb.o
+a - monprb.o
+rm -f monprb.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mpskts.f
+ar -rvu libmdl_8_intel.a mpskts.o
+a - mpskts.o
+rm -f mpskts.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mrftest.f
+ar -rvu libmdl_8_intel.a mrftest.o
+a - mrftest.o
+rm -f mrftest.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mshxms.f
+ar -rvu libmdl_8_intel.a mshxms.o
+a - mshxms.o
+rm -f mshxms.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 mxmnft.f
+mxmnft.f(1): (col. 18) remark: mxmnft_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a mxmnft.o
+a - mxmnft.o
+rm -f mxmnft.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 newxy1.f
+ar -rvu libmdl_8_intel.a newxy1.o
+a - newxy1.o
+rm -f newxy1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 newxy.f
+ar -rvu libmdl_8_intel.a newxy.o
+a - newxy.o
+rm -f newxy.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 nmlprb.f
+ar -rvu libmdl_8_intel.a nmlprb.o
+a - nmlprb.o
+rm -f nmlprb.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 nominl.f
+ar -rvu libmdl_8_intel.a nominl.o
+a - nominl.o
+rm -f nominl.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 noncnvp.f
+noncnvp.f(1): (col. 18) remark: noncnvp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a noncnvp.o
+a - noncnvp.o
+rm -f noncnvp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 noncnvp_old.f
+noncnvp_old.f(1): (col. 18) remark: noncnvp_old_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a noncnvp_old.o
+a - noncnvp_old.o
+rm -f noncnvp_old.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 norwnd.f
+ar -rvu libmdl_8_intel.a norwnd.o
+a - norwnd.o
+rm -f norwnd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 nwsize.f
+ar -rvu libmdl_8_intel.a nwsize.o
+a - nwsize.o
+rm -f nwsize.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obscight.f
+ar -rvu libmdl_8_intel.a obscight.o
+a - obscight.o
+rm -f obscight.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obscpcpos.f
+ar -rvu libmdl_8_intel.a obscpcpos.o
+a - obscpcpos.o
+rm -f obscpcpos.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obscpprcp.f
+ar -rvu libmdl_8_intel.a obscpprcp.o
+a - obscpprcp.o
+rm -f obscpprcp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obscpsnow.f
+ar -rvu libmdl_8_intel.a obscpsnow.o
+a - obscpsnow.o
+rm -f obscpsnow.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsdmaxt.f
+ar -rvu libmdl_8_intel.a obsdmaxt.o
+a - obsdmaxt.o
+rm -f obsdmaxt.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsdptd.f
+ar -rvu libmdl_8_intel.a obsdptd.o
+a - obsdptd.o
+rm -f obsdptd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsgust.f
+ar -rvu libmdl_8_intel.a obsgust.o
+a - obsgust.o
+rm -f obsgust.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsmrcld.f
+ar -rvu libmdl_8_intel.a obsmrcld.o
+a - obsmrcld.o
+rm -f obsmrcld.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsmrptype.f
+obsmrptype.f(1): (col. 18) remark: obsmrptype_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a obsmrptype.o
+a - obsmrptype.o
+rm -f obsmrptype.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsmrwsp.f
+obsmrwsp.f(1): (col. 18) remark: obsmrwsp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a obsmrwsp.o
+a - obsmrwsp.o
+rm -f obsmrwsp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsnmint.f
+ar -rvu libmdl_8_intel.a obsnmint.o
+a - obsnmint.o
+rm -f obsnmint.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsobvis.f
+ar -rvu libmdl_8_intel.a obsobvis.o
+a - obsobvis.o
+rm -f obsobvis.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obspopc.f
+ar -rvu libmdl_8_intel.a obspopc.o
+a - obspopc.o
+rm -f obspopc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obspopo3.f
+ar -rvu libmdl_8_intel.a obspopo3.o
+a - obspopo3.o
+rm -f obspopo3.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obspopo.f
+ar -rvu libmdl_8_intel.a obspopo.o
+a - obspopo.o
+rm -f obspopo.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsprwxbin.f
+ar -rvu libmdl_8_intel.a obsprwxbin.o
+a - obsprwxbin.o
+rm -f obsprwxbin.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsptype.f
+ar -rvu libmdl_8_intel.a obsptype.o
+a - obsptype.o
+rm -f obsptype.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obsqcld.f
+ar -rvu libmdl_8_intel.a obsqcld.o
+a - obsqcld.o
+rm -f obsqcld.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obstcld.f
+ar -rvu libmdl_8_intel.a obstcld.o
+a - obstcld.o
+rm -f obstcld.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 obstwet.f
+ar -rvu libmdl_8_intel.a obstwet.o
+a - obstwet.o
+rm -f obstwet.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 opfcst.f
+ar -rvu libmdl_8_intel.a opfcst.o
+a - opfcst.o
+rm -f opfcst.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 option.f
+ar -rvu libmdl_8_intel.a option.o
+a - option.o
+rm -f option.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 option_win09u.f
+ar -rvu libmdl_8_intel.a option_win09u.o
+a - option_win09u.o
+rm -f option_win09u.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 optn2.f
+ar -rvu libmdl_8_intel.a optn2.o
+a - optn2.o
+rm -f optn2.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 optn2_win09u.f
+ar -rvu libmdl_8_intel.a optn2_win09u.o
+a - optn2_win09u.o
+rm -f optn2_win09u.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 optx.f
+ar -rvu libmdl_8_intel.a optx.o
+a - optx.o
+rm -f optx.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pack1d.f
+ar -rvu libmdl_8_intel.a pack1d.o
+a - pack1d.o
+rm -f pack1d.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pack2d.f
+ar -rvu libmdl_8_intel.a pack2d.o
+a - pack2d.o
+rm -f pack2d.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pack.f
+ar -rvu libmdl_8_intel.a pack.o
+a - pack.o
+rm -f pack.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packg.f
+packg.f(1): (col. 18) remark: packg_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a packg.o
+a - packg.o
+rm -f packg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packgp.f
+packgp.f(1): (col. 18) remark: packgp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a packgp.o
+a - packgp.o
+rm -f packgp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packgr.f
+packgr.f(1): (col. 18) remark: packgr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a packgr.o
+a - packgr.o
+rm -f packgr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packgr_oper.f
+packgr_oper.f(1): (col. 18) remark: packgr_oper_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a packgr_oper.o
+a - packgr_oper.o
+rm -f packgr_oper.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packra.f
+ar -rvu libmdl_8_intel.a packra.o
+a - packra.o
+rm -f packra.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packv.f
+packv.f(1): (col. 18) remark: packv_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a packv.o
+a - packv.o
+rm -f packv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packvr.f
+packvr.f(1): (col. 18) remark: packvr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a packvr.o
+a - packvr.o
+rm -f packvr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packxx.f
+packxx.f(1): (col. 18) remark: packxx_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a packxx.o
+a - packxx.o
+rm -f packxx.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 packyy.f
+packyy.f(1): (col. 18) remark: packyy_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a packyy.o
+a - packyy.o
+rm -f packyy.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pawgts.f
+pawgts.f(1): (col. 18) remark: pawgts_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a pawgts.o
+a - pawgts.o
+rm -f pawgts.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pawing.f
+pawing.f(1): (col. 18) remark: pawing_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a pawing.o
+a - pawing.o
+rm -f pawing.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pawlpm.f
+pawlpm.f(1): (col. 18) remark: pawlpm_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a pawlpm.o
+a - pawlpm.o
+rm -f pawlpm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pawra.f
+pawra.f(1): (col. 18) remark: pawra_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a pawra.o
+a - pawra.o
+rm -f pawra.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pawrag.f
+pawrag.f(1): (col. 18) remark: pawrag_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a pawrag.o
+a - pawrag.o
+rm -f pawrag.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pblmix.f
+ar -rvu libmdl_8_intel.a pblmix.o
+a - pblmix.o
+rm -f pblmix.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pcpeff.f
+ar -rvu libmdl_8_intel.a pcpeff.o
+a - pcpeff.o
+rm -f pcpeff.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pcpx6.f
+pcpx6.f(1): (col. 18) remark: pcpx6_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a pcpx6.o
+a - pcpx6.o
+rm -f pcpx6.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pct2dc.f
+ar -rvu libmdl_8_intel.a pct2dc.o
+a - pct2dc.o
+rm -f pct2dc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pkbg.f
+ar -rvu libmdl_8_intel.a pkbg.o
+a - pkbg.o
+rm -f pkbg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pkc4lx.f
+ar -rvu libmdl_8_intel.a pkc4lx.o
+a - pkc4lx.o
+rm -f pkc4lx.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pkms00.f
+pkms00.f(1): (col. 18) remark: pkms00_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a pkms00.o
+a - pkms00.o
+rm -f pkms00.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pkms97.f
+pkms97.f(1): (col. 18) remark: pkms97_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a pkms97.o
+a - pkms97.o
+rm -f pkms97.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pkms99.f
+pkms99.f(1): (col. 18) remark: pkms99_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a pkms99.o
+a - pkms99.o
+rm -f pkms99.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pks4lx.f
+ar -rvu libmdl_8_intel.a pks4lx.o
+a - pks4lx.o
+rm -f pks4lx.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 play.f
+ar -rvu libmdl_8_intel.a play.o
+a - play.o
+rm -f play.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 popdif.f
+ar -rvu libmdl_8_intel.a popdif.o
+a - popdif.o
+rm -f popdif.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 potemp.f
+ar -rvu libmdl_8_intel.a potemp.o
+a - potemp.o
+rm -f potemp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pred21.f
+ar -rvu libmdl_8_intel.a pred21.o
+a - pred21.o
+rm -f pred21.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pred22.f
+ar -rvu libmdl_8_intel.a pred22.o
+a - pred22.o
+rm -f pred22.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 predx1.f
+ar -rvu libmdl_8_intel.a predx1.o
+a - predx1.o
+rm -f predx1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 printv.f
+ar -rvu libmdl_8_intel.a printv.o
+a - printv.o
+rm -f printv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prmsg.f
+ar -rvu libmdl_8_intel.a prmsg.o
+a - prmsg.o
+rm -f prmsg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 probxcon.f
+ar -rvu libmdl_8_intel.a probxcon.o
+a - probxcon.o
+rm -f probxcon.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prsid1.f
+ar -rvu libmdl_8_intel.a prsid1.o
+a - prsid1.o
+rm -f prsid1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prsid2.f
+ar -rvu libmdl_8_intel.a prsid2.o
+a - prsid2.o
+rm -f prsid2.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prsid3.f
+ar -rvu libmdl_8_intel.a prsid3.o
+a - prsid3.o
+rm -f prsid3.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prsid.f
+ar -rvu libmdl_8_intel.a prsid.o
+a - prsid.o
+rm -f prsid.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 prtgr.f
+ar -rvu libmdl_8_intel.a prtgr.o
+a - prtgr.o
+rm -f prtgr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 pru660.f
+pru660.f(1): (col. 18) remark: pru660_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a pru660.o
+a - pru660.o
+rm -f pru660.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 psijll.f
+ar -rvu libmdl_8_intel.a psijll.o
+a - psijll.o
+rm -f psijll.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 psllij.f
+ar -rvu libmdl_8_intel.a psllij.o
+a - psllij.o
+rm -f psllij.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 psmapf.f
+psmapf.f(1): (col. 18) remark: psmapf_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a psmapf.o
+a - psmapf.o
+rm -f psmapf.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 psmaps.f
+psmaps.f(1): (col. 18) remark: psmaps_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a psmaps.o
+a - psmaps.o
+rm -f psmaps.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 putchar.f
+ar -rvu libmdl_8_intel.a putchar.o
+a - putchar.o
+rm -f putchar.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 putit.f
+ar -rvu libmdl_8_intel.a putit.o
+a - putit.o
+rm -f putit.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 putmos.f
+putmos.f(1): (col. 18) remark: putmos_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a putmos.o
+a - putmos.o
+rm -f putmos.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 putq.f
+ar -rvu libmdl_8_intel.a putq.o
+a - putq.o
+rm -f putq.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 qadv.f
+ar -rvu libmdl_8_intel.a qadv.o
+a - qadv.o
+rm -f qadv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 qpfcub.f
+ar -rvu libmdl_8_intel.a qpfcub.o
+a - qpfcub.o
+rm -f qpfcub.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdarea.f
+ar -rvu libmdl_8_intel.a rdarea.o
+a - rdarea.o
+rm -f rdarea.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdc.f
+ar -rvu libmdl_8_intel.a rdc.o
+a - rdc.o
+rm -f rdc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rddatmc.f
+ar -rvu libmdl_8_intel.a rddatmc.o
+a - rddatmc.o
+rm -f rddatmc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rddatm.f
+ar -rvu libmdl_8_intel.a rddatm.o
+a - rddatm.o
+rm -f rddatm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rddir.f
+ar -rvu libmdl_8_intel.a rddir.o
+a - rddir.o
+rm -f rddir.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rddisk.f
+ar -rvu libmdl_8_intel.a rddisk.o
+a - rddisk.o
+rm -f rddisk.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdeqn9.f
+rdeqn9.f(643): remark #8291: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+7'.
+ 138  FORMAT(' ',10(E13.7))
+---------------------^
+rdeqn9.f(1): (col. 18) remark: rdeqn9_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a rdeqn9.o
+a - rdeqn9.o
+rm -f rdeqn9.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdeqn.f
+rdeqn.f(650): remark #8291: Recommended relationship between field width 'W' and the number of fractional digits 'D' in this edit descriptor is 'W>=D+7'.
+ 138  FORMAT(' ',10(E13.7))
+---------------------^
+rdeqn.f(1): (col. 18) remark: rdeqn_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a rdeqn.o
+a - rdeqn.o
+rm -f rdeqn.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdf.f
+ar -rvu libmdl_8_intel.a rdf.o
+a - rdf.o
+rm -f rdf.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdi.f
+ar -rvu libmdl_8_intel.a rdi.o
+a - rdi.o
+rm -f rdi.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdkeym.f
+ar -rvu libmdl_8_intel.a rdkeym.o
+a - rdkeym.o
+rm -f rdkeym.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdlsta.f
+ar -rvu libmdl_8_intel.a rdlsta.o
+a - rdlsta.o
+rm -f rdlsta.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdlvrb.f
+ar -rvu libmdl_8_intel.a rdlvrb.o
+a - rdlvrb.o
+rm -f rdlvrb.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdonev.f
+ar -rvu libmdl_8_intel.a rdonev.o
+a - rdonev.o
+rm -f rdonev.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdpred.f
+rdpred.f(1): (col. 18) remark: rdpred_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a rdpred.o
+a - rdpred.o
+rm -f rdpred.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdsdir.f
+ar -rvu libmdl_8_intel.a rdsdir.o
+a - rdsdir.o
+rm -f rdsdir.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdsnam.f
+ar -rvu libmdl_8_intel.a rdsnam.o
+a - rdsnam.o
+rm -f rdsnam.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstad.f
+ar -rvu libmdl_8_intel.a rdstad.o
+a - rdstad.o
+rm -f rdstad.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstal.f
+ar -rvu libmdl_8_intel.a rdstal.o
+a - rdstal.o
+rm -f rdstal.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstdd.f
+ar -rvu libmdl_8_intel.a rdstdd.o
+a - rdstdd.o
+rm -f rdstdd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstdl.f
+ar -rvu libmdl_8_intel.a rdstdl.o
+a - rdstdl.o
+rm -f rdstdl.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstdr.f
+ar -rvu libmdl_8_intel.a rdstdr.o
+a - rdstdr.o
+rm -f rdstdr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstga.f
+ar -rvu libmdl_8_intel.a rdstga.o
+a - rdstga.o
+rm -f rdstga.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstgd.f
+ar -rvu libmdl_8_intel.a rdstgd.o
+a - rdstgd.o
+rm -f rdstgd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstg.f
+ar -rvu libmdl_8_intel.a rdstg.o
+a - rdstg.o
+rm -f rdstg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstgf.f
+ar -rvu libmdl_8_intel.a rdstgf.o
+a - rdstgf.o
+rm -f rdstgf.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstgn.f
+ar -rvu libmdl_8_intel.a rdstgn.o
+a - rdstgn.o
+rm -f rdstgn.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstna.f
+ar -rvu libmdl_8_intel.a rdstna.o
+a - rdstna.o
+rm -f rdstna.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstnl.f
+ar -rvu libmdl_8_intel.a rdstnl.o
+a - rdstnl.o
+rm -f rdstnl.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstqa.f
+ar -rvu libmdl_8_intel.a rdstqa.o
+a - rdstqa.o
+rm -f rdstqa.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstqn.f
+ar -rvu libmdl_8_intel.a rdstqn.o
+a - rdstqn.o
+rm -f rdstqn.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstr2.f
+ar -rvu libmdl_8_intel.a rdstr2.o
+a - rdstr2.o
+rm -f rdstr2.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstr3.f
+ar -rvu libmdl_8_intel.a rdstr3.o
+a - rdstr3.o
+rm -f rdstr3.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstrx1.f
+rdstrx1.f(1): (col. 18) remark: rdstrx1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a rdstrx1.o
+a - rdstrx1.o
+rm -f rdstrx1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdstrx.f
+rdstrx.f(1): (col. 18) remark: rdstrx_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a rdstrx.o
+a - rdstrx.o
+rm -f rdstrx.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdtdlmc.f
+ar -rvu libmdl_8_intel.a rdtdlmc.o
+a - rdtdlmc.o
+rm -f rdtdlmc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdtdlm.f
+ar -rvu libmdl_8_intel.a rdtdlm.o
+a - rdtdlm.o
+rm -f rdtdlm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdtmc.f
+ar -rvu libmdl_8_intel.a rdtmc.o
+a - rdtmc.o
+rm -f rdtmc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdtm.f
+ar -rvu libmdl_8_intel.a rdtm.o
+a - rdtm.o
+rm -f rdtm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdvect.f
+ar -rvu libmdl_8_intel.a rdvect.o
+a - rdvect.o
+rm -f rdvect.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdvr66.f
+ar -rvu libmdl_8_intel.a rdvr66.o
+a - rdvr66.o
+rm -f rdvr66.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rdvr79.f
+ar -rvu libmdl_8_intel.a rdvr79.o
+a - rdvr79.o
+rm -f rdvr79.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 read_mosda.f
+read_mosda.f(1): (col. 18) remark: read_mosda_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a read_mosda.o
+a - read_mosda.o
+rm -f read_mosda.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 reduce.f
+ar -rvu libmdl_8_intel.a reduce.o
+a - reduce.o
+rm -f reduce.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 retvec.f
+ar -rvu libmdl_8_intel.a retvec.o
+a - retvec.o
+rm -f retvec.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rhnspd.f
+ar -rvu libmdl_8_intel.a rhnspd.o
+a - rhnspd.o
+rm -f rhnspd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rhumid.f
+ar -rvu libmdl_8_intel.a rhumid.o
+a - rhumid.o
+rm -f rhumid.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rhvv.f
+ar -rvu libmdl_8_intel.a rhvv.o
+a - rhvv.o
+rm -f rhvv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 rstore.f
+ar -rvu libmdl_8_intel.a rstore.o
+a - rstore.o
+rm -f rstore.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 samegr.f
+ar -rvu libmdl_8_intel.a samegr.o
+a - samegr.o
+rm -f samegr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 satlevnum.f
+ar -rvu libmdl_8_intel.a satlevnum.o
+a - satlevnum.o
+rm -f satlevnum.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 satlevrh.f
+ar -rvu libmdl_8_intel.a satlevrh.o
+a - satlevrh.o
+rm -f satlevrh.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 scalx.f
+ar -rvu libmdl_8_intel.a scalx.o
+a - scalx.o
+rm -f scalx.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 scalxi.f
+ar -rvu libmdl_8_intel.a scalxi.o
+a - scalxi.o
+rm -f scalxi.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 setmis.f
+ar -rvu libmdl_8_intel.a setmis.o
+a - setmis.o
+rm -f setmis.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 setpln.f
+ar -rvu libmdl_8_intel.a setpln.o
+a - setpln.o
+rm -f setpln.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 setup.f
+ar -rvu libmdl_8_intel.a setup.o
+a - setup.o
+rm -f setup.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sfctcld.f
+ar -rvu libmdl_8_intel.a sfctcld.o
+a - sfctcld.o
+rm -f sfctcld.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 shftmxmn.f
+ar -rvu libmdl_8_intel.a shftmxmn.o
+a - shftmxmn.o
+rm -f shftmxmn.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 skipr.f
+ar -rvu libmdl_8_intel.a skipr.o
+a - skipr.o
+rm -f skipr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 skipwr.f
+ar -rvu libmdl_8_intel.a skipwr.o
+a - skipwr.o
+rm -f skipwr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 skpwr1.f
+ar -rvu libmdl_8_intel.a skpwr1.o
+a - skpwr1.o
+rm -f skpwr1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 skpwr2.f
+ar -rvu libmdl_8_intel.a skpwr2.o
+a - skpwr2.o
+rm -f skpwr2.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smothc.f
+ar -rvu libmdl_8_intel.a smothc.o
+a - smothc.o
+rm -f smothc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smoth.f
+smoth.f(1): (col. 18) remark: smoth_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a smoth.o
+a - smoth.o
+rm -f smoth.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smothn.f
+ar -rvu libmdl_8_intel.a smothn.o
+a - smothn.o
+rm -f smothn.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smth25.f
+smth25.f(1): (col. 18) remark: smth25_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a smth25.o
+a - smth25.o
+rm -f smth25.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smth2x.f
+ar -rvu libmdl_8_intel.a smth2x.o
+a - smth2x.o
+rm -f smth2x.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smth3x.f
+ar -rvu libmdl_8_intel.a smth3x.o
+a - smth3x.o
+rm -f smth3x.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smth5.f
+smth5.f(1): (col. 18) remark: smth5_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a smth5.o
+a - smth5.o
+rm -f smth5.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 smth9.f
+smth9.f(1): (col. 18) remark: smth9_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a smth9.o
+a - smth9.o
+rm -f smth9.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 snoweq.f
+ar -rvu libmdl_8_intel.a snoweq.o
+a - snoweq.o
+rm -f snoweq.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 snowfl.f
+ar -rvu libmdl_8_intel.a snowfl.o
+a - snowfl.o
+rm -f snowfl.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 solamt.f
+ar -rvu libmdl_8_intel.a solamt.o
+a - solamt.o
+rm -f solamt.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 soleng.f
+ar -rvu libmdl_8_intel.a soleng.o
+a - soleng.o
+rm -f soleng.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sortbg.f
+ar -rvu libmdl_8_intel.a sortbg.o
+a - sortbg.o
+rm -f sortbg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sortem.f
+sortem.f(1): (col. 18) remark: sortem_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a sortem.o
+a - sortem.o
+rm -f sortem.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 spechum.f
+spechum.f(1): (col. 18) remark: spechum_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a spechum.o
+a - spechum.o
+rm -f spechum.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ssr.f
+ssr.f(1): (col. 18) remark: ssr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a ssr.o
+a - ssr.o
+rm -f ssr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 stddev.f
+stddev.f(1): (col. 18) remark: stddev_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a stddev.o
+a - stddev.o
+rm -f stddev.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 stratvar.f
+ar -rvu libmdl_8_intel.a stratvar.o
+a - stratvar.o
+rm -f stratvar.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sunamt.f
+ar -rvu libmdl_8_intel.a sunamt.o
+a - sunamt.o
+rm -f sunamt.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sunfct.f
+ar -rvu libmdl_8_intel.a sunfct.o
+a - sunfct.o
+rm -f sunfct.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sunhrs.f
+ar -rvu libmdl_8_intel.a sunhrs.o
+a - sunhrs.o
+rm -f sunhrs.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 svrvec.f
+ar -rvu libmdl_8_intel.a svrvec.o
+a - svrvec.o
+rm -f svrvec.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 sweati.f
+ar -rvu libmdl_8_intel.a sweati.o
+a - sweati.o
+rm -f sweati.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 switch.f
+ar -rvu libmdl_8_intel.a switch.o
+a - switch.o
+rm -f switch.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 swtxrf.f
+swtxrf.f(1): (col. 18) remark: swtxrf_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a swtxrf.o
+a - swtxrf.o
+rm -f swtxrf.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 swtxrf_old.f
+swtxrf_old.f(1): (col. 18) remark: swtxrf_old_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a swtxrf_old.o
+a - swtxrf_old.o
+rm -f swtxrf_old.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tandid.f
+ar -rvu libmdl_8_intel.a tandid.o
+a - tandid.o
+rm -f tandid.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tdlprm.f
+ar -rvu libmdl_8_intel.a tdlprm.o
+a - tdlprm.o
+rm -f tdlprm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tdpavg.f
+ar -rvu libmdl_8_intel.a tdpavg.o
+a - tdpavg.o
+rm -f tdpavg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tempav.f
+ar -rvu libmdl_8_intel.a tempav.o
+a - tempav.o
+rm -f tempav.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tempcorr.f
+tempcorr.f(1): (col. 18) remark: tempcorr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a tempcorr.o
+a - tempcorr.o
+rm -f tempcorr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tests.f
+tests.f(1): (col. 18) remark: tests_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a tests.o
+a - tests.o
+rm -f tests.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tgintrp.f
+tgintrp.f(1): (col. 18) remark: tgintrp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a tgintrp.o
+a - tgintrp.o
+rm -f tgintrp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 thetae.f
+ar -rvu libmdl_8_intel.a thetae.o
+a - thetae.o
+rm -f thetae.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 thiner.f
+ar -rvu libmdl_8_intel.a thiner.o
+a - thiner.o
+rm -f thiner.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 thkcorr.f
+thkcorr.f(1): (col. 18) remark: thkcorr_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a thkcorr.o
+a - thkcorr.o
+rm -f thkcorr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 thset.f
+ar -rvu libmdl_8_intel.a thset.o
+a - thset.o
+rm -f thset.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timep.f
+timep.f(1): (col. 18) remark: timep_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a timep.o
+a - timep.o
+rm -f timep.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timepv.f
+ar -rvu libmdl_8_intel.a timepv.o
+a - timepv.o
+rm -f timepv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timgrd.f
+timgrd.f(1): (col. 18) remark: timgrd_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a timgrd.o
+a - timgrd.o
+rm -f timgrd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timpr.f
+ar -rvu libmdl_8_intel.a timpr.o
+a - timpr.o
+rm -f timpr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timtrp.f
+timtrp.f(1): (col. 18) remark: timtrp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a timtrp.o
+a - timtrp.o
+rm -f timtrp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 timtrpgoe.f
+timtrpgoe.f(1): (col. 18) remark: timtrpgoe_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a timtrpgoe.o
+a - timtrpgoe.o
+rm -f timtrpgoe.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tmpadv.f
+ar -rvu libmdl_8_intel.a tmpadv.o
+a - tmpadv.o
+rm -f tmpadv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tmpcmp.f
+ar -rvu libmdl_8_intel.a tmpcmp.o
+a - tmpcmp.o
+rm -f tmpcmp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tpcp12.f
+tpcp12.f(1): (col. 18) remark: tpcp12_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a tpcp12.o
+a - tpcp12.o
+rm -f tpcp12.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tpcp24.f
+tpcp24.f(1): (col. 18) remark: tpcp24_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a tpcp24.o
+a - tpcp24.o
+rm -f tpcp24.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tpcp24_old.f
+tpcp24_old.f(1): (col. 18) remark: tpcp24_old_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a tpcp24_old.o
+a - tpcp24_old.o
+rm -f tpcp24_old.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tpcp3.f
+tpcp3.f(1): (col. 18) remark: tpcp3_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a tpcp3.o
+a - tpcp3.o
+rm -f tpcp3.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tpcp6.f
+tpcp6.f(1): (col. 18) remark: tpcp6_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a tpcp6.o
+a - tpcp6.o
+rm -f tpcp6.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 trail.f
+ar -rvu libmdl_8_intel.a trail.o
+a - trail.o
+rm -f trail.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 trans.f
+ar -rvu libmdl_8_intel.a trans.o
+a - trans.o
+rm -f trans.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 trdata.f
+ar -rvu libmdl_8_intel.a trdata.o
+a - trdata.o
+rm -f trdata.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 trnsfr.f
+ar -rvu libmdl_8_intel.a trnsfr.o
+a - trnsfr.o
+rm -f trnsfr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 trpd.f
+ar -rvu libmdl_8_intel.a trpd.o
+a - trpd.o
+rm -f trpd.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 truncp.f
+ar -rvu libmdl_8_intel.a truncp.o
+a - truncp.o
+rm -f truncp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tslcm.f
+ar -rvu libmdl_8_intel.a tslcm.o
+a - tslcm.o
+rm -f tslcm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 tslop.f
+ar -rvu libmdl_8_intel.a tslop.o
+a - tslop.o
+rm -f tslop.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 ttotals.f
+ar -rvu libmdl_8_intel.a ttotals.o
+a - ttotals.o
+rm -f ttotals.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpack.f
+unpack.f(1): (col. 18) remark: unpack_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a unpack.o
+a - unpack.o
+rm -f unpack.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpkbg.f
+ar -rvu libmdl_8_intel.a unpkbg.o
+a - unpkbg.o
+rm -f unpkbg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpklx.f
+ar -rvu libmdl_8_intel.a unpklx.o
+a - unpklx.o
+rm -f unpklx.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpkoo.f
+ar -rvu libmdl_8_intel.a unpkoo.o
+a - unpkoo.o
+rm -f unpkoo.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpkpo.f
+ar -rvu libmdl_8_intel.a unpkpo.o
+a - unpkpo.o
+rm -f unpkpo.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 unpkps.f
+ar -rvu libmdl_8_intel.a unpkps.o
+a - unpkps.o
+rm -f unpkps.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 updat.f
+ar -rvu libmdl_8_intel.a updat.o
+a - updat.o
+rm -f updat.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 upslcm.f
+ar -rvu libmdl_8_intel.a upslcm.o
+a - upslcm.o
+rm -f upslcm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 upslop.f
+ar -rvu libmdl_8_intel.a upslop.o
+a - upslop.o
+rm -f upslop.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vertp.f
+vertp.f(1): (col. 18) remark: vertp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a vertp.o
+a - vertp.o
+rm -f vertp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vertx.f
+ar -rvu libmdl_8_intel.a vertx.o
+a - vertx.o
+rm -f vertx.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vortadv.f
+ar -rvu libmdl_8_intel.a vortadv.o
+a - vortadv.o
+rm -f vortadv.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vorth1.f
+vorth1.f(1): (col. 18) remark: vorth1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a vorth1.o
+a - vorth1.o
+rm -f vorth1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vorth.f
+ar -rvu libmdl_8_intel.a vorth.o
+a - vorth.o
+rm -f vorth.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vortw1.f
+vortw1.f(1): (col. 18) remark: vortw1_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a vortw1.o
+a - vortw1.o
+rm -f vortw1.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 vortw.f
+ar -rvu libmdl_8_intel.a vortw.o
+a - vortw.o
+rm -f vortw.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 weibull.f
+ar -rvu libmdl_8_intel.a weibull.o
+a - weibull.o
+rm -f weibull.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wetbulbt.f
+wetbulbt.f(1): (col. 18) remark: wetbulbt_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a wetbulbt.o
+a - wetbulbt.o
+rm -f wetbulbt.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 winddr.f
+ar -rvu libmdl_8_intel.a winddr.o
+a - winddr.o
+rm -f winddr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 windsp.f
+windsp.f(1): (col. 18) remark: windsp_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a windsp.o
+a - windsp.o
+rm -f windsp.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wndchl.f
+ar -rvu libmdl_8_intel.a wndchl.o
+a - wndchl.o
+rm -f wndchl.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrdatmc.f
+ar -rvu libmdl_8_intel.a wrdatmc.o
+a - wrdatmc.o
+rm -f wrdatmc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrdatm.f
+ar -rvu libmdl_8_intel.a wrdatm.o
+a - wrdatm.o
+rm -f wrdatm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrdir.f
+ar -rvu libmdl_8_intel.a wrdir.o
+a - wrdir.o
+rm -f wrdir.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrdisk.f
+ar -rvu libmdl_8_intel.a wrdisk.o
+a - wrdisk.o
+rm -f wrdisk.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrgis.f
+wrgis.f(1): (col. 18) remark: wrgis_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a wrgis.o
+a - wrgis.o
+rm -f wrgis.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 writep.f
+ar -rvu libmdl_8_intel.a writep.o
+a - writep.o
+rm -f writep.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrkeym.f
+ar -rvu libmdl_8_intel.a wrkeym.o
+a - wrkeym.o
+rm -f wrkeym.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrmsg.f
+wrmsg.f(1): (col. 18) remark: wrmsg_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a wrmsg.o
+a - wrmsg.o
+rm -f wrmsg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrtdlmc.f
+ar -rvu libmdl_8_intel.a wrtdlmc.o
+a - wrtdlmc.o
+rm -f wrtdlmc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrtdlm.f
+ar -rvu libmdl_8_intel.a wrtdlm.o
+a - wrtdlm.o
+rm -f wrtdlm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrtdlr.f
+ar -rvu libmdl_8_intel.a wrtdlr.o
+a - wrtdlr.o
+rm -f wrtdlr.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrtmc.f
+ar -rvu libmdl_8_intel.a wrtmc.o
+a - wrtmc.o
+rm -f wrtmc.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wrtm.f
+ar -rvu libmdl_8_intel.a wrtm.o
+a - wrtm.o
+rm -f wrtm.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 wspeed.f
+wspeed.f(1): (col. 18) remark: wspeed_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a wspeed.o
+a - wspeed.o
+rm -f wspeed.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 xchang.f
+ar -rvu libmdl_8_intel.a xchang.o
+a - xchang.o
+rm -f xchang.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 zroneg.f
+zroneg.f(1): (col. 18) remark: zroneg_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a zroneg.o
+a - zroneg.o
+rm -f zroneg.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 zrpred.f
+zrpred.f(1): (col. 18) remark: zrpred_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a zrpred.o
+a - zrpred.o
+rm -f zrpred.o
+ftn -c -O3 -nofree -integer-size 64 -real-size 64 -auto -fpscomp logicals -fp-model strict -assume byterecl -axCore-AVX2 zrpred_old.f
+zrpred_old.f(1): (col. 18) remark: zrpred_old_ has been targeted for automatic cpu dispatch
+ar -rvu libmdl_8_intel.a zrpred_old.o
+a - zrpred_old.o
+rm -f zrpred_old.o
++ mv libmdl_4_intel.a libmdl_8_intel.a ../../lib/.
+mv: target `../../lib/.' is not a directory
++ echo
+
++ date
+Thu Nov  9 15:19:05 UTC 2017
++ echo
+
++ cd /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/sorc/mdl/sorc
+build.all.sh: line 14: cd: /gpfs/hps/nco/ops/nwpara/mos_shared.v2.6.3/lib/sorc/mdl/sorc: No such file or directory
++ ./make-all-mdl-programs.sh
+build.all.sh: line 15: ./make-all-mdl-programs.sh: No such file or directory
++ echo
+
++ date
+Thu Nov  9 15:19:05 UTC 2017

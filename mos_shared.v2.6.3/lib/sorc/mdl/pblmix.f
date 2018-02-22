@@ -1,0 +1,600 @@
+      SUBROUTINE PBLMIX(KFILDO,KFIL10,IDPARS,JD,NDATE,
+     1                  NGRIDC,ND11,NSLAB,IPACK,IWORK,FDRV,ND5,
+     2                  LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                  IS0,IS1,IS2,IS4,ND7,
+     4                  FD1,FD2,FD3,FD4,FD5,FD6,FD7,ND2X3,
+     5                  ISTAV,L3264B,MISTOT,IER)
+C
+C        DECEMBER  2000   RUDACK  MDL   MOS-2000        
+C        FEBRUARY  2002   YAN     MODIFIED TO LIMIT THE MINIMUM
+C                                 MEAN WIND SPEED TO 1 M/S AND RH
+C                                 VALUES BETWEEN 0 AND 1.
+C        NOVEMBER  2002   WEISS   CHANGED ND5 TO ND2X3
+C        MAY       2003   GLAHN   MODIFIED LINES IN CALL; SET
+C                                 DIMENSIONS OF IPACK( ), IWORK( )
+C                                 AND FDDP( ) = ND5; CHANGED ND5 TO
+C                                 ND2X3 IN CALLS TO WSPEED; ELIMINATED
+C                                 AUTOMATIC ARRAYS UWIND( ),VWIND( ),
+C                                 AND FD8( ); PUT FD3( ), FD4( ),
+C                                 FD5( ), FD6( ), AND FD7( ) IN CALL;
+C                                 ICCCFFF( ) AND IUUUU( ) IN DATA
+C                                 STATEMENTS; CHANGED FORMAT 101;
+C                                 COMPUTATIONAL LOOPS 1,ND2X3 CHANGED
+C                                 TO 1,NVX*NVY
+C              
+C        PURPOSE
+C            TO COMPUTE THE PBLMIX PREDICTOR.  THIS IS USED IN THE REGRESSION
+C            ANALYSIS OF VISIBILITY AND OBSTRUCTION TO VISION.
+C            PREDICTOR = (TEMP.{HIGHEST LVL}) * (RH{PBL}) / 
+C                        (TEMP.{LOWEST LVL}) * (MEAN WIND SPEED {HIGHEST-LOWEST}) 
+C
+C            THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED:
+C
+C               007 500 - ( 925 MB TEMP *         970 MB MEAN RH)/
+C                         (1000 MB TEMP * 1000 TO 925 MB MEAN WIND SPEED) 
+C               007 510 - ( 700 MB TEMP *  850 TO 700 MB MEAN RH)/
+C                         ( 850 MB TEMP *  850 TO 700 MB MEAN WIND SPEED)  
+C
+C        DATA SET USE
+C            KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT(PRINT) FILE.
+C                     (OUTPUT)
+C            KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM
+C                     ACCESS.(INPUT-OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                       (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTOR ID CORRESPONDING TO ID() (J=1,15).
+C                       (INPUT)
+C                       J=1--CCC      (CLASS OF VARIABLE),
+C                       J=2--FFF      (SUBCLASS OF VARIABLE),
+C                       J=3--B        (BINARY INDICATOR),
+C                       J=4--DD       (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V        (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY
+C                                      1 LAYER)
+C                       J=7--LTLTLTLT (TOP OF LAYER)
+C                       J=8--T        (TRANSFORMATION)
+C                       J=9--RR       (RUN TIME OFFSET, ALWAYS +
+C                                      AND BACK IN TIME)
+C                       J=10-OT       (TIME APPLICATION)
+C                       J=11-OH       (TIME PERIOD IN HOURS)
+C                       J=12-TAU      (PROJECTION IN HOURS)
+C                       J=13-I        (INTERPOLATION TYPE)
+C                       J=14-S        (SMOOTHING INDICATOR)
+C                       J=15-G        (GRID INDICATOR)
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).
+C                       THIS IS THE SAME AS ID(J), EXCEPT THAT
+C                       THE PORTIONS PERTAINING TO PROCESSING
+C                       ARE OMITTED:
+C                       B = IDPARS(3),
+C                       T = IDPARS(8),
+C                       I = IDPARS(13),
+C                       S = IDPARS(14),
+C                       G = IDPARS(15), AND
+C                       THRESH.
+C                       ID() IS USED TO HELP IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE. (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED.
+C                       (INPUT)
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR
+C                       EACH GRID COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=
+C                            POLAR STEREOGRAPHIC).
+C                       L=2--GRID LENGTH IN METERS.
+C                       L=3--LATITUDE AT WHICH THE GRID LENGTH IS
+C                            CORRECT *1000.
+C                       L=4--GRID ORIENTATION IN DEGREES * 1000.
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *1000.
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES
+C                            *1000.
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN
+C                       BE DEALT WITH ON THIS RUN.  LAST DIMENSION 
+C                       OF NGRIDC(,). (INPUT)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR(, ,) AND
+C                       IN NGRIDC(,) DEFINING THE CHARACTERISTICS
+C                       OF THIS GRID. (OUTPUT)
+C            IPACK(J) = WORK ARRAY (J=1,ND5). (INTERNAL)
+C            IWORK(J) = WORK ARRAY (J=1,ND5). (INTERNAL)
+C             FDRV(J) = DATA ARRAY TO HOLD RETURNED DATA AT
+C                       GRIDPOINTS. IN THIS CASE, THE PRODUCT
+C                       OF THE TEMP(HIGHEST LEVEL) AND THE RH DIVIDED 
+C                       BY THE PRODUCT OF THE TEMP(LOWEST LEVEL) AND 
+C                       THE AVERAGE WIND SPEED BETWEEN THE UPPER AND 
+C                       LOWER LAYER (J=1,ND5). (OUTPUT)
+C                 ND5 = DIMENSION OF IPACK( ), IWORK( ) AND FDRV( ).
+C                       (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE
+C                       DATA STORED (L=1,12) (J=1,LITEMS).
+C                       (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE() WHERE
+C                              THE DATA START.  WHEN ON DISK,
+C                              THIS IS MINUS THE RECORD NUMBER WHERE
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR(, ,L) AND
+C                              IN NGRIDC(,L) DEFINING THE
+C                              CHARACTERISTICS OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE SORTED
+C                              LIST IN ID(,N) (N=1,NPRED) FOR WHICH
+C                              THIS VARIABLE IS NEEDED, WHEN IT IS
+C                              NEEDED ONLY ONCE FROM LSTORE(,).
+C                              WHEN IT IS NEEDED MORE THAN ONCE, THE 
+C                              VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING
+C                              MOSTORE(,). LATER USED AS A WAY OF
+C                              DETERMINING WHETHER TO KEEP THIS
+C                              VARIABLE.
+C                 ND9 = THE SECOND DIMENSION OF LSTORE(,). (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE(,)
+C                       THAT HAVE BEEN USED IN THIS RUN. (INPUT)
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA
+C                       IDENTIFIED IN LSTORE(,) (J=1,ND10).
+C                       WHEN CORE() IS FULL DATA ARE STORED ON DISK.
+C                       (INPUT)
+C                ND10 = DIMENSION OF CORE(). (INPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE. (INPUT)
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.
+C                       IT IS A RUNNING COUNT FROM THE BEGINNING OF
+C                       THE PROGRAM.  THIS COUNT IS MAINTAINED IN
+C                       CASE THE USER NEEDS IT(DIAGNOSTICS, ETC.).
+C                       (OUTPUT)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).
+C                       (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).
+C                       (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C                       IS2(3) AND IS2(4) ARE USED BY THE CALLING
+C                       PROGRAM AS THE GRID DIMENSIONS.
+C                       (INTERNAL-OUTPUT)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                       (INTERNAL)
+C                 ND7 = DIMENSION OF IS0(),IS1(),IS2(), AND IS4().
+C                       NOT ALL LOCATIONS ARE USED. (INPUT)
+C        FD1(J), ETC. = WORK ARRAY TO HOLD THE TEMPERATURE AT LOWEST LEVEL.
+C                       (J=1,ND2X3). (INTERNAL)
+C               ND2X3 = DIMENSION OF SEVERAL VARIABLES.  (INPUT)
+C               ISTAV = 0 SINCE THE DATA RETURNED ARE GRID DATA.
+C                       (OUTPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING 
+C                       USED (EITHER 32 OR 64). (INPUT)
+C              MISTOT = TOTAL NUMBER OF TIMES A MISSING INDICATOR
+C                       HAS BEEN ENCOUNTERED IN UNPACKING GRIDS.
+C                       (INPUT-OUTPUT)
+C                 IER = STATUS RETURN
+C                         0 = GOOD RETURN
+C                       100 = THE TWO GRIDS NEEDED ARE NOT THE SAME SIZE
+C                       103 = IDPARS(1) AND IDPARS(2) DO NOT INDICATE
+C                             THE PRODUCT OF THE RELATIVE HUMIDITY AND
+C                             THE VERTICAL VELOCITY.
+C                       SEE GFETCH FOR OTHER VALUES.
+C                       WHEN IER NE 0, DATA ARE RETURNED AS MISSING.
+C                       (INTERNAL-OUTPUT)
+C          ICCCFFF(J) = CONTAINS IDPARS(1) AND IDPARS(2) ID FOR THE
+C                       METEOROLOGICAL PARAMETERS BEING USED (J=1,4). (INTERNAL)
+C            IUUUU(J) = VARIOUS ATMOSPHERIC PRESSURE LEVELS FROM WHICH 
+C                       DATA WILL BE COLLECTED (J=1,5). (INTERNAL) 
+C           ITEMP1(J) = HOLDS THE PARSED 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD1() (J=1,4). (INTERNAL)
+C           ITEMP2(J) = HOLDS THE PARSED 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD2() (J=1,4). (INTERNAL)
+C              IRH(J) = HOLDS THE PARSED 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD3() (J=1,4). (INTERNAL)
+C          IRHPARS(J) = HOLDS THE PARSED 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD3() (J=1,4). (INTERNAL)
+C           LDPARS(J) = HOLDS THE PARSED 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD4() (J=1,4). (INTERNAL)
+C               LD(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD4() (J=1,4). (INTERNAL)
+C          LDPARS1(J) = HOLDS THE PARSED 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD5() (J=1,4). (INTERNAL)
+C              LD1(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD5() (J=1,4). (INTERNAL)
+C             MDX,MDY = DIMENSIONS OF GRID RETURNED FOR THE TEMPERATURE
+C                       AT THE LOWEST LEVEL. (INTERNAL)
+C             MNX,MNY = DIMENSIONS OF GRID RETURNED FOR THE TEMPERATURE
+C                       AT THE HIGHEST LEVEL. (INTERNAL)
+C             MHX,MHY = DIMENSIONS OF GRID RETURNED FOR THE RELATIVE
+C                       HUMIDITY. (INTERNAL)
+C             MSX,MSY = DIMENSIONS OF GRID RETURNED FOR THE WIND SPEED 
+C                       AT THE LOWEST LEVEL. (INTERNAL)
+C             MVX,MVY = DIMENSIONS OF GRID RETURNED FOR THE WIND SPEED
+C                       AT THE HIGHEST LEVEL. (INTERNAL)
+C               MISSP = PRIMARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       0 FROM CALLING GFETCH WHEN THERE IS NO
+C                       PRIMARY MISSING VALUE. (INTERNAL)
+C               MISSS = SECONDARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       0 FROM CALLING GFETCH WHEN THERE IS NO
+C                       SECONDARY MISSING VALUE.  (INTERNAL)
+C               NPACK = 2 FOR TDL GRIB PACKED DATA; 1 FOR NOT PACKED
+C                       THIS IS RETURNED FROM GFETCH. (INTERNAL)
+C              NSLABT = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR TEMPERATURE AT LOWEST LEVEL. (INTERNAL)
+C              NSLABD = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR TEMPERATURE AT HIGHEST LEVEL. (INTERNAL)
+C              NSLABH = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR THE RELATIVE HUMIDITY. (INTERNAL)
+C              NSLABS = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR THE WIND SPEED AT THE LOWEST LEVEL. (INTERNAL)
+C              NSLABV = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR THE WIND SPEED AT THE HIGHEST LEVEL. (INTERNAL)
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE,
+C                       THAT THE RECORD HAS BEEN FETCHED.  THIS IS 
+C                       STORED IN LSTORE(9,). (INTERNAL)
+C              NWORDS = NUMBER OF WORDS RETURNED IN DATA().  THIS 
+C                       IS RETURNED FROM GFETCH (INTERNAL)
+C                   I = LOOP CONTROL VARIABLE (INTERNAL)
+C                   J = LOOP CONTROL VARIABLE (INTERNAL)
+C
+C        NONSYSTEM SUBROUTINES USED
+C            GFETCH,PRSID1,WSPEED,MEANRH
+C
+      IMPLICIT NONE
+C
+      INTEGER JD(4),IDPARS(15)
+      INTEGER IPACK(ND5),IWORK(ND5)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER LSTORE(12,ND9)
+      INTEGER NGRIDC(6,ND11)
+      INTEGER LD(4),LD1(4),ITEMP1(4),ITEMP2(4),IRH(4),
+     1        ICCCFFF(4),IUUUU(5),LDPARS(15),LDPARS1(15),IRHPARS(15)
+      INTEGER I,IER,ISTAV,J,KFILDO,KFIL10,L3264B,
+     1        LITEMS,MDX,MDY,MISSP,MISSS,MISTOT,MVX,MVY,NSLABV,
+     2        MNX,MNY,NBLOCK,ND2X3,ND5,ND7,ND9,MHX,MHY,
+     3        ND10,ND11,NDATE,NFETCH,NPACK,NSLAB,MSX,MSY,
+     4        NSLABD,NSLABT,NSLABH,NSLABS,NTIMES,NWORDS
+C
+      REAL FDRV(ND5)
+      REAL FD1(ND2X3),FD2(ND2X3),FD3(ND2X3),FD4(ND2X3),FD5(ND2X3),
+     1     FD6(ND2X3),FD7(ND2X3)
+      REAL CORE(ND10)
+C
+      DATA ICCCFFF /002000,
+     1              003007,
+     2              004210,
+     3              003041/
+      DATA IUUUU /1000,
+     1             925,
+     2             970,
+     3             850,
+     4             700/
+C
+      IER=0
+      ISTAV=0
+C
+C        MAKE SURE THIS SUBROUTINE DEALS WITH THE PREDICTOR.
+C
+      IF(IDPARS(1).NE.007.OR.((IDPARS(2).NE.500).AND.
+     1                        (IDPARS(2).NE.510))) THEN
+         IER=103
+         WRITE(KFILDO,101)(JD(J),J=1,4),IER
+ 101     FORMAT(/' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE ',
+     1           'CORRECT ID FOR PBLMIX.',
+     2          /'     PREDICTOR ',I9.9,2I10.9,I4.3,
+     3           ' NOT COMPUTED.  IER =',I4)
+         GOTO 800
+      END IF
+C
+C        SINCE THE ELEVATION IN THE WESTERN U.S.A. IS IN GENERAL
+C        SIGNIFICANTLY HIGHER THAN IN THE CENTRAL AND EAST, SOME 
+C        MODEL VARIABLES (SUCH AS WIND) IN THE WEST DO NOT PROVIDE 
+C        A REALISTIC VERTICAL PROFILE OF THAT VARIABLE IN THAT AREA.
+C        HENCE, THE PREDICTOR (WHICH IS HIGHLY DEPENDENT UPON THE STRUCTURE
+C        OF THE PBL) WOULD BE RENDERED USELESS. THEREFORE, IN ORDER TO 
+C        GIVE MEANING TO THE PREDICTOR IN THE WEST AS WELL, IT WAS NECESSARY 
+C        TO TAKE INTO ACCOUNT THIS ELEVATION FACTOR AND CREATE A SEPERATE ID 
+C        FOR THE WESTERN U.S.A. THIS IDEA FOLLOWS FOR ALL SUBSEQUENT VARIABLES WHICH
+C        WILL BE CALLED BY THE SUBROUTINES BELOW.
+C
+C        CREATE ID FOR THE MEAN PBL (1000-970 MB) RH OR
+C        THE MEAN RH BEWTWEEN 850-700 MB LEVEL. 
+C        NOTE: IF IDPARS(2)=510, THE SUBROUTINE "MEANRH"
+C        WILL NEED TO BE INVOKED INSTEAD OF GFETCH BECAUSE
+C        THE MEAN RH BETWEEN 850-700 MB IS NOT A DIRECT
+C        OUTPUT FROM THE AVN MODEL.
+C
+      IF(IDPARS(2).EQ.500) THEN
+C
+         IRH(1)=ICCCFFF(2)*1000+IDPARS(4)
+         IRH(2)=IUUUU(3)
+         IRH(3)=IDPARS(9)*1000000+IDPARS(12)
+         IRH(4)=0
+C
+C           FETCH THE MEAN PBL (1000-970 MB) RH USING GFETCH
+C           FD3 IS DIMENSIONED AS ND2X3 HERE.
+C
+         CALL GFETCH(KFILDO,KFIL10,IRH,7777,LSTORE,ND9,LITEMS,
+     1               IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD3,ND2X3,
+     2               NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3               NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+         IF(MISSP.NE.0)MISTOT=MISTOT+1
+      ELSE
+         IRH(1)=ICCCFFF(4)*1000+IDPARS(4)
+         IRH(2)=8500700
+         IRH(3)=IDPARS(9)*1000000+IDPARS(12)
+         IRH(4)=0
+C
+C           FETCH THE MEAN (850-700 MB) RH USING "MEANRH"
+C           FD3 IS DIMENSIONED AS ND2X3 HERE.
+C
+C           CALL PRSID1 TO PARSE IDS IRH( ) TO IRHPARS( )
+C
+         CALL PRSID1(KFILDO,IRH,IRHPARS)
+         CALL MEANRH(KFILDO,KFIL10,IRHPARS,IRH,NDATE,
+     1               NGRIDC,ND11,NSLAB,IPACK,IWORK,FD3,ND2X3,
+     2               LSTORE,ND9,LITEMS,CORE,ND10,
+     3               NBLOCK,NFETCH,IS0,IS1,IS2,IS4,ND7,
+     4               FD1,FD2,FD4,FD5,FD6,FD7,FDRV,ND2X3,
+     5               ISTAV,L3264B,MISTOT,IER)
+      ENDIF
+C
+      IF(IER.NE.0)GOTO 800
+C        NOTE THAT THIS CHECK ON IER IS FROM EITHER GFETCH OR
+C        MEANRH.
+      MHX=IS2(3)
+      MHY=IS2(4)
+      NSLABH=NSLAB
+C
+C        CREATE ID FOR 1000 OR 850 MB TEMPERATURE
+C
+      ITEMP1(1)=ICCCFFF(1)*1000+IDPARS(4)
+C                      
+      IF(IDPARS(2).EQ.500) THEN
+         ITEMP1(2)=IUUUU(1)
+      ELSE
+         ITEMP1(2)=IUUUU(4)
+      ENDIF
+C
+      ITEMP1(3)=IDPARS(9)*1000000+IDPARS(12)
+      ITEMP1(4)=0
+C
+C        FETCH THE 1000 OR 850 MB TEMPERTURE USING GFETCH
+C        FD1 IS DIMENSIONED AS ND2X3 HERE.
+C
+      CALL GFETCH(KFILDO,KFIL10,ITEMP1,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3            NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+C
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+      IF(IER.NE.0)GOTO 800
+      MDX=IS2(3)
+      MDY=IS2(4)
+      NSLABT=NSLAB
+C
+C        COMPARE THE GRID CHARACTERISTICS
+C
+      IF(NSLABT.NE.NSLABH)THEN
+         WRITE(KFILDO,147)NSLABT,NSLABH
+ 147     FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1           ' 1000 (850) MB TEMP AND THE MEAN PBL ',
+     2           ' RH ARE DIFFERENT.',I3,2X,I3)
+         IER=100
+         GOTO 800
+      END IF
+C
+      IF(MDX.NE.MHX.OR.MDY.NE.MHY)THEN
+C
+C          THE GRID CHARACTERISTICS ARE NOT THE SAME
+C
+        WRITE(KFILDO,150)(ITEMP1(J),J=1,4),(NGRIDC(J,NSLABT),
+     1                    J=1,6),MDX,MDY,
+     2                   (IRH(J),J=1,4),(NGRIDC(J,NSLABH),
+     3                    J=1,6),MHX,MHY
+ 150    FORMAT(/' ****THE GRIDS NEEDED IN PBLMIX HAVE ',
+     1          'DIFFERENT CHARACTERISTICS.  PREDICTOR ',
+     2          'NOT COMPUTED.  VALUES FROM NGRIDC(,) AND ',
+     3          'MHX,MHY.',
+     4        (/5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+        IER=100
+        GOTO 800
+      END IF
+C
+C        CREATE ID FOR 925 OR 700 MB TEMPERATURE
+C
+      ITEMP2(1)=ICCCFFF(1)*1000+IDPARS(4)
+C
+         IF(IDPARS(2).EQ.500) THEN
+            ITEMP2(2)=IUUUU(2)
+         ELSE
+            ITEMP2(2)=IUUUU(5)
+         ENDIF
+C
+      ITEMP2(3)=IDPARS(9)*1000000+IDPARS(12)
+      ITEMP2(4)=0
+      CALL GFETCH(KFILDO,KFIL10,ITEMP2,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3            NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+C
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+      IF(IER.NE.0)GOTO 800
+      MNX=IS2(3)
+      MNY=IS2(4)
+      NSLABD=NSLAB
+C
+C        COMPARE THE GRID CHARACTERISTICS
+C
+      IF(NSLABD.NE.NSLABH)THEN
+         WRITE(KFILDO,160)NSLABT,NSLABD
+ 160     FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1           ' 1000 (850) MB TEMP AND THE 925 (700) MB TEMP ',
+     2           ' ARE DIFFERENT IN PBLMIX.',I3,2X,I3)
+         IER=100
+         GOTO 800
+      END IF
+C
+      IF(MNX.NE.MDX.OR.MNY.NE.MDY)THEN
+C
+C          THE GRID CHARACTERISTICS ARE THE SAME
+C
+         WRITE(KFILDO,165)(ITEMP1(J),J=1,4),(NGRIDC(J,NSLABT),
+     1                     J=1,6),MDX,MDY,
+     2                    (ITEMP2(J),J=1,4),(NGRIDC(J,NSLABD),
+     3                     J=1,6),MNX,MNY
+ 165     FORMAT(/' ****THE GRIDS NEEDED IN PBLMIX HAVE ',
+     1           'DIFFERENT CHARACTERISTICS.  PREDICTOR ',
+     2           'NOT COMPUTED.  VALUES FROM NGRIDC(,) AND ',
+     3           'MNX,MNY.',
+     4         (/5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+         IER=100
+         GOTO 800
+      END IF
+C
+C        CREATE ID FOR THE WIND SPEED AT 1000 OR 850 MB
+C
+      LD(1)=ICCCFFF(3)*1000+IDPARS(4)
+C
+      IF(IDPARS(2).EQ.500) THEN    
+         LD(2)=1000
+      ELSE
+         LD(2)=850
+      ENDIF
+C
+      LD(3)=IDPARS(9)*1000000+IDPARS(12)
+      LD(4)=0
+C
+C        FETCH THE WIND SPEED AT 1000 OR 850 MB
+C        FD4 IS DIMENSIONED AS ND2X3 
+C
+C        CALL PRSID1 TO PARSE IDS LD( ) TO LDPARS( )
+C
+      CALL PRSID1(KFILDO,LD,LDPARS)
+      CALL WSPEED(KFILDO,KFIL10,LDPARS,LD,NDATE,
+     1            NGRIDC,ND11,NSLAB,IPACK,IWORK,FD4,ND2X3,
+     2            LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3            IS0,IS1,IS2,IS4,ND7,
+     4            FD6,FD7,ND2X3,
+     5            ISTAV,L3264B,MISTOT,IER)
+C
+      IF(IER.NE.0)GOTO 800
+      MSX=IS2(3)
+      MSY=IS2(4)
+      NSLABS=NSLAB
+C
+      IF(NSLABS.NE.NSLABH)THEN
+         WRITE(KFILDO,170)NSLABD,NSLABS
+ 170     FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1           ' 925 (700) MB TEMPERATURE AND THE 1000 ',
+     2           '(850) MB WIND SPEED ARE DIFFERENT.',4I3,2X,I3)
+         IER=100
+         GOTO 800
+      END IF
+C
+      IF(MNX.NE.MSX.OR.MNY.NE.MSY)THEN
+C
+C           THE GRID CHARACTERISTICS ARE THE SAME
+C
+         WRITE(KFILDO,175)(ITEMP2(J),J=1,4),(NGRIDC(J,NSLABD),
+     1                    J=1,6),MNX,MNY,
+     2                    (LD(J),J=1,4),(NGRIDC(J,NSLABS),
+     3                    J=1,6),MSX,MSY
+  175    FORMAT(/' ****THE GRIDS NEEDED IN PBLMIX HAVE ',
+     1           'DIFFERENT CHARACTERISTICS.  PREDICTOR ',
+     2           'NOT COMPUTED. VALUES FROM NGRIDC(,) AND ',
+     3           'MSX,MSY.',
+     4        (/5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+         IER=100
+         GOTO 800
+       END IF
+C
+C        CREATE ID FOR THE WIND SPEED AT 925 OR 700 MB
+C
+      LD1(1)=ICCCFFF(3)*1000+IDPARS(4)
+C
+      IF(IDPARS(2).EQ.500) THEN
+         LD1(2)=925
+      ELSE
+         LD1(2)=700
+      ENDIF
+C
+      LD1(3)=IDPARS(9)*1000000+IDPARS(12)
+      LD1(4)=0
+C
+C        FETCH THE WIND SPEED AT 925 OR 700 MB
+C        FD5 IS DIMENSIONED AS ND2X3 HERE.
+C
+C        CALL PRSID1 TO PARSE IDS LD( ) TO LDPARS( )
+C
+      CALL PRSID1(KFILDO,LD1,LDPARS1)
+      CALL WSPEED(KFILDO,KFIL10,LDPARS1,LD1,NDATE,
+     1            NGRIDC,ND11,NSLAB,IPACK,IWORK,FD5,ND2X3,
+     2            LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3            IS0,IS1,IS2,IS4,ND7,
+     4            FD6,FD7,ND2X3,
+     5            ISTAV,L3264B,MISTOT,IER)
+C
+      IF(IER.NE.0)GOTO 800
+      MVX=IS2(3)
+      MVY=IS2(4)
+      NSLABV=NSLAB
+C
+      IF(NSLABV.NE.NSLABH)THEN
+         WRITE(KFILDO,180)NSLABV,NSLABS
+ 180     FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1           ' 1000 (850) MB WIND SPEED ARE DIFFERENT THAN THE ',
+     2           ' 925 (700) MB WIND SPEED.',I3,2X,I3)
+         IER=100
+         GOTO 800
+      END IF
+C
+      IF(MVX.NE.MSX.OR.MVY.NE.MSY)THEN
+C
+C           THE GRID CHARACTERISTICS ARE NOT THE SAME
+C
+         WRITE(KFILDO,185)(LD(J),J=1,4),(NGRIDC(J,NSLABS),
+     1                    J=1,6),MSX,MSY,
+     2                    (LD1(J),J=1,4),(NGRIDC(J,NSLABV),
+     3                    J=1,6),MVX,MVY
+  185    FORMAT(/' ****THE GRIDS NEEDED IN PBLMIX HAVE ',
+     1          'DIFFERENT CHARACTERISTICS.  PREDICTOR ',
+     2          'NOT COMPUTED. VALUES FROM NGRIDC(,) AND ',
+     3          'MVX,MVY.',
+     4        (/5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+         IER=100
+         GOTO 800
+      END IF
+C
+C        CALCULATE THE MEAN WIND BETWEEN 1000 (850) MB AND 925 (700) MB.
+C    
+      DO I=1,MVX*MVY
+C
+         IF((NINT(FD4(I)).NE.9999).AND.(NINT(FD5(I)).NE.9999)) THEN
+            FD4(I)=(FD4(I)+FD5(I))/2.
+C              ANY WIND SPEED BELOW 1 M/S IS SCALED TO 1 M/S FOR
+C              NUMERICAL CONSISTENCY
+            IF(FD4(I).LE.1.)FD4(I)=1.
+         ENDIF
+C
+      ENDDO 
+C
+C        BEGIN COMPUTATION OF THE PRODUCT OF THE PBLMIX PREDICTOR:
+C
+      DO I=1,MVX*MVY
+           IF((NINT(FD1(I)).NE.9999).AND.(NINT(FD2(I)).NE.9999).AND.
+     1        (NINT(FD3(I)).NE.9999).AND.(NINT(FD4(I)).NE.9999)) THEN
+               FDRV(I)=(FD2(I)*FD3(I))/(FD1(I)*FD4(I))/100.
+C             DEVIDED BY 100. IS TO SCALE BACK RH TO BETWEEN 0. AND 1.
+           ENDIF
+      ENDDO
+C
+      GOTO 900
+C
+C        SET OUTPUT FIELD TO MISSING WHEN AN ERROR HAS OCCURRED.
+C 
+ 800  DO 801 J=1,ND2X3
+         FDRV(J)=9999.
+ 801  CONTINUE
+C
+ 900  RETURN
+      END

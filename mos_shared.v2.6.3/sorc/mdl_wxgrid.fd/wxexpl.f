@@ -1,0 +1,271 @@
+      SUBROUTINE WXEXPL(KFILDO,ID,IDPARS,CCALL,
+     1                  ND1,NSTA,ND2X3,ND5,JSTA,
+     2                  NPCAT,NPPHS,NXPCH,NXPIN,
+     3                  NXWX1,NXWX2,NXWX3,
+     4                  RRMIS,MISSEL,IER)      
+C
+C        NOVEMBER  2010   HUNTEMANN   MDL   MOS-2000
+C        MARCH     2013   HUNTEMANN   MDL   UPDATED DOCUMENTATION,
+C                                           ADDED IMPLICIT NONE,
+C                                           ADDED JSTA TO CALL
+C                                           REMOVED CALCULATION OF JSTA
+C                                           FROM THIS ROUTINE,
+C                                           UPDATED CALL
+C
+C        PURPOSE
+C           SUBROUTINE WXEXPL ASSIGNS THE EXPLICIT WEATHER
+C           CODES BASED ON THE CATEGORICAL PRECIPITATION FORECAST
+C           CODE, THE CATEGORICAL PRECIPITATION PHASE CODE, THE
+C           CATEGORICAL PRECIPITATION CHARACTER CODE, AND THE
+C           CATEGORICAL PRECIPITATION INTENSITY CODE. CALLED BY GENWX.
+C
+C           THE EXPLICIT WEATHER CODE IS COMPOSED AS FOLLOWS:  
+C           GIVEN A CATEGORICAL PRECIPITATION FORECAST P, 
+C           A CATEGORICAL PRECIPITATION PHASE S,
+C           A CATEGORICAL PRECIPITATION CHARACTER C, AND 
+C           A CATEGORICAL INTENSITY I,
+C           THE EXPLICIT WEATHER CODE WILL BE:
+C
+C              CODE = (P * 10000) + (S * 1000) + (C * 10) + I
+C
+C           IF THE INTENSITY CODE I IS SET TO 9 (MISSING), A DEFAULT 
+C           INTENSITY OF 1 IS USED.
+C
+C           FOR INSTANCE, A SLIGHT CHANCE OF RAIN AND SNOW OF LIGHT
+C           INTENSITY WOULD BE REPRESENTED AS:
+C
+C              WX_1 = 11011 ; WX_2 = 13011
+C
+C           SEE WEATHER GRID ROUTINES FOR CODE VALUES.
+C
+C        DATA SET USE
+C           KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C         
+C        VARIABLES
+C           INPUT/OUTPUT VARIABLES
+C
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) 
+C                       FILE. (INPUT)
+C               ID(J) = THE PREDICTOR ID (J=1,4).  (INPUT)
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTORID CORRESPONDING TO ID( ) 
+C                       (J=1,15).  (INPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY 1 LAYER),
+C                       J=7--LTLTLTLT (TOP OF LAYER),
+C                       J=8--T (TRANSFORMATION),
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND BACK IN TIME),
+C                       J=10--OT (TIME APPLICATION),
+C                       J=11--OH (TIME PERIOD IN HOURS),
+C                       J=12--TAU (PROJECTION IN HOURS),
+C                       J=13--I (INTERPOLATION TYPE),
+C                       J=14--S (SMOOTHING INDICATOR), AND
+C                       J=15--G (GRID INDICATOR).
+C          CCALL(K,J) = 8-CHARACTER STATION CALL LETTERS (OR GRIDPOINT
+C                       LOCATIONS FOR GRID DEVELOPMENT) TO PROVIDE
+C                       OUTPUT FOR (J=1) AND 5 POSSIBLE OTHER STATION
+C                       CALL LETTERS (J=2,6) THAT CAN BE USED INSTEAD
+C                       IF THE PRIMARY (J=1) STATION CANNOT BE FOUND 
+C                       IN AN INPUT DIRECTORY (K=1,NSTA).
+C                       (CHARACTER*8)  (INPUT)
+C                 ND1 = MAXIMUM NUMBER OF STATIONS THAT CAN BE DEALT WITH.
+C                       DIMENSION OF SEVERAL VARIABLES.  (INPUT)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT WITH.
+C                       (INPUT)
+C               ND2X3 = DIMENSION OF GRIDDED VARIABLES. (INPUT)
+C
+C           WEATHER GRID INPUT/OUTPUT VARIABLES
+C             JSTA(K) = ARRAY CONTAINING THE GRIDPOINT LOCATIONS OF
+C                       THE STATIONS IN THE STATION LIST. 
+C                       (K=1,NSTA) (INPUT)
+C          NPCAT(I,J) = PRECIPITATION CATEGORY GRIDPOINT FORECASTS FOR
+C                       EACH SUBKEY. (I=3) (J=1,ND2X3) (INPUT)
+C          NPPHS(I,J) = PRECIPITATION TYPE (ZR, IP, S, R) FOR EACH 
+C                       COMPONENT OF THE WEATHER KEY AT GRIDPOINTS. 
+C                       (I=1,3) (J=1,ND2X3) (INPUT)
+C            NXPCH(J) = PRECIPITATION CHARACTER CATEGORY GRIDPOINT
+C                       FORECASTS. (J=1,ND2X3) (INPUT)
+C            NXPIN(J) = PRECIPITATION INTENSITY CATEGORY GRIDPOINT
+C                       FORECASTS. (J=1,ND2X3) (INPUT)
+C            NXWX1(J) = EXPLICIT WEATHER CODE REPRESENTATION
+C                       AT GRIDPOINTS FOR THE FIRST SUBKEY. 
+C                       (J=1,ND2X3) (OUTPUT)
+C            NXWX2(J) = EXPLICIT WEATHER CODE REPRESENTATION
+C                       AT GRIDPOINTS FOR THE SECOND SUBKEY. 
+C                       (J=1,ND2X3) (OUTPUT)
+C            NXWX3(J) = EXPLICIT WEATHER CODE REPRESENTATION
+C                       AT GRIDPOINTS FOR THE THIRD SUBKEY. 
+C                       (J=1,ND2X3) (OUTPUT)
+C               RRMIS = MISSING DATA FLAG. (INPUT)
+C              MISSEL = INTEGER VALUE DENOTING AN ELEMENT NOT FETCHED.
+C                       (INPUT)
+C                 IER = STATUS RETURN.
+C                         0 - GOOD RETURN.
+C                       103 - IDPARS(1) AND IDPARS(2) NOT ACCOMMODATED IN
+C                             THIS ROUTINE.
+C                       SEE CALLED ROUTINES FOR OTHER VALUES.
+C                       (INTERNAL-OUTPUT)
+C
+C            INTERNAL VARIABLES
+C           ITABLE(I) = CCCFFF OF WEATHER GRID (INTERNAL)
+C
+C        NONSYSTEM SUBROUTINES USED
+C           NONE
+C
+C***********************************************************************
+C
+      IMPLICIT NONE
+C
+C        DECLARE MOS2K SYSTEM VARIABLES:
+C
+      CHARACTER*8 CCALL(ND1,6)
+C
+      INTEGER KFILDO,ID(4),IDPARS(15),ND1,NSTA,
+     1        ND2X3,ND5,
+     2        IER      
+C
+C        DECLARE WEATHER GRID VARIABLES (INPUT/OUTPUT):
+C
+      INTEGER NPCAT(3,ND2X3),NPPHS(3,ND2X3),
+     1        NXPCH(ND2X3),NXPIN(ND2X3),
+     2        NXWX1(ND2X3),NXWX2(ND2X3),NXWX3(ND2X3),
+     3        JSTA(NSTA),MISSEL
+C
+      REAL    RRMIS
+C
+C        DECLARE WEATHER GRID VARIABLES (INTERNAL):
+C
+      INTEGER J,K,L
+C
+      INTEGER ITABLE(1) / 228500/
+C
+C***********************************************************************
+C
+C        INITIALIZE VARIABLES.
+C
+      IER=0
+C
+C***D WRITE(KFILDO,100)(ID(J),J=1,4)
+ 100  FORMAT(' *********** IN WXEXPL *************'/' ',4I10)
+C
+C        VERIFY THE PROCESSING INDICATOR, IDPARS(1) AND IDPARS(2).
+C
+      IF(ITABLE(1).EQ.IDPARS(1)*1000+IDPARS(2).AND.
+     1                               IDPARS(7).EQ.0)GO TO 108
+C
+      WRITE(KFILDO,102)(ID(L),L=1,4)
+  102 FORMAT(/,' ****WXEXPL ENTERED FOR VARIABLE',
+     1        2X,I9.9,1X,I9.9,1X,I9.9,1X,I10.3,
+     2        ' NOT ACCOMMODATED.')
+      IER=103
+      GO TO 340
+C  
+  108 CONTINUE
+C
+C**********************************************************************
+C
+C        SUBROUTINE WXEXPL BEGINS HERE.
+C       
+C        LOOP THROUGH ALL GRIDPOINTS:
+C
+      DO 200 J=1,ND2X3
+C
+C        INITIALIZE THE EXPLICIT WEATHER ELEMENTS:
+C
+         NXWX1(J)=RRMIS
+         NXWX2(J)=RRMIS
+         NXWX3(J)=RRMIS
+C
+C        CHECK FOR VALID GRIDPOINT:
+C
+         IF (NPCAT(1,J).NE.RRMIS) THEN
+C
+C        CHECK FOR DRY GRIDPOINT:
+C
+            IF (NPCAT(1,J).EQ.0) THEN
+C
+               NXWX1(J)=0
+               NXWX2(J)=0
+               NXWX3(J)=0
+C
+            ELSE
+C
+C        COMPOSE THE EXPLICIT WEATHER ELEMENTS:
+C
+C        THE FIRST WEATHER KEY:
+               NXWX1(J)=NPCAT(1,J)*10000+NPPHS(1,J)*100+NXPCH(J)*10
+     1                  +NXPIN(J)
+C
+C        THE SECOND WEATHER KEY, CHECK FOR DRY/MISSING GRIDPOINT:
+C
+               IF(NPCAT(2,J).EQ.0) THEN
+                  NXWX2(J)=0
+                  NXWX3(J)=0
+               ELSE
+                  NXWX2(J)=NPCAT(2,J)*10000+NPPHS(2,J)*100+NXPCH(J)*10
+     1                     +NXPIN(J)
+C
+C        THE THIRD WEATHER KEY, CHECK FOR DRY/MISSING GRIDPOINT:
+C
+                  IF(NPCAT(3,J).EQ.0) THEN
+                     NXWX3(J)=0
+                  ELSE
+                     NXWX3(J)=NPCAT(3,J)*10000+NPPHS(3,J)*100+
+     1                        NXPCH(J)*10+NXPIN(J)
+                  ENDIF
+C
+               ENDIF
+C
+C        END OF WET GRIDPOINT TEST
+C
+            ENDIF
+C
+C        END OF VALID GRIDPOINT TEST
+C
+         ENDIF
+C
+C        END OF GRIDPOINT LOOPS
+C
+ 200  CONTINUE
+C
+C        THIS DIAGNOSTIC OUTPUT WILL PRINT TO KFILDO THE GRIDPOINT
+C        OF EACH STATION PROVIDED IN THE STATION LIST AND THE VALUES
+C        USED TO CALCULATE THAT STATION'S EXPLICIT WEATHER CODES.
+C
+D     WRITE(KFILDO,554)
+D 554    FORMAT(/,'CCALL',6X,'J',6X,'NPCAT(1,J)',1X,'NPCAT(2,J)',1X,
+D    1               'NPCAT(3,J)',1X,'NPPHS(1,J)',1X,'NPPHS(2,J)',1X,
+D    2               'NPPHS(3,J)',1X,'NXPCH(J)',1X,'NXPIN(J)',1X,
+D    3               'NXWX1(J)',1X,'NXWX2(J)',1X,'NXWX3(J)')
+D     DO K=1,NSTA
+D 555    FORMAT(A5,3X,I8,3X,I5,6X,I5,6X,I5,6X,I5,6X,I5,6X,I5,6X,I5,4X,
+D    1          I5,4X,I5,4X,I5,4X,I5)
+D        IF(JSTA(K).GT.0.AND.JSTA(K).LE.ND2X3)THEN
+D           WRITE(KFILDO,555) CCALL(K,1),JSTA(K),
+D    1      NPCAT(1,JSTA(K)),NPCAT(2,JSTA(K)),NPCAT(3,JSTA(K)),
+D    2      NPPHS(1,JSTA(K)),NPPHS(2,JSTA(K)),NPPHS(3,JSTA(K)),
+D    3      NXPCH(JSTA(K)),NXPIN(JSTA(K)),
+D    4      NXWX1(JSTA(K)),NXWX2(JSTA(K)),NXWX3(JSTA(K))
+D        ELSE
+D 556       FORMAT(A5,3X,I8,3X,A13)
+D           WRITE(KFILDO,556)CCALL(K,1),JSTA(K),"OUT OF BOUNDS"
+D        ENDIF
+D     ENDDO
+C
+      GO TO 350
+C
+C        MUST SET RETURNABLE ARRAY TO MISSING FOR SAFETY
+C        WHEN DATA CANNOT BE RETURNED.
+C
+ 340  DO 341 J=1,ND2X3
+         NXWX1(J)=RRMIS
+         NXWX2(J)=RRMIS
+         NXWX3(J)=RRMIS
+ 341  CONTINUE
+C
+ 350  RETURN
+      END

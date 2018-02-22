@@ -1,0 +1,1303 @@
+      SUBROUTINE TPCP24_OLD(KFILDO,KFIL10,IDPARS,JD,NDATE,
+     1                  NGRIDC,ND11,NSLAB,IPACK,IWORK,
+     2                  FDTP,ND5,LSTORE,ND9,LITEMS,CORE,ND10,
+     3                  NBLOCK,NFETCH,IS0,IS1,IS2,IS4,ND7,FD1,
+     4                  FD2,FD3,ND2X3,ISTAV,L3264B,MISTOT,
+     5                  IER)
+C
+C        SEPT    1998   SFANOS         TDL MOS-2000
+C         OCT    1998   SFANOS         MODIFIED FOR CONV  PRECIP
+C         DEC    1998   SFANOS         MODIFIED FOR NCONV PRECIP
+C         AUG    2002   MALONEY        MODIFIED FOR GFS(MRF) @T192
+C                                      TO USE 12H @192 AND 6H
+C                                      @186 AND 180
+C         JUNE   2003   RLC            THIS VERSION HAS AN ERROR IN
+C                                      THE ALGORITHM.  IT HAS BEEN
+C                                      RENAMED _OLD AND NEW IDS HAVE
+C                                      BEEN ASSIGNED TO THE CORRECT 
+C                                      VERSION.  WE NEED TO KEEP THIS
+C                                      VERSION IN OPERATIONS UNTIL THE
+C                                      QPF AND TSVR EQNS HAVE BEEN 
+C                                      REDEVELOPED.  IT ALSO NOW CALLS
+C                                      NONCNVP_OLD WHICH HAS ALSO BEEN
+C                                      UPDATED.
+C         DEC    2003   COSGROVE       CHANGED MOST OF THE ND5S TO ND2X3.
+C         AUG    2005   COSGROVE       CHANGED THE CALLS TO GFETCH FROM
+C                                      ND5 TO ND2X3 WHEN PASSING IN ONE
+C                                      OF THE FD ARRAYS THAT'S ONLY
+C                                      DIMENSIONED ND2X3.
+C
+C        PURPOSE
+C            TO COMPUTE THE 24 HR TOTAL,CONVECTIVE, OR 
+C            NON-CONVECTIVE PRECIP AMOUNT. THE FORMULA FOR THIS 
+C            IS(DEPENDING ON THE MODEL):
+C            MRF= 12 HOUR PRECIP AT PROJECTION T
+C                 + PREVIOUS 12 HOUR PRECIP
+C            ETA= 6 HOUR PRECIP AT PROJECTION T + 12 HR PRECIP
+C                 AT PROJECTION T-6 + 12 HOUR PRECIP AT 
+C                 PROJECTION T-18 - 6 HOUR PRECIP AT PROJECTION
+C                 T-24. ANOTHER SCENARIO IS A 12 HR PRECIP
+C                 AT PROJECTION T + PREVIOUS 12 HOUR PRECIP
+C            AVN= 4 6 HR PRECIP AT T,T-6,T-12,T-18 OR
+C                 3 HR PRECIP AT PROJECTION T + 6 HR PRECIP
+C                 AT PROJECTION T-3 + 6 HR PRECIP AT PROJECTION
+C                 T-9 + 6 HR PRECIP AT PROJECTION T-15 + 6 HR
+C                 PRECIP AT PROJECTION T-21 - 3 HR PRECIP AT
+C                 PROJECTION T-24(FOR GREATER THAN 24 HOURS)
+C            GFS= AVN OR MRF METHOD, EXCEPT AT F192, WHERE THE 
+C                 GFS TRANSITIONS FROM 6 HR PRECIP TO 12 HR PRECIP.
+C                 HERE, USE THE 12 HR PRCP AT 192 + THE 6 HR PRCP
+C                 AT 186 + THE 6 HR PRECIP AT 180.
+C            NOTE THAT AT THIS TIME THE 8 3 HR ACCUMULATED PRECIP
+C            PART IS WRITTEN IN THIS CODE BUT NO MODELS CURRENTLY USE
+C            CONSECUTIVE 3 HOUR PROJECTIONS FOR PRECIPITATION.
+C                   
+C            THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED:
+C
+C                   003 225 - 24 HR TOTAL PRECIP AMT
+C                             VARIABLE ON AN ISOBARIC SURFACE
+C                   003 255 - 24 HR CONVECTIVE PRECIP AMT
+C                             VARIABLE ON AN ISOBARIC SURFACE
+C                   003 285 - 24 HR NON-CONVECTIVE PRECIP AMT
+C                             VARIABLE ON AN ISOBARIC SURFACE
+C
+C        DATA SET USE
+C            KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT(PRINT) FILE.
+C                     (OUTPUT)
+C            KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM
+C                     ACCESS.(INPUT-OUTPUT)
+C
+C        VARIABLES
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA
+C                       IDENTIFIED IN LSTORE(,) (J=1,ND10).
+C                       WHEN CORE() IS FULL DATA ARE STORED ON DISK.
+C                       (INPUT)
+C              FD1(J) = WORK ARRAY FOR EITHER THE 3 HOUR TOTAL,
+C                       CONVECTIVE,OR NON-CONVECTIVE 
+C                       PRECIPITATION(J=1,ND2X3).(INTERNAL)
+C              FD2(J) = WORK ARRAY FOR EITHER THE 6 HOUR TOTAL, 
+C                       CONVECTIVE,OR NON-CONVECTIVE 
+C                       PRECIPITATION(J=1,ND2X3).(INTERNAL)
+C              FD3(J) = WORK ARRAY FOR EITHER THE 12 HOUR TOTAL, 
+C                       CONVECTIVE OR NON-CONVECTIVE 
+C                       PRECIPITATION(J=1,ND2X3).(INTERNAL)
+C             FDTP(J) = ARRAY TO HOLD RETURNED DATA WHEN THE DATA ARE
+C                       AT GRIDPOINTS. IN THIS CASE, EITHER THE 24 HOUR
+C                       TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION(J=1,ND5). (OUTPUT)
+C                   I = LOOP CONTROL VARIABLE
+C           ICCCFFF() = CONTAINS IDPARS(1) AND IDPARS(2) ID FOR THE
+C                       METEOROLOGICAL PARAMETERS BEING USED.
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTOR ID CORRESPONDING TO ID() (J=1,15).
+C                       (INPUT)
+C                       J=1--CCC      (CLASS OF VARIABLE),
+C                       J=2--FFF      (SUBCLASS OF VARIABLE),
+C                       J=3--B        (BINARY INDICATOR),
+C                       J=4--DD       (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V        (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY
+C                                      1 LAYER)
+C                       J=7--LTLTLTLT (TOP OF LAYER)
+C                       J=8--T        (TRANSFORMATION)
+C                       J=9--RR       (RUN TIME OFFSET, ALWAYS +
+C                                      AND BACK IN TIME)
+C                       J=10-OT       (TIME APPLICATION)
+C                       J=11-OH       (TIME PERIOD IN HOURS)
+C                       J=12-TAU      (PROJECTION IN HOURS)
+C                       J=13-I        (INTERPOLATION TYPE)
+C                       J=14-S        (SMOOTHING INDICATOR)
+C                       J=15-G        (GRID INDICATOR)
+C                 IER = STATUS RETURN
+C                         0 = GOOD RETURN
+C                       100 = THE TWO GRIDS NEEDED ARE NOT THE SAME SIZE
+C                       101 = GRID SIZE IS TOO BIG FOR AN ARRAY, WHOSE 
+C                             DIMENSION IS ND5.
+C                       103 = IDPARS(1) AND IDPARS(2) DO NOT INDICATE
+C                             TPCP24.
+C                       SEE GFETCH FOR OTHER VALUES.
+C                       WHEN IER NE 0, DATA ARE RETURNED AS MISSING.
+C                       (INTERNAL-OUTPUT)
+C            IPACK(J) = WORK ARRAY (J=1,ND5). (INTERNAL)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).
+C                       (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).
+C                       (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C                       IS2(3) AND IS2(4) ARE USED BY THE CALLING
+C                       PROGRAM AS THE GRID DIMENSIONS.
+C                       (INTERNAL-OUTPUT)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                       (INTERNAL)
+C                 ISO = 1 FOR ISOBARIC, 2 FOR CONSTANT PRESSURE 
+C                       SURFACE,3 FOR SIGMA SURFACE(INTERNAL)
+C               ISTAV = 0 SINCE THE DATA RETURNED ARE GRID DATA.
+C                       (OUTPUT)
+C            IWORK(J) = WORK ARRAY (J=1,ND5). (INTERNAL)
+C                   J = LOOP CONTROL VARIABLE
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).
+C                       THIS IS THE SAME AS ID(J), EXCEPT THAT
+C                       THE PORTIONS PERTAINING TO PROCESSING
+C                       ARE OMITTED:
+C                       B = IDPARS(3),
+C                       T = IDPARS(8),
+C                       I = IDPARS(13),
+C                       S = IDPARS(14),
+C                       G = IDPARS(15), AND
+C                       THRESH.
+C                       ID() IS USED TO HELP IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE. (INPUT)
+C                   K = LOOP CONTROL VARIABLE
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                       (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING 
+C                       USED (EITHER 32 OR 64). (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE(,)
+C                       THAT HAVE BEEN USED IN THIS RUN. (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE
+C                       DATA STORED (L=1,12) (J=1,LITEMS).
+C                       (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE() WHERE
+C                              THE DATA START.  WHEN ON DISK,
+C                              THIS IS MINUS THE RECORD NUMBER WHERE
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR(, ,L) AND
+C                              IN NGRIDC(,L) DEFINING THE
+C                              CHARACTERISTICS OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE SORTED
+C                              LIST IN ID(,N) (N=1,NPRED) FOR WHICH
+C                              THIS VARIABLE IS NEEDED, WHEN IT IS
+C                              NEEDED ONLY ONCE FROM LSTORE(,).
+C                              WHEN IT IS NEEDED MORE THAN ONCE, THE 
+C                              VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING
+C                              MOSTORE(,). LATER USED AS A WAY OF
+C                              DETERMINING WHETHER TO KEEP THIS
+C                              VARIABLE.
+C           MDPARS(J) = SEE IDPARS(J). MDPARS IS USED WHEN
+C                       SUBROUTINES PRSID1 AND NONCNVP ARE NEEDED
+C                       (J=1,15). (INPUT)
+C             MDX,MDY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       6 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C               MISSP = PRIMARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       0 FROM CALLING GFETCH WHEN THERE IS NO
+C                       PRIMARY MISSING VALUE. (INTERNAL)
+C               MISSS = SECONDARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       0 FROM CALLING GFETCH WHEN THERE IS NO 
+C                       SECONDARY MISSING VALUE.  (INTERNAL)
+C              MISTOT = TOTAL NUMBER OF TIMES A MISSING INDICATOR
+C                       HAS BEEN ENCOUNTERED IN UNPACKING GRIDS.
+C                       (INPUT-OUTPUT)
+C             MLX,MLY = DIMENSIONS OF GRID RETURNED FOR EITHER THE 
+C                       6 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MLX,MLY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       6 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MNX,MNY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       6 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MPX,MPY = DIMENSIONS OF GRID RETURNED FOR EITHER THE 
+C                       6 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MRX,MRY = DIMENSIONS OF GRID RETURNED FOR EITHER THE 
+C                       6 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MSX,MSY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       3 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MTP3(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD1() (J=1,4). (INTERNAL)
+C             MTP6(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD2() (J=1,4). (INTERNAL)
+C            MTP12(J) = HOLDS THE 4 ID WORDS OF THE DATA RETRIEVED
+C                       INTO FD3() (J=1,4). (INTERNAL)
+C             MUX,MUY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       6 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MVX,MVY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       12 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MWX,MWY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       6 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MXX,MXY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       12 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MYX,MYY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       12 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MZX,MZY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       12 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MAX,MAY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       12 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C             MBX,MBY = DIMENSIONS OF GRID RETURNED FOR EITHER THE
+C                       12 HOUR TOTAL,CONVECTIVE, OR NON-CONVECTIVE
+C                       PRECIPITATION AMOUNT (INTERNAL)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE. (INPUT)
+C               ND2X3 = DIMENSION OF SEVERAL VARIABLES.  THE SIZE OF
+C                       THE GRID IS NOT KNOWN BEFORE FDTK AND FDDP
+C                       ARE FETCHED.  (INPUT)
+C                 ND5 = DIMENSION OF IPACK(), AND IWORK(). (INPUT)
+C                 ND7 = DIMENSION OF IS0(),IS1(),IS2(), AND IS4().
+C                       NOT ALL LOCATIONS ARE USED. (INPUT)
+C                 ND9 = THE SECOND DIMENSION OF LSTORE(,). (INPUT)
+C                ND10 = DIMENSION OF CORE(). (INPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN
+C                       BE DEALT WITH ON THIS RUN.  LAST DIMENSION 
+C                       OF NGRIDC(,). (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED.
+C                       (INPUT)
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.
+C                       IT IS A RUNNING COUNT FROM THE BEGINNING OF
+C                       THE PROGRAM.  THIS COUNT IS MAINTAINED IN
+C                       CASE THE USER NEEDS IT(DIAGNOSTICS, ETC.).
+C                       (OUTPUT)
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR
+C                       EACH GRID COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=
+C                            POLAR STEREOGRAPHIC).
+C                       L=2--GRID LENGTH IN METERS.
+C                       L=3--LATITUDE AT WHICH THE GRID LENGTH IS
+C                            CORRECT *1000.
+C                       L=4--GRID ORIENTATION IN DEGREES * 1000.
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *1000.
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES
+C                            *1000.
+C               NPACK = 2 FOR TDL GRIB PACKED DATA; 1 FOR NOT PACKED
+C                       THIS IS RETURNED FROM GFETCH. (INTERNAL)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR(, ,) AND
+C                       IN NGRIDC(,) DEFINING THE CHARACTERISTICS
+C                       OF THIS GRID. (OUTPUT)
+C              NSLABD = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 3 HR PRECIP. (INTERNAL)
+C              NSLABL = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 6 HR PRECIP. (INTERNAL)
+C              NSLABM = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 6 HR PRECIP. (INTERNAL)
+C              NSLABN = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 12 HR PRECIP. (INTERNAL)
+C              NSLABP = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 3 HR PRECIP. (INTERNAL)
+C              NSLABR = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 6 HR PRECIP. (INTERNAL)
+C              NSLABS = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 3 HR PRECIP. (INTERNAL)
+C              NSLABT = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 3 HR PRECIP. (INTERNAL)
+C              NSLABU = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 6 HR PRECIP. (INTERNAL)
+C              NSLABV = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 12 HR PRECIP. (INTERNAL)
+C              NSLABW = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 12 HR PRECIP. (INTERNAL)
+C              NSLABX = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 12 HR PRECIP. (INTERNAL)
+C              NSLABY = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 12 HR PRECIP. (INTERNAL)
+C              NSLABZ = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 6 HR PRECIP. (INTERNAL)
+C              NSLABA = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 6 HR PRECIP. (INTERNAL)
+C              NSLABB = SAME AS NSLAB.  RETURNED FROM CALLING GFETCH
+C                       FOR 6 HR PRECIP. (INTERNAL)
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE,
+C                       THAT THE RECORD HAS BEEN FETCHED.  THIS IS 
+C                       STORED IN LSTORE(9,). (INTERNAL)
+C              NWORDS = NUMBER OF WORDS RETURNED IN DATA().  THIS 
+C                       IS RETURNED FROM GFETCH (INTERNAL)
+C
+C     NON SYSTEM SUBROUTINES USED
+C        GFETCH,PRSID1,NONCNVP
+C
+      IMPLICIT NONE
+      INTEGER IDPARS(15),MDPARS(15)
+      INTEGER IPACK(ND5),IWORK(ND5)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER JD(4),MTP3(4),MTP6(4),MTP12(4)
+      INTEGER LSTORE(12,ND9)
+      INTEGER NGRIDC(6,ND11)
+      INTEGER ICCCFFF(9)
+      INTEGER I,IER,ISTAV,
+     1        J,K,KFILDO,KFIL10,L3264B,LITEMS,
+     2        MDX,MDY,MISSP,MISSS,MISTOT,
+     3        MLX,MLY,MMX,MMY,MNX,MNY,MPX,MPY,MRX,MRY,MSX,MSY,
+     4        MTX,MTY,MUX,MUY,MVX,MVY,MWX,MWY,MXX,MXY,
+     5        MYX,MYY,MZX,MZY,MAX,MAY,MBX,MBY,
+     6        NBLOCK,ND2X3,ND5,ND7,ND9,ND10,
+     7        ND11,NDATE,NFETCH,NPACK
+      INTEGER NSLAB,NSLABD,NSLABL,NSLABM,NSLABN,NSLABP,NSLABR,
+     1        NSLABS,NSLABT,NSLABU,NSLABV,NSLABW,NSLABX,NSLABY,
+     2        NSLABZ,NSLABA,NSLABB,NTIMES,NWORDS
+      REAL CORE(ND10)
+      REAL FDTP(ND5)
+      REAL FD1(ND2X3),FD2(ND2X3),FD3(ND2X3)
+C
+C        SET METEOROLOGICAL PARAMETERS THAT ARE USED IN THIS
+C        SUBROUTINE.
+C        ICCCFFF(1)-(3) ARE THE FOLLOWING: TOTAL PRECIP OVER
+C        3,6,AND 12 HOURS,RESPECTIVELY.  ICCCFFF(4)-(6) ARE AS 
+C        FOLLOWS CONVECTIVE PRECIP OVER 3,6,AND 12 HOURS.
+C        ICCCFFF(7)-(9) ARE NON-CONVECTIVE PRECIP OVER 3,6,AND 12
+C        HOURS.
+C
+      ICCCFFF(1)=003205
+      ICCCFFF(2)=003210
+      ICCCFFF(3)=003220
+      ICCCFFF(4)=003235
+      ICCCFFF(5)=003240
+      ICCCFFF(6)=003250
+      ICCCFFF(7)=003265
+      ICCCFFF(8)=003270
+      ICCCFFF(9)=003280
+C
+      IER=0
+      ISTAV=0
+C
+C        MAKE SURE THIS SUBROUTINE DEALS WITH THE PREDICTOR.
+      IF(IDPARS(1).NE.003.AND.(IDPARS(2).NE.225.OR.IDPARS(2).NE.
+     1             255.OR.IDPARS(2).NE.285))THEN
+         WRITE(KFILDO,101)(JD(J),J=1,4)
+ 101     FORMAT(/' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE ',
+     1           '24 HOUR TOTAL CONVECTIVE OR NON-CONVECTIVE ',
+     2           'PRECIP AMT. ',I9.9,2I10.9,I4.3,
+     3           'NOT COMPUTED IN TPCP24. ')
+         IER=103
+         GOTO 800
+      END IF
+C
+C        CHECK IF PROJECTION IS LESS THAN OR EQUAL TO 24 HOURS
+      IF(IDPARS(12).LT.24)THEN
+        WRITE(KFILDO,115)IDPARS(12)
+ 115    FORMAT(/' ****HOUR ENTERED IN THE CONTROL FILE',
+     1          ' IS LESS THAN 24. ',I5,
+     2          ' IS NOT GREATER THAN OR EQUAL TO 24.')
+        IER=200
+        GOTO 800
+      END IF
+C
+C        CREATE ID FOR FIRST 3 HOUR PRECIP AMT. NOTE THAT FD1() 
+C        IS DIMENSIONED ND5 INSTEAD OF ND2X3.  ND2X3 IS SET EQUAL
+C        TO ND5 IN THE DRIVER.
+      IF(IDPARS(2).EQ.255)THEN
+        MTP3(1)=ICCCFFF(4)*1000+IDPARS(4)
+      ELSEIF(IDPARS(2).EQ.225)THEN
+        MTP3(1)=ICCCFFF(1)*1000+IDPARS(4)
+      ELSE
+        MTP3(1)=ICCCFFF(7)*1000+IDPARS(4)
+        MTP3(2)=IDPARS(7)
+        MTP3(3)=IDPARS(9)*1000000+IDPARS(12)
+        MTP3(4)=0
+        CALL PRSID1(KFILDO,MTP3,MDPARS)
+        CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP3,NDATE,
+     1                NGRIDC,ND11,NSLAB,IPACK,IWORK,FD1,ND5,
+     2                LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                IS0,IS1,IS2,IS4,ND7,
+     4                FD2,FD3,ND2X3,
+     5                ISTAV,L3264B,MISTOT,IER)
+        GOTO 110
+      END IF
+C
+      MTP3(2)=IDPARS(7)
+      MTP3(3)=IDPARS(9)*1000000+IDPARS(12)
+      MTP3(4)=0
+C
+C        READ FIRST 3 HR PRECIP AMT; IF A 3 IS READ, THEN THE
+C        ALGORITHEM TRIES TO READ MORE 3 HR PROJECTIONS OR
+C        MORE 6 HR PROJECTIONS. FD1() IS USED WITH SIZE ND5
+C        HERE.
+C
+      CALL GFETCH(KFILDO,KFIL10,MTP3,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3            NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 110  MDX=IS2(3)
+      MDY=IS2(4)
+      NSLABT=NSLAB
+C
+      IF(IER.NE.0)THEN
+        GOTO 200
+      ELSE
+        DO J=1,ND2X3
+          FDTP(J)=0.
+          FDTP(J)=FDTP(J)+FD1(J)
+        END DO
+      END IF
+C
+C        CREATE ID FOR SECOND 3 HR PRECIP AMT.  NOTE THAT FD1() 
+C        IS DIMENSIONED ND5 INSTEAD OF ND2X3.  ND2X3 IS SET EQUAL
+C        TO ND5 IN THE DRIVER.
+      IF(IDPARS(2).EQ.285)THEN
+        MTP3(1)=ICCCFFF(7)*1000+IDPARS(4)
+        MTP3(2)=IDPARS(7)
+        MTP3(3)=IDPARS(9)*1000000+IDPARS(12)-3
+        MTP3(4)=0
+        CALL PRSID1(KFILDO,MTP3,MDPARS)
+        CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP3,NDATE,
+     1               NGRIDC,ND11,NSLAB,IPACK,IWORK,
+     2               FD1,ND5,LSTORE,ND9,LITEMS,CORE,ND10,
+     3               NBLOCK,NFETCH,IS0,IS1,IS2,IS4,ND7,
+     4               FD2,FD3,ND2X3,ISTAV,L3264B,MISTOT,IER)
+        GOTO 130
+      END IF
+C
+      MTP3(2)=IDPARS(7)
+      MTP3(3)=IDPARS(9)*1000000+IDPARS(12)-3
+      MTP3(4)=0
+C
+      CALL GFETCH(KFILDO,KFIL10,MTP3,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3            NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 130  MNX=IS2(3)
+      MNY=IS2(4)
+      NSLABP=NSLAB
+C
+C        COMPARE IF THE GRID CHARACTERISTICS ARE THE SAME
+C
+      IF(MNX.NE.MDX.OR.MNY.NE.MDY)THEN
+C        THE GRID CHARACTERISTICS ARE THE SAME
+        WRITE(KFILDO,135)(MTP3(J),J=1,4),(NGRIDC(J,NSLABT),J=1,6),
+     1                    MDX,MDY,
+     2                   (MTP3(J),J=1,4),(NGRIDC(J,NSLABP),J=1,6),
+     3                    MNX,MNY
+ 135    FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE DIFFERENT',
+     1          ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.',
+     2          ' VALUES FROM NGRIDC(,) AND MX,MY.'/
+     3          (5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+        IER=100
+        GOTO 800
+      END IF
+C
+C        CHECK IF THE NSLABS ARE EQUAL
+      IF(NSLABP.NE.NSLABT)THEN
+        WRITE(KFILDO,140)NSLABP,NSLABT
+ 140    FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1          '3 HOUR PRECIPITATION ARE DIFFERENT.',I3,2X,I3)
+        IER=100
+        GOTO 800
+      END IF
+C
+      IF(IER.EQ.0)THEN
+        DO J=1,ND2X3
+          FDTP(J)=FDTP(J)+FD1(J)
+        END DO
+C
+C        START ACCUMULATING 3 HOUR PRECIP AMOUNTS. FD1() AGAIN
+C        IS USED WITH SIZE ND5 HERE.
+C
+        DO K=1,6
+          MTP3(3)=MTP3(3)-3
+          IF(IDPARS(2).EQ.255.OR.IDPARS(2).EQ.225)THEN
+            CALL GFETCH(KFILDO,KFIL10,MTP3,7777,LSTORE,ND9,LITEMS,
+     1                  IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2                  NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3                  NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+          ELSE
+            CALL PRSID1(KFILDO,MTP3,MDPARS)
+            CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP3,NDATE,
+     1                  NGRIDC,ND11,NSLAB,IPACK,IWORK,
+     2                  FD1,ND5,LSTORE,ND9,LITEMS,CORE,ND10,
+     3                  NBLOCK,NFETCH,IS0,IS1,IS2,IS4,ND7,
+     4                  FD2,FD3,ND2X3,ISTAV,L3264B,MISTOT,IER)
+          END IF
+          IF(MISSP.NE.0)MISTOT=MISTOT+1
+          IF(IER.EQ.0)GOTO 800
+          NSLABD=NSLAB
+          MPX=IS2(3)
+          MPY=IS2(4)
+C
+C        COMPARE IF THE GRID CHARACTERISTICS ARE THE SAME
+C   
+          IF(MPX.NE.MNX.OR.MPY.NE.MNY)THEN
+C        THE GRID CHARACTERISTICS ARE NOT THE SAME
+            WRITE(KFILDO,150)(MTP3(J),J=1,4),(NGRIDC(J,NSLABP),J=1,6),
+     1                        MNX,MNY,
+     2                       (MTP3(J),J=1,4),(NGRIDC(J,NSLABD),J=1,6),
+     3                        MPX,MPY
+ 150        FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE DIFFERENT',
+     1              ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.',
+     2              ' VALUES FROM NGRIDC(,) AND MX,MY.'/
+     3              (5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+            IER=100
+            GOTO 800
+          END IF
+C        CHECK IF THE NSLABS ARE EQUAL
+          IF(NSLABD.NE.NSLABP)THEN
+            WRITE(KFILDO,155)NSLABD,NSLABP
+ 155        FORMAT(/' ****THE GRID CHARACTERISTICS OF THE 3 HR',
+     1              ' PRECIPITATION ARE DIFFERENT',I3,2X,I3)
+            IER=100
+            GOTO 800
+          END IF
+C
+          DO J=1,ND2X3
+            FDTP(J)=FDTP(J)+FD1(J)
+            IF(FDTP(J).LT.0.)FDTP(J)=0.
+          END DO
+        END DO
+      ELSE
+C        CREATE 6 HR PRECIP ID FOR 3/6 HOUR CASE.  FD2()
+C        IS USED WITH SIZE ND5 HERE.
+C
+        IF(IDPARS(2).EQ.255)THEN
+          MTP6(1)=ICCCFFF(5)*1000+IDPARS(4)
+        ELSEIF(IDPARS(2).EQ.225)THEN
+          MTP6(1)=ICCCFFF(2)*1000+IDPARS(4)
+        ELSE
+          MTP6(1)=ICCCFFF(8)*1000+IDPARS(4)
+          MTP6(2)=IDPARS(7)
+          MTP6(3)=IDPARS(9)*1000000+IDPARS(12)-3
+          MTP6(4)=0
+          CALL PRSID1(KFILDO,MTP6,MDPARS)
+          CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP6,NDATE,
+     1                NGRIDC,ND11,NSLAB,IPACK,IWORK,FD2,ND5,
+     2                LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                IS0,IS1,IS2,IS4,ND7,
+     4                FD1,FD3,ND2X3,
+     5                ISTAV,L3264B,MISTOT,IER)
+          GOTO 160
+        END IF
+C
+        MTP6(2)=IDPARS(7)
+        MTP6(3)=IDPARS(9)*1000000+IDPARS(12)-3
+        MTP6(4)=0
+        CALL GFETCH(KFILDO,KFIL10,MTP6,7777,LSTORE,ND9,LITEMS,
+     1              IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     2              NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3              NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+        IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 160    IF(IER.NE.0)GOTO 800
+        NSLABL=NSLAB
+        MLX=IS2(3)
+        MLY=IS2(4)
+C
+C        3/6 CASE PART CONTINUED
+        DO J=1,ND2X3
+          FDTP(J)=FDTP(J)+FD2(J)
+        END DO
+C
+        DO I=1,3
+          IF(IDPARS(2).EQ.285)THEN
+            MTP6(1)=ICCCFFF(8)*1000+IDPARS(4)
+            MTP6(3)=MTP6(3)-6
+            CALL PRSID1(KFILDO,MTP6,MDPARS)
+            CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP6,NDATE,
+     1                NGRIDC,ND11,NSLAB,IPACK,IWORK,FD2,ND5,
+     2                LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                IS0,IS1,IS2,IS4,ND7,
+     4                FD1,FD3,ND2X3,
+     5                ISTAV,L3264B,MISTOT,IER)
+            GOTO 165
+          END IF
+C
+          MTP6(3)=MTP6(3)-6
+          CALL GFETCH(KFILDO,KFIL10,MTP6,7777,LSTORE,ND9,LITEMS,
+     1                IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     2                NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3                NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+          IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 165      IF(IER.NE.0)THEN
+            GOTO 800
+          ELSE
+            NSLABR=NSLAB
+            MRX=IS2(3)
+            MRY=IS2(4)
+C      
+C        CHECK IF GRID CHARACTERISTICS ARE THE SAME
+            IF(MLX.NE.MRX.OR.MLY.NE.MRY)THEN
+C        THE GRID CHARACTERISTICS ARE THE SAME
+              WRITE(KFILDO,170)(MTP6(J),J=1,4),(NGRIDC(J,NSLABR),J=1,6),
+     1                          MRX,MRY,
+     2                         (MTP6(J),J=1,4),(NGRIDC(J,NSLABL),J=1,6),
+     3                           MLX,MLY
+ 170          FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE DIFFERENT',
+     1                ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.',
+     2                ' VALUES FROM NGRIDC(,) AND MX,MY.'/
+     3          (5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+              IER=100
+              GOTO 800
+            END IF
+C
+C        CHECK THE NSLABS ARE EQUAL
+C           
+            IF(NSLABL.NE.NSLABR)THEN
+              WRITE(KFILDO,175)NSLABL,NSLABR
+ 175          FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1                '6 HR PRECIP ARE DIFFERENT.',I3,2X,I3)
+              IER=100
+              GOTO 800
+            END IF
+C
+            DO J=1,ND2X3
+              FDTP(J)=FDTP(J)+FD2(J)
+            END DO
+          END IF
+        END DO
+C
+C        READ LAST 3 HOUR PRECIP.  THIS IS FOR THE AVN MODEL, IN
+C        WHICH A 3 HR PRECIP AMOUNT IS NEEDED AT T-24 TO SUBTRACT 
+C        FROM THE PREVIOUS ACCUMULATED AMOUNT SO THAT THE TIME IN
+C        HOURS EQUAL 24.
+C
+        IF(IDPARS(2).EQ.285)THEN
+          MTP3(1)=ICCCFFF(7)*1000+IDPARS(4)
+          MTP3(2)=IDPARS(7)
+          MTP3(3)=MTP6(3)-3
+          MTP3(4)=0
+          CALL PRSID1(KFILDO,MTP3,MDPARS)
+          CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP3,NDATE,
+     1                NGRIDC,ND11,NSLAB,IPACK,IWORK,FD1,ND5,
+     2                LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                IS0,IS1,IS2,IS4,ND7,
+     4                FD2,FD3,ND2X3,
+     5                ISTAV,L3264B,MISTOT,IER)
+          GOTO 180
+        END IF
+C
+        MTP3(2)=IDPARS(7)
+        MTP3(3)=MTP6(3)-3
+        MTP3(4)=0
+C
+        CALL GFETCH(KFILDO,KFIL10,MTP3,7777,LSTORE,ND9,LITEMS,
+     1              IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2              NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3              NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+        IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 180    IF(IER.NE.0)GOTO 800
+        NSLABS=NSLAB
+        MSX=IS2(3)
+        MSY=IS2(4)
+C
+C          CHECK IF THE GRID CHARACTERISTICS ARE THE SAME
+C     
+        IF(MRX.NE.MSX.OR.MRY.NE.MSY)THEN
+C          THE GRID CHARACTERISTICS ARE NOT THE SAME
+          WRITE(KFILDO,185)(MTP6(J),J=1,4),(NGRIDC(J,NSLABR),J=1,6),
+     1                      MRX,MRY,
+     2                     (MTP3(J),J=1,4),(NGRIDC(J,NSLABS),J=1,6),
+     3                      MSX,MSY
+ 185      FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE DIFFERENT',
+     1            ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.',
+     2            ' VALUES FROM NGRIDC(,) AND MX,MY.'/
+     3            (5X,I9.9,I10.9,I10.9,I4.3,6I10,4X,2I5))
+          IER=100
+          GOTO 800
+        END IF
+C
+C          CHECK IF NSLABS ARE EQUAL
+C
+        IF(NSLABR.NE.NSLABS)THEN
+          WRITE(KFILDO,190)NSLABR,NSLABS
+ 190      FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1            '3 AND 6 HR PRECIPITATION ARE DIFFERENT.',I3,2X,I3)
+          IER=100
+          GOTO 800
+        END IF
+C
+        DO J=1,ND2X3
+          FDTP(J)=FDTP(J)-FD1(J)
+          IF(FDTP(J).LT.0.)FDTP(J)=0.
+        END DO
+      END IF
+      GOTO 900
+C
+C        CREATE 6 HR PRECIP ID.  THIS PART IS FOR THE 24 HOUR 
+C        PRECIP TO BE CALCULATED WITH 4 6 HOUR AMOUNTS.
+ 200  IF(IDPARS(2).EQ.255)THEN
+        MTP6(1)=ICCCFFF(5)*1000+IDPARS(4)
+      ELSEIF(IDPARS(2).EQ.225)THEN
+        MTP6(1)=ICCCFFF(2)*1000+IDPARS(4)
+      ELSE
+        MTP6(1)=ICCCFFF(8)*1000+IDPARS(4)
+        MTP6(2)=IDPARS(7)
+        MTP6(3)=IDPARS(9)*1000000+IDPARS(12)
+        MTP6(4)=0
+        CALL PRSID1(KFILDO,MTP6,MDPARS)
+        CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP6,NDATE,
+     1                NGRIDC,ND11,NSLAB,IPACK,IWORK,FD2,ND5,
+     2                LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                IS0,IS1,IS2,IS4,ND7,
+     4                FD1,FD3,ND2X3,
+     5                ISTAV,L3264B,MISTOT,IER)
+        GOTO 205
+      END IF
+C
+      MTP6(2)=IDPARS(7)
+      MTP6(3)=IDPARS(9)*1000000+IDPARS(12)
+      MTP6(4)=0
+C     
+C        READ FIRST 6 HR AMOUNT
+      CALL GFETCH(KFILDO,KFIL10,MTP6,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3            NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+ 205  IF(IER.NE.0)THEN
+        GOTO 300
+C        300 IS THE 12 HOUR PRECIP PART
+      ELSE
+        NSLABN=NSLAB
+        MWX=IS2(3)
+        MWY=IS2(4)
+C
+        DO J=1,ND2X3
+          FDTP(J)=0.
+          FDTP(J)=FDTP(J)+FD2(J)
+        END DO
+      END IF
+C        CREATE ID FOR SECOND 6 HR PRECIP AMT.  NOTE THAT FD2() 
+C        IS DIMENSIONED ND5 INSTEAD OF ND2X3. ND2X3 IS SET EQUAL
+C        TO ND5 IN THE DRIVER.
+      IF(IDPARS(2).EQ.285)THEN
+        MTP6(1)=ICCCFFF(8)*1000+IDPARS(4)
+        MTP6(2)=IDPARS(7)
+        MTP6(3)=IDPARS(9)*1000000+IDPARS(12)-6
+        MTP6(4)=0
+        CALL PRSID1(KFILDO,MTP6,MDPARS)
+        CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP6,NDATE,
+     1               NGRIDC,ND11,NSLAB,IPACK,IWORK,
+     2               FD2,ND5,LSTORE,ND9,LITEMS,CORE,ND10,
+     3               NBLOCK,NFETCH,IS0,IS1,IS2,IS4,ND7,
+     4               FD1,FD3,ND2X3,ISTAV,L3264B,MISTOT,IER)
+        GOTO 210
+      END IF
+C
+      MTP6(2)=IDPARS(7)
+      MTP6(3)=IDPARS(9)*1000000+IDPARS(12)-6
+      MTP6(4)=0
+C
+      CALL GFETCH(KFILDO,KFIL10,MTP6,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD1,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3            NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 210  MMX=IS2(3)
+      MMY=IS2(4)
+      NSLABM=NSLAB
+C        COMPARE IF THE GRID CHARACTERISTICS ARE THE SAME
+C 
+      IF(MWX.NE.MMX.OR.MWY.NE.MMY)THEN
+C        THE GRID CHARACTERISTICS ARE THE SAME
+        WRITE(KFILDO,215)(MTP6(J),J=1,4),(NGRIDC(J,NSLABN),J=1,6),
+     1                    MWX,MWY,
+     2                   (MTP6(J),J=1,4),(NGRIDC(J,NSLABM),J=1,6),
+     3                    MMX,MMY
+ 215    FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE DIFFERENT',
+     1          ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.',
+     2          ' VALUES FROM NGRIDC(,) AND MX,MY.'/
+     3          (5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+        IER=100
+        GOTO 800
+      END IF
+C
+C        CHECK IF THE NSLABS ARE EQUAL
+      IF(NSLABN.NE.NSLABM)THEN
+        WRITE(KFILDO,220)NSLABN,NSLABM
+ 220    FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1          '3 HOUR PRECIPITATION ARE DIFFERENT.',I3,2X,I3)
+        IER=100
+        GOTO 800
+      END IF
+C
+      IF(IER.NE.0)THEN
+        GOTO 250
+C     
+C        CREATE THE OTHER TWO 6 HR PRECIP ID'S
+C
+      ELSE
+        DO J=1,ND2X3
+          FDTP(J)=FDTP(J)+FD2(J)
+        END DO
+
+        DO K=1,2
+          IF(IDPARS(2).EQ.285)THEN
+            MTP6(1)=ICCCFFF(8)*1000+IDPARS(4)
+            MTP6(2)=IDPARS(7)
+            MTP6(3)=IDPARS(9)*1000000+IDPARS(12)-6
+            MTP6(4)=0
+            CALL PRSID1(KFILDO,MTP6,MDPARS)
+            CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP6,NDATE,
+     1                  NGRIDC,ND11,NSLAB,IPACK,IWORK,FD2,ND5,
+     2                  LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                  IS0,IS1,IS2,IS4,ND7,
+     4                  FD1,FD3,ND2X3,
+     5                  ISTAV,L3264B,MISTOT,IER)
+            GOTO 230
+          END IF
+C
+          MTP6(2)=IDPARS(7)
+          MTP6(3)=IDPARS(9)*1000000+IDPARS(12)-6
+          MTP6(4)=0
+          CALL GFETCH(KFILDO,KFIL10,MTP6,7777,LSTORE,ND9,LITEMS,
+     1                IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     2                NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3                NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+          IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 230      IF(IER.NE.0)GOTO 800
+          NSLABU=NSLAB
+          MUX=IS2(3)
+          MUY=IS2(4)
+C
+C        COMPARE IF GRID CHARACTERISTICS ARE THE SAME
+C
+          IF(MWX.NE.MUX.OR.MWY.NE.MUY)THEN
+C        THE GRID CHARACTERISTICS ARE NOT THE SAME
+            WRITE(KFILDO,235)(MTP6(J),J=1,4),(NGRIDC(J,NSLABN),J=1,6),
+     1                        MWX,MWY,
+     2                       (MTP6(J),J=1,4),(NGRIDC(J,NSLABU),J=1,6),
+     3                        MUX,MUY
+ 235        FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE DIFFERENT',
+     1              ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.',
+     2              ' VALUES FROm NGRIDC(,) AND MX,MY.'/
+     3              (5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+            IER=100
+            GOTO 800
+          END IF
+C
+C        CHECK THE NSLABS ARE EQUAL
+          IF(NSLABU.NE.NSLABN)THEN
+            WRITE(KFILDO,240)NSLABU,NSLABN
+ 240        FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1              '6 HR PRECIPITATION ARE DIFFERENT.',I3,2X,I3)
+            IER=100
+            GOTO 800
+          END IF
+C
+          DO I=1,ND2X3
+            FDTP(I)=FDTP(I)+FD2(I)
+            IF(FDTP(I).LT.0.)FDTP(I)=0.
+          END DO
+        END DO
+      END IF
+      GOTO 900
+C
+C        THIS IS THE 6/12 BLOCK PART
+C        DO T-6 AT 12 HOUR.  IF THE MODEL IS ETA, AND THE 6 HR
+C        PROJECTION AT T IS READ, BUT THE T-6 6 HR IS NOT, DO 
+C        THIS.  FD3() HAS A SIZE OF ND5 HERE.
+C
+ 250  IF(IDPARS(2).EQ.255)THEN
+        MTP12(1)=ICCCFFF(6)*1000+IDPARS(4)
+      ELSEIF(IDPARS(2).EQ.225)THEN
+        MTP12(1)=ICCCFFF(3)*1000+IDPARS(4)
+      ELSE
+        MTP12(1)=ICCCFFF(9)*1000+IDPARS(4)
+        MTP12(2)=IDPARS(7)
+        MTP12(3)=IDPARS(9)*1000000+IDPARS(12)-6
+        MTP12(4)=0
+        CALL PRSID1(KFILDO,MTP12,MDPARS)
+        CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP12,NDATE,
+     1               NGRIDC,ND11,NSLAB,IPACK,IWORK,FD3,ND5,
+     2               LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3               IS0,IS1,IS2,IS4,ND7,
+     4               FD1,FD2,ND2X3,
+     5               ISTAV,L3264B,MISTOT,IER)
+        GOTO 255
+      END IF
+C
+      MTP12(2)=IDPARS(7)
+      MTP12(3)=IDPARS(9)*1000000+IDPARS(12)-6
+      MTP12(4)=0
+      CALL GFETCH(KFILDO,KFIL10,MTP12,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD3,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3            NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+ 255  NSLABW=NSLAB
+      MXX=IS2(3)
+      MXY=IS2(4)
+      DO I=1,ND2X3
+        FDTP(I)=FDTP(I)+FD3(I)
+      END DO
+C
+      IF(IER.NE.0)THEN
+        GOTO 800
+      ELSE
+C        READ T-18 FOR 12 HOUR PRECIP
+        MTP12(3)=MTP12(3)-12
+        IF(IDPARS(2).EQ.225.OR.IDPARS(2).EQ.255)THEN
+          CALL GFETCH(KFILDO,KFIL10,MTP12,7777,LSTORE,ND9,LITEMS,
+     1               IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD3,ND2X3,
+     2               NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3               NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+        ELSE
+          CALL PRSID1(KFILDO,MTP12,MDPARS)
+          CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP12,NDATE,
+     1                  NGRIDC,ND11,NSLAB,IPACK,IWORK,
+     2                  FD3,ND5,LSTORE,ND9,LITEMS,CORE,ND10,
+     3                  NBLOCK,NFETCH,IS0,IS1,IS2,IS4,ND7,
+     4                  FD1,FD2,ND2X3,ISTAV,L3264B,MISTOT,IER)
+          GOTO 260
+        END IF
+C
+        IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 260    IF(IER.NE.0)GOTO 800
+C
+        NSLABY=NSLAB
+        MYX=IS2(3)
+        MYY=IS2(4)
+C
+        DO I=1,ND2X3
+          FDTP(I)=FDTP(I)+FD3(I)
+        END DO
+C
+C        COMPARE IF THE GRID CHARACTERISTICS ARE THE SAME
+C
+        IF(MXX.NE.MYX.OR.MYY.NE.MXY)THEN
+C        THE GRID CHARACTERISTICS ARE NOT THE SAME
+          WRITE(KFILDO,270)(MTP12(J),J=1,4),(NGRIDC(J,NSLABW),J=1,6),
+     1                      MXX,MXY,
+     2                     (MTP12(J),J=1,4),(NGRIDC(J,NSLABY),J=1,6),
+     3                      MYX,MYY
+ 270      FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE DIFFERENT',
+     1            ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.',
+     2            ' VALUES FROM NGRIDC(,) AND MX,MY.'/
+     3            (5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+          IER=100
+          GOTO 800
+        END IF
+C
+C        CHECK IF THE NSLABS ARE EQUAL
+        IF(NSLABW.NE.NSLABY)THEN
+          WRITE(KFILDO,280)NSLABW,NSLABY
+ 280      FORMAT(/' ****THE GRIDS OF THE 12 HOUR PRECIPITATION ',
+     1            'ARE NOT THE SAME.',I3,2X,I3)
+          IER=100
+          GOTO 800
+        END IF
+C
+C        READ T-24 FOR 6 HOUR PRECIP AND SUBTRACT.  THIS IS DONE 
+C        FOR THE ETA MODEL BECAUSE THE TOTAL HOURS ACCOUNT FOR 30
+C        AND A 24 HOUR AMOUNT IS NEEDED.  THUS A 6 HOUR SUBTRACTION.
+C
+        IF(IDPARS(2).EQ.255)THEN
+          MTP6(1)=ICCCFFF(5)*1000+IDPARS(4)
+        ELSEIF(IDPARS(2).EQ.225)THEN
+          MTP6(1)=ICCCFFF(2)*1000+IDPARS(4)
+        ELSE
+          MTP6(1)=ICCCFFF(8)*1000+IDPARS(4)
+          MTP6(2)=IDPARS(7)
+          MTP6(3)=IDPARS(9)*1000000+IDPARS(12)-24
+          MTP6(4)=0
+          CALL PRSID1(KFILDO,MTP12,MDPARS)
+          CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP12,NDATE,
+     1                  NGRIDC,ND11,NSLAB,IPACK,IWORK,
+     2                  FD2,ND5,LSTORE,ND9,LITEMS,CORE,ND10,
+     3                  NBLOCK,NFETCH,IS0,IS1,IS2,IS4,ND7,
+     4                  FD1,FD3,ND2X3,ISTAV,L3264B,MISTOT,IER)
+          GOTO 285
+        END IF
+C
+        MTP6(2)=IDPARS(7)
+        MTP6(3)=IDPARS(9)*1000000+IDPARS(12)-24
+        MTP6(4)=0
+        CALL GFETCH(KFILDO,KFIL10,MTP6,7777,LSTORE,ND9,LITEMS,
+     1              IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD2,ND2X3,
+     2              NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3              NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+        IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 285    IF(IER.NE.0)GOTO 800
+        NSLABZ=NSLAB
+        MZX=IS2(3)
+        MZY=IS2(4)
+C       
+C        COMPARE IF GRID CHARACTERISTICS ARE THE SAME
+C
+        IF(MZX.NE.MYX.OR.MZY.NE.MYY)THEN
+C        THE GRID CHARACTERISTICS ARE NOT THE SAME
+          WRITE(KFILDO,290)(MTP12(J),J=1,4),(NGRIDC(J,NSLABY),J=1,6),
+     1                      MYX,MYY,
+     2                     (MTP12(J),J=1,4),(NGRIDC(J,NSLABZ),J=1,6),
+     3                      MZX,MZY
+ 290      FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE DIFFERENT',
+     1            ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.',
+     2            ' VALUES FROM NGRIDC(,) AND MX,MY.'/
+     3            (5X,I9.9,I10.9,I4.3,4X,6I10,4X,2I5))
+          IER=100
+          GOTO 800
+        END IF
+C
+C        CHECK THE NSLABS ARE EQUAL
+        IF(NSLABY.NE.NSLABZ)THEN
+          WRITE(KFILDO,295)NSLABY,NSLABZ
+ 295      FORMAT(/' ****THE GRIDS OF THE 12 HOUR PRECIPITATION',
+     1            ' ARE NOT EQUAL.',I3,2X,I3)
+          IER=100
+          GOTO 800
+        END IF
+C
+        DO I=1,ND2X3
+          FDTP(I)=FDTP(I)-FD2(I)
+          IF(FDTP(I).LT.0.)FDTP(I)=0.
+        END DO
+      END IF
+      GOTO 900
+C
+C        THIS IS THE STRAIGHT 12 BLOCK.
+C        READ 12 HR PRECIP PROJECTION AT T FOR MRF OR ETA.
+C
+ 300  IF(IDPARS(2).EQ.255)THEN
+        MTP12(1)=ICCCFFF(6)*1000+IDPARS(4)
+      ELSEIF(IDPARS(2).EQ.225)THEN
+        MTP12(1)=ICCCFFF(3)*1000+IDPARS(4)
+      ELSE
+        MTP12(1)=ICCCFFF(9)*1000+IDPARS(4)
+        MTP12(2)=IDPARS(7)
+        MTP12(3)=IDPARS(9)*1000000+IDPARS(12)
+        MTP12(4)=0
+        CALL PRSID1(KFILDO,MTP12,MDPARS)
+        CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP12,NDATE,
+     1               NGRIDC,ND11,NSLAB,IPACK,IWORK,FD3,ND5,
+     2               LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3               IS0,IS1,IS2,IS4,ND7,
+     4               FD1,FD2,ND2X3,
+     5               ISTAV,L3264B,MISTOT,IER)
+        GOTO 310
+      END IF
+C
+      MTP12(2)=IDPARS(7)
+      MTP12(3)=IDPARS(9)*1000000+IDPARS(12)
+      MTP12(4)=0
+      CALL GFETCH(KFILDO,KFIL10,MTP12,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD3,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3            NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+C
+      IF(MISSP.NE.0)MISTOT=MISTOT+1       
+ 310  DO I=1,ND2X3
+        FDTP(I)=0.
+        FDTP(I)=FDTP(I)+FD3(I)
+      END DO
+C
+      IF(IER.NE.0)THEN
+        GOTO 800
+C
+C        READ THE NEXT TWELVE HOUR PROJECTION.  THIS PART IS
+C        FOR THE MRF OR ETA.
+C
+      ELSE
+        NSLABV=NSLAB
+        MVX=IS2(3)
+        MVY=IS2(4)
+        IF(IDPARS(2).EQ.285)THEN
+          MTP12(1)=ICCCFFF(9)*1000+IDPARS(4)
+          MTP12(3)=MTP12(3)-12
+          CALL PRSID1(KFILDO,MTP12,MDPARS)
+          CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP12,NDATE,
+     1                 NGRIDC,ND11,NSLAB,IPACK,IWORK,FD3,ND5,
+     2                 LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                 IS0,IS1,IS2,IS4,ND7,
+     4                 FD1,FD2,ND2X3,
+     5                 ISTAV,L3264B,MISTOT,IER)
+          GOTO 315
+        END IF
+C
+        MTP12(3)=MTP12(3)-12
+        CALL GFETCH(KFILDO,KFIL10,MTP12,7777,LSTORE,ND9,LITEMS,
+     1              IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD3,ND2X3,
+     2              NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3              NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+C
+        IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+C          IF THERE IS AN ERROR FETCHING THE SECOND 12 HR 
+C          PRECIP AMOUNT, TRY FETCHING THE TWO 6 HR
+C          PRECIP AMOUNTS.
+C
+ 315    IF(IER.NE.0)GOTO 350
+        NSLABX=NSLAB
+        MTX=IS2(3)
+        MTY=IS2(4)
+C        COMPARE IF THE GRID CHARACTERISTICS ARE THE SAME
+C
+        IF(MTX.NE.MVX.OR.MTY.NE.MVY)THEN
+C        THE GRID CHARACTERISTICS ARE THE SAME
+          WRITE(KFILDO,320)(MTP12(J),J=1,4),(NGRIDC(J,NSLABV),
+     1                      J=1,6),MVX,MVY,
+     2                      (MTP12(J),J=1,4),(NGRIDC(J,NSLABX),
+     3                      J=1,6),MTX,MTY
+ 320      FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE ',
+     1            ' DIFFERENT CHARACTERISTICS.  PREDICTOR NOT',
+     2            ' COMPUTED.  VALUES FROm NGRIDC(,) AND MX,MY.'/
+     3            (5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+          IER=100
+          GOTO 800
+        END IF
+C
+C        CHECK THE NSLABS ARE EQUAL
+        IF(NSLABX.NE.NSLABV)THEN
+          WRITE(KFILDO,325)NSLABX,NSLABV
+ 325      FORMAT(/' ****THE GRIDS OF THE 12 HOUR PRECIPITATION',
+     1            ' ARE DIFFERENT.',I3,2X,I3)
+          IER=100
+          GOTO 800
+        END IF
+C
+        DO I=1,ND2X3
+          FDTP(I)=FDTP(I)+FD3(I)
+          IF(FDTP(I).LT.0.)FDTP=0.
+        END DO
+      END IF
+      GOTO 900
+C
+C        THIS IS THE GFS PIECE.  TO GET HERE, THE FIRST 12 HR PRECIP
+C        MUST BE FOUND, BUT THE SECOND MUST BE MISSING.
+C
+C        THE 12 HR PRECIP AT PROJECTION T HAS ALREADY BEEN FETCHED
+C        ABOVE AND STORED IN FDTP( ).  WE NEED TO FETCH TWO 6 HR
+C        PRECIPS.
+C
+C        FETCH THE 6 HR PRECIP AT PROJECTION T-12
+C
+ 350  IF(IDPARS(2).EQ.225)THEN
+        MTP12(1)=ICCCFFF(2)*1000+IDPARS(4)
+      ELSEIF(IDPARS(2).EQ.255)THEN
+        MTP12(1)=ICCCFFF(5)*1000+IDPARS(4)
+      ELSE
+        MTP12(1)=ICCCFFF(8)*1000+IDPARS(4)
+        MTP12(2)=IDPARS(7)
+        MTP12(3)=IDPARS(9)*1000000+IDPARS(12)-12
+        MTP12(4)=0
+        CALL PRSID1(KFILDO,MTP12,MDPARS)
+        CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP12,NDATE,
+     1               NGRIDC,ND11,NSLAB,IPACK,IWORK,FD3,ND5,
+     2               LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3               IS0,IS1,IS2,IS4,ND7,
+     4               FD1,FD2,ND2X3,
+     5               ISTAV,L3264B,MISTOT,IER)
+        GOTO 355
+      END IF
+C
+      MTP12(2)=IDPARS(7)
+      MTP12(3)=IDPARS(9)*1000000+IDPARS(12)-12
+      MTP12(4)=0
+      CALL GFETCH(KFILDO,KFIL10,MTP12,7777,LSTORE,ND9,LITEMS,
+     1            IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD3,ND2X3,
+     2            NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3            NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+      IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 355  NSLABA=NSLAB
+      MAX=IS2(3)
+      MAY=IS2(4)
+C
+C        COMPARE GRID CHARACTERISTICS
+C
+      IF(MVX.NE.MAX.OR.MVY.NE.MAY)THEN
+        WRITE(KFILDO,360)(MTP12(J),J=1,4),(NGRIDC(J,NSLABV),J=1,6),
+     1                    MVX,MVY,
+     2                   (MTP12(J),J=1,4),(NGRIDC(J,NSLABA),J=1,6),
+     3                    MAX,MAY
+ 360    FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE DIFFERENT',
+     1          ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.',
+     2          ' VALUES FROM NGRIDC(,) AND MX,MY.'/
+     3          (5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+        IER=100
+        GOTO 800
+      END IF
+C
+C        CHECK IF THE NSLABS ARE EQUAL
+C
+      IF(NSLABV.NE.NSLABA)THEN
+         WRITE(KFILDO,365)NSLABV,NSLABA
+ 365     FORMAT(/' ****THE GRIDS OF THE 12 AND 6 HOUR ',
+     1           'PRECIPITATION ARE NOT THE SAME.',/,I3,2X,I3)
+         IER=100
+         GOTO 800
+      END IF
+C
+      IF (IER.NE.0) THEN
+         GOTO 800
+      ELSE
+C
+         DO J=1,ND2X3
+            FDTP(J)=FDTP(J)+FD3(J)
+         END DO
+C
+C           FETCH THE 6 HR PRECIP AT T-18
+C
+         IF (IDPARS(2).EQ.285) THEN
+            MTP12(1)=ICCCFFF(8)*1000+IDPARS(4)
+            MTP12(2)=IDPARS(7)
+            MTP12(3)=IDPARS(9)*1000000+IDPARS(12)-18
+            MTP12(4)=0
+            CALL PRSID1(KFILDO,MTP12,MDPARS)
+            CALL NONCNVP_OLD(KFILDO,KFIL10,MDPARS,MTP12,NDATE,
+     1                  NGRIDC,ND11,NSLAB,IPACK,IWORK,FD3,ND5,
+     2                  LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                  IS0,IS1,IS2,IS4,ND7,
+     4                  FD1,FD3,ND2X3,
+     5                  ISTAV,L3264B,MISTOT,IER)
+            GOTO 370
+         END IF
+C
+         MTP12(2)=IDPARS(7)
+         MTP12(3)=IDPARS(9)*1000000+IDPARS(12)-18
+         MTP12(4)=0
+         CALL GFETCH(KFILDO,KFIL10,MTP12,7777,LSTORE,ND9,LITEMS,
+     1               IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FD3,ND2X3,
+     2               NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,NBLOCK,
+     3               NFETCH,NSLAB,MISSP,MISSS,L3264B,1,IER)
+         IF(MISSP.NE.0)MISTOT=MISTOT+1
+ 370     IF(IER.NE.0)GOTO 800
+         NSLABB=NSLAB
+         MBX=IS2(3)
+         MBY=IS2(4)
+C
+C        COMPARE IF GRID CHARACTERISTICS ARE THE SAME
+C
+         IF(MBX.NE.MAX.OR.MBY.NE.MAY)THEN
+C           THE GRID CHARACTERISTICS ARE NOT THE SAME
+            WRITE(KFILDO,375)(MTP12(J),J=1,4),(NGRIDC(J,NSLABA),J=1,6),
+     1                        MAX,MAY,
+     2                       (MTP12(J),J=1,4),(NGRIDC(J,NSLABB),J=1,6),
+     3                        MBX,MBY
+ 375        FORMAT(/' ****THE GRIDS NEEDED IN TPCP24 HAVE DIFFERENT',
+     1              ' CHARACTERISTICS.  PREDICTOR NOT COMPUTED.',
+     2              ' VALUES FROM NGRIDC(,) AND MX,MY.'/
+     3              (5X,I9.9,I10.9,I10.9,I4.3,4X,6I10,4X,2I5))
+            IER=100
+            GOTO 800
+         END IF
+C
+C           CHECK THE NSLABS ARE EQUAL
+         IF(NSLABB.NE.NSLABA)THEN
+            WRITE(KFILDO,380)NSLABA,NSLABB
+ 380        FORMAT(/' ****THE GRID CHARACTERISTICS OF THE ',
+     1              '6 HR PRECIPITATION ARE DIFFERENT.',I3,2X,I3)
+            IER=100
+            GOTO 800
+         END IF
+C
+         DO I=1,ND2X3
+            FDTP(I)=FDTP(I)+FD3(I)
+            IF(FDTP(I).LT.0.)FDTP(I)=0.
+         END DO
+      END IF
+      GOTO 900
+C
+C        SET OUTPUT FIELD TO MISSING WHEN AN ERROR HAS OCCURRED.
+C 
+ 800  DO 801 J=1,ND2X3
+        FDTP(J)=9999.
+ 801  CONTINUE
+C
+ 900  RETURN
+      END

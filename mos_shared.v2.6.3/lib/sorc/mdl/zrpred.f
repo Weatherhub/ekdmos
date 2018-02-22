@@ -1,0 +1,791 @@
+      SUBROUTINE ZRPRED(KFILDO,KFIL10,IDPARS,JD,NDATE,
+     1                  NGRIDC,ND11,NSLAB,IPACK,IWORK,DATA,ND5,
+     2                  LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                  IS0,IS1,IS2,IS4,ND7,
+     4                  TWARM,TCOLD,POP,FDWB,SFCTMP,TBELOW,FDSP,ND2X3,
+     5                  ISTAV,L3264B,MISTOT,IER)
+C
+C        MAY       1999   ALLEN   TDL   MOS-2000
+C        JULY      2000   ALLEN   CHANGED TO BE ABLE TO GET PRECIP
+C                                 AMOUNTS FOR MRF,NGM, AND ETA.  ALSO
+C                                 ADDED CHECKS THAT THE USER IS LOOKING
+C                                 FOR THE RIGHT TIME FOR EACH MODEL (I.E
+C                                 AVN ON 3-HRS, MRF ON 12-HRS.  CURRENTLY
+C                                 THIS ROUTINE DOES NOT WORK FOR THE
+C                                 NGM OR THE ETA
+C        AUGUST    2000   ALLEN   TOOK OUT ALL REFERENCES TO THE NGM.  
+C                                 CHANGED MRF TO CALL FOR 2-M TEMP
+C                                 RATHER THAN 2-M WETBULB CAUSE IT'S NOT
+C                                 AVAILABLE IN THE REANALYSIS DATA.  IF WE
+C                                 DECIDE NOT TO USE THE REANALYSIS DATA FOR
+C                                 MRF PTYPE, WE WILL CHANGE IT BACK TO 2M
+C                                 WETBULB.
+C        AUGUST    2002   COSGROVE   WHEN WE SWITCHED TO THE GFS WORLD,
+C                                 THERE WAS NO LONGER 12-HR PRECIP FOR
+C                                 THE MRF.  HAD TO CHANGE ROUTINE TO 
+C                                 LOOK FOR 12-HR PCP IN THE MODEL FILE,
+C                                 BUT IF IT IS NOT FOUND, THEN CALL
+C                                 TPCP12 TO COMPUTE IT
+C        OCTOBER   2002   WEISS   CHANGED ND5 TO ND2X3
+C        MAY       2003   GLAHN   REMOVED SOME TABS; DIAGNOSTIC FORMATS;
+C                                 WHITE SPACE; INDENTION; REARRANGED
+C                                 TYPE STATEMENTS; CONFORMED TO 
+C                                 INTEGER/REAL CONVENTION OF STARTING
+C                                 LETTER; REDUCED FROM 20 TO 7 AUTOMATIC
+C                                 ARRAYS; CHANGED ND5 TO ND2X3 IN CALLS
+C                                 TO WETBULBT; CHANGED LX*LY TO ND2X3 IN
+C                                 FINAL LOOP; CHANGED 273 TO 273. AND
+C                                 270 TO 270.
+C        JUNE      2003   GLAHN   REMOVED ALTERING IDPARS(7); CHANGED 
+C                                 TEST IF(K.LE.(FDSP(I)/100.)) TO
+C                                 IF(LEVEL(K).LE.(FDSP(I)/100.)) IN 
+C                                 DO 400 LOOP
+C        JULY      2003   GLAHN   ADDED TEMP4( ) TO CALL TO WETBULBT
+C        FEBRUARY  2004   SMB     MERGED NEW DR. G VERSION WITH OPERATIONAL
+C                                 VERSION.  HERE ARE THE ADDITIONAL COMMENTS.
+C            (03-03-18    COSGROVE   ANOTHER CHANGE FOR THE GFS TRANSITION.  WE      )
+C            (                       PREVIOUSLY USED THE MODEL NUMBER TO DISTINGUISH )    
+C            (                       BETWEEN THE AVN (USE 3-HR PCP) AND THE MRF (USE )
+C            (                       12-HR PCP).  NOW THAT ALL GFS IS MODEL #8,      )
+C            (                       MODIFIED ROUTINE TO ADD MORE IDS (154, 155) AND )
+C            (                       USE FFF TO DETERMINE PCP AMT AND TEMP, NOT DD.  )
+C            (03-07-16    COSGROVE   MADE ONE LAST CHANGE TO IDS TO COVER ALL GFS    )
+C            (                       TRANSITION AND ALGORITHM FIX CHANGES.           )
+C        JANUARY   2013   SHAFER  MADE SEVERAL MODIFICATIONS TO ALLOW ZRPRED
+C                                 TO BE COMPUTED FOR THE NAM: USES THE SAME 
+C                                 VERTICAL LEVELS AS THE GFS (AFTER 10/1/98);
+C                                 USES BOUNDARY LAYER PRESSURE AS A PROXY FOR
+C                                 SFC PRESSURE (SINCE SFC PRESS IS NOT ARCHIVED
+C                                 FOR THE NAM); MODIFIED CASE STATEMENT TO FETCH
+C                                 3-H PRECIP AMOUNT FOR NAM; REMOVED ALL OLD 
+C                                 REFERENCES TO 'ETA' AND CHANGED TO 'NAM'.
+C        APRIL     2013   SHAFER  MODIFIED TO ACCOMMODATE THE ECMWF: USES THE
+C                                 SAME VERTICAL PROFILE AS THE OLDER GFS 
+C                                 (PRIOR TO 10/1/98); ADDED SECTION IN CASE
+C                                 STATEMENT TO COMPUTE 6-H PRECIP AMT FROM
+C                                 ACCUMULATED AMTS.  
+C                                                                                                  
+C
+C        PURPOSE 
+C            THIS SUBROUTINE PRODUCES A PREDICTOR THAT INDICATES
+C            WHETHER THE VERTICAL WETBULB TEMPERATURE PROFILE, IN 
+C            CONJUNCTION WITH THE SURFACE TEMPERATURE, IS
+C            CONDUCIVE TO THE OCCURRENCE OF FREEZING RAIN.
+C            THIS SUBROUTINE ALLOWS FOR THREE DIFFERENT VERTICAL
+C            PROFILES IN THE WETBULB DATA.
+C
+C            THE FOLLOWING IDPARS(1) AND IDPARS(2) ARE ACCOMMODATED:
+C
+C                      003152 - NAM PROFILE, 3-HR PCP, WETBULB
+C                      003153 - GFS PROFILE AFTER 10/1/98, 3-HR PCP, WETBULB
+C                      003154 - GFS PROFILE PRIOR TO 10/1/98, 12-HR PCP, WETBULB
+C                                (THE OLD 003155 - MRF W/ 2M TEMP IS GONE)
+C                      003156 - GFS PROFILE PRIOR TO 10/1/98, 3-HR PCP, WETBULB
+C                      003157 - ECMWF PROFILE, 6-HR PCP, WETBULB 
+C
+C            NOTE:  THIS ROUTINE DOES NOT WORK FOR THE NGM.
+C
+C        DATA SET USE
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT(PRINT) FILE.
+C                       (OUTPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM
+C                       ACCESS.(INPUT-OUTPUT)
+C
+C        VARIABLES
+C             CORE(J) = THE ARRAY TO STORE OR RETRIEVE THE DATA
+C                       IDENTIFIED IN LSTORE(,) (J=1,ND10).
+C                       WHEN CORE() IS FULL DATA ARE STORED ON DISK.
+C                       (INPUT)
+C             DATA( ) = THE ZR PREDICTOR, CALCULATED FROM THE VERTICAL
+C                       WETBULB TEMPERATURE PROFILE AND THE SURFACE 
+C                       TEMPERATURE. (OUTPUT)
+C                   I = LOOP CONTROL VARIABLE
+C           IDPARS(J) = THE PARSED, INDIVIDUAL COMPONENTS OF THE 
+C                       PREDICTOR ID CORRESPONDING TO ID() (J=1,15).
+C                       (INPUT)
+C                       J=1--CCC (CLASS OF VARIABLE),
+C                       J=2--FFF (SUBCLASS OF VARIABLE),
+C                       J=3--B (BINARY INDICATOR),
+C                       J=4--DD (DATA SOURCE, MODEL NUMBER),
+C                       J=5--V (VERTICAL APPLICATION),
+C                       J=6--LBLBLBLB (BOTTOM OF LAYER, 0 IF ONLY
+C                                      1 LAYER)
+C                       J=7--LTLTLTLT (TOP OF LAYER)
+C                       J=8--T (TRANSFORMATION)
+C                       J=9--RR (RUN TIME OFFSET, ALWAYS + AND 
+C                                BACK IN TIME)
+C                       J=10-OT (TIME APPLICATION)
+C                       J=11-OH (TIME PERIOD IN HOURS)
+C                       J=12-TAU (PROJECTION IN HOURS)
+C                       J=13-I (INTERPOLATION TYPE)
+C                       J=14-S (SMOOTHING INDICATOR)
+C                       J=15-G (GRID INDICATOR)
+C                 IER = STATUS RETURN
+C                         0 = GOOD RETURN
+C                       100 = THE TWO GRIDS NEEDED ARE NOT THE SAME SIZE
+C                       101 = GRID SIZE IS TOO BIG FOR ???(), WHOSE 
+C                             DIMENSION IS ND5.
+C                       103 = IDPARS(1) AND IDPARS(2) DO NOT INDICATE
+C                             ZRPRED.
+C                       104 = ERROR IN GFETCH GETTING SURFACE PRESSURE
+C                       200 = THE USER WAS TRYING TO USE AND NDATE
+C                             FOR WHICH PCP AMT DATA WAS NOT AVAILABLE.
+C                       SEE GFETCH FOR OTHER VALUES.
+C                       WHEN IER NE 0, DATA ARE RETURNED AS MISSING.
+C                       (INTERNAL-OUTPUT)
+C            IPACK(J) = WORK ARRAY (J=1,ND2X3). (INTERNAL)
+C              IS0(J) = MOS-2000 GRIB SECTION 0 ID'S (J=1,3).
+C                       (INTERNAL)
+C              IS1(J) = MOS-2000 GRIB SECTION 1 ID'S (J=1,22+).
+C                       (INTERNAL)
+C              IS2(J) = MOS-2000 GRIB SECTION 2 ID'S (J=1,12).
+C                       IS2(3) AND IS2(4) ARE USED BY THE CALLING
+C                       PROGRAM AS THE GRID DIMENSIONS.
+C                       (INTERNAL-OUTPUT)
+C              IS4(J) = MOS-2000 GRIB SECTION 4 ID'S (J=1,4).
+C                       (INTERNAL)
+C                 ISO = 1 FOR ISOBARIC, 2 FOR ISOHYETAL SURFACE,
+C                       3 FOR SIGMA SURFACE(INTERNAL)
+C               ISTAV = 0 SINCE THE DATA RETURNED ARE GRID DATA.
+C                       (OUTPUT)
+C            IWORK(J) = WORK ARRAY (J=1,ND2X3). (INTERNAL)
+C                   J = LOOP CONTROL VARIABLE
+C               JD(J) = THE BASIC INTEGER PREDICTOR ID (J=1,4).
+C                       THIS IS THE SAME AS ID(J), EXCEPT THAT
+C                       THE PORTIONS PERTAINING TO PROCESSING
+C                       ARE OMITTED:
+C                       B = IDPARS(3),
+C                       T = IDPARS(8),
+C                       I = IDPARS(13),
+C                       S = IDPARS(14),
+C                       G = IDPARS(15), AND
+C                       THRESH.
+C                       ID() IS USED TO HELP IDENTIFY THE BASIC MODEL
+C                       FIELDS AS READ FROM THE ARCHIVE. (INPUT)
+C              KFILDO = DEFAULT UNIT NUMBER FOR OUTPUT (PRINT) FILE.
+C                       (INPUT)
+C              KFIL10 = UNIT NUMBER OF TDL MOS-2000 FILE SYSTEM ACCESS.
+C                       (INPUT)
+C              L3264B = INTEGER WORD LENGTH IN BITS OF MACHINE BEING 
+C                       USED (EITHER 32 OR 64). (INPUT)
+C              LITEMS = THE NUMBER OF ITEMS (COLUMNS) IN LSTORE(,)
+C                       THAT HAVE BEEN USED IN THIS RUN. (INPUT)
+C         LSTORE(L,J) = THE ARRAY HOLDING INFORMATION ABOUT THE
+C                       DATA STORED (L=1,12) (J=1,LITEMS).
+C                       (INPUT-OUTPUT)
+C                       L=1,4--THE 4 ID'S FOR THE DATA.
+C                       L=5  --LOCATION OF STORED DATA.  WHEN IN CORE,
+C                              THIS IS THE LOCATION IN CORE() WHERE
+C                              THE DATA START.  WHEN ON DISK,
+C                              THIS IS MINUS THE RECORD NUMBER WHERE
+C                              THE DATA START.
+C                       L=6  --THE NUMBER OF 4-BYTE WORDS STORED.
+C                       L=7  --2 FOR DATA PACKED IN TDL GRIB, 1 FOR NOT.
+C                       L=8  --THE DATE/TIME OF THE DATA IN FORMAT
+C                              YYYYMMDDHH.
+C                       L=9  --NUMBER OF TIMES DATA HAVE BEEN RETRIEVED.
+C                       L=10 --NUMBER OF THE SLAB IN DIR(, ,L) AND
+C                              IN NGRIDC(,L) DEFINING THE
+C                              CHARACTERISTICS OF THIS GRID.
+C                       L=11 --THE NUMBER OF THE PREDICTOR IN THE SORTED
+C                              LIST IN ID(,N) (N=1,NPRED) FOR WHICH
+C                              THIS VARIABLE IS NEEDED, WHEN IT IS
+C                              NEEDED ONLY ONCE FROM LSTORE(,).
+C                              WHEN IT IS NEEDED MORE THAN ONCE, THE 
+C                              VALUE IS SET = 7777.
+C                       L=12 --USED INITIALLY IN ESTABLISHING
+C                              MSTORE(,). LATER USED AS A WAY OF
+C                              DETERMINING WHETHER TO KEEP THIS
+C                              VARIABLE.
+C            MDPARS() = PARSED ID USED IN SUBROUTINE PRSID1 FOR
+C                       SUBROUTINE WETBULBT
+C               MISSP = PRIMARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       0 WHEN DATA ARE NOT PACKED. (INTERNAL)
+C               MISSS = SECONDARY MISSING VALUE INDICATOR.  RETURNED AS
+C                       0 WHEN DATA ARE NOT PACKED.  (INTERNAL)
+C              MISTOT = TOTAL NUMBER OF TIMES A MISSING INDICATOR
+C                       HAS BEEN ENCOUNTERED IN UNPACKING GRIDS.
+C                       (INPUT-OUTPUT)
+C              NBLOCK = THE BLOCK SIZE IN WORDS OF THE MOS-2000 RANDOM
+C                       DISK FILE. (INPUT)
+C               ND2X3 = DIMENSION OF SEVERAL VARIABLES.  
+C                       ALL WORK ARRAYS ARE DIMENSIONED ND2X3. (INPUT)
+C                 ND5 = DIMENSION OF IPACK(), IWORK() AND DATA( ). 
+C                       (INPUT)
+C                 ND7 = DIMENSION OF IS0(),IS1(),IS2(), AND IS4().
+C                       NOT ALL LOCATIONS ARE USED. (INPUT)
+C                 ND9 = THE SECOND DIMENSION OF LSTORE(,). (INPUT)
+C                ND10 = DIMENSION OF CORE(). (INPUT)
+C                ND11 = MAXIMUM NUMBER OF GRID COMBINATIONS THAT CAN
+C                       BE DEALT WITH ON THIS RUN.  LAST DIMENSION 
+C                       OF NGRIDC(,). (INPUT)
+C               NDATE = THE DATE/TIME FOR WHICH PREDICTOR IS NEEDED.
+C                       (INPUT)
+C              NFETCH = INCREMENTED EACH TIME GFETCH IS ENTERED.
+C                       IT IS A RUNNING COUNT FROM THE BEGINNING OF
+C                       THE PROGRAM.  THIS COUNT IS MAINTAINED IN
+C                       CASE THE USER NEEDS IT(DIAGNOSTICS, ETC.).
+C                       (OUTPUT)
+C         NGRIDC(L,M) = HOLDS THE GRID CHARACTERISTICS (L=1,6) FOR
+C                       EACH GRID COMBINATION (M=1,NGRID).
+C                       L=1--MAP PROJECTION NUMBER (3=LAMBERT, 5=
+C                            POLAR STEREOGRAPHIC).
+C                       L=2--GRID LENGTH IN METERS.
+C                       L=3--LATITUDE AT WHICH THE GRID LENGTH IS
+C                            CORRECT *1000.
+C                       L=4--GRID ORIENTATION IN DEGREES * 1000.
+C                       L=5--LATITUDE OF LL CORNER IN DEGREES *1000.
+C                       L=6--LONGITUDE OF LL CORNER IN DEGREES
+C                            *1000.
+C               NPACK = 2 FOR TDL GRIB PACKED DATA; 1 FOR NOT PACKED
+C                       THIS IS RETURNED FROM GFETCH. (INTERNAL)
+C               NSLAB = THE NUMBER OF THE SLAB IN DIR(, ,) AND
+C                       IN NGRIDC(,) DEFINING THE CHARACTERISTICS
+C                       OF THIS GRID. (OUTPUT)
+C              NTIMES = THE NUMBER OF TIMES, INCLUDING THIS ONE,
+C                       THAT THE RECORD HAS BEEN FETCHED.  THIS IS 
+C                       STORED IN LSTORE(9,). (INTERNAL)
+C              NWORDS = NUMBER OF WORDS RETURNED IN DATA().  THIS 
+C                       IS RETURNED FROM GFETCH (INTERNAL)
+C        1         2         3         4         5         6         7 X
+C
+C     NON-SYSTEM SUBROUTINES USED
+C         GFETCH,PRSID1,WETBULBT,TPCP3,TPCP12
+C
+      IMPLICIT NONE
+C     
+      INTEGER JD(4),IDPARS(15)
+      INTEGER IPACK(ND5),IWORK(ND5)
+      INTEGER ICONTU(ND2X3),ISFCFD(ND2X3),INVERTW(ND2X3),INVERTC(ND2X3)
+C        ICONTU( ), ISFCFD( ), INVERTW( ), AND INVERTC( ) ARE AUTOMATIC
+C        ARRAYS
+      INTEGER LSTORE(12,ND9)
+      INTEGER NGRIDC(6,ND11)
+      INTEGER IS0(ND7),IS1(ND7),IS2(ND7),IS4(ND7)
+      INTEGER MD(4),MDPARS(15),MD1(4),MD2(4),LEVEL(11) 
+      INTEGER ICCC,IFFF,LX,LY,NSLAB1,NUMLEV,MISSP,MISSS,MISTOT,
+     1        I,K,IER,ISO,ISTAV,J,KFILDO,KFIL10,L3264B,LITEMS,
+     2        NBLOCK,ND2X3,ND5,ND7,ND9,ND10,ND11,
+     3        NDATE,NFETCH,NPACK,NSLAB,
+     4        NTIMES,NWORDS,IER1,IER2
+C
+      REAL DATA(ND5)
+      REAL FDWB(ND2X3),SFCTMP(ND2X3),TBELOW(ND2X3),FDSP(ND2X3),
+     1     TCOLD(ND2X3),TWARM(ND2X3),POP(ND2X3)
+      REAL TEMP1(ND2X3),TEMP2(ND2X3),TEMP3(ND2X3),TEMP4(ND2X3)
+C        TEMP1( ), TEMP2( ), TEMP3( ), AND TEMP4( ) ARE AUTOMATIC
+C        ARRAYS.
+      REAL CORE(ND10)
+      REAL TCRIT1,TCRIT2
+C
+      DATA ICCC/3/,
+     1     IFFF/110/,
+     2     TCRIT1/276./,
+     3     TCRIT2/273./
+C
+C        INITIALIZE ALL THE VARIABLES INCLUDING THE WORK ARRAYS AND 
+C        THE FINAL PRODUCT
+C
+      IER  =0
+      ISTAV=0
+C
+      ISO = 1
+C
+C        MAKE SURE THE REQUESTED PREDICTOR IS THE ZRPRED PREDICTOR
+C
+      IF((IDPARS(1).NE.003).OR.((IDPARS(2).NE.152).AND.
+     1    (IDPARS(2).NE.153).AND.(IDPARS(2).NE.154).AND.
+     2    (IDPARS(2).NE.156).AND.(IDPARS(2).NE.157)))THEN
+	 IER=103
+	 WRITE(KFILDO,100)(JD(J),J=1,4),IER
+ 100     FORMAT(/' ****IDPARS(1) AND IDPARS(2) DO NOT INDICATE',
+     1           ' ZRPRED.',
+     2          /'     PREDICTOR ',I9.9,I10.9,I10.9,I4.3,' NOT',
+     3           ' ACCOMMODATED IN ZRPRED.  IER = ',I3)
+	 GO TO 800
+      ENDIF
+C
+C        NOW CHECK TO SEE WHICH VERTICAL PROFILE IS REQUESTED FOR THIS
+C        VARIABLE AND SET THE LEVEL AND COUNTING INDEX ACCORDINGLY
+C        ALSO, CHECK THAT THE USER IS ASKING FOR AN APPROPRIATE NDATE 
+C        FOR THAT MODEL
+C
+C        CHECK TO SEE WHICH VERTICAL PROFILE WAS REQUESTED
+C
+C        GFS VERTICAL PROFILE PRIOR TO 10/1/98
+C        ECMWF VERTICAL PROFILE 
+C
+       IF((IDPARS(2).EQ.156).OR.(IDPARS(2).EQ.154).OR.
+     &    (IDPARS(2).EQ.157))THEN
+          LEVEL(1)=1000
+          LEVEL(2)=925
+          LEVEL(3)=850
+          LEVEL(4)=700
+          LEVEL(5)=500
+          NUMLEV=5
+          IF(IDPARS(2).EQ.154)THEN
+           IF(MOD(MOD(NDATE,100),12).NE.0)THEN
+            WRITE(KFILDO,120)NDATE
+ 120        FORMAT(/'****NDATE, ',I10,' FOR ZRPRED MUST',
+     &            ' BE 00Z,OR 12Z.')
+            IER=200
+            GO TO 800
+           ENDIF
+          ELSEIF(IDPARS(2).EQ.156)THEN
+           IF(MOD(MOD(NDATE,100),3).NE.0)THEN
+            WRITE(KFILDO,130)NDATE
+ 130        FORMAT(/'****NDATE, ',I10,', FOR ZRPRED MUST',
+     &             ' BE A MULTIPLE OF 3.')
+            IER=200
+            GO TO 800
+           ENDIF
+          ENDIF
+C
+C        NAM VERTICAL PROFILE
+C        GFS VERTICAL PROFILE AFTER 10/1/98
+C
+       ELSE IF((IDPARS(2).EQ.152).OR.(IDPARS(2).EQ.153))THEN
+          LEVEL(1)=1000
+          LEVEL(2)=975
+          LEVEL(3)=950
+          LEVEL(4)=925
+          LEVEL(5)=900
+          LEVEL(6)=850
+          LEVEL(7)=800
+          LEVEL(8)=750
+          LEVEL(9)=700
+          LEVEL(10)=600
+          LEVEL(11)=500
+          NUMLEV=11
+           IF(MOD(MOD(NDATE,100),3).NE.0)THEN
+            WRITE(KFILDO,150)NDATE
+ 150        FORMAT(/'****NDATE, ',I10,', FOR ZRPRED MUST',
+     &             ' BE A MULTIPLE OF 3.')
+            IER=200
+            GO TO 800
+           ENDIF
+C
+        ENDIF
+C
+C        FIRST CHECK THE 2M WETBULB TEMPERATURE FOR THE AVN OR 2M 
+C        TEMPERATURE FOR THE MRF AT EACH GRIDPOINT TO SEE IF IT IS
+C        BELOW OUR VALUE FOR FREEZING.  IF IT IS NOT, THERE CAN NOT BE
+C        FROZEN PCP AND YOU SHOULD SKIP THE REST OF THE ALGORITHM
+C        FOR THAT POINT AND SET THE VALUE OF ZRPRED TO 9999.
+C
+C        GET 2M WETBULB
+C
+C           CREATE ID FOR 2M WETBULB
+C
+         MD(1)= ICCC * 1000000 + 111000 + IDPARS(4)
+         MD(2)= 2
+         MD(3)= IDPARS(9) * 1000000 + IDPARS(12)
+         MD(4)= 0
+C
+C           CALL WETBULBT TO GET THE 2M WETBULB TEMPERATURE.
+C
+         CALL PRSID1(KFILDO,MD,MDPARS)
+         CALL WETBULBT(KFILDO,KFIL10,MDPARS,MD,NDATE,
+     1                 NGRIDC,ND11,NSLAB,IPACK,IWORK,FDWB,ND2X3,
+     2                 LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                 IS0,IS1,IS2,IS4,ND7,
+     4                 DATA,TEMP1,TEMP2,TEMP3,TEMP4,ND2X3,
+     5                 ISTAV,L3264B,MISTOT,IER)
+C
+      IF(IER.NE.0)GOTO 800
+C
+C        RECORD THE GRID DIMENSIONS TO USE FOR VERIFICATION IN LATER
+C        CALLS TO WETBULBT.
+C
+      LX = IS2(3)
+      LY = IS2(4)
+      NSLAB1 = NSLAB
+C
+C        GO THROUGH THE GRID AND CHECK IF THE SURFACE TEMPERATURE IS 
+C        BELOW THE "FREEZING THRESHOLD".  IF NOT, SET THE ICONTU FLAG
+C        TO 0 FOR NO.  ALSO CALCULATE A VALUE FOR SFCTMP( ).  A
+C        TEMPERATURE LESS THAN 273 YIELDS A VALUE OF SFCTMP( ) = 1,
+C        A TEMPERATURE GREATER THAN 276 YIELDS 0, AND A TEMPERATURE
+C        BETWEEN 273 AND 276 GIVES A SLIDING VALUE FROM 0 TO 1.
+C
+      DO I=1,LX*LY
+         ICONTU(I)=1
+C
+	 IF(FDWB(I).GT.276.)THEN
+	    ICONTU(I)=0
+         ENDIF
+C
+	 IF(FDWB(I).GE.TCRIT1)FDWB(I)=TCRIT1
+	 IF(FDWB(I).LE.TCRIT2)FDWB(I)=TCRIT2
+	 SFCTMP(I)=1. - ((FDWB(I)-TCRIT2)/(TCRIT1-TCRIT2))
+      ENDDO
+C
+C        GET THE SURFACE PRESSURE FOR EACH OF THE GRIDPOINTS.
+C
+C        SURFACE PRESSURE IS NOT ARCHIVED FOR THE NAM SO THE 0-30MB
+C        BOUNDARY LAYER PRESSURE IS APPROXIMATED AS THE SURFACE
+C        PRESSURE BY ADDING 15MB (1500PA) TO IT.
+C
+      IF(IDPARS(2).EQ.152)THEN
+C
+C        FOR NAM FETCH PRESS(BL1)
+C
+         MD1(1)=001107*1000 + IDPARS(4)
+         MD1(2)=000000970
+         MD1(3)=IDPARS(9)*1000000 + IDPARS(12)
+         MD1(4)=0
+C
+         CALL GFETCH(KFILDO,KFIL10,MD1,7777,LSTORE,ND9,LITEMS,
+     1               IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FDSP,ND2X3,
+     2               NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3               NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,
+     4               1,IER1)
+         IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+C        IF NO ERROR ADD 15MB TO THE BL PRESSURE
+C
+	 IF(IER1.EQ.0) THEN
+            LX=IS2(3)
+            LY=IS2(4)
+            DO I=1,LX*LY
+               FDSP(I)=FDSP(I)+1500.
+            ENDDO
+	 ENDIF
+C	 
+      ELSE
+C
+C        FOR OTHER MODELS FETCH SURFACE PRESSURE
+C
+         MD1(1)=001100000 + IDPARS(4)
+         MD1(2)=0
+         MD1(3)=IDPARS(9)*1000000 + IDPARS(12)
+         MD1(4)=0
+C
+         CALL GFETCH(KFILDO,KFIL10,MD1,7777,LSTORE,ND9,LITEMS,
+     1               IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,FDSP,ND2X3,
+     2               NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3               NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,
+     4               1,IER1)
+         IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+      ENDIF
+C     
+      IF(IER1.EQ.0) GOTO 180
+C
+      WRITE(KFILDO,FMT='(/1X,''****ERROR IN GFETCH (IER='',I3,
+     1      '') WHEN ATTEMPTING TO FETCH SURFACE PRESSURE '', 
+     2      I9.9,I10.9,I10.9,I4.3)') IER1, (MD1(J),J=1,4)
+      IER=104
+      GOTO 800
+C
+C        CHECK THE GRID DIMENSIONS.
+C
+  180 IF((NSLAB.NE.NSLAB1).OR.(IS2(3).NE.LX).OR.(IS2(4).NE.LY))THEN
+         WRITE(KFILDO,200)NSLAB1,NSLAB
+  200    FORMAT(/,' ****THE GRID CHARACTERISTICS OF THE SURFACE',
+     1            ' PRESSURE ARE DIFFERENT AT 200 IN ZRPRED.',
+     2            I3,2X,I3)
+         IER=100
+         GOTO 800
+      ENDIF
+C        
+C        GET THE APPROPRIATE PRECIP AMOUNT FOR THE MODEL REQUESTED.
+C        IF IT IS NON-ZERO, SET THE POP FLAG TO 1.  
+C        NOTE:  IN FALL 2002, THERE CEASED TO BE 12-HR MRF PCP SO 
+C        ROUTINE WAS CHANGED TO COMPUTE A 12 FROM TWO 6S IF A 12 
+C        CANNOT BE FOUND.
+C
+      SELECT CASE(IDPARS(2))
+C        
+C        NAM AND GFS THROUGH 84 HOURS
+C
+         CASE(152,153,156)
+C
+C        SET UP THE MD ARRAY FOR 3 HR PRECIP AMT 
+C
+	    MD1(1)=003205000 + IDPARS(4)
+            MD1(2)=0
+            MD1(3)=IDPARS(9)*1000000 + IDPARS(12)
+            MD1(4)=0
+C
+C        CALL TPCP3 TO GET THE 3-HR PRECIP 
+C
+            CALL PRSID1(KFILDO,MD1,MDPARS)
+            CALL TPCP3(KFILDO,KFIL10,MDPARS,MD1,NDATE,
+     1                 NGRIDC,ND11,NSLAB,IPACK,IWORK,DATA,ND5,
+     2                 LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                 IS0,IS1,IS2,IS4,ND7,
+     4                 TEMP1,ND2X3,
+     5                 ISTAV,L3264B,MISTOT,IER)
+            GO TO 205
+C
+C        GFS BEYOND 84 HOURS, OR ORIGINAL MRF (USE 12-HR)
+C
+         CASE(154)
+C
+C        SET UP THE MD ARRAY FOR 12 HR PRECIP AMT 
+C
+            MD1(1) = 003220000 + IDPARS(4)
+            MD1(2) = 0
+            MD1(3) = IDPARS(9) * 1000000 + IDPARS(12)
+            MD1(4) = 0
+C
+C        CALL GFETCH TO GET THE PCP AMOUNT
+C
+            CALL GFETCH(KFILDO,KFIL10,MD1,7777,LSTORE,ND9,LITEMS,
+     1                  IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,DATA,ND2X3,
+     2                  NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3                  NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,
+     4                  1,IER)
+            IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+C        JCM--CHANGED .OR. TO .AND. BELOW 
+C
+            IF((IER.NE.0).AND.(IER.NE.47)) GOTO 800
+C
+            IF(IER.EQ.47)THEN
+C
+C        CALL TPCP12 TO COMPUTE THE 12-H FROM 2 6-H AMOUNTS.
+C
+               CALL PRSID1(KFILDO,MD1,MDPARS)
+               CALL TPCP12(KFILDO,KFIL10,MDPARS,MD1,NDATE,
+     1                     NGRIDC,ND11,NSLAB,IPACK,IWORK,DATA,ND5,
+     2                     LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                     IS0,IS1,IS2,IS4,ND7,
+     4                     TEMP1,TEMP2,TEMP3,ND2X3,
+     5                     ISTAV,L3264B,MISTOT,IER)
+            ENDIF
+C
+C        ECMWF - PRECIP AMOUNT IS ACCUMULATED FROM INITIAL TIME
+C                AVAILABLE EVERY 6 HOURS.  THE AMOUNT FOR THE 6-H
+C                PERIOD ENDING AT PROJ IDPARS(12) IS CALCULATED
+C                BY SUBTRACTING THE ACCUMULATED AMOUNT AT PROJ 6
+C                HOURS PRIOR FROM THE AMOUNT AT PROJ IDPARS(12).
+C
+         CASE(157)
+C
+C        SET UP THE ID FOR PROJ IDPARS(12)-6 
+C
+            MD1(1) = 003290000 + IDPARS(4)
+            MD1(2) = 0
+            MD1(3) = IDPARS(9) * 1000000 + IDPARS(12)-6
+            MD1(4) = 0
+C
+C        CALL GFETCH TO GET THE ACCUMULATED AMT AT IDPARS(12)-6
+C        AMOUNT IS RETURNED IN ARRAY TEMP1.
+C
+            IF(IDPARS(12).LE.6) THEN
+               TEMP1=0.
+               GOTO 201
+            ENDIF
+C
+            CALL GFETCH(KFILDO,KFIL10,MD1,7777,LSTORE,ND9,LITEMS,
+     1                  IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,TEMP1,ND2X3,
+     2                  NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3                  NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,
+     4                  1,IER1)
+            IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+            IF(IER1.EQ.0) GOTO 201
+C
+            WRITE(KFILDO,FMT='(/1X,''****ERROR IN GFETCH (IER='',I3,
+     1           '') WHEN ATTEMPTING TO FETCH ACCUM PRECIP AMT '', 
+     2           I9.9,I10.9,I10.9,I4.3)') IER1, (MD1(J),J=1,4)
+            IER=104
+            GOTO 800
+C
+C        SET UP THE ID FOR PROJ IDPARS(12)
+C
+ 201        MD1(1) = 003290000 + IDPARS(4)
+            MD1(2) = 0
+            MD1(3) = IDPARS(9) * 1000000 + IDPARS(12)
+            MD1(4) = 0
+C
+C        CALL GFETCH TO GET THE ACCUMULATED AMT AT PROJ IDPARS(12)
+C        AMOUNT IS RETURNED IN ARRAY TEMP2.
+C
+            IF(IDPARS(12).LE.6) THEN
+               TEMP2=0.
+               GOTO 202
+            ENDIF
+C
+            CALL GFETCH(KFILDO,KFIL10,MD1,7777,LSTORE,ND9,LITEMS,
+     1                  IS0,IS1,IS2,IS4,ND7,IPACK,IWORK,TEMP2,ND2X3,
+     2                  NWORDS,NPACK,NDATE,NTIMES,CORE,ND10,
+     3                  NBLOCK,NFETCH,NSLAB,MISSP,MISSS,L3264B,
+     4                  1,IER2)
+            IF(MISSP.NE.0)MISTOT=MISTOT+1
+C
+            IF(IER2.EQ.0) GOTO 202
+C
+            WRITE(KFILDO,FMT='(/1X,''****ERROR IN GFETCH (IER='',I3,
+     1           '') WHEN ATTEMPTING TO FETCH ACCUM PRECIP AMT '', 
+     2           I9.9,I10.9,I10.9,I4.3)') IER2, (MD1(J),J=1,4)
+            IER=104
+            GOTO 800
+C
+C        CALCULATE AMOUNT FOR 6-H PERIOD
+C
+ 202        LX=IS2(3)
+            LY=IS2(4)
+            DO I=1,LX*LY
+               DATA(I)=TEMP2(I)-TEMP1(I)
+            ENDDO      
+C
+      END SELECT
+C
+ 205  IF(IER.NE.0) GOTO 800
+C
+C        CHECK THE GRID DIMENSIONS
+C
+      IF((NSLAB.NE.NSLAB1).OR.(IS2(3).NE.LX).OR.(IS2(4).NE.LY))THEN
+         WRITE(KFILDO,210)NSLAB1,NSLAB
+ 210     FORMAT(/,' ****THE GRID CHARACTERISTICS OF THE PRECIP AMT',
+     &            ' ARE DIFFERENT AT 210 IN ZRPRED.',I3,2X,I3)
+         IER=100
+         GOTO 800
+      ENDIF
+C
+      DO I=1,LX*LY
+         ISFCFD(I)=0
+         INVERTW(I)=0
+         INVERTC(I)=0
+         TCOLD(I)=9999.
+         TWARM(I)=-9999.
+         TBELOW(I)=9999.
+         POP(I)=0.
+C
+	 IF(DATA(I).GT.0.)THEN
+	   POP(I)=1.
+         ENDIF
+C
+      ENDDO
+C
+C        NOW GO THROUGH THE UPPER LEVELS ONE LEVEL AT A TIME.  AT EACH 
+C        ONE DECIDE WHAT REGION OF THE SOUNDING THE POINT IS IN AND
+C        ACT ACCORDINGLY.
+C
+      DO 410 K=1,NUMLEV
+C
+C           CREATE AN ID FOR THE WETBULB TEMPERATURE AT THAT LEVEL
+C
+	 MD2(1) = ICCC * 1000000 + IFFF * 1000 + IDPARS(4)
+	 MD2(2) = LEVEL(K)
+	 MD2(3) = IDPARS(9)*1000000 +IDPARS(12)
+         MD2(4) = 0
+
+	 CALL PRSID1(KFILDO,MD2,MDPARS)
+         CALL WETBULBT(KFILDO,KFIL10,MDPARS,MD2,NDATE,
+     1                 NGRIDC,ND11,NSLAB,IPACK,IWORK,FDWB,ND2X3,
+     2                 LSTORE,ND9,LITEMS,CORE,ND10,NBLOCK,NFETCH,
+     3                 IS0,IS1,IS2,IS4,ND7,
+     &                 DATA,TEMP1,TEMP2,TEMP3,TEMP4,ND2X3,
+     4                 ISTAV,L3264B,MISTOT,IER)
+         IF(IER.NE.0)GOTO 800
+C
+C           CHECK THE GRID DIMENSIONS AGAINST THE ORIGINAL ONES.
+C
+         IF((NSLAB.NE.NSLAB1).OR.(IS2(3).NE.LX).OR.(IS2(4).NE.LY))THEN
+	    WRITE(KFILDO,300)NSLAB1,NSLAB,LEVEL(K)
+ 300        FORMAT(/,' ****THE CHARACTERISTICS OF THE GRIDS ARE',
+     1               ' DIFFERENT AT 300 IN ZRPRED.',I3,2X,I3,
+     2               ' LEVEL = ',I4)
+	    IER = 100
+	    GOTO 800
+         ENDIF
+C
+C           GO THROUGH THE GRID ONE POINT AT A TIME.  FIRST CHECK TO
+C           SEE IF THE SURFACE WAS BELOW 'FREEZING' WHEREBY YOU WOULD
+C           CONTINUE PROCESSING THAT POINT. OTHERWISE, LOOP TO THE NEXT 
+C           GRIDPOINT
+C
+         DO 400 I=1,LX*LY
+	    IF(ICONTU(I).EQ.0) GO TO 400
+C
+C              THE NEXT STEP IS TO CHECK WHETHER THIS PRESSURE LEVEL IS 
+C              ABOVE THE SURFACE.  ONCE A PRESSURE LEVEL IS LOWER THAN
+C              THE SURFACE PRESSURE AT THE GRID POINT, ISFCFD( ) WILL
+C              BE SET TO 1
+C
+            IF(ISFCFD(I).EQ.0)THEN
+C
+	       IF(LEVEL(K).LE.(FDSP(I)/100.))THEN
+C
+	          ISFCFD(I)=1
+               ELSE
+	          GO TO 400
+               ENDIF
+C
+            ENDIF
+C
+C              NOW DETERMINE IN WHICH REGION THIS POINT LIES IN THE
+C              VERTICAL PROFILE AND SET THE PROPER INDICES ACCORDINGLY.
+C
+C                 REGION 1 - TEMPERATURE DECREASES WITH HEIGHT.
+C
+            IF((FDWB(I).LE.TBELOW(I)).AND.(INVERTW(I).EQ.0))THEN
+	       TBELOW(I)=FDWB(I)
+C   
+C                 REGION 2 - TEMPERATURE INCREASES WITH HEIGHT.
+C
+	    ELSE IF(FDWB(I).GT.TBELOW(I))THEN
+C
+               IF(INVERTW(I).EQ.0)THEN
+	          TCOLD(I)=TBELOW(I)
+	          INVERTW(I)=1
+	          TWARM(I)=FDWB(I)
+	          TBELOW(I)=FDWB(I)
+               ELSEIF(INVERTW(I).EQ.1)THEN
+	          TWARM(I)=FDWB(I)
+	          TBELOW(I)=FDWB(I)
+               ENDIF
+C
+C                 REGION 3 - TEMPERATURE DECREASES WITH HEIGHT ABOVE
+C                            AN INVERSION LAYER.
+C
+            ELSE IF((FDWB(I).LT.TBELOW(I)).AND.(INVERTW(I).EQ.1))THEN
+C
+               IF(INVERTC(I).EQ.0)THEN
+	          TWARM(I)=TBELOW(I)
+	          INVERTC(I)=1
+	          TBELOW(I)=FDWB(I)
+               ELSE
+	          TBELOW(I)=FDWB(I)
+               ENDIF
+C
+            ENDIF
+C
+ 400     CONTINUE
+C
+ 410  CONTINUE
+C
+C        NOW CALCULATE THE VALUE FOR DATA.  IF THE SURFACE WAS COLD
+C        AND THE FREEZING PRECIP VERTICAL PROFILE EXISTS, ASSIGN A VALUE
+C        FROM >0 TO 1 DEPENDING ON THE SURFACE TEMPERATURE.
+C        FURTHERMORE, IF CONDITIONS ARE RIGHT FOR FREEZING PRECIPITATION
+C        AND THE MODEL IS CALLING FOR PRECIPITATION (POP=1.), ADD THAT
+C        VALUE TO DATA.
+C
+      DO I=1,LX*LY
+C
+	 IF((ICONTU(I).EQ.1).AND.(INVERTW(I).EQ.1).AND.
+     &	                (TCOLD(I).LT.273.).AND.(TWARM(I).GE.270.))THEN
+	     DATA(I)=SFCTMP(I)*INVERTW(I)+POP(I)
+          ELSE
+	     DATA(I)=0.
+          ENDIF
+C
+       ENDDO
+C
+       GO TO 900
+C
+C         IF THERE WAS A PROBLEM IN GFETCH OR WETBULBT, IT WOULD COME
+C         HERE TO SET DATA TO MISSING.
+C
+ 800   DO I=1,ND2X3
+          DATA(I)=9999.
+       ENDDO
+C
+ 900  RETURN
+      END
+

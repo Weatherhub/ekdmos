@@ -1,0 +1,632 @@
+      SUBROUTINE CNVTWX(IEUNIT,NDATE1,ICAO,NSTA,IWXTP,TTYPE,WXELM,
+     &                  NWXELM)
+C$$$  SUBPROGRAM DOCUMENTATION BLOCK                                    
+C                                                                       
+C SUBPROGRAM:    CNVTWX    CONVERTS VARIOUS WEATHER GROUPS FOUND IN THE SFC OBS
+C			   TABLE FROM CHARACTER TO NUMERICAL REPRESENTATION.
+C
+C PROGRAMMER:    COOK, K.  ORG: W/OSD211     DATE: 10/02/97
+C                                                                       
+C ABSTRACT:      THIS SUBROUTINE WILL CONVERT THE PRESENT WEATHER GROUPS, THE
+C	         TYPE OF OBSERVING UNIT GROUP, AND THE CLOUD AMOUNT GROUPS 
+C                RECEIVED FROM THE SURFACE OBSERVATION TABLE INTO NUMERICAL 
+C	         REPRESENTATION. NOTE... THE NUMERICAL REPRESENTATION ASSIGNED
+C	         TO THE PRESENT WEATHER GROUP WILL CONFORM WITH NCEP BUFR.
+C                                                                       
+C PROGRAM HISTORY LOG:                                                  
+C                10/02/97  COOK, K.                       
+C                01/13/98  COOK, K.    INSTALLED NEW DECODING OF ICE PELLETS 
+C				       TO BE IMPLEMENTED 11/05/98. PE WILL BE 
+C				       CHANGED TO PL TO REMOVE POSSIBLE 
+C				       OFFENSIVE OBSERVATIONS WHEN RAIN AND 
+C				       SLEET ARE OBSERVED.
+C		 11/24/98 ALLEN, R.    PUT IN A CHECK TO SET BLANK PRESENT 
+C				       WEATHER ELEMENTS TO "0" FOR MANU,AO2,
+C				       AO2A STATIONS, AND "9999" FOR ALL OTHERS.
+C		 12/09/98 ALLEN, R.    ASSIGNED THE NUMBER '7' TO WFO STATIONS
+C				       THAT ONLY REPORT SCD SNOW DATA IN THE 
+C				       HOURLY TABLE.
+C		 01/21/99 ALLEN, R.    ADDED IN +BLSN, HEAVY BLOWING SNOW.
+C		 02/02/99 ALLEN, R.    ADDED IN +TSGR, T-STORM W/HEAVY HAIL.
+C                                                                       
+C USAGE:                                                                
+C                                                                       
+C SEE BELOW FOR MDL STANDARDS                                         
+C                                                                       
+C     PROGRAM: CNVTWX
+C                                                                       
+C        OCTOBER 02, 1997  COOK, K.    MDL    CRAY 
+C                                                                       
+C        PURPOSE: 
+C            TO CONVERT THE PRESENT WEATHER GROUPS, THE TYPE OF OBSERVING
+C	     UNIT GROUP, AND THE CLOUD AMOUNT GROUPS RECEIVED FROM THE SURFACE 
+C	     OBSERVATION TABLE INTO NUMERICAL REPRESENTATION. NOTE... THE 
+C	     NUMERICAL REPRESENTATION ASSIGNED TO THE PRESENT WEATHER GROUP 
+C	     WILL CONFORM WITH NCEP BUFR.
+C                                                                       
+C        DATA SET USE:
+C            NONE
+C
+C        VARIABLES:                                          
+C              IEUNIT = UNIT OUTPUT FILE (WORK).
+C	                0 = NO ERRORS WRITTEN, 0 < WRITE OUT ERRORS.
+C	       NDATE1 = OBSERVATION DATE (INPUT).
+C	       ICAO() = LIST OF STATIONS (INPUT).
+C	         NSTA = NUMBER OF STATIONS IN THE STATION LIST (INPUT).
+C		IWXTP = REQUESTED ELEMENT TO DECODE (INPUT).
+C             WXELM() = PRESENT WEATHER GROUP TO BE CONVERTED TO ITS NUMERICAL
+C		 	REPRESENTATIVE (INPUT).
+C	     NWXELM() = THE PRESENT WEATHER GROUP AFTER CONVERSION IN ITS
+C			NUMERICAL FORM TO BE PASSED BACK TO THE CALLING PROGRAM
+C			(OUTPUT).
+C		 NERR = 9101 = WEATHER ELEMENT NOT RECOGNIZED. (OUTPUT).
+C		        9102 = INSTRUMENTATION TYPE NOT RECOGNIZED.
+C		        9103 = CLOUD AMOUNT NOT RECOGNIZED.
+C                                                                       
+C        SUBPROGRAMS CALLED:
+C	     NONE
+C                                                                       
+C        PROGRAM STOPS                                                  
+C	     400 - IMPROPER DECODING FLAG RECEIVED FROM THE CALLING SUBROUTINE.
+C                                                                       
+C        REMARKS                                                        
+C	     THIS SUBROUTINE WILL BE CALLED ONCE FOR A LIST OF STATIONS
+C	     FOR EACH SPECIFIC DATE AND FOR EACH CONVERSION DESIRED. 
+C                                                                       
+C        ATTRIBUTES:                                                           
+C            LANGUAGE: FORTRAN 90
+C            MACHINE:  CRAY                                                   
+C$$$                                                                    
+      IMPLICIT NONE
+      INTEGER 		:: NSTA,NWXELM(NSTA),NDATE1,IEUNIT,IWXTP,NERR,
+     &J,KFILDO
+      CHARACTER(LEN=8)	:: ICAO(NSTA)
+      CHARACTER(LEN=*) 	:: WXELM(NSTA),TTYPE(NSTA)
+      DATA KFILDO/6/
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
+C        LOOK AT THE REQUEST RECEIVED FROM THE CALLING PROGRAM. FIND THE 
+C	 REQUESTED CONVERSION BELOW AND PREFORM THE PROPER CONVERSION. 
+C	 IF AN IMPROPER REQUEST HAS BEEN RECEIVED FROM THE CALLING PROGRAM, 
+C	 STOP THE PROGRAM AND WRITE AN ERROR MESSAGE TO THE UNIT OUTPUT FILE.
+C
+      SELECT CASE (IWXTP)
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
+C	 LOOP THROUGH THE STATIONS GIVE AND CONVERT THE CHARACTER DESCRIPTION 
+C	 INTO A NUMERIC, FOLLOWING THE NCEP BUFR NUMERICAL REPRESENTATION. 
+C
+      CASE (1)
+        DO J=1,NSTA
+          NERR=0
+          SELECT CASE (WXELM(J))
+C
+C	 SMOKE.
+C
+          CASE ("FU     ")
+            NWXELM(J)=4
+C
+C	 HAZE.
+C
+          CASE ("HZ     ")	 
+            NWXELM(J)=5
+C
+C	 DUST.
+C
+          CASE ("DU     ") 
+            NWXELM(J)=6
+C
+C	 BLOWING DUST (ALSO BLSA: BLOWING SAND).
+C
+          CASE ("BLDU   ")  
+            NWXELM(J)=7
+C
+C	 DUST WHIRLS OR SAND WHIRLS (ALSO VCPO; DUST OR SAND VICINITY... 
+C	 BETWEEN 5 AND 10 MILES FROM THE STATION).
+C
+          CASE ("PO     ")
+            NWXELM(J)=8     
+C
+C	 DUSTSTORM BETWEEN 5 AND 10 MILES FROM THE STATION (ALSO VCSS; 
+C	 SANDSTORM VICINITY).
+C
+          CASE ("VCDS   ") 
+            NWXELM(J)=9 
+C
+C	 MIST, VISIBILITY AT LEAST 5/8SM BUT NOT MORE THAN 6SM.
+C
+          CASE ("BR     ")
+            NWXELM(J)=10 
+C
+C	 SPRAY
+C
+          CASE ("PY     ") 
+            NWXELM(J)=11
+C
+C	 SHALLOW/GROUND FOG. VISIBILITY AT 6FT AGL SHALL BE 5/8 SM OR MORE 
+C	 AND VIS BELOW 6FT AGL SHALL BE < 5/8SM. CONVERTED TO FG GROUP
+C	 SPECIFICATIONS OF VISIBILITY < 5/8SM AND NUMERIC OF 45.
+C	 
+          CASE ("MIFG   ")
+            NWXELM(J)=45 
+C
+C	 SHOWERS WITHIN SIGHT, BETWEEN 5 AND 10 MILES FROM THE STATION.
+C
+          CASE ("VCSH   ") 
+            NWXELM(J)=16    
+C
+C	 THUNDERSTORMS WITH NO PRECIPITATION (ALSO VCTS; THUNDERSTORM
+C	 VICINITY).
+C
+          CASE ("TS     ") 
+            NWXELM(J)=17   
+C
+C	 SQUALLS
+C
+          CASE ("SQ     ") 
+            NWXELM(J)=18
+C
+C	 TORNADO OR WATERSPOUT (ALSO FC; FUNNEL CLOUD).
+C
+          CASE ("+FC    ") 
+       	    NWXELM(J)=19
+C
+C	 LIGHT (-DS) OR MODERATE DUSTSTORM (ALSO (-SS)SS; (LIGHT)MODERATE
+C	 SANDSTORM.
+C
+          CASE ("DS     ")  
+            NWXELM(J)=31   
+C
+C	 HEAVY DUSTSTORM (ALSO +SS; HEAVY SANDSTORM).
+C
+          CASE ("+DS    ") 
+            NWXELM(J)=34
+C
+C	 DRIFTING SNOW *** ONLY ONE INTENSITY IN OBS WORLD.
+C
+          CASE ("DRSN   ")
+            NWXELM(J)=36 
+C
+C	 HEAVY DRIFTING SNOW *** NOT OBSERVABLE IN THE OBS WORLD.
+C
+          CASE ("+DRSN  ")
+            NWXELM(J)=37
+C
+C	 BLOWING SNOW (ALSO, BLSN, BLSA, DRSN FOR AUTO).
+C
+          CASE ("BLSN   ") 
+            NWXELM(J)=38
+C
+C	HEAVY BLOWING SNOW (+BLSN)
+C
+	  CASE ("+BLSN  ")
+	    NWXELM(J)=39
+C
+C	 FOG BETWEEN 5 AND 10 MILES FROM THE STATION.
+C
+          CASE ("VCFG   ")
+            NWXELM(J)=40
+C
+C	 PATCHY FOG
+C
+          CASE ("BCFG   ") 
+            NWXELM(J)=41
+C
+C	 PARTIAL FOG.
+C
+          CASE ("PRFG   ")
+            NWXELM(J)=44
+C
+C	 FOG VISIBILITY < 5/8SM.
+C
+          CASE ("FG     ") 
+            NWXELM(J)=45
+C
+C	 LIGHT, CONTINUOUS DRIZZLE.
+C
+          CASE ("-DZ    ")
+            NWXELM(J)=51
+C
+C	 MODERATE, CONTINUOUS DRIZZLE.
+C
+          CASE ("DZ     ")
+            NWXELM(J)=53
+C
+C	 HEAVY, CONTINUOUS DRIZZLE.
+C
+          CASE ("+DZ    ") 
+            NWXELM(J)=55
+C
+C	 LIGHT FREEZING DRIZZLE.
+C
+          CASE ("-FZDZ  ") 
+            NWXELM(J)=56
+C
+C	 MODERATE OR HEAVY (+FZDZ), FREEZING DRIZZLE.
+C
+          CASE ("FZDZ   ") 
+            NWXELM(J)=57
+C
+C	 LIGHT RAIN AND DRIZZLE (ALSO -DZRA).
+C
+          CASE ("-RADZ  ")
+            NWXELM(J)=58
+C
+C	 MODERATE OR HEAVY RAIN AND DRIZZLE (+RADZ, DZRA, +DZRA).
+C
+          CASE ("RADZ   ")
+            NWXELM(J)=59     
+C
+C	 LIGHT RAIN.
+C
+          CASE ("-RA    ")
+            NWXELM(J)=61
+C
+C	 MODERATE RAIN.
+C
+          CASE ("RA     ")
+            NWXELM(J)=63
+C
+C	 HEAVY RAIN.
+C
+          CASE ("+RA    ")
+    	    NWXELM(J)=65
+C
+C 	 LIGHT FREEZING RAIN.
+C
+          CASE ("-FZRA  ")
+ 	    NWXELM(J)=66
+C
+C	 MODERATE OR HEAVY FREEZING RAIN (+FZRA).
+C
+          CASE ("FZRA   ") 
+            NWXELM(J)=67
+C
+C	 LIGHT RAIN OR DRIZZLE AND SNOW (-SNRA, -DZSN, -SNDZ).
+C
+          CASE ("-RASN  ")
+            NWXELM(J)=68  
+C
+C	 MODERATE OR HEAVY RAIN OR DRIZZLE AND SNOW (SNRA, +RASN, +SNRA, DZSN,
+C	 SNDZ, +DZSN, +SNDZ).
+C
+          CASE ("RASN   ")
+   	    NWXELM(J)=69    
+C
+C	 LIGHT CONTINUOUS SNOWFALL.
+C
+          CASE ("-SN    ")
+	    NWXELM(J)=71
+C
+C	 MODERATE CONTINUOUS SNOWFALL.
+C
+          CASE ("SN     ")
+	    NWXELM(J)=73
+C
+C	 HEAVY CONTINUOUS SNOWFALL.
+C
+          CASE ("+SN    ")
+	    NWXELM(J)=75
+C
+C	 ICE CRYSTALS.
+C
+          CASE ("IC     ") 
+            NWXELM(J)=76
+C
+C	 SNOW GRAINS ALL INTENSITIES (-SG, +SG).
+C
+          CASE ("SG     ")
+            NWXELM(J)=77
+C
+C	 ICE PELLETS ALL INTENSITIES (-PE, +PE).
+C
+          CASE ("PE     ") 
+            NWXELM(J)=79
+C
+C	 ICE PELLETS ALL INTENSITIES (-PL, +PL) AFTER 11/05/98.
+C
+          CASE ("PL     ")
+            NWXELM(J)=79
+C
+C	 LIGHT RAINSHOWER.
+C
+          CASE ("-SHRA  ")
+            NWXELM(J)=80
+C
+C	 MODERATE OR HEAVY RAINSHOWER (+SHRA).
+C
+          CASE ("SHRA   ") 
+            NWXELM(J)=81
+C
+C	 LIGHT SHOWERS OF RAIN AND SNOW (-SHSNRA).
+C
+          CASE ("-SHRASN") 
+	    NWXELM(J)=83
+C
+C	 MODERATE OR HEAVY SHOWERS OF RAIN AND SNOW (SHSNRA, +SHRASN, +SHSNRA).
+C
+          CASE ("SHRASN ") 
+	    NWXELM(J)=84
+C
+C	 LIGHT SNOWSHOWERS.
+C
+          CASE ("-SHSN  ")
+            NWXELM(J)=85
+C
+C	 MODERATE OR HEAVY SNOWSHOWERS (+SHSN).
+C
+          CASE ("SHSN   ") 
+            NWXELM(J)=86
+C
+C	 SMALL HAIL < 1/4 INCH IN DIAMETER OR SNOWPELLETS.
+C
+          CASE ("GS     ") 
+            NWXELM(J)=88
+C
+C	 HAIL EQUAL TO OR GREATER THAN 1/4 INCH.
+C
+          CASE ("GR     ")
+            NWXELM(J)=90
+C
+C 	 THUNDERSTORMS WITH LIGHT OR MODERATE RAIN OR SNOW (-TSRA, -TSSN,
+C	 TSSN).
+C
+          CASE ("TSRA   ")
+            NWXELM(J)=95 
+C
+C	 THUNDERSTORM WITH HAIL (TSGS).
+C
+          CASE ("TSGR   ")
+            NWXELM(J)=96
+C
+C	 THUNDERSTORM WITH HEAVY RAIN OR SNOW (+TSSN).
+C
+          CASE ("+TSRA  ")
+            NWXELM(J)=97
+C
+C	 THUNDERSTORN WITH DUST OR SANDSTORM (TSSS, +TSSS, +TSDS).
+C
+          CASE ("TSDS   ")
+            NWXELM(J)=98 
+C
+C	 UNKNOWN PRECIPITATION FROM AUTOMATED SIGHTS.
+C
+          CASE ("UP     ")
+            NWXELM(J)=121
+C
+C	 HEAVY FREEZING DRIZZLE, AUTO ONLY.
+C
+          CASE ("+FZDZ  ")
+            NWXELM(J)=156
+C
+C	 HEAVY FREEZING RAIN, AUTO ONLY.
+C
+          CASE ("+FZRA  ")
+            NWXELM(J)=166
+C
+C	 LIGHT ICE PELLETS, AUTO ONLY.
+C
+          CASE ("-PE    ")
+            NWXELM(J)=174
+C
+C	 LIGHT ICE PELLETS, AUTO ONLY AFTER 11/05/98.
+C
+          CASE ("-PL    ") 
+            NWXELM(J)=174
+C
+C	 HEAVY ICE PELLETS, AUTO ONLY.
+C
+          CASE ("+PE    ")
+            NWXELM(J)=176
+C
+C	 HEAVY ICE PELLETS, AUTO ONLY AFTER 11/05/98.
+C
+          CASE ("+PL    ")  
+            NWXELM(J)=176
+C
+C	 HEAVY RAINSHOWERS, AUTO ONLY (ASOS CANNOT OBSERVE, MUST BE AUGMENTED).
+C
+          CASE ("+SHRA  ")
+            NWXELM(J)=183 
+C
+C	 HEAVY SNOWSHOWERS, AUTO ONLY (ASOS CANNOT OBSERVE MUST BE AUGMENTED).
+C
+          CASE ("+SHSN  ") 
+            NWXELM(J)=187
+C
+C	 THUNDERSTORM, HEAVY WITH HAIL
+C
+	  CASE ("+TSGR  ")
+	    NWXELM(J)=196
+C
+C	 VOLCANIC ASH.
+C
+          CASE ("VA     ")
+            NWXELM(J)=204
+C
+C	 BLOWING SPRAY,
+C
+          CASE ("BLPY   ") 
+            NWXELM(J)=207
+C
+C	 DRIFTING DUST (DRSS; DRIFTING SAND).
+C
+          CASE ("DRDU   ")
+            NWXELM(J)=208
+C
+C	 CLEAR OR NOT AVAILABLE. FOR MANU,AO2,AO2A SET TO "0", OTHERWISE "9999"
+C
+          CASE ("       ")
+	   SELECT CASE(TTYPE(J))
+	    CASE("MANU","AO2 ","AO2A")
+	    NWXELM(J)=0
+	    CASE DEFAULT 
+            NWXELM(J)=9999
+	   END SELECT
+C
+C	 WEATHER ELEMENT NOT RECOGNIZED.
+C
+          CASE DEFAULT
+            NWXELM(J)=9999
+            NERR=9101
+            IF(IEUNIT .NE. 0) THEN
+              WRITE(IEUNIT,100) ICAO(J),NDATE1,NERR,WXELM(J)
+ 100          FORMAT(' ',A8,T11,':',I10,T23,':',I4,T30,':',A7,T40,
+     &               ':9999',T47,':WX ELEMENT NOT RECOGNIZED')
+            ENDIF
+          END SELECT
+        END DO
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
+C        CONVERT OBSERVATIONAL INSTRUMENTATION TYPE INTO A NUMERICAL
+C	 REPRESENTATION.
+C
+      CASE (2)
+        DO J=1,NSTA
+          NERR=0
+          SELECT CASE (WXELM(J))
+C
+C	 MANUAL STATION.
+C
+          CASE ("MANU")
+            NWXELM(J)=1
+C
+C	 AUGMENTED ASOS NWS.
+C
+          CASE ("AO2A")	
+            NWXELM(J)=2
+C
+C	 STAND ALONE ASOS NWS.
+C
+          CASE ("AO2 ")
+            NWXELM(J)=3
+C
+C	 AUGMENT ASOS FAA.
+C
+          CASE ("AO1A")
+            NWXELM(J)=4
+C
+C	 STAND ALONE ASOS FAA.
+C
+          CASE ("AO1 ")
+            NWXELM(J)=5
+C
+C	 AUTOMATED STATION INCLUDES AMOS, AWOS, RMOS, AUTB.
+C
+          CASE ("AUTO")	
+            NWXELM(J)=6
+C
+C	 WFO SITES (ONLY REPORT SCD SNOWFALL AND SNOWDEPTH).
+C
+	  CASE ("WFO ")
+	    NWXELM(J)=7
+C
+C	 OBSERVATION MISSING. 
+C
+          CASE ("    ")
+            NWXELM(J)=9
+C
+C	 UNKNOWN STATION TYPE.
+C
+          CASE DEFAULT		
+            NWXELM(J)=9
+            NERR=9102
+            IF(IEUNIT .NE. 0) THEN
+              WRITE(IEUNIT,200)ICAO(J),NDATE1,NERR,WXELM(J)
+ 200          FORMAT(' ',A8,T11,':',I10,T23,':',I4,T30,':',A4,T40,
+     &               ':9',T47,':UNKNOWN STATION TYPE')
+            ENDIF
+          END SELECT
+        END DO
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
+C        CONVERT THE CLOUD AMOUNT GROUP INTO A NUMERICAL REPRESENTATION.
+C
+      CASE (3)
+        DO J=1,NSTA
+          NERR=0
+          SELECT CASE (WXELM(J))
+C
+C	 CLEAR SKIES AUTOMATED OBSERVATION CLR BLO 120.
+C
+          CASE ("CLR")
+            NWXELM(J)=0
+C
+C	 CLEAR SKIES MANUAL OBSERVATION.
+C
+          CASE ("SKC")	
+            NWXELM(J)=1
+C
+C	 >0 BUT </= 2/8 OCTAS COVERAGE.
+C
+          CASE ("FEW")
+            NWXELM(J)=2
+C
+C	 3/8 - 4/8.
+C
+          CASE ("SCT")
+            NWXELM(J)=3
+C
+C	 5/8 - 7/8.
+C
+          CASE ("BKN")
+            NWXELM(J)=6
+C
+C	 8/8.
+C
+          CASE ("OVC") 	
+            NWXELM(J)=8
+C
+C	 < 8/8, SKY PARTIALLY OBSCURED (SCT000 AND BKN000).
+C
+          CASE ("POB")	
+            NWXELM(J)=9
+C
+C	 SKY TOTALLY OBSCURED.
+C
+          CASE ("OB ")		
+            NWXELM(J)=10
+C
+C	 NO CLOUD AMOUNT REPORTED.
+C
+          CASE ("   ")
+            NWXELM(J)=9999
+C
+C	 CLOUD AMOUNT NOT RECOGNIZED.
+C
+          CASE DEFAULT
+            NERR=9103
+            NWXELM(J)=9999
+            IF(IEUNIT .NE. 0) THEN
+              WRITE(IEUNIT,300)ICAO(J),NDATE1,NERR,WXELM(J)
+ 300          FORMAT(' ',A8,T11,':',I10,T23,':',I4,T30,':',A3,T40,
+     &               ':9999',T47,':UNKNOWN CLOUD AMOUNT')
+            ENDIF
+          END SELECT
+        END DO
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
+C	 STOP PROGRAM HERE IF AN IMPROPER DECODING REQUEST WAS RECEIVED FROM 
+C	 THE CALLING PROGRAM.
+C
+      CASE DEFAULT
+        WRITE(KFILDO,400)
+ 400    FORMAT(/' ****IMPROPER DECODE FLAG RECEIVED IN CNVTWX.'
+     &         /'     OBSPREP STOPPED IN SUBROUTINE CNVTWX.')
+      CALL W3TAGE('OBSPREP.F')
+      STOP 400
+      END SELECT
+C
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+C
+C        END SUBROUTINE CNVTWX  
+C
+      RETURN
+      END

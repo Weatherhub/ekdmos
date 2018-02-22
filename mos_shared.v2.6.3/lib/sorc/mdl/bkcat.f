@@ -1,0 +1,40 @@
+      SUBROUTINE BKCAT(KFILDO,DATA,BK,CAT,ICAT,DATA1) 
+C   
+C        MARCH 1981   GLAHN   TDL   IBM 360/195
+C        APRIL 1998   GLAHN   TDL   ADAPTED FOR UNIX AND MOS-2000
+C  
+C        PURPOSE     
+C            TO PUT A VARIABLE INTO CATEGORIES AND ASSIGN A VALUE TO 
+C            EACH CATEGORY.  
+C       
+C        DATA SET USE   
+C            KFILDO - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C    
+C        VARIABLES 
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C                DATA = VALUE TO PUT INTO CATEGORIES.  (INPUT) 
+C               BK(J) = BREAK POINTS (J=1,ICAT).  (INPUT) 
+C              CAT(J) = CATEGORY VALUES TO ASSIGN (J=1,ICAT). 
+C                       (INPUT)     
+C                ICAT = NUMBER OF CATEGORIES TO PUT VARIABLE INTO. 
+C                       (INPUT)  
+C               DATA1 = CATEGORY VALUE.  (OUTPUT)  
+C      
+      DIMENSION BK(ICAT),CAT(ICAT) 
+C     
+      ICATM1=ICAT-1  
+      IF(ICAT.GE.2)GO TO 105 
+      WRITE(KFILDO,101)ICAT 
+ 101  FORMAT(/' ****ICAT = ',I5,' LT 2 IN BKCAT.  STOP AT 101.') 
+      STOP 101   
+C        
+ 105  DO 110 J=1,ICATM1 
+      IF(DATA.GT.BK(J).AND.DATA.LE.BK(J+1))GO TO 120 
+ 110  CONTINUE  
+C
+      DATA1=CAT(ICAT) 
+      RETURN 
+C
+ 120  DATA1=CAT(J) 
+      RETURN  
+      END  

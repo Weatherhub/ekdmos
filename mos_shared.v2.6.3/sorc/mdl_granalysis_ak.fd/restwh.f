@@ -1,0 +1,60 @@
+      SUBROUTINE RESTWH(KFILDO,XDATA,LTAG,NSTA,
+     1                  WHOLD,LTAGWH,LOCWH,NWITH,IER)
+C
+C        NOVEMBER  2007   GLAHN   MDL   MOS-2000
+C
+C        PURPOSE
+C            TO RESTORE THE DATA WITHHELD BY WITHOL2 IN U405A.
+C
+C        DATA SET USE
+C            KFILDO   - UNIT NUMBER OF OUTPUT (PRINT) FILE.  (OUTPUT)
+C
+C        VARIABLES
+C              KFILDO = UNIT NUMBER OF OUTPUT (PRINT) FILE.  (INPUT)
+C            XDATA(K) = ON INPUT, HOLDS THE DATA ANALYZED (K=1,NSTA).
+C                       ON OUTPUT, HOLDS ALL THE DATA, INCLUDING THE
+C                       WITHHELD DATA.  (INPUT/OUTPUT)
+C             LTAG(K) = DENOTES USE OF DATA IN DATA(K) FOR STATION K
+C                       (K=1,NSTA).
+C                       0 = USE DATA.
+C                       1 = STATION OUTSIDE RADIUS OF INFLUENCE FOR
+C                           AREA BEING ANALYZED OR MISSING DATUM.
+C                       2 = STATION LOCATION UNKNOWN.
+C                       IWITH VALUES ARE RESTORED BY RESTWH.
+C                       (INPUT/OUTPUT)
+C                NSTA = NUMBER OF STATIONS OR LOCATIONS BEING DEALT
+C                       WITH.  (INPUT)
+C            WHOLD(K) = ARRAY HOLDING DATA WITHHELD (K=1,NWITH).
+C                       (INPUT).
+C           LTAGWH(K) = THE VALUES OF THE WITHHELD STATIONS ARE SAVED
+C                       IN LTAGWH( ) AND ARE RESTORED IN LTAG( ) 
+C                       (K=1,NWITH).  (INPUT)
+C            LOCWH(K) = THE LOCATIONS OF THE WITHHELD STATIONS IN
+C                       THE LIST IN THE ORDER OF WITHHOLDING
+C                       (K=1,NWITH).  (INPUT)
+C               NWITH = NUMBER OF STATIONS WITHHELD.  (INPUT)
+C                 IER = 0 = GOOD RETURN.  (OUTPUT)
+C        1         2         3         4         5         6         7 X
+C
+C        NONSYSTEM SUBROUTINES CALLED
+C            NONE.
+C
+      DIMENSION XDATA(NSTA),LTAG(NSTA)
+      DIMENSION WHOLD(NWITH),LTAGWH(NWITH),LOCWH(NWITH)
+C
+      IER=0
+C
+      DO 150 K=1,NWITH
+C
+      XDATA(LOCWH(K))=WHOLD(K)
+      LTAG(LOCWH(K))=LTAGWH(K)
+C
+CD        WRITE(KFILDO,110)K,XDATA(LOCWH(K)),LTAG(LOCWH(K))
+CD110     FORMAT(' AT 110 IN RESTWH--K,XDATA(LOCWH)),LTAG(LOCWH(K))',
+CD    1           I7,F7.2,I4)
+C
+ 150  CONTINUE
+C
+      RETURN
+      END
+
